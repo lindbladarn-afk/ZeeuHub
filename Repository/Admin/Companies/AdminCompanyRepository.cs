@@ -1,5 +1,7 @@
 namespace Repository;
 
+//Test 1521
+
 public class AdminCompanyRepository : IAdminCompanyRepository
 {
     private readonly string _sqlConnectionString;
