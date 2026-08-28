@@ -1,0 +1,31 @@
+@* Renders the actionable insight list inside an Action Center dashboard card. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.ActionCenterCardViewModel ?? new();
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.LazyLoadUrl))
+{
+    <div class="dashboard-lazy-card-shell"
+         data-dashboard-lazy-card="true"
+         data-url="@Model.LazyLoadUrl"
+         data-card-id="@Model.Id">
+        <div class="card kpi-card p-2 h-100 dashboard-lazy-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="dashboard-card-title m-0"><i class="fa fa-bolt text-warning me-2"></i>ZeeU Action Center</h5>
+                <span class="action-center-badge fw-bold text-white">...</span>
+            </div>
+            <div class="dashboard-lazy-card-body">
+                <div class="dashboard-skeleton-line dashboard-skeleton-line-lg"></div>
+                <div class="dashboard-skeleton-line"></div>
+                <div class="dashboard-skeleton-line"></div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="ac-compact h-100">
+        @await Html.PartialAsync("~/Views/Shared/Components/ActionCenter/Default.cshtml", card.ActionCenter)
+    </div>
+}

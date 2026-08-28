@@ -1,0 +1,317 @@
+@model WebApp.ViewModels.Admin.PortalEventLogsPageVm
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Technical event logs"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="admin-page dashboard-readable module-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Admin</div>
+            <h1 class="module-page-title">@Localizer["Technical event logs"]</h1>
+            <div class="module-page-subtitle">@Localizer["Operational errors captured from the portal, filterable by time, module and company."]</div>
+        </div>
+        <div class="d-flex flex-column align-items-lg-end gap-2">
+            <div class="module-page-meta">@Localizer["Last"] @Model.DaysBack @Localizer["days"]</div>
+            <form method="post" asp-controller="Admin" asp-action="CreateTestEventLog">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="daysBack" value="@Model.DaysBack" />
+                <input type="hidden" name="module" value="@Model.Module" />
+                <input type="hidden" name="severity" value="@Model.Severity" />
+                <input type="hidden" name="companyId" value="@Model.CompanyId" />
+                <input type="hidden" name="search" value="@Model.Search" />
+                <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                <button type="submit" class="btn btn-outline-secondary btn-sm">@Localizer["Create test log"]</button>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["AdminEventLogsMessage"] is string message)
+    {
+        var messageType = TempData["AdminEventLogsMessageType"] as string;
+        var alertClass = string.Equals(messageType, "success", StringComparison.OrdinalIgnoreCase)
+            ? "alert alert-success"
+            : "alert alert-info";
+
+        <div class="@alertClass" role="alert">@message</div>
+    }
+
+    <div class="card kpi-card p-2 mb-2">
+        <form method="get" asp-controller="Admin" asp-action="EventLogs" class="row g-2 align-items-end">
+            <div class="col-lg-2 col-md-4">
+                <label class="form-label">@Localizer["Period"]</label>
+                <select class="form-select" name="daysBack">
+                    @foreach (var days in new[] { 1, 7, 30, 90 })
+                    {
+                        <option value="@days" selected="@(Model.DaysBack == days ? "selected" : null)">@days</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <label class="form-label">@Localizer["Module"]</label>
+                <select class="form-select" name="module">
+                    <option value="">@Localizer["All modules"]</option>
+                    @foreach (var option in Model.AvailableModules)
+                    {
+                        <option value="@option.Value" selected="@(string.Equals(Model.Module, option.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@option.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <label class="form-label">@Localizer["Severity"]</label>
+                <select class="form-select" name="severity">
+                    <option value="">@Localizer["All severities"]</option>
+                    @foreach (var option in Model.AvailableSeverities)
+                    {
+                        <option value="@option.Value" selected="@(string.Equals(Model.Severity, option.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@option.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label">@Localizer["Company"]</label>
+                <select class="form-select" name="companyId">
+                    <option value="">@Localizer["All companies"]</option>
+                    @foreach (var option in Model.AvailableCompanies)
+                    {
+                        <option value="@option.CompanyId" selected="@(Model.CompanyId == option.CompanyId ? "selected" : null)">@option.Label</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label">@Localizer["Search"]</label>
+                <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="@Localizer["Message, route, user or company"]" />
+            </div>
+            <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">@Localizer["Apply filters"]</button>
+                <a asp-controller="Admin" asp-action="EventLogs" class="btn btn-outline-secondary">@Localizer["Reset"]</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-2 mb-2">
+        <div class="col-lg-3 col-sm-6">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@Localizer["Events"]</div>
+                <div class="metric-value">@Model.TotalEvents</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@Localizer["Last 24h"]</div>
+                <div class="metric-value">@Model.EventsLast24Hours</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@Localizer["Modules"]</div>
+                <div class="metric-value">@Model.DistinctModules</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@Localizer["Companies"]</div>
+                <div class="metric-value">@Model.DistinctCompanies</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-2 module-table-shell">
+        <div class="dashboard-card-title mb-2">@Localizer["Latest events"]</div>
+        <div class="table-responsive telemetry-table module-table">
+            <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Time"]</th>
+                        <th>@Localizer["Module"]</th>
+                        <th>@Localizer["Action"]</th>
+                        <th>@Localizer["Company"]</th>
+                        <th>@Localizer["Severity"]</th>
+                        <th>@Localizer["User"]</th>
+                        <th>@Localizer["Message"]</th>
+                        <th class="text-end">Åtgärder</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Latest)
+                    {
+                        var modalId = $"event-log-modal-{item.Id:N}";
+                        <tr>
+                            <td class="text-nowrap">@item.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@item.Module</td>
+                            <td>@item.Action</td>
+                            <td>
+                                <div>@(string.IsNullOrWhiteSpace(item.CompanyName) ? "-" : item.CompanyName)</div>
+                                @if (item.JeevesCompanyCode.HasValue)
+                                {
+                                    <div class="small text-muted">Jeeves @item.JeevesCompanyCode</div>
+                                }
+                            </td>
+                            <td><span class="badge bg-danger-subtle text-danger-emphasis">@item.Severity</span></td>
+                            <td>@(string.IsNullOrWhiteSpace(item.UserEmail) ? "-" : item.UserEmail)</td>
+                            <td class="text-break">@item.Message</td>
+                            <td class="text-nowrap text-end">
+                                <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-portal btn-portal-outline"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#@modalId">
+                                        View
+                                    </button>
+                                    <form asp-controller="Admin"
+                                          asp-action="DeleteEventLog"
+                                          method="post"
+                                          class="d-inline"
+                                          onclick="event.stopPropagation();">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="daysBack" value="@Model.DaysBack" />
+                                        <input type="hidden" name="module" value="@Model.Module" />
+                                        <input type="hidden" name="severity" value="@Model.Severity" />
+                                        <input type="hidden" name="companyId" value="@Model.CompanyId" />
+                                        <input type="hidden" name="search" value="@Model.Search" />
+                                        <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                                        <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="event.stopPropagation(); return confirm('Ta bort denna fellogg?');">
+                                            @Localizer["Delete"]
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                    }
+                    @if (!Model.Latest.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">@Localizer["No events found for the current filters."]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.LatestTotalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+                <div class="admin-row-meta">
+                    Sida @Model.LatestPage av @Model.LatestTotalPages
+                </div>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Paginering event logs">
+                    <a class="btn btn-outline-secondary @(Model.LatestPage <= 1 ? "disabled" : "")"
+                       asp-action="EventLogs"
+                       asp-route-daysBack="@Model.DaysBack"
+                       asp-route-module="@Model.Module"
+                       asp-route-severity="@Model.Severity"
+                       asp-route-companyId="@Model.CompanyId"
+                       asp-route-search="@Model.Search"
+                       asp-route-latestPage="@(Model.LatestPage - 1)"
+                       asp-route-latestPageSize="@Model.LatestPageSize">Föregående</a>
+                    <a class="btn btn-outline-secondary @(Model.LatestPage >= Model.LatestTotalPages ? "disabled" : "")"
+                       asp-action="EventLogs"
+                       asp-route-daysBack="@Model.DaysBack"
+                       asp-route-module="@Model.Module"
+                       asp-route-severity="@Model.Severity"
+                       asp-route-companyId="@Model.CompanyId"
+                       asp-route-search="@Model.Search"
+                       asp-route-latestPage="@(Model.LatestPage + 1)"
+                       asp-route-latestPageSize="@Model.LatestPageSize">Nästa</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @foreach (var item in Model.Latest)
+    {
+        var modalId = $"event-log-modal-{item.Id:N}";
+        <div class="modal fade admin-event-log-modal" id="@modalId" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h2 class="modal-title">@item.Module</h2>
+                            <div class="module-page-meta">@item.Action</div>
+                        </div>
+                        <button type="button"
+                                class="btn btn-portal btn-portal-outline admin-event-log-modal-close"
+                                data-bs-dismiss="modal"
+                                data-dismiss="modal">
+                            @Localizer["Close"]
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["Time"]</div>
+                                    <div>@item.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["Severity"]</div>
+                                    <div><span class="badge bg-danger-subtle text-danger-emphasis">@item.Severity</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["Company"]</div>
+                                    <div>@(string.IsNullOrWhiteSpace(item.CompanyName) ? "-" : item.CompanyName)</div>
+                                    <div class="module-page-meta">@(item.JeevesCompanyCode.HasValue ? $"Jeeves {item.JeevesCompanyCode}" : "-")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["User"]</div>
+                                    <div>@(string.IsNullOrWhiteSpace(item.UserEmail) ? "-" : item.UserEmail)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <div class="card kpi-card p-2">
+                                    <div class="dashboard-card-title">@Localizer["Message"]</div>
+                                    <div>@item.Message</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["Request path"]</div>
+                                    <div class="text-break">@(string.IsNullOrWhiteSpace(item.RequestPath) ? "-" : item.RequestPath)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="dashboard-card-title">@Localizer["Correlation"]</div>
+                                    <div class="text-break">@(string.IsNullOrWhiteSpace(item.CorrelationId) ? "-" : item.CorrelationId)</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card kpi-card p-2">
+                                    <div class="dashboard-card-title">@Localizer["Additional data"]</div>
+                                    <pre class="mb-0">@(string.IsNullOrWhiteSpace(item.AdditionalData) ? "-" : item.AdditionalData)</pre>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card kpi-card p-2">
+                                    <div class="dashboard-card-title">@Localizer["Exception"]</div>
+                                    <pre class="mb-0">@(string.IsNullOrWhiteSpace(item.Exception) ? "-" : item.Exception)</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

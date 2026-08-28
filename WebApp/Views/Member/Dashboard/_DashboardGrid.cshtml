@@ -1,0 +1,45 @@
+@* Renders the replaceable dashboard grid used by both the full page and in-place layout refreshes. *@
+@model IReadOnlyList<WebApp.Models.Dashboard.DashboardCardViewModel>
+
+<div class="row g-3 dashboard-grid" data-dashboard-grid>
+    @foreach (var card in Model.OrderBy(x => x.SortOrder))
+    {
+        <div class="@card.ColumnCssClass dashboard-widget-shell"
+             data-dashboard-widget-id="@card.Id"
+             data-dashboard-widget-size="@card.Size.ToString().ToLowerInvariant()">
+            <div class="dashboard-widget-toolbar" data-dashboard-drag-surface aria-label="Ändra @card.Title">
+                <div class="dashboard-widget-toolbar__identity">
+                    <span class="dashboard-widget-drag-handle" aria-hidden="true" title="Dra till en ny plats">
+                        <i class="fa fa-arrows" aria-hidden="true"></i>
+                    </span>
+                    <span class="dashboard-widget-toolbar__title">@card.Title</span>
+                </div>
+                <div class="dashboard-widget-toolbar__actions">
+                    <button type="button" class="btn btn-sm btn-portal btn-portal-outline" data-dashboard-move="up" aria-label="Flytta @card.Title upp">
+                        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-portal btn-portal-outline" data-dashboard-move="down" aria-label="Flytta @card.Title ned">
+                        <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                    </button>
+                    <select class="form-select form-select-sm" data-dashboard-size aria-label="Storlek på @card.Title">
+                        @foreach (var size in card.SupportedSizes)
+                        {
+                            var value = size.ToString().ToLowerInvariant();
+                            var label = size switch
+                            {
+                                WebApp.Models.Dashboard.DashboardWidgetSize.Full => "Full bredd",
+                                WebApp.Models.Dashboard.DashboardWidgetSize.Wide => "Bred",
+                                _ => "Liten"
+                            };
+                            <option value="@value" selected="@(card.Size == size ? "selected" : null)">@label</option>
+                        }
+                    </select>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-dashboard-remove aria-label="Ta bort @card.Title">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            @await Html.PartialAsync("Dashboard/_DashboardCardContent", card)
+        </div>
+    }
+</div>

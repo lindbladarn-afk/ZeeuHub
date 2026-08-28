@@ -1,0 +1,122 @@
+[
+  {
+    "id": "TX-001",
+    "date": "2025-12-15",
+    "amount": 9265.00,
+    "currency": "SEK",
+    "reference": "462166596",
+    "endToEndId": "25121502000133081",
+    "debtorName": "Birgitta Andersson",
+    "remittance": "CINV 462166596"
+  },
+  {
+    "id": "TX-002",
+    "date": "2025-12-15",
+    "amount": 61125.00,
+    "currency": "SEK",
+    "reference": "462162595",
+    "endToEndId": "25121502000133083",
+    "debtorName": "Karin Ljungh",
+    "remittance": "CINV 462162595"
+  },
+  {
+    "id": "TX-003",
+    "date": "2025-12-15",
+    "amount": 322.00,
+    "currency": "SEK",
+    "reference": "462147299",
+    "endToEndId": "25121502000133091",
+    "debtorName": "AB Bygg Selå",
+    "remittance": "CINV 462147299"
+  },
+  {
+    "id": "TX-004",
+    "date": "2025-12-15",
+    "amount": 66507.00,
+    "currency": "SEK",
+    "reference": "462140195",
+    "endToEndId": "25121502000133074",
+    "debtorName": "Näslund Erik",
+    "remittance": "CINV 462140195"
+  },
+  {
+    "id": "TX-005",
+    "date": "2025-12-15",
+    "amount": 459.00,
+    "currency": "SEK",
+    "reference": "462198698",
+    "endToEndId": "25121502000133077",
+    "debtorName": "Jan Sandell",
+    "remittance": "CINV 462198698"
+  },
+  {
+    "id": "TX-006",
+    "date": "2025-12-15",
+    "amount": 7392.00,
+    "currency": "SEK",
+    "reference": "462176496",
+    "endToEndId": "25121502000133082",
+    "debtorName": "Thomas Jönsson",
+    "remittance": "CINV 462176496"
+  },
+  {
+    "id": "TX-007",
+    "date": "2025-12-15",
+    "amount": 1199.00,
+    "currency": "SEK",
+    "reference": "462198599",
+    "endToEndId": "25121502000133073",
+    "debtorName": "Markenberg Barbro",
+    "remittance": "CINV 462198599"
+  },
+  {
+    "id": "TX-008",
+    "date": "2025-12-15",
+    "amount": 1006.00,
+    "currency": "SEK",
+    "reference": "462156696",
+    "endToEndId": "25121502000133086",
+    "debtorName": "Staf Susanne",
+    "remittance": "CINV 462156696"
+  },
+  {
+    "id": "TX-009",
+    "date": "2025-12-15",
+    "amount": 48607.00,
+    "currency": "SEK",
+    "reference": "462157298",
+    "endToEndId": "25121502000133088",
+    "debtorName": "Lennart Ek",
+    "remittance": "CINV 462157298"
+  },
+  {
+    "id": "TX-010",
+    "date": "2025-12-15",
+    "amount": 794.00,
+    "currency": "SEK",
+    "reference": "462165796",
+    "endToEndId": "25121502000133089",
+    "debtorName": "Susanne Gustafsson",
+    "remittance": "CINV 462165796"
+  },
+  {
+    "id": "TX-011",
+    "date": "2025-12-15",
+    "amount": 153633.00,
+    "currency": "SEK",
+    "reference": "462138793",
+    "endToEndId": "25121502000133084",
+    "debtorName": "Kajsa Walter",
+    "remittance": "CINV 462138793"
+  },
+  {
+    "id": "TX-012",
+    "date": "2025-12-15",
+    "amount": 3315.00,
+    "currency": "SEK",
+    "reference": "4008 50 45019",
+    "endToEndId": "20251215200053510435",
+    "debtorName": "Nordea",
+    "remittance": "Garantiavgift 4008 50 45019"
+  }
+]

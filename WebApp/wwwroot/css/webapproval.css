@@ -1,0 +1,90 @@
+/* Shared shell styles for Web Approval detail pages. */
+.webapproval-module {
+    color: var(--hub-page-text);
+}
+
+.webapproval-module .approval-shell {
+    overflow: hidden;
+}
+
+.webapproval-module .approval-meta-label {
+    color: var(--hub-page-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.webapproval-module .approval-meta-value {
+    color: var(--hub-page-heading);
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.webapproval-module .approval-meta-note {
+    color: var(--hub-page-muted);
+}
+
+.webapproval-module .approval-row-article {
+    color: var(--hub-page-heading);
+    font-weight: 800;
+}
+
+.webapproval-module .approval-row-subtitle {
+    color: var(--hub-page-muted);
+    font-size: 0.92rem;
+}
+
+.webapproval-module .approval-total-amount {
+    color: var(--hub-page-heading);
+    font-size: 1.85rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+}
+
+.webapproval-module .approval-message {
+    max-width: 100%;
+}
+
+.webapproval-module .approval-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.webapproval-module .approval-actions .btn {
+    min-width: 9rem;
+}
+
+.webapproval-module .approval-table {
+    margin-bottom: 0;
+}
+
+.webapproval-module .approval-table thead th {
+    color: var(--hub-page-heading);
+    font-weight: 800;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.webapproval-module .approval-table tbody td {
+    color: var(--hub-page-text);
+    border-color: rgba(255, 255, 255, 0.08);
+    vertical-align: middle;
+}
+
+.webapproval-module .approval-table.table-hover > tbody > tr:hover > * {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+body:not(.theme-dark) .webapproval-module .approval-table thead th {
+    border-bottom-color: rgba(15, 23, 42, 0.12);
+}
+
+body:not(.theme-dark) .webapproval-module .approval-table tbody td {
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+body:not(.theme-dark) .webapproval-module .approval-table.table-hover > tbody > tr:hover > * {
+    background-color: rgba(37, 99, 235, 0.05);
+}

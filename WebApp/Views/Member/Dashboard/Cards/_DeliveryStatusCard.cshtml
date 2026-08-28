@@ -1,0 +1,107 @@
+@* Renders the delivery status snapshot for the information-driven dashboard layout. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.DeliveryStatusCardViewModel ?? new();
+    var forecast = card.Forecast ?? new WebApp.Models.Orders.OrderDeliveryForecastViewModel();
+    var culture = CultureInfo.GetCultureInfo("sv-SE");
+    var timeline = forecast.Timeline.Take(6).ToList();
+    var upcomingOrders = forecast.UpcomingOrders.Take(3).ToList();
+    var maxCount = timeline.Count > 0 ? timeline.Max(x => x.OrderCount) : 1;
+    var latestDelivery = forecast.LatestDeliveryDate;
+
+    string DeliveryTone()
+        => forecast.FutureOrderCount > 0
+            ? (forecast.EarliestDeliveryDate.HasValue && forecast.EarliestDeliveryDate.Value.Date < DateTime.Today ? "text-danger" : "text-warning")
+            : "text-success";
+}
+
+<div class="card kpi-card p-2 dashboard-info-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+            <h5 class="dashboard-card-title m-0">Leveransstatus</h5>
+            <div class="dashboard-card-subtitle">Planerade leveranser de kommande sex månaderna</div>
+        </div>
+        <a asp-controller="Orders" asp-action="DeliveryForecast" class="btn btn-portal btn-portal-outline btn-sm dashboard-card-action-btn flex-shrink-0">
+            Öppna
+        </a>
+    </div>
+
+    <div class="dashboard-info-summary-grid dashboard-info-summary-grid--4">
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Framåt</div>
+            <div class="dashboard-info-summary-value">@forecast.FutureOrderCount.ToString("N0", culture) st</div>
+            <div class="dashboard-info-summary-meta">kommande order</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Värde</div>
+            <div class="dashboard-info-summary-value">@forecast.FutureAmountTotal.ToString("N0", culture) SEK</div>
+            <div class="dashboard-info-summary-meta">backlog</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Nästa leverans</div>
+            <div class="dashboard-info-summary-value @DeliveryTone()">@(forecast.EarliestDeliveryDate?.ToString("yyyy-MM-dd") ?? "-")</div>
+            <div class="dashboard-info-summary-meta">planerad</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Toppmånad</div>
+            <div class="dashboard-info-summary-value">@forecast.TopMonthLabel</div>
+            <div class="dashboard-info-summary-meta">@forecast.TopMonthOrderCount.ToString("N0", culture) st</div>
+        </div>
+    </div>
+
+    <div class="dashboard-info-status-strip dashboard-info-status-strip--info">
+        <span class="dashboard-info-status-strip__label">Planeringshorisont</span>
+        <span class="dashboard-info-status-strip__value">@($"Nästa {forecast.MonthsAhead} månader")</span>
+        <span class="dashboard-info-status-strip__meta">
+            @(latestDelivery.HasValue
+                ? $"Sista planerade leverans {latestDelivery.Value.ToString("yyyy-MM-dd", culture)}"
+                : "Ingen sista leverans registrerad")
+        </span>
+    </div>
+
+    <div class="dashboard-info-card-body">
+        @if (timeline.Count > 0)
+        {
+            <div class="order-forecast-chart mb-3" style="grid-template-columns: repeat(@Math.Max(1, timeline.Count), minmax(0, 1fr));">
+                @foreach (var bucket in timeline)
+                {
+                    var heightPercent = Math.Max(12m, maxCount <= 0 ? 0m : Math.Round((bucket.OrderCount / (decimal)maxCount) * 100m, 0));
+                    <div class="order-forecast-point" title="@($"{bucket.PeriodStart:yyyy-MM} · {bucket.OrderCount} st · {bucket.AmountTotal:N0} kr")">
+                        <div class="order-forecast-bar-wrap">
+                            <div class="order-forecast-bar" style="height:@heightPercent%;"></div>
+                        </div>
+                        <div class="order-forecast-count">@bucket.OrderCount</div>
+                        <div class="order-forecast-label">@bucket.Label</div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (upcomingOrders.Count > 0)
+        {
+            <div class="dashboard-info-list list-group list-group-flush bg-transparent">
+                @foreach (var order in upcomingOrders)
+                {
+                    <div class="list-group-item bg-transparent border-0 px-0 py-2">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate">@order.CustomerName</div>
+                                <div class="small dashboard-info-muted">#@order.OrderNo</div>
+                            </div>
+                            <div class="text-end small flex-shrink-0">
+                                <div class="fw-bold">@order.AmountInclVat.ToString("N0", culture) @order.Currency</div>
+                                <div class="dashboard-info-muted">@(order.PlannedDelivery?.ToString("yyyy-MM-dd") ?? "-")</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="small dashboard-info-muted">Inga kommande leveranser att visa just nu.</div>
+        }
+    </div>
+</div>

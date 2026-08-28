@@ -1,0 +1,1011 @@
+@using WebApp.Models.Integration
+@using WebApp.Services.Integration.BankReconciliation.Validation
+@using WebApp.ViewModels.Shared
+@model WebApp.ViewModels.Integration.BankReconciliation.BankReconciliationPageViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> sharedLocalizer
+@{
+    // Bank reconciliation stays on the shared module-page shell so menu, access and actions match the other modules.
+    ViewData["Title"] = sharedLocalizer["Module_BankReconciliation"].Value;
+    var transactionsJson = Model.TransactionsJson;
+    var invoicesJson = Model.InvoicesJson;
+    var latestFileName = Model.LatestFileName;
+    var runtimeBanner = Model.RuntimeBanner;
+    var latestUploadedAt = Model.LatestUploadedAt;
+    var hasUploadedFile = Model.HasUploadedFile;
+    var validationReport = Model.ValidationReport;
+    var validationWarnings = validationReport?.Issues
+        .Where(issue => issue.Severity == BankReconciliationCamtValidationSeverity.Warning)
+        .ToArray() ?? [];
+    var validationWarningCount = validationWarnings.Length;
+    var validationStatusLabel = validationReport is null
+        ? string.Empty
+        : validationReport.IsValid && validationWarningCount > 0
+            ? "Matchningsbar med varningar"
+            : validationReport.IsValid
+                ? "Godkänd för matchning"
+                : "Blockerad";
+    var validationResultText = validationReport is null
+        ? string.Empty
+        : validationReport.IsValid && validationWarningCount > 0
+            ? "Filen kan matchas, men varningarna bör granskas först."
+            : validationReport.IsValid
+                ? "Struktur och redovisningskontroller är godkända."
+                : "Åtgärda blockerande fel innan filen används.";
+    var isDemoMode = Model.IsDemoMode;
+    var demoScenarioKey = Model.DemoScenarioKey;
+    var demoScenarios = Model.DemoScenarios;
+    var activeCompanyName = string.IsNullOrWhiteSpace(Model.ActiveCompanyName)
+        ? sharedLocalizer["BankRec_SelectedCompanyFallback"].Value
+        : Model.ActiveCompanyName;
+    var demoToggleLabel = isDemoMode ? sharedLocalizer["BankRec_DemoOn"].Value : sharedLocalizer["BankRec_DemoOff"].Value;
+    var demoToggleTitle = isDemoMode
+        ? sharedLocalizer["BankRec_DemoDisableTitle"].Value
+        : sharedLocalizer["BankRec_DemoEnableTitle"].Value;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bankrec.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page integration-page bankrec-page" id="bankrec-page-root" data-workspace-mode="overview" data-has-source="@hasUploadedFile.ToString().ToLowerInvariant()">
+    <div class="module-page-header mb-2">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 w-100">
+            <div>
+                <div class="dashboard-card-title">@sharedLocalizer["Module_BankReconciliation"]</div>
+                <h1 class="module-page-title">@sharedLocalizer["Module_BankReconciliation"]</h1>
+                <p class="module-page-subtitle mb-0">
+                    @sharedLocalizer["BankRec_Subtitle"]
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <form asp-action="BankReconciliationToggleDemo" method="post" class="document-signing-toggle-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="document-signing-env document-signing-env-toggle @(isDemoMode ? "document-signing-env--demo" : "document-signing-env--live")"
+                            title="@demoToggleTitle"
+                            aria-label="@demoToggleTitle">
+                        <i class="fa @(isDemoMode ? "fa-toggle-on" : "fa-toggle-off") me-1"></i>
+                        @demoToggleLabel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (runtimeBanner is not null)
+    {
+        <div class="mb-2">
+            @await Html.PartialAsync("_ModuleBanner", runtimeBanner)
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        var statusMessage = Model.StatusMessage;
+        var statusTone = Model.StatusTone;
+        var statusIcon = statusTone == "success" ? "fa fa-check" : "fa fa-circle-info";
+        <div class="mb-2">
+            @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+            {
+                Message = statusMessage,
+                Tone = statusTone,
+                IconClass = statusIcon,
+                Compact = true
+            })
+        </div>
+    }
+
+    <div class="module-state @(hasUploadedFile ? "module-state--success" : "module-state--warning") bankrec-empty-state mb-2" role="status">
+        <div class="module-state-icon" aria-hidden="true">
+            <i class="fa @(hasUploadedFile ? "fa-file-circle-check" : "fa-upload")"></i>
+        </div>
+        <div class="module-state-content">
+            <div class="module-state-title">@(hasUploadedFile ? sharedLocalizer["BankRec_FileUploadedTitle"] : sharedLocalizer["BankRec_NoFileTitle"])</div>
+            @if (hasUploadedFile && !string.IsNullOrWhiteSpace(latestFileName))
+            {
+                <div class="bankrec-source-file">
+                    <i class="fa fa-file-lines" aria-hidden="true"></i>
+                    <span>@latestFileName</span>
+                </div>
+            }
+            else
+            {
+                <div class="module-state-message">@sharedLocalizer["BankRec_NoFileMessage"]</div>
+            }
+            <div class="module-state-note">@sharedLocalizer["BankRec_NoFileNote"]</div>
+            @if (!string.IsNullOrWhiteSpace(Model.UploadError))
+            {
+                @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                {
+                    Title = sharedLocalizer["BankRec_UploadFailedTitle"].Value,
+                    Message = Model.UploadError,
+                    Tone = "danger",
+                    IconClass = "fa fa-circle-xmark",
+                    Compact = true
+                })
+            }
+            @if (validationReport is not null)
+            {
+                <div class="bankrec-validation-summary" aria-label="Valideringssammanfattning">
+                    <div class="bankrec-validation-summary__status @(validationReport.IsValid ? validationWarningCount > 0 ? "is-warning" : "is-valid" : "is-invalid")">
+                        <i class="fa @(validationReport.IsValid ? validationWarningCount > 0 ? "fa-triangle-exclamation" : "fa-circle-check" : "fa-circle-xmark")" aria-hidden="true"></i>
+                        <strong>@validationStatusLabel</strong>
+                    </div>
+                    <span class="bankrec-validation-summary__divider" aria-hidden="true"></span>
+                    <div class="bankrec-validation-summary__metric">
+                        <strong>@validationWarningCount</strong>
+                        <span>@(validationWarningCount == 1 ? "varning" : "varningar")</span>
+                    </div>
+                    <span class="bankrec-validation-summary__divider" aria-hidden="true"></span>
+                    <div class="bankrec-validation-summary__metric">
+                        <strong>@validationReport.TransactionCount</strong>
+                        <span>transaktioner</span>
+                    </div>
+                </div>
+                @if (validationWarningCount > 0)
+                {
+                    <div class="bankrec-validation-warning-panel" role="status" aria-live="polite">
+                        <div class="bankrec-validation-warning-panel__heading">
+                            <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+                            <strong>@validationWarningCount @(validationWarningCount == 1 ? "varning" : "varningar") i filen</strong>
+                        </div>
+                        <ul>
+                            @foreach (var warning in validationWarnings.Take(3))
+                            {
+                                <li>@warning.Message</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+            @if (hasUploadedFile && !isDemoMode)
+            {
+                var maskedAccount = validationReport?.MaskedAccount ?? Model.BankAccountLabel;
+                <div class="bankrec-account-check" role="note">
+                    <i class="fa fa-building-shield" aria-hidden="true"></i>
+                    <div>
+                        <strong>@sharedLocalizer["BankRec_AccountNotVerifiedTitle"]</strong>
+                        <span>@sharedLocalizer["BankRec_AccountNotVerifiedMessage", maskedAccount, activeCompanyName]</span>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="bankrec-empty-actions">
+            @if (hasUploadedFile)
+            {
+                @if (validationReport is not null)
+                {
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline btn-sm bankrec-validation-trigger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bankrec-validation-modal">
+                        <i class="fa fa-shield-check" aria-hidden="true"></i>
+                        Visa detaljer
+                    </button>
+                }
+                <form asp-action="BankReconciliationClearUpload" method="post" class="bankrec-clear-upload-form">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-portal btn-portal-outline btn-sm" type="submit">@sharedLocalizer["BankRec_ClearFile"]</button>
+                </form>
+            }
+            else
+            {
+                @* Upload remains session-bound on purpose until the long-term import flow is in place. *@
+                <form asp-action="BankReconciliationUpload" method="post" enctype="multipart/form-data" class="bankrec-upload-form">
+                    @Html.AntiForgeryToken()
+                    <input type="file" id="bankrec-upload-input" name="file" accept=".xml,.nda" class="d-none" />
+                    <button class="btn btn-portal bankrec-upload-trigger btn-sm" id="bankrec-upload-trigger" type="button">@sharedLocalizer["BankRec_AddFile"]</button>
+                </form>
+            }
+            @if (latestUploadedAt.HasValue)
+            {
+                <div class="module-page-meta small">@sharedLocalizer["Uploaded"] @latestUploadedAt.Value.ToString("yyyy-MM-dd HH:mm")</div>
+            }
+        </div>
+    </div>
+
+    @if (validationReport is not null)
+    {
+        <div class="modal fade bankrec-bundle-modal bankrec-validation-modal" id="bankrec-validation-modal" tabindex="-1" aria-labelledby="bankrec-validation-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <div class="bankrec-bundle-modal__eyebrow">CAMT-kontroll</div>
+                            <h5 class="modal-title" id="bankrec-validation-modal-title">Valideringsrapport</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Stäng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="bankrec-validation-result @(validationReport.IsValid ? "is-valid" : "is-invalid")">
+                            <i class="fa @(validationReport.IsValid ? validationWarningCount > 0 ? "fa-triangle-exclamation" : "fa-circle-check" : "fa-circle-xmark")" aria-hidden="true"></i>
+                            <div>
+                                <strong>@(validationReport.IsValid ? validationStatusLabel : "Filen är blockerad")</strong>
+                                <span>@validationResultText</span>
+                            </div>
+                        </div>
+
+                        <dl class="bankrec-validation-details">
+                            <div><dt>CAMT-version</dt><dd>@(validationReport.CamtVersion ?? "-")</dd></div>
+                            <div><dt>Statement-id</dt><dd>@(validationReport.StatementId ?? "-")</dd></div>
+                            <div><dt>Bankkonto</dt><dd>@(validationReport.MaskedAccount ?? "-")</dd></div>
+                            <div><dt>Valuta</dt><dd>@(validationReport.Currency ?? "-")</dd></div>
+                            <div><dt>Kontoutdrag</dt><dd>@validationReport.StatementCount</dd></div>
+                            <div><dt>Bokföringsposter</dt><dd>@validationReport.BookedEntryCount av @validationReport.EntryCount</dd></div>
+                            <div><dt>Transaktioner</dt><dd>@validationReport.TransactionCount</dd></div>
+                            <div><dt>Blockerade poster</dt><dd>@validationReport.BlockedEntryCount</dd></div>
+                            <div><dt>Öppningsbalans</dt><dd>@validationReport.OpeningBalance?.ToString("N2") @validationReport.Currency</dd></div>
+                            <div><dt>Stängningsbalans</dt><dd>@validationReport.ClosingBalance?.ToString("N2") @validationReport.Currency</dd></div>
+                        </dl>
+
+                        <div class="bankrec-validation-issues">
+                            <h6>Kontroller och anmärkningar</h6>
+                            @if (validationReport.Issues.Count == 0)
+                            {
+                                <div class="bankrec-validation-issue is-valid">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                    <span>Inga fel eller varningar hittades.</span>
+                                </div>
+                            }
+                            else
+                            {
+                                @foreach (var issue in validationReport.Issues)
+                                {
+                                    var isError = issue.Severity == BankReconciliationCamtValidationSeverity.Error;
+                                    <div class="bankrec-validation-issue @(isError ? "is-error" : "is-warning")">
+                                        <i class="fa @(isError ? "fa-circle-xmark" : "fa-triangle-exclamation")" aria-hidden="true"></i>
+                                        <div>
+                                            <strong>@(isError ? "Fel" : "Varning")</strong>
+                                            <span>@issue.Message</span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-portal btn-portal-outline" data-bs-dismiss="modal">Stäng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (isDemoMode && demoScenarios.Count > 0)
+    {
+        var activeScenario = demoScenarios.FirstOrDefault(x => string.Equals(x.Key, demoScenarioKey, StringComparison.OrdinalIgnoreCase)) ?? demoScenarios[0];
+        <div class="card shadow-sm border-0 bankrec-card bankrec-demo-panel mb-2">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                    <div>
+                        <div class="bankrec-demo-eyebrow">@sharedLocalizer["BankRec_DemoWorkspace"]</div>
+                        <h6 class="mb-1">@sharedLocalizer["BankRec_DemoScenarioHeading"]</h6>
+                        <p class="text-muted mb-1">@sharedLocalizer["BankRec_DemoScenarioHelp"]</p>
+                        <p class="text-muted small mb-0">@activeScenario.Description</p>
+                    </div>
+                    <form asp-action="BankReconciliationResetDemoScenario" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-portal btn-portal-outline btn-sm">@sharedLocalizer["BankRec_DemoResetScenario"]</button>
+                    </form>
+                </div>
+                <div class="bankrec-demo-scenarios mt-3">
+                    @foreach (var scenario in demoScenarios)
+                    {
+                        var isActive = string.Equals(scenario.Key, demoScenarioKey, StringComparison.OrdinalIgnoreCase);
+                        <form asp-action="BankReconciliationSelectDemoScenario" method="post" class="bankrec-demo-scenario-form" data-skip-page-loader="true">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="scenarioKey" value="@scenario.Key" />
+                            <button type="submit"
+                                    class="btn btn-portal btn-portal-outline btn-sm bankrec-demo-scenario @(isActive ? "is-active" : string.Empty)"
+                                    aria-current="@(isActive ? "true" : null)">
+                                @sharedLocalizer["BankRec_DemoScenarioButtonPrefix"] @scenario.Title
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row g-2 mb-2 bankrec-summary-row">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bankrec-card module-kpi-surface module-kpi-surface--compact">
+                <div class="card-body">
+                    <div class="text-muted small">@sharedLocalizer["BankRec_IncomingPayments"]</div>
+                    <div class="h4 mb-0" id="bankrec-total-credit">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bankrec-card module-kpi-surface module-kpi-surface--compact">
+                <div class="card-body">
+                    <div class="text-muted small">@sharedLocalizer["BankRec_OutgoingPayments"]</div>
+                    <div class="h4 mb-0" id="bankrec-total-debit">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bankrec-card module-kpi-surface module-kpi-surface--compact">
+                <div class="card-body">
+                    <div class="text-muted small">@sharedLocalizer["BankRec_MatchedAmount"]</div>
+                    <div class="h4 mb-0" id="bankrec-total-matched">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bankrec-card module-kpi-surface module-kpi-surface--compact">
+                <div class="card-body">
+                    <div class="text-muted small">@sharedLocalizer["BankRec_UnmatchedAmount"]</div>
+                    <div class="h4 mb-0" id="bankrec-total-unmatched">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (hasUploadedFile)
+    {
+        <div class="bankrec-demo-status-grid bankrec-live-status-grid mb-2" aria-label="@sharedLocalizer["BankRec_StatusSummaryAria"]">
+            <div class="bankrec-demo-status-card" id="bankrec-demo-summary-card-matched">
+                <span class="bankrec-demo-status-card__copy">
+                    <span class="bankrec-demo-status-card__label">@sharedLocalizer["BankRec_DemoSummaryMatched"]</span>
+                    <span class="bankrec-demo-status-card__meta">@sharedLocalizer["BankRec_StatusSummaryHint"]</span>
+                </span>
+                <span class="bankrec-demo-status-card__value" id="bankrec-demo-summary-matched">0</span>
+            </div>
+            <div class="bankrec-demo-status-card" id="bankrec-demo-summary-card-review">
+                <span class="bankrec-demo-status-card__copy">
+                    <span class="bankrec-demo-status-card__label">@sharedLocalizer["BankRec_DemoSummaryReview"]</span>
+                    <span class="bankrec-demo-status-card__meta">@sharedLocalizer["BankRec_StatusSummaryHint"]</span>
+                </span>
+                <span class="bankrec-demo-status-card__value" id="bankrec-demo-summary-review">0</span>
+            </div>
+            <div class="bankrec-demo-status-card" id="bankrec-demo-summary-card-unmatched">
+                <span class="bankrec-demo-status-card__copy">
+                    <span class="bankrec-demo-status-card__label">@sharedLocalizer["BankRec_DemoSummaryUnmatched"]</span>
+                    <span class="bankrec-demo-status-card__meta">@sharedLocalizer["BankRec_StatusSummaryHint"]</span>
+                </span>
+                <span class="bankrec-demo-status-card__value" id="bankrec-demo-summary-unmatched">0</span>
+            </div>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 bankrec-card bankrec-process-card bankrec-mode-shell mb-2">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div class="bankrec-mode-shell__copy">
+                    <div class="bankrec-demo-eyebrow">@sharedLocalizer["BankRec_WorkspaceModeLabel"]</div>
+                    <h6 class="mb-1" id="bankrec-mode-title">@sharedLocalizer["BankRec_ModeOverview"]</h6>
+                    <p class="text-muted mb-0" id="bankrec-mode-description">@sharedLocalizer["BankRec_ModeDescriptionOverview"]</p>
+                </div>
+            </div>
+            <div class="bankrec-process-steps" aria-label="@sharedLocalizer["BankRec_WorkspaceModeLabel"]">
+                <button type="button" class="bankrec-process-step is-active" id="bankrec-mode-overview" aria-current="step">
+                    <span class="bankrec-process-step__eyebrow">@sharedLocalizer["BankRec_ProcessStep", 1]</span>
+                    <span class="bankrec-process-step__title">@sharedLocalizer["BankRec_ModeOverview"]</span>
+                    <span class="bankrec-process-step__meta">@sharedLocalizer["BankRec_ModeDescriptionOverview"]</span>
+                    <span class="bankrec-process-step__badge">1</span>
+                </button>
+                <button type="button" class="bankrec-process-step" id="bankrec-mode-classification" disabled="@(hasUploadedFile ? null : "disabled")">
+                    <span class="bankrec-process-step__eyebrow">@sharedLocalizer["BankRec_ProcessStep", 2]</span>
+                    <span class="bankrec-process-step__title">@sharedLocalizer["BankRec_ProcessReviewTitle"]</span>
+                    <span class="bankrec-process-step__meta">@sharedLocalizer["BankRec_ModeDescriptionClassification"]</span>
+                    <span class="bankrec-process-step__badge">2</span>
+                </button>
+                <button type="button" class="bankrec-process-step" id="bankrec-mode-reconciliation" disabled="@(hasUploadedFile ? null : "disabled")">
+                    <span class="bankrec-process-step__eyebrow">@sharedLocalizer["BankRec_ProcessStep", 3]</span>
+                    <span class="bankrec-process-step__title">@sharedLocalizer["BankRec_ProcessMatchTitle"]</span>
+                    <span class="bankrec-process-step__meta">@sharedLocalizer["BankRec_ModeDescriptionReconciliation"]</span>
+                    <span class="bankrec-process-step__badge">3</span>
+                </button>
+                <button type="button" class="bankrec-process-step" id="bankrec-mode-partial" disabled="@(hasUploadedFile ? null : "disabled")">
+                    <span class="bankrec-process-step__eyebrow">@sharedLocalizer["BankRec_ProcessStep", 4]</span>
+                    <span class="bankrec-process-step__title">@sharedLocalizer["BankRec_ProcessPartialTitle"]</span>
+                    <span class="bankrec-process-step__meta">@sharedLocalizer["BankRec_ProcessPartialDescription"]</span>
+                    <span class="bankrec-process-step__badge">4</span>
+                </button>
+                <button type="button" class="bankrec-process-step" id="bankrec-mode-complete" disabled="@(hasUploadedFile ? null : "disabled")">
+                    <span class="bankrec-process-step__eyebrow">@sharedLocalizer["BankRec_ProcessStep", 5]</span>
+                    <span class="bankrec-process-step__title">@sharedLocalizer["BankRec_ProcessCompleteTitle"]</span>
+                    <span class="bankrec-process-step__meta">@sharedLocalizer["BankRec_ProcessCompleteDescription"]</span>
+                    <span class="bankrec-process-step__badge">5</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bankrec-card bankrec-classification-panel mb-2 d-none" id="bankrec-classification-panel">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <div class="bankrec-demo-eyebrow">@sharedLocalizer["BankRec_ClassificationPanelEyebrow"]</div>
+                    <h6 class="mb-1">@sharedLocalizer["BankRec_ClassificationPanelTitle"]</h6>
+                    <p class="text-muted mb-0">@sharedLocalizer["BankRec_ClassificationPanelHint"]</p>
+                </div>
+            </div>
+            <div class="bankrec-classification-filter" id="bankrec-classification-filter"></div>
+            <div class="bankrec-classification-grid mt-3" id="bankrec-classification-summary"></div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bankrec-card bankrec-coding-panel mb-2 d-none" id="bankrec-coding-panel">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <div class="bankrec-demo-eyebrow">@sharedLocalizer["BankRec_CodingPanelEyebrow"]</div>
+                    <h6 class="mb-1">@sharedLocalizer["BankRec_CodingPanelTitle"]</h6>
+                    <p class="text-muted mb-0">@sharedLocalizer["BankRec_CodingPanelHint"]</p>
+                </div>
+                <div class="d-flex flex-column align-items-end gap-2">
+                    <div class="bankrec-coding-bank-account small text-muted" id="bankrec-coding-bank-account"></div>
+                    <div class="bankrec-coding-legend">
+                        <span class="bankrec-coding-legend__item bankrec-coding-legend__item--suggested">@sharedLocalizer["BankRec_CodingLegendSuggested"]</span>
+                        <span class="bankrec-coding-legend__item bankrec-coding-legend__item--editable">@sharedLocalizer["BankRec_CodingLegendEditable"]</span>
+                        <span class="bankrec-coding-dirty d-none" id="bankrec-coding-dirty" role="status">@sharedLocalizer["BankRec_UnsavedCodingChanges"]</span>
+                        <button type="button" class="btn btn-portal btn-portal-outline btn-sm" id="bankrec-coding-save-btn">@sharedLocalizer["BankRec_CodingSave"]</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bankrec-coding-grid mt-3" id="bankrec-coding-summary"></div>
+        </div>
+    </div>
+
+    <div class="row g-2 bankrec-browse-sections">
+        <div class="col-xl-6 bankrec-transactions-column">
+            <div class="card shadow-sm border-0 bankrec-card">
+                <div class="card-body">
+                    <div class="bankrec-table-card-header">
+                        <div class="bankrec-table-card-title">
+                            <h5 class="mb-0">@sharedLocalizer["BankRec_BankTransactions"]</h5>
+                            <span class="badge rounded-pill bg-secondary" id="bankrec-tx-count">0</span>
+                        </div>
+                        <div class="bankrec-select-filters">
+                            <select class="form-select form-select-sm bankrec-select-filter" id="bankrec-tx-filter" aria-label="@sharedLocalizer["BankRec_FilterTransactionsAria"]">
+                                <option value="all">@sharedLocalizer["All"]</option>
+                                <option value="matched">@sharedLocalizer["Matched"]</option>
+                                <option value="review">@sharedLocalizer["BankRec_DemoSummaryReview"]</option>
+                                <option value="unmatched">@sharedLocalizer["Unmatched"]</option>
+                            </select>
+                            <select class="form-select form-select-sm bankrec-select-filter" id="bankrec-tx-group-filter" aria-label="@sharedLocalizer["BankRec_GroupTransactionsAria"]">
+                                <option value="all" data-base-label="@sharedLocalizer["BankRec_AllGroups"]">@sharedLocalizer["BankRec_AllGroups"]</option>
+                                <option value="Kundinbetalningar" data-base-label="@sharedLocalizer["BankRec_CustomerPayments"]">@sharedLocalizer["BankRec_CustomerPayments"]</option>
+                                <option value="Leverantorsutbetalningar" data-base-label="@sharedLocalizer["BankRec_SupplierPaymentsShort"]">@sharedLocalizer["BankRec_SupplierPaymentsShort"]</option>
+                                <option value="Ovrigt" data-base-label="@sharedLocalizer["Other"]">@sharedLocalizer["Other"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive bankrec-table-scroll">
+                        <table class="table table-sm table-borderless align-middle bankrec-table" id="bankrec-tx-table">
+                            <thead>
+                                <tr>
+                                    <th>@sharedLocalizer["Status"]</th>
+                                    <th>@sharedLocalizer["BankRec_TransactionFlow"]</th>
+                                    <th>@sharedLocalizer["Date"]</th>
+                                    <th>@sharedLocalizer["Amount"]</th>
+                                    <th>@sharedLocalizer["Reference"]</th>
+                                    <th>@sharedLocalizer["Payer"]</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="bankrec-pagination d-none" id="bankrec-tx-pagination">
+                        <button class="btn btn-sm bankrec-btn bankrec-btn-ghost" type="button" id="bankrec-tx-prev">@sharedLocalizer["Previous"]</button>
+                        <div class="bankrec-pagination-info" id="bankrec-tx-page-info">1 / 1</div>
+                        <button class="btn btn-sm bankrec-btn bankrec-btn-ghost" type="button" id="bankrec-tx-next">@sharedLocalizer["Next"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 bankrec-invoices-column">
+            <div class="card shadow-sm border-0 bankrec-card">
+                <div class="card-body">
+                    <div class="bankrec-table-card-header">
+                        <div class="bankrec-table-card-title">
+                            <h5 class="mb-0">@sharedLocalizer["Invoices"]</h5>
+                            <span class="badge rounded-pill bg-secondary" id="bankrec-inv-count">0</span>
+                        </div>
+                        <div class="bankrec-select-filters">
+                            <select class="form-select form-select-sm bankrec-select-filter" id="bankrec-inv-filter" aria-label="@sharedLocalizer["BankRec_FilterInvoicesAria"]">
+                                <option value="all">@sharedLocalizer["All"]</option>
+                                <option value="matched">@sharedLocalizer["Matched"]</option>
+                                <option value="partial">@sharedLocalizer["PartiallyPaid"]</option>
+                                <option value="unmatched">@sharedLocalizer["Unmatched"]</option>
+                            </select>
+                            <select class="form-select form-select-sm bankrec-select-filter is-placeholder" tabindex="-1" aria-hidden="true">
+                                <option value="">Placeholder</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bankrec-loading-state d-none" id="bankrec-inv-loading" role="status" aria-live="polite">
+                        <div class="bankrec-spinner" aria-hidden="true"></div>
+                        <div class="bankrec-loading-copy">
+                            <div class="bankrec-loading-title">@sharedLocalizer["BankRec_LoadingInvoices"]</div>
+                            <div class="bankrec-loading-note">@sharedLocalizer["BankRec_LoadingInvoicesNote"]</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive bankrec-table-scroll">
+                        <table class="table table-sm table-borderless align-middle bankrec-table" id="bankrec-inv-table">
+                            <thead>
+                                <tr>
+                                    <th>@sharedLocalizer["Status"]</th>
+                                    <th>@sharedLocalizer["Invoice"]</th>
+                                    <th>OCR</th>
+                                    <th>@sharedLocalizer["Amount"]</th>
+                                    <th>@sharedLocalizer["Paid"]</th>
+                                    <th>@sharedLocalizer["Remaining"]</th>
+                                    <th>@sharedLocalizer["Customer"]</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="bankrec-pagination d-none" id="bankrec-inv-pagination">
+                        <button class="btn btn-sm bankrec-btn bankrec-btn-ghost" type="button" id="bankrec-inv-prev">@sharedLocalizer["Previous"]</button>
+                        <div class="bankrec-pagination-info" id="bankrec-inv-page-info">1 / 1</div>
+                        <button class="btn btn-sm bankrec-btn bankrec-btn-ghost" type="button" id="bankrec-inv-next">@sharedLocalizer["Next"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bankrec-card mt-2 bankrec-workpanel">
+        <div class="card-body">
+            <div class="bankrec-conflict-banner d-none mb-3" id="bankrec-conflict-banner" role="alert" aria-live="assertive">
+                <div class="bankrec-conflict-banner__icon" aria-hidden="true">
+                    <i class="fa fa-triangle-exclamation"></i>
+                </div>
+                <div class="bankrec-conflict-banner__content">
+                    <div class="bankrec-conflict-banner__title" id="bankrec-conflict-title">@sharedLocalizer["BankRec_ConflictTitle"]</div>
+                    <div class="bankrec-conflict-banner__message" id="bankrec-conflict-message">@sharedLocalizer["BankRec_ConflictMessage"]</div>
+                </div>
+                <button class="btn btn-portal btn-portal-outline bankrec-conflict-banner__action" type="button" id="bankrec-conflict-reload-btn">
+                    @sharedLocalizer["BankRec_ReloadState"]
+                </button>
+            </div>
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+                <div>
+                    <h6 class="mb-1" id="bankrec-workpanel-title">@sharedLocalizer["BankRec_ManualMatching"]</h6>
+                    <p class="text-muted mb-0" id="bankrec-workpanel-description">@sharedLocalizer["BankRec_ManualMatchingMessage"]</p>
+                </div>
+                <div class="bankrec-auto-match-action">
+                    <button type="button" class="btn btn-portal" id="bankrec-match-btn">
+                        <i class="fa fa-wand-magic-sparkles" aria-hidden="true"></i>
+                        @sharedLocalizer["BankRec_RunSafeAutoMatch"]
+                    </button>
+                    <div class="bankrec-auto-match-feedback d-none"
+                         id="bankrec-auto-match-feedback"
+                         role="status"
+                         aria-live="polite"></div>
+                </div>
+            </div>
+            <div class="bankrec-standard-match-workspace">
+            <div class="bankrec-panel-grid mt-4">
+                <div class="bankrec-panel-section bankrec-panel-section--queue">
+                    <div class="bankrec-panel-section-label">@sharedLocalizer["BankRec_BankTransactions"]</div>
+                    <div class="bankrec-panel-section-title-row">
+                        <div class="bankrec-panel-section-title">Välj transaktion att matcha</div>
+                        <div class="bankrec-remaining-count" id="bankrec-manual-remaining-count" aria-live="polite">
+                            <span>@sharedLocalizer["BankRec_RemainingToMatch"]</span>
+                            <strong>0</strong>
+                        </div>
+                    </div>
+                    <div class="bankrec-panel-section-body" id="bankrec-manual-review-queue">
+                        @sharedLocalizer["BankRec_ManualReviewQueueEmpty"]
+                    </div>
+                </div>
+                <div class="bankrec-panel-section">
+                    <div class="bankrec-panel-section-label">@sharedLocalizer["BankRec_Recommendations"]</div>
+                    <div class="bankrec-panel-section-title" id="bankrec-recommendations-title">@sharedLocalizer["BankRec_RecommendationTitle"]</div>
+                    <div class="bankrec-panel-section-body" id="bankrec-recommendations">
+                        @sharedLocalizer["BankRec_SelectTransactionForRecommendations"]
+                    </div>
+                </div>
+                <div class="bankrec-panel-section">
+                    <div class="bankrec-panel-section-label">@sharedLocalizer["BankRec_AiAssistLabel"]</div>
+                    <div class="bankrec-panel-section-title">@sharedLocalizer["BankRec_AiAssistTitle"]</div>
+                    <div class="bankrec-panel-section-body" id="bankrec-ai-suggestions">
+                        @sharedLocalizer["BankRec_AiAssistSelectTransaction"]
+                    </div>
+                </div>
+            </div>
+            <div class="bankrec-match-dock bankrec-confirm-bar mt-3">
+                <div class="bankrec-match-dock__top">
+                    <div class="bankrec-match-dock__selection">
+                        <div class="bankrec-match-dock__label">@sharedLocalizer["BankRec_BankTransactions"]</div>
+                        <div class="bankrec-match-dock__value" id="bankrec-selected-tx-summary">@sharedLocalizer["BankRec_NoSelectionYet"]</div>
+                    </div>
+                    <div class="bankrec-match-dock__selection bankrec-match-dock__selection--invoice">
+                        <div class="bankrec-match-dock__label">@sharedLocalizer["Invoices"]</div>
+                        <div class="bankrec-match-dock__value" id="bankrec-selected-inv-summary">@sharedLocalizer["BankRec_NoInvoiceSelected"]</div>
+                    </div>
+                    <div class="bankrec-match-amount-panel">
+                        <div class="bankrec-match-dock__label">@sharedLocalizer["BankRec_MatchAmountInput"]</div>
+                        <div class="bankrec-match-amount-row">
+                            <div class="bankrec-match-amount-control">
+                                <input class="form-control bankrec-match-amount-input" id="bankrec-match-amount-input" type="number" min="0" step="0.01" inputmode="decimal" />
+                                <span class="bankrec-match-amount-currency" id="bankrec-match-amount-currency">SEK</span>
+                            </div>
+                        </div>
+                        <div class="bankrec-match-amount-note" id="bankrec-match-amount-note">@sharedLocalizer["BankRec_MatchAmountHint"]</div>
+                    </div>
+                    <div class="bankrec-match-dock__status">
+                        <div class="bankrec-match-dock__label">@sharedLocalizer["BankRec_SafetyCheck"]</div>
+                        <div class="bankrec-match-dock__value" id="bankrec-confidence-summary">@sharedLocalizer["BankRec_SelectBothForAssessment"]</div>
+                        <div class="bankrec-match-difference" id="bankrec-match-difference">—</div>
+                    </div>
+                </div>
+                <div class="bankrec-workpanel-actions bankrec-match-dock__actions">
+                    <button class="btn btn-portal" id="bankrec-manual-btn" disabled>@sharedLocalizer["BankRec_ManualMatch"]</button>
+                    <button class="btn btn-portal btn-portal-outline" id="bankrec-undo-btn" disabled>@sharedLocalizer["BankRec_UndoMatch"]</button>
+                    <button class="btn btn-portal btn-portal-outline" id="bankrec-clear-selection-btn" type="button">@sharedLocalizer["BankRec_ClearSelection"]</button>
+                </div>
+            </div>
+            <div class="bankrec-panel-section bankrec-allocations-section mt-4">
+                <div class="bankrec-panel-section-label">@sharedLocalizer["BankRec_CurrentAllocations"]</div>
+                <div class="bankrec-panel-section-title">@sharedLocalizer["BankRec_CurrentAllocationsTitle"]</div>
+                <div class="bankrec-panel-section-body" id="bankrec-current-allocations">
+                    @sharedLocalizer["BankRec_NoCurrentAllocations"]
+                </div>
+            </div>
+            </div>
+            <div class="bankrec-panel-section bankrec-payment-bundles-section mt-4" aria-labelledby="bankrec-payment-bundles-title">
+                <div class="bankrec-panel-section-label">@sharedLocalizer["BankRec_PaymentBundlesLabel"]</div>
+                <div class="bankrec-payment-bundles-heading">
+                    <div>
+                        <div class="bankrec-panel-section-title" id="bankrec-payment-bundles-title">@sharedLocalizer["BankRec_PaymentBundlesTitle"]</div>
+                        <p class="text-muted small mb-0">@sharedLocalizer["BankRec_PaymentBundlesHelp"]</p>
+                    </div>
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline bankrec-manual-bundle-toggle d-none"
+                            id="bankrec-manual-bundle-toggle"
+                            aria-expanded="false"
+                            aria-controls="bankrec-manual-bundle-builder">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        @sharedLocalizer["BankRec_ManualBundleCreate"]
+                    </button>
+                </div>
+                <div class="bankrec-panel-section-body" id="bankrec-payment-bundles" aria-live="polite">
+                    @sharedLocalizer["BankRec_PaymentBundlesLoading"]
+                </div>
+                <div class="bankrec-manual-bundle-builder d-none"
+                     id="bankrec-manual-bundle-builder"
+                     aria-labelledby="bankrec-manual-bundle-title">
+                    <div class="bankrec-manual-bundle-builder__heading">
+                        <div>
+                            <h6 class="mb-1" id="bankrec-manual-bundle-title">@sharedLocalizer["BankRec_ManualBundleTitle"]</h6>
+                            <p class="text-muted small mb-0">@sharedLocalizer["BankRec_ManualBundleHelp"]</p>
+                        </div>
+                        <button type="button" class="btn btn-portal btn-portal-outline btn-sm" id="bankrec-manual-bundle-close">
+                            @sharedLocalizer["Cancel"]
+                        </button>
+                    </div>
+                    <div class="bankrec-manual-bundle-grid">
+                        <div class="bankrec-manual-bundle-field">
+                            <label for="bankrec-manual-bundle-invoice">@sharedLocalizer["BankRec_ManualBundleInvoice"]</label>
+                            <select class="form-select" id="bankrec-manual-bundle-invoice"></select>
+                        </div>
+                        <div class="bankrec-manual-bundle-summary" id="bankrec-manual-bundle-summary" aria-live="polite"></div>
+                    </div>
+                    <div class="bankrec-manual-bundle-recommendation d-none"
+                         id="bankrec-manual-bundle-recommendation"
+                         role="status"
+                         aria-live="polite">
+                        <div>
+                            <strong id="bankrec-manual-bundle-recommendation-title"></strong>
+                            <span id="bankrec-manual-bundle-recommendation-detail"></span>
+                        </div>
+                        <button type="button"
+                                class="btn btn-portal btn-sm"
+                                id="bankrec-manual-bundle-apply-suggestion">
+                            @sharedLocalizer["BankRec_ManualBundleApplySuggestion"]
+                        </button>
+                    </div>
+                    <div class="bankrec-manual-bundle-transactions" id="bankrec-manual-bundle-transactions"></div>
+                    <div class="bankrec-manual-bundle-footer">
+                        <div class="bankrec-payment-bundle-message" id="bankrec-manual-bundle-feedback" role="status" aria-live="polite"></div>
+                        <button type="button" class="btn btn-portal" id="bankrec-manual-bundle-confirm" disabled>
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                            @sharedLocalizer["BankRec_ManualBundleConfirm"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bankrec-card mt-2 bankrec-complete-panel d-none" id="bankrec-complete-panel">
+        <div class="card-body">
+            <div class="bankrec-complete-state" id="bankrec-complete-state" role="status" aria-live="polite">
+                <div class="bankrec-complete-state__icon" aria-hidden="true"><i class="fa fa-list-check"></i></div>
+                <div>
+                    <h5 class="mb-1" id="bankrec-complete-title">@sharedLocalizer["BankRec_CompletePendingTitle"]</h5>
+                    <p class="text-muted mb-0" id="bankrec-complete-message">@sharedLocalizer["BankRec_CompletePendingMessage"]</p>
+                </div>
+            </div>
+            <p class="text-muted small mt-3 mb-0">@sharedLocalizer["BankRec_CompleteSummaryHint"]</p>
+            <div class="bankrec-complete-summary mt-3">
+                <button type="button"
+                        class="bankrec-complete-summary-item"
+                        id="bankrec-complete-card-matched"
+                        aria-label="@sharedLocalizer["BankRec_ShowMatched"]">
+                    <span>@sharedLocalizer["BankRec_DemoSummaryMatched"]</span>
+                    <strong id="bankrec-complete-matched">0</strong>
+                </button>
+                <button type="button"
+                        class="bankrec-complete-summary-item"
+                        id="bankrec-complete-card-review"
+                        aria-label="@sharedLocalizer["BankRec_ShowReview"]">
+                    <span>@sharedLocalizer["BankRec_DemoSummaryReview"]</span>
+                    <strong id="bankrec-complete-review">0</strong>
+                </button>
+                <button type="button"
+                        class="bankrec-complete-summary-item"
+                        id="bankrec-complete-card-unmatched"
+                        aria-label="@sharedLocalizer["BankRec_ShowUnmatched"]">
+                    <span>@sharedLocalizer["BankRec_DemoSummaryUnmatched"]</span>
+                    <strong id="bankrec-complete-unmatched">0</strong>
+                </button>
+            </div>
+            <section class="bankrec-complete-items mt-3" aria-labelledby="bankrec-complete-items-title">
+                <div class="bankrec-complete-items__header">
+                    <div>
+                        <h6 class="mb-1" id="bankrec-complete-items-title">@sharedLocalizer["BankRec_CompleteItemsTitle"]</h6>
+                        <p class="text-muted small mb-0">@sharedLocalizer["BankRec_CompleteItemsDescription"]</p>
+                    </div>
+                </div>
+                <div id="bankrec-complete-items" aria-live="polite"></div>
+            </section>
+            <div class="bankrec-lifecycle mt-3">
+                <div class="bankrec-lifecycle__status text-muted" id="bankrec-lifecycle-status" aria-live="polite"></div>
+                <div class="bankrec-lifecycle__actions mt-2">
+                    <button type="button" class="btn btn-portal" id="bankrec-close-btn" disabled>
+                        @sharedLocalizer["BankRec_CloseAction"]
+                    </button>
+                    <div class="bankrec-reopen d-none" id="bankrec-reopen-controls">
+                        <label for="bankrec-reopen-reason" class="form-label mb-1">
+                            @sharedLocalizer["BankRec_ReopenReasonLabel"]
+                        </label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <input type="text"
+                                   class="form-control"
+                                   id="bankrec-reopen-reason"
+                                   maxlength="500"
+                                   placeholder="@sharedLocalizer["BankRec_ReopenReasonPlaceholder"]" />
+                            <button type="button"
+                                    class="btn btn-portal btn-portal-outline"
+                                    id="bankrec-reopen-btn">
+                                @sharedLocalizer["BankRec_ReopenAction"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="small text-danger mt-2 d-none" id="bankrec-lifecycle-error" role="alert"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bankrec-card mt-2 bankrec-browse-sections" id="bankrec-invoice-detail">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h6 class="mb-1">@sharedLocalizer["BankRec_InvoiceInfo"]</h6>
+                    <p class="text-muted mb-0" id="bankrec-invoice-detail-title">@sharedLocalizer["BankRec_NoInvoiceSelected"]</p>
+                </div>
+                <span class="badge rounded-pill bg-secondary" id="bankrec-invoice-detail-status">—</span>
+            </div>
+            <div class="mt-3" id="bankrec-invoice-detail-body"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bankrec-bundle-modal" id="bankrec-bundle-detail-modal" tabindex="-1" aria-labelledby="bankrec-bundle-detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="bankrec-bundle-modal__eyebrow">Matchningsunderlag</div>
+                    <h5 class="modal-title" id="bankrec-bundle-detail-title">Betalningsgrupp</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Stäng"></button>
+            </div>
+            <div class="modal-body" id="bankrec-bundle-detail-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-portal btn-portal-outline" data-bs-dismiss="modal">Stäng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="bankrec-transactions-json" type="application/json">@Html.Raw(transactionsJson)</script>
+<script id="bankrec-invoices-json" type="application/json">@Html.Raw(invoicesJson)</script>
+<script id="bankrec-is-demo-mode" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(isDemoMode))</script>
+<script id="bankrec-demo-scenario-key" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(demoScenarioKey))</script>
+<script id="bankrec-file-key" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(latestFileName ?? string.Empty))</script>
+<script id="bankrec-mode-overview-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeOverview"].Value))</script>
+<script id="bankrec-mode-classification-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeClassification"].Value))</script>
+<script id="bankrec-mode-reconciliation-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeReconciliation"].Value))</script>
+<script id="bankrec-mode-auto-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_DemoScenario_Overview_Title"].Value))</script>
+<script id="bankrec-mode-partial-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ProcessPartialTitle"].Value))</script>
+<script id="bankrec-mode-overview-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeDescriptionOverview"].Value))</script>
+<script id="bankrec-mode-classification-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeDescriptionClassification"].Value))</script>
+<script id="bankrec-mode-reconciliation-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ModeDescriptionReconciliation"].Value))</script>
+<script id="bankrec-mode-auto-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_DemoScenario_Overview_Description"].Value))</script>
+<script id="bankrec-mode-partial-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ProcessPartialDescription"].Value))</script>
+<script id="bankrec-classification-all-types" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ClassificationAllTypes"].Value))</script>
+<script id="bankrec-no-transactions-for-selected-type" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoTransactionsForSelectedType"].Value))</script>
+<script id="bankrec-suggested-account-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SuggestedAccount"].Value))</script>
+<script id="bankrec-suggested-cost-center-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SuggestedCostCenter"].Value))</script>
+<script id="bankrec-coding-panel-eyebrow" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingPanelEyebrow"].Value))</script>
+<script id="bankrec-coding-panel-title" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingPanelTitle"].Value))</script>
+<script id="bankrec-coding-panel-hint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingPanelHint"].Value))</script>
+<script id="bankrec-coding-legend-suggested" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingLegendSuggested"].Value))</script>
+<script id="bankrec-coding-legend-editable" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingLegendEditable"].Value))</script>
+<script id="bankrec-coding-account-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingAccount"].Value))</script>
+<script id="bankrec-coding-cost-center-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingCostCenter"].Value))</script>
+<script id="bankrec-coding-reset-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingReset"].Value))</script>
+<script id="bankrec-coding-save-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingSave"].Value))</script>
+<script id="bankrec-coding-save-success-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingSaveSuccess"].Value))</script>
+<script id="bankrec-coding-save-failure-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CodingSaveFailure"].Value))</script>
+<script id="bankrec-coding-unsaved-confirm" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_UnsavedCodingConfirm"].Value))</script>
+<script id="bankrec-complete-ready-title" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteReadyTitle"].Value))</script>
+<script id="bankrec-complete-ready-message" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteReadyMessage"].Value))</script>
+<script id="bankrec-complete-pending-title" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompletePendingTitle"].Value))</script>
+<script id="bankrec-complete-pending-message" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompletePendingMessage"].Value))</script>
+<script id="bankrec-complete-items-loading" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteItemsLoading"].Value))</script>
+<script id="bankrec-complete-items-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteItemsEmpty"].Value))</script>
+<script id="bankrec-complete-review-reason" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteReviewReason"].Value))</script>
+<script id="bankrec-complete-unmatched-reason" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteUnmatchedReason"].Value))</script>
+<script id="bankrec-complete-matched-reason" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteMatchedReason"].Value))</script>
+<script id="bankrec-complete-handle-action" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteHandleAction"].Value))</script>
+<script id="bankrec-complete-view-action" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteViewAction"].Value))</script>
+<script id="bankrec-complete-load-error" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CompleteLoadError"].Value))</script>
+<script id="bankrec-manual-invoice-title" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualInvoiceTitle"].Value))</script>
+<script id="bankrec-manual-invoice-description" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualInvoiceDescription"].Value))</script>
+<script id="bankrec-manual-invoice-choice" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualInvoiceChoice"].Value))</script>
+<script id="bankrec-coding-rules-json" type="application/json">@Html.Raw(Model.CodingRulesJson)</script>
+<script id="bankrec-coding-rules-version" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CodingRulesVersion))</script>
+<script id="bankrec-bank-account-key" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BankAccountKey))</script>
+<script id="bankrec-bank-account-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BankAccountLabel))</script>
+<script id="bankrec-coding-save-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationSaveCodingRules", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-transactions-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationTransactions", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-transactions-page-size" type="application/json">20</script>
+<script id="bankrec-invoices-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationInvoices", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-invoices-page-size" type="application/json">20</script>
+<script id="bankrec-no-invoices-message" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoInvoicesOnPage"].Value))</script>
+<script id="bankrec-invoices-error-message" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_InvoicesUnavailable"].Value))</script>
+<script id="bankrec-loading-text" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["Admin_Loading"].Value))</script>
+<script id="bankrec-state-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationState", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-close-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationClose", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-reopen-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationReopen", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-closed-title" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ClosedTitle"].Value))</script>
+<script id="bankrec-closed-message" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ClosedMessage"].Value))</script>
+<script id="bankrec-close-ready-status" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_CloseReadyStatus"].Value))</script>
+<script id="bankrec-close-pending-status" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ClosePendingStatus"].Value))</script>
+<script id="bankrec-closed-status" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ClosedStatus"].Value))</script>
+<script id="bankrec-save-coding-before-close" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SaveCodingBeforeClose"].Value))</script>
+<script id="bankrec-recommendations-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationRecommendations", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-ai-suggestions-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationAiSuggestions", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-confidence-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SelectBothForAssessment"].Value))</script>
+<script id="bankrec-recommendation-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SelectTransactionForRecommendations"].Value))</script>
+<script id="bankrec-recommendation-loading" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_LoadingRecommendations"].Value))</script>
+<script id="bankrec-no-recommendations" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoRecommendations"].Value))</script>
+<script id="bankrec-recommendation-title-singular" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_RecommendationTitleSingular"].Value))</script>
+<script id="bankrec-recommendation-title-plural" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_RecommendationTitle"].Value))</script>
+<script id="bankrec-step2-singular" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_Step2RecommendedInvoice"].Value))</script>
+<script id="bankrec-step2-plural" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_Step2RecommendedInvoices"].Value))</script>
+<script id="bankrec-activity-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoRecentChanges"].Value))</script>
+<script id="bankrec-confidence-high" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConfidenceHigh"].Value))</script>
+<script id="bankrec-confidence-medium" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConfidenceMedium"].Value))</script>
+<script id="bankrec-confidence-low" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConfidenceLow"].Value))</script>
+<script id="bankrec-manual-confirmation-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualConfirmationRequired"].Value))</script>
+<script id="bankrec-manual-confirmation-default-reason" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualConfirmationDefaultReason"].Value))</script>
+<script id="bankrec-action-manual-match" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ActionManualMatch"].Value))</script>
+<script id="bankrec-action-auto-match" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ActionAutoMatch"].Value))</script>
+<script id="bankrec-action-reset" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ActionReset"].Value))</script>
+<script id="bankrec-action-reverse" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ActionReverse"].Value))</script>
+<script id="bankrec-current-allocations-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoCurrentAllocations"].Value))</script>
+<script id="bankrec-remove-allocation-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_RemoveAllocation"].Value))</script>
+<script id="bankrec-current-allocations-prefix" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AllocationPrefix"].Value))</script>
+<script id="bankrec-match-amount-note-default" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_MatchAmountHint"].Value))</script>
+<script id="bankrec-match-amount-note-selected" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_MatchAmountSelectedHint"].Value))</script>
+<script id="bankrec-match-amount-note-limit-transaction" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_MatchAmountLimitTransaction"].Value))</script>
+<script id="bankrec-match-amount-note-limit-invoice" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_MatchAmountLimitInvoice"].Value))</script>
+<script id="bankrec-match-amount-note-limit-both" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_MatchAmountLimitBoth"].Value))</script>
+<script id="bankrec-auto-results-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AutoMatchedEmpty"].Value))</script>
+<script id="bankrec-auto-match-success" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AutoMatchSuccess"].Value))</script>
+<script id="bankrec-auto-match-no-change" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AutoMatchNoChange"].Value))</script>
+<script id="bankrec-manual-review-empty" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ManualReviewQueueEmpty"].Value))</script>
+<script id="bankrec-no-safe-recommendation" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_NoSafeRecommendation"].Value))</script>
+<script id="bankrec-ai-select-transaction" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistSelectTransaction"].Value))</script>
+<script id="bankrec-ai-loading" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistLoading"].Value))</script>
+<script id="bankrec-ai-disabled" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistDisabled"].Value))</script>
+<script id="bankrec-ai-provider-missing" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistProviderMissing"].Value))</script>
+<script id="bankrec-ai-no-suggestions" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistNoSuggestions"].Value))</script>
+<script id="bankrec-ai-prompt-version-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistPromptVersion"].Value))</script>
+<script id="bankrec-ai-input-hash-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistInputHash"].Value))</script>
+<script id="bankrec-ai-no-external-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistNoExternalData"].Value))</script>
+<script id="bankrec-ai-limited-external-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistLimitedExternalData"].Value))</script>
+<script id="bankrec-ai-skipped-strong-match" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AiAssistSkippedStrongMatch"].Value))</script>
+<script id="bankrec-view-transaction-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ViewTransaction"].Value))</script>
+<script id="bankrec-selected-transaction-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_SelectedTransaction"].Value))</script>
+<script id="bankrec-conflict-title-text" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConflictTitle"].Value))</script>
+<script id="bankrec-conflict-message-text" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConflictMessage"].Value))</script>
+<script id="bankrec-conflict-message-current-version" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_ConflictMessageWithVersion"].Value))</script>
+<form id="__af" class="d-none">@Html.AntiForgeryToken()</form>
+<script id="bankrec-save-matches-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationSaveMatches", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-auto-match-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationAutoMatch", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-reset-matches-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationResetMatches", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-manual-match-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationManualMatch", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-reverse-match-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationReverseMatch", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-payment-bundles-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationPaymentBundles", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-confirm-payment-bundle-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationConfirmPaymentBundle", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-confirm-manual-payment-bundle-endpoint" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("BankReconciliationConfirmManualPaymentBundle", "BankReconciliation") ?? string.Empty))</script>
+<script id="bankrec-adjust-payment-bundle-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_PaymentBundleAdjustManual"].Value))</script>
+<script id="bankrec-upload-idle-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_AddFile"].Value))</script>
+<script id="bankrec-upload-ready-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_UploadReady"].Value))</script>
+<script id="bankrec-uploading-label" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["BankRec_Uploading"].Value))</script>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.querySelector('.bankrec-upload-form');
+            const input = document.getElementById('bankrec-upload-input');
+            const trigger = document.getElementById('bankrec-upload-trigger');
+
+            if (!form || !input || !trigger) {
+                return;
+            }
+
+            const idleLabel = JSON.parse(document.getElementById('bankrec-upload-idle-label')?.textContent || '"Lägg till camt.053-fil"');
+            const readyLabel = JSON.parse(document.getElementById('bankrec-upload-ready-label')?.textContent || '"Ladda upp camt.053"');
+            const uploadingLabel = JSON.parse(document.getElementById('bankrec-uploading-label')?.textContent || '"Läser in camt.053..."');
+            let isSubmitting = false;
+
+            const setUploading = () => {
+                isSubmitting = true;
+                trigger.textContent = uploadingLabel;
+                trigger.disabled = true;
+                trigger.setAttribute('aria-busy', 'true');
+            };
+
+            const syncButton = () => {
+                if (isSubmitting) {
+                    return;
+                }
+
+                trigger.textContent = input.files && input.files.length > 0 ? readyLabel : idleLabel;
+            };
+
+            trigger.addEventListener('click', () => {
+                if (isSubmitting) {
+                    return;
+                }
+
+                if (input.files && input.files.length > 0) {
+                    setUploading();
+                    form.requestSubmit();
+                    return;
+                }
+
+                input.click();
+            });
+
+            input.addEventListener('change', () => {
+                syncButton();
+                if (input.files && input.files.length > 0) {
+                    setUploading();
+                    form.requestSubmit();
+                }
+            });
+
+            form.addEventListener('submit', setUploading);
+            syncButton();
+        })();
+    </script>
+    <script src="~/js/bank-reconciliation-matching.js" asp-append-version="true"></script>
+    <script src="~/js/bank-reconciliation-demo.js" asp-append-version="true"></script>
+    <script src="~/js/bank-reconciliation-payment-bundles.js" asp-append-version="true"></script>
+}

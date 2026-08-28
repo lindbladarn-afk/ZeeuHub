@@ -1,0 +1,59 @@
+@model WebApp.Controllers.AIController.AiViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var compactWidget = ViewData["AiCompactWidget"] as bool? == true;
+    var dsName = !string.IsNullOrWhiteSpace(Model?.DataSourceInfo?.Database)
+        ? Model!.DataSourceInfo!.Database!
+        : (Model?.SelectedDataSourceName ?? Localizer["Unknown"].Value);
+    var canSwitchDataSource = Model?.IsAdmin == true && (Model?.DataSources?.Count ?? 0) > 1;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+@if (canSwitchDataSource || !compactWidget)
+{
+    <div class="d-flex align-items-center gap-2 ai-hero-badges">
+        @if (canSwitchDataSource)
+        {
+            <details class="ai-ds-dropdown">
+                <summary class="ai-ds-chip ai-ds-chip--interactive">
+                    <span class="ai-ds-chip__content">
+                        <i class="fa fa-database"></i>
+                        <span class="ai-ds-chip__label">@Localizer["Databas"]</span>
+                        <strong id="ds-chip">@dsName</strong>
+                    </span>
+                    <i class="fa fa-angle-down ai-ds-chip__caret" aria-hidden="true"></i>
+                </summary>
+
+                <div class="ai-ds-dropdown__menu">
+                    <div class="ai-ds-dropdown__title">@Localizer["Välj databas"]</div>
+                    <form asp-action="SetDataSource" asp-controller="AI" method="post" class="ai-ds-dropdown__form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        @foreach (var ds in Model!.DataSources)
+                        {
+                            var isSelected = string.Equals(ds.Key, Model.SelectedDataSourceKey, StringComparison.OrdinalIgnoreCase);
+                            <button type="submit"
+                                    name="key"
+                                    value="@ds.Key"
+                                    class="ai-ds-option@(isSelected ? " is-active" : string.Empty)">
+                                <span class="ai-ds-option__name">@ds.Name</span>
+                                @if (isSelected)
+                                {
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                }
+                            </button>
+                        }
+                    </form>
+                </div>
+            </details>
+        }
+        else
+        {
+            <div class="ai-ds-chip">
+                <i class="fa fa-database"></i>
+                <span class="ai-ds-chip__label">@Localizer["Databas"]</span>
+                <strong id="ds-chip">@dsName</strong>
+            </div>
+        }
+    </div>
+}

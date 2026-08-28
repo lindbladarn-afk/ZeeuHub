@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Excelimport" xml:space="preserve">
+    <value>Excel Import</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Välj importtyp och ladda upp filen." xml:space="preserve">
+    <value>Select import type and upload the file.</value>
+  </data>
+  <data name="Dra in en Excel-fil eller klicka på Importera fil för att välja från din dator. Vi tar emot .xls, .xlsx, .xlsm och .csv." xml:space="preserve">
+    <value>Drag in an Excel file or click Import file to choose from your computer. We accept .xls, .xlsx, .xlsm and .csv.</value>
+  </data>
+  <data name="Importtyp" xml:space="preserve">
+    <value>Import type</value>
+  </data>
+  <data name="Jag bekräftar att vald importtyp stämmer med filen." xml:space="preserve">
+    <value>I confirm the selected import type matches the file.</value>
+  </data>
+  <data name="Släpp filen här" xml:space="preserve">
+    <value>Drop the file here</value>
+  </data>
+  <data name="eller klicka nedan för att importera från datorn" xml:space="preserve">
+    <value>or click below to import from your computer</value>
+  </data>
+  <data name="Importera fil" xml:space="preserve">
+    <value>Import file</value>
+  </data>
+  <data name="Ingen fil vald ännu." xml:space="preserve">
+    <value>No file selected yet.</value>
+  </data>
+  <data name="Rensa" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Starta import" xml:space="preserve">
+    <value>Start import</value>
+  </data>
+  <data name="Så funkar det" xml:space="preserve">
+    <value>How it works</value>
+  </data>
+  <data name="Verifierar filtyp innan uppladdning." xml:space="preserve">
+    <value>Verify file type before upload.</value>
+  </data>
+  <data name="Import körs efter att filen mottagits." xml:space="preserve">
+    <value>Import runs after the file is received.</value>
+  </data>
+  <data name="Stöder .xls, .xlsx, .xlsm och .csv." xml:space="preserve">
+    <value>Supports .xls, .xlsx, .xlsm and .csv.</value>
+  </data>
+  <data name="Behöver du en mall?" xml:space="preserve">
+    <value>Need a template?</value>
+  </data>
+  <data name="Ladda upp din befintliga Excel-fil eller prata med oss om du vill ha en mall för din data." xml:space="preserve">
+    <value>Upload your existing Excel file or talk to us if you need a template for your data.</value>
+  </data>
+  <data name="Kontakta support" xml:space="preserve">
+    <value>Contact support</value>
+  </data>
+  <data name="ExcelImport_ProcessingButton" xml:space="preserve">
+    <value>Starting import...</value>
+  </data>
+  <data name="ExcelImport_LoaderTitle" xml:space="preserve">
+    <value>Import is starting</value>
+  </data>
+  <data name="ExcelImport_LoaderCopy" xml:space="preserve">
+    <value>The file is being queued and validated. Follow progress under Import status further down the page.</value>
+  </data>
+  <data name="ExcelImport_LoaderAriaLabel" xml:space="preserve">
+    <value>Import is starting</value>
+  </data>
+</root>

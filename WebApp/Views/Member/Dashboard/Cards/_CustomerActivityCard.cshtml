@@ -1,0 +1,36 @@
+@* Renders recent customer activity for the active dashboard company. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.CustomerActivityCardViewModel ?? new();
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.LazyLoadUrl))
+{
+    <div class="dashboard-lazy-card-shell"
+         data-dashboard-lazy-card="true"
+         data-url="@Model.LazyLoadUrl"
+         data-card-id="@Model.Id">
+        <div class="card kpi-card p-2 h-100 dashboard-equal-card dashboard-lazy-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="dashboard-card-title m-0">@Localizer["Title"]</h5>
+            </div>
+            <div class="dashboard-equal-card-body dashboard-lazy-card-body">
+                <div class="dashboard-skeleton-line dashboard-skeleton-line-lg"></div>
+                <div class="dashboard-skeleton-line"></div>
+                <div class="dashboard-skeleton-line dashboard-skeleton-line-sm"></div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card kpi-card p-2 h-100 dashboard-equal-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="dashboard-card-title m-0">@Localizer["Title"]</h5>
+        </div>
+        <div class="dashboard-equal-card-body">
+            @await Html.PartialAsync("~/Views/Shared/Components/CustomerActivity/Default.cshtml", card.Activity)
+        </div>
+    </div>
+}

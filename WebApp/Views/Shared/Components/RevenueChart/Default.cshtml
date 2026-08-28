@@ -1,0 +1,88 @@
+@* Renders the revenue chart with explicit period descriptions for each aggregation mode. *@
+@model WebApp.Models.Dashboard.RevenueDataModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    var chartLabel = Localizer["MetricRevenue"].Value;
+    var weekLabel = Localizer["Week"].Value;
+    var monthLabel = Localizer["Month"].Value;
+    var quarterLabel = Localizer["Quarter"].Value;
+    var allLabel = Localizer["All"].Value;
+    var unitMsek = Localizer["UnitMsek"].Value;
+    var unitKsek = Localizer["UnitKsek"].Value;
+    var unitSek = Localizer["UnitSek"].Value;
+    var title = Localizer["Title"].Value;
+    var subtitle = Localizer["Subtitle"].Value;
+    var summaryTotal = Localizer["SummaryTotal"].Value;
+    var summaryAverage = Localizer["SummaryAverage"].Value;
+    var summaryBestPeriod = Localizer["SummaryBestPeriod"].Value;
+    var summaryBestValue = Localizer["SummaryBestValue"].Value;
+    var hoverHint = Localizer["HoverHint"].Value;
+    var weekDescription = Localizer["WeekDescription"].Value;
+    var monthDescription = Localizer["MonthDescription"].Value;
+    var quarterDescription = Localizer["QuarterDescription"].Value;
+    var allDescription = Localizer["AllDescription"].Value;
+}
+
+<div class="card h-100 revenue-chart-card"
+	 data-chart-label="@chartLabel"
+	 data-week-label="@weekLabel"
+	 data-month-label="@monthLabel"
+	 data-quarter-label="@quarterLabel"
+	 data-all-label="@allLabel"
+	 data-week-description="@weekDescription"
+	 data-month-description="@monthDescription"
+	 data-quarter-description="@quarterDescription"
+	 data-all-description="@allDescription"
+	 data-unit-msek="@unitMsek"
+	 data-unit-ksek="@unitKsek"
+	 data-unit-sek="@unitSek">
+	<div class="card-body revenue-chart-card-body">
+		<div class="rev-chart-header">
+			<div class="rev-chart-heading">
+				<div class="rev-chart-title">@title</div>
+			<div class="rev-chart-sub">@subtitle</div>
+            <div class="rev-chart-period-note" id="revActivePeriodDescription">@weekDescription</div>
+			</div>
+			<div class="btn-group rev-chart-filters" role="group" aria-label="@title">
+				<button type="button" class="btn active" data-rev-period="week" aria-pressed="true">@weekLabel</button>
+				<button type="button" class="btn" data-rev-period="month" aria-pressed="false">@monthLabel</button>
+				<button type="button" class="btn" data-rev-period="quarter" aria-pressed="false">@quarterLabel</button>
+				<button type="button" class="btn" data-rev-period="all" aria-pressed="false">@allLabel</button>
+			</div>
+		</div>
+
+		<div class="rev-period-summary">
+			<div class="rev-period-card rev-period-card-highlight">
+				<div class="rev-period-label">@summaryTotal</div>
+				<div class="rev-period-value" id="revSelectedTotal">-</div>
+			</div>
+			<div class="rev-period-card">
+				<div class="rev-period-label">@summaryAverage</div>
+				<div class="rev-period-value" id="revSelectedAverage">-</div>
+			</div>
+			<div class="rev-period-card">
+				<div class="rev-period-label">@summaryBestPeriod</div>
+				<div class="rev-period-value" id="revSelectedBestLabel">-</div>
+			</div>
+			<div class="rev-period-card rev-period-card-highlight">
+				<div class="rev-period-label">@summaryBestValue</div>
+				<div class="rev-period-value" id="revSelectedBestValue">-</div>
+			</div>
+		</div>
+
+		<div class="rev-chart-stage">
+			<div class="rev-chart-meta">
+				<div class="rev-chart-meta-left">
+					<span class="rev-chart-pill" id="revActiveAxisTitle">@Model?.Week?.XTitle</span>
+					<span class="rev-chart-pill" id="revActiveUnit">@unitMsek</span>
+				</div>
+				<div class="rev-chart-meta-copy">@hoverHint</div>
+			</div>
+			<div class="rev-chart-canvas-wrap">
+				<canvas id="chartRevenue" class="chart-area rev-chart-canvas"></canvas>
+				<div class="rev-chart-tooltip" id="revChartTooltip" aria-hidden="true"></div>
+			</div>
+		</div>
+	</div>
+</div>

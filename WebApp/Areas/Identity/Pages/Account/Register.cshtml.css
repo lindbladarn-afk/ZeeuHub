@@ -1,0 +1,92 @@
+﻿.back_image {
+    background-image: url("/img/register/ZeeUTableTennis.png");
+    filter: brightness(50%);
+}
+
+.register.register-with-news-feed {
+    background:
+        radial-gradient(circle at top left, rgba(17, 24, 39, 0.86), rgba(15, 23, 42, 0.98)),
+        linear-gradient(135deg, #0f172a 0%, #111827 45%, #1e293b 100%);
+}
+
+.register.register-with-news-feed .news-feed::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.04), rgba(15, 23, 42, 0.84)),
+        linear-gradient(120deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08));
+}
+
+.register.register-with-news-feed .news-feed .news-caption,
+.register.register-with-news-feed .register-container {
+    z-index: 2;
+}
+
+.register.register-with-news-feed .news-feed .news-caption {
+    background: none;
+}
+
+.register.register-with-news-feed .news-feed .news-caption .caption-title {
+    color: #ffffff;
+    text-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
+}
+
+.register.register-with-news-feed .news-feed .news-caption p {
+    color: rgba(226, 232, 240, 0.88);
+}
+
+.register.register-with-news-feed .register-container {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 250, 252, 0.97));
+    border-radius: 30px 0 0 30px;
+    box-shadow: -24px 0 60px rgba(15, 23, 42, 0.28);
+}
+
+.register.register-with-news-feed .register-header .mb-1 {
+    color: #0f172a;
+}
+
+.register.register-with-news-feed .register-header small,
+.register.register-with-news-feed .register-content,
+.register.register-with-news-feed .register-content label,
+.register.register-with-news-feed .register-content .form-check-label,
+.register.register-with-news-feed .register-content .text-gray-600,
+.register.register-with-news-feed .register-content .mb-4.pb-5 {
+    color: #475569;
+}
+
+.register.register-with-news-feed .register-content .form-control {
+    border-radius: 14px;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    box-shadow: none;
+}
+
+.register.register-with-news-feed .register-content .form-control::placeholder {
+    color: #94a3b8;
+}
+
+.register.register-with-news-feed .register-content .form-control:focus {
+    border-color: #7fb3e8;
+    box-shadow: 0 0 0 0.2rem rgba(127, 179, 232, 0.18);
+}
+
+.register.register-with-news-feed .register-content .form-check-input {
+    border-radius: 6px;
+}
+
+.register.register-with-news-feed .register-content .btn-primary {
+    border-radius: 14px;
+    background: linear-gradient(180deg, #9fd0f8, #8bbfe9);
+    border-color: #8bbfe9;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(139, 191, 233, 0.26);
+}
+
+.register.register-with-news-feed .register-content hr.bg-gray-600 {
+    color: #cbd5e1;
+}
+
+.register.register-with-news-feed .register-content p.text-center {
+    color: #64748b !important;
+}

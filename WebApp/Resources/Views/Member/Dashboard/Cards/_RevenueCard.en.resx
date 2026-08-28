@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AnnualRunRateTitle" xml:space="preserve"><value>Revenue (last 12 months)</value></data>
+  <data name="NoComparison" xml:space="preserve"><value>No comparison is available for the selected company</value></data>
+  <data name="NoData" xml:space="preserve"><value>No data</value></data>
+  <data name="AverageOrderValueTitle" xml:space="preserve"><value>Average order value (30 days)</value></data>
+  <data name="BasedOnOrders" xml:space="preserve"><value>Based on {0} orders</value></data>
+  <data name="AnnualRunRatePeriod" xml:space="preserve"><value>Basis: {0} to {1}</value></data>
+  <data name="AverageOrderValuePeriod" xml:space="preserve"><value>Period: {0} to {1}</value></data>
+  <data name="NoPeriodData" xml:space="preserve"><value>No period is available for the selected company</value></data>
+  <data name="RollingTwelveMonths" xml:space="preserve"><value>Rolling 12 months</value></data>
+  <data name="AverageOrderValueWindow" xml:space="preserve"><value>Last 30 days</value></data>
+  <data name="RollingAnalysisPeriod" xml:space="preserve"><value>Basis: {0} to {1}</value></data>
+  <data name="TopSellersTitle" xml:space="preserve"><value>Top-selling products</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="AverageOrderValueSummary" xml:space="preserve"><value>Calculated from {0} orders between {1} and {2}</value></data>
+  <data name="AnnualRunRateSummary" xml:space="preserve"><value>Calculated from {0} MSEK across {1} orders between {2} and {3}</value></data>
+  <data name="NoOrderDetails" xml:space="preserve"><value>No order details were found.</value></data>
+  <data name="OrderColumn" xml:space="preserve"><value>Order</value></data>
+  <data name="DateColumn" xml:space="preserve"><value>Date</value></data>
+  <data name="AmountColumn" xml:space="preserve"><value>Amount</value></data>
+  <data name="OrdersColumn" xml:space="preserve"><value>Orders in basis</value></data>
+  <data name="RevenueBasisColumn" xml:space="preserve"><value>Revenue in basis</value></data>
+  <data name="AverageOrderValueShort" xml:space="preserve"><value>Avg. order</value></data>
+  <data name="HighestOrderColumn" xml:space="preserve"><value>Highest order</value></data>
+</root>

@@ -1,0 +1,35 @@
+# Synonyms used to improve interpretation of user questions.
+# Keep keys lowercase.
+
+customer:
+  - kund
+  - kunder
+  - kundnamn
+  - ftgnamn
+  - företag
+
+invoice:
+  - faktura
+  - fakturor
+  - öppen
+  - öppna
+  - obetalda
+  - förfallen
+  - unpaid
+  - open
+
+order:
+  - order
+  - ordrar
+  - ordernummer
+  - ordernr
+
+revenue:
+  - omsättning
+  - intäkt
+  - försäljning
+
+aov:
+  - snittordervärde
+  - aov
+  - genomsnittligt ordervärde

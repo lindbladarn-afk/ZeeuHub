@@ -1,0 +1,57 @@
+xvivo
+22xxxx - Installerat hos Xvivo - de gör gamla modellen. Justeringar gjorda i test avseende automatik runt approval
+
+continova
+230305 - Installerat i Sandbox - aktiverat bolag 30 - med default attestkejda samt automatik approval ko. Avvaktar svar tester
+230430 - Installerat paket 1.5
+230508 - Installerat 1.6 i Sandbox.lagt upp sy2 zujan och pr zujan. Aktiverat inköp via jvsp. Samt lagt in nyckel. Testat kundorder OK med portal.
+230528 - Intallerat 1.7 i Sandbox (Olof justerat triggrar). fortfarande problem med web - mailat Daniel. och trigger verkar inte funka - går ändra pris på approved order.
+
+
+
+
+boråstapeter
+230313 - Installaterat i EDU för de att testa flödet. Paketering med automtik kundorder och default attestkedja
+230326 - Feedback på funktionalitetsförbättringar
+230508 - Installerat 1.6 i Test.lagt upp sy2 zujan och pr zujan. Aktiverat inköp o fsg via jvsp. Samt lagt in nyckel. Verkar inte som hela paketet går in - i allafall oh_trg. Men best är testad
+230514 - Testat kundorder efter att Olof fixat oh_update. Funkar
+231218 - Installerat 1.9 i Test - gjort enl Installationsflöde nedan. Aktiverat sälj. Se tester i OneNote
+
+col
+230326 - Test - Installerat senaste paket 1.3 - som också har stöd för approved by och approved date
+230423 - Test - Installerat senaset paket 1.4 - med justeringar runt under registrering/registrerad och stauskod 3. Hybridconnectio Installerad på coljvsftp01  - dock saknas fler av daniels procedurer och fält i le och ar.
+230426 - Test - Installerat paket 1.5. Ny installation på coljvsftp01 - men access till azure saknas
+230502 - Test - Installerat paket 1.6. lagt upp sy2 zujan och pr zujan. Aktiverat inköp via jvsp. Samt lagt in nyckel. bytt till sign biz för att designa pgm be. testat inköp
+
+
+
+
+Installationsflöde
+1. Läs på senaste paketet (1.9 uppskapat 231218 innehåller också prislista)
+2. Lägg upp våra testattestanter enl vårt id - t ex zujan i program sy2 (ej giltig att använda samt defaultföretag) -  och pr
+3. Peka om ZeeU testanvändare t ex zujan till kundensmiljö
+4. Starta om Jeeves och uppdatera databasen
+5. Aktivera jvsp för de funktioner som ska köras - 
+Custom_portal_1	dbmail profil för att skicka approval mail
+Custom_portal_2	unik nyckel för webapproval
+Custom_portal_3	Aktivera Webapproval Sales
+Custom_portal_4	Aktivera Webapproval Purchase
+Custom_portal_5	Aktivera Webapproval Pricelist rows
+
+6. Lägga upp 3 flöden i gpm q_zu_approval_flows - 0 Purchase order, 1 Sales order, 2 Pricelist
+7. Sätt upp 3 SENT FOR APPROVAL i pgm q_zu_approval_status
+7. Designa program order1 och be om det behövs - atteststatus och textblopp ska funktionalitetsförbättringar
+
+
+
+
+script efter installation
+ALTER TABLE [dbo].[q_zu_approval_chains] ADD  DEFAULT ((0.00)) FOR [q_zu_attestlimit_2]
+Lägg till status 3 i approval
+Designa upp order1 och be
+Lägg till fält q_zu_approval_message i be
+Lägg till knapp makro purchase i be
+
+
+
+

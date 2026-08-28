@@ -1,0 +1,231 @@
+﻿@model Entities.ViewModels.WebApproval.WebApprovalSaleOrderVM
+
+@using Entities.Application
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.Services
+@using Microsoft.AspNetCore.Http
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+	// Sales approval detail now follows the shared hub-style shell used across Web Approval.
+	// Approval actions and data bindings stay unchanged.
+	ViewData["Title"] = localizer["PageName"];
+	var currentUser = HttpContextAccessor.HttpContext?.Session.Get<UserSession>("UserObject");
+	// var companySpecificMessage = ViewBag["Xvivo_"];
+	var orderRows = Model?.OrderRows?.ToList() ?? new System.Collections.Generic.List<Entities.ViewModels.WebApproval.WebApprovalSaleOrderRowVM>();
+}
+
+@section Scripts{
+	<script>
+		function printDiv(divName){
+			var printContents = document.getElementById(divName).innerHTML;
+			var originalContents = document.body.innerHTML;
+
+			document.body.innerHTML = printContents;
+
+			window.print();
+
+			document.body.innerHTML = originalContents;
+		}
+	</script>
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/webapproval.css" asp-append-version="true" />
+}
+
+
+<div class="dashboard-readable module-page webapproval-detail-page webapproval-module">
+    <div class="module-page-header hidden-print">
+        <div>
+            <div class="dashboard-card-title">Web Approval</div>
+            <h1 class="module-page-title">@localizer["PageHeader_SalesApproval"]</h1>
+            <div class="module-page-subtitle">@localizer["PageHeader_SalesApproval_SubTitle"]</div>
+            <div class="module-page-meta">@Model?.CustomerName · @localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Alert")
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(u => u.Id)
+    @Html.HiddenFor(u => u.Foretagkod)
+    @Html.HiddenFor(u => u.CustomerNumber)
+    @Html.HiddenFor(u => u.AttestantName)
+    @Html.HiddenFor(u => u.AttestantPersSign)
+    @Html.HiddenFor(u => u.CustomerName)
+    @Html.HiddenFor(u => u.CustomerReference)
+    @Html.HiddenFor(u => u.DeliveryAddress2)
+    @Html.HiddenFor(u => u.DeliveryAddress3)
+    @Html.HiddenFor(u => u.DeliveryAddress4)
+    @Html.HiddenFor(u => u.SalesReference)
+    @Html.HiddenFor(u => u.ApprovalStatus)
+    @Html.HiddenFor(u => u.OrderStatusDescription)
+    @Html.HiddenFor(u => u.OrderNumber)
+    @Html.HiddenFor(u => u.OrderType)
+    @Html.HiddenFor(u => u.OrderRegisteredDate)
+    @Html.HiddenFor(u => u.OrderEstimatedDeliveryDate)
+    @Html.HiddenFor(u => u.Currency)
+    @Html.HiddenFor(u => u.OrderValueLocal)
+    @Html.HiddenFor(u => u.OrderValue)
+
+    <div class="approval-shell card kpi-card p-3 p-lg-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <div class="text-uppercase text-muted fs-11px">@localizer["Header_OrderDetails"]</div>
+                <h1 class="page-header mb-0">#@Html.DisplayFor(u => u.OrderNumber)</h1>
+                <div class="text-muted">
+                    @Html.DisplayFor(u => u.CustomerName)
+                    @(!string.IsNullOrWhiteSpace(Model?.CustomerNumber) ? $" ({Model.CustomerNumber})" : "")
+                </div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <a asp-action="SalesApproval" class="btn btn-portal btn-portal-outline btn-sm">Tillbaka till attestlista</a>
+                <a href="javascript:;" onclick="printDiv('approval-details')" class="btn btn-portal btn-portal-outline btn-sm"><i class="fa fa-print me-1"></i>Print</a>
+            </div>
+        </div>
+
+        <div id="approval-details">
+            <div class="row g-3 mb-3 kpi-list">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card kpi-card h-100">
+                        <div class="card-body">
+                            <div class="text-uppercase text-muted fs-11px">@localizer["Header_To"]</div>
+                            <ul class="list-unstyled mb-0">
+                                <li class="fw-semibold">@Html.DisplayFor(u => u.CustomerName)</li>
+                                <li>@localizer["Header_CustomerReference"] @Html.DisplayFor(u => u.CustomerReference)</li>
+                                <li>@Html.DisplayFor(u => u.DeliveryAddress2)</li>
+                                <li>@Html.DisplayFor(u => u.DeliveryAddress3)</li>
+                                <li>@Html.DisplayFor(u => u.DeliveryAddress4)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card kpi-card h-100">
+                        <div class="card-body">
+                            <div class="text-uppercase text-muted fs-11px">@localizer["Header_From"]</div>
+                            <ul class="list-unstyled mb-0">
+                                <li class="fw-semibold">@currentUser?.CompanyName</li>
+                                <li>@localizer["Header_SalesPerson"] @Html.DisplayFor(u => u.SalesReference)</li>
+                                <li>@localizer["Header_Approver"] @Html.DisplayFor(u => u.AttestantName)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="card kpi-card h-100">
+                        <div class="card-body">
+                            <div class="text-uppercase text-muted fs-11px">@localizer["Header_OrderDetails"]</div>
+                            <ul class="list-unstyled mb-0">
+                                <li><span class="fw-semibold">@localizer["Header_OrderNumber"]</span> @Html.DisplayFor(u => u.OrderNumber)</li>
+                                <li><span class="fw-semibold">@localizer["Header_OrderType"]</span> @Html.DisplayFor(u => u.OrderType)</li>
+                                <li><span class="fw-semibold">@localizer["Header_OrderStatusDescription"]</span> @Html.DisplayFor(u => u.OrderStatusDescription)</li>
+                                <li><span class="fw-semibold">@localizer["Header_RegistrationDate"]</span> @Html.DisplayFor(u => u.OrderRegisteredDate)</li>
+                                <li><span class="fw-semibold">@localizer["Header_DeliveryDate"]</span> @Html.DisplayFor(u => u.OrderEstimatedDeliveryDate)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card kpi-card mb-3">
+                <div class="card-body">
+                    <div class="text-uppercase text-muted fs-11px mb-2">@localizer["Header_OrderDetails"]</div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 approval-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">@localizer["Header_Row"]</th>
+                                    <th>@localizer["Header_Article"]</th>
+                                    <th class="text-end">@localizer["Header_Quantity"]</th>
+                                    <th class="text-end">@localizer["Header_DeliveryDay"]</th>
+                                    <th class="text-end">@localizer["Header_Price"]</th>
+                                    <th class="text-end">@localizer["Header_Discount"]</th>
+                                    <th class="text-end">@localizer["Header_RowSum"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < orderRows.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="text-center">@Html.DisplayFor(u => u.OrderRows[i].OrderRowNumber)</td>
+                                        <td>
+                                            <span class="fw-semibold">@Html.DisplayFor(u => u.OrderRows[i].ArticleNumber)</span><br />
+                                            <small>@Html.DisplayFor(u => u.OrderRows[i].ArticleDescription)</small>
+                                        </td>
+                                        <td class="text-end">@Html.DisplayFor(u => u.OrderRows[i].Quantity)</td>
+                                        <td class="text-end">@Html.DisplayFor(u => u.OrderRows[i].DeliveryDate)</td>
+                                        <td class="text-end">@Html.DisplayFor(u => u.OrderRows[i].Price)</td>
+                                        <td class="text-end">@Html.DisplayFor(u => u.OrderRows[i].Discount)</td>
+                                        <td class="text-end">@Html.DisplayFor(x => x.OrderRows[i].RowSum)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-lg-12">
+                    <div class="card kpi-card h-100">
+                        <div class="card-body">
+                            <div class="text-uppercase text-muted fs-11px">@localizer["Header_SalesValue"] (@Html.DisplayFor(u => u.Currency))</div>
+                            <div class="approval-total-amount">@Html.DisplayFor(u => u.OrderValueLocal)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model?.Xvivo_q_oh_anteckning))
+            {
+                <div class="card kpi-card mb-4">
+                    <div class="card-body">
+                        <div class="text-uppercase text-muted fs-11px mb-2">Notes</div>
+                        <div>@Html.DisplayFor(u => u.Xvivo_q_oh_anteckning)</div>
+                    </div>
+                </div>
+            }
+
+            <div class="card kpi-card">
+                <div class="card-body">
+                    @if (Model?.ApprovalStatus == 0 || Model?.ApprovalStatus == 3)
+                    {
+                        <div class="dashboard-card-title mb-1">@localizer["Approve_Question"]</div>
+                        <div class="text-muted mb-3">@localizer["Approve_Message"]</div>
+                        <label asp-for="Message" class="form-label mb-1">@localizer["Approve_Message"]</label>
+                        @Html.TextBoxFor(u => u.Message, new { @class = "form-control approval-message", placeholder = "Skriv ett meddelande..." })
+                        <div class="approval-actions mt-3">
+                            <button name="action" type="submit" class="btn btn-portal" value="1">@sharedLocalizer["Approve"]</button>
+                            <button name="action" type="submit" class="btn btn-portal-danger-outline" value="2">@sharedLocalizer["Reject"]</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div>
+                                <div class="dashboard-card-title mb-1">@localizer["Approve_IsHandled"]</div>
+                                <div class="text-muted">
+                                    @Model?.ApprovedBy
+                                    @if (Model?.ApprovedDate is not null)
+                                    {
+                                        <span> · @Model?.ApprovedDate?.ToString("yyyy-MM-dd")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

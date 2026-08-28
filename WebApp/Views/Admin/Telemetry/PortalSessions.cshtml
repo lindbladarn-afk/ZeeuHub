@@ -1,0 +1,121 @@
+@model WebApp.ViewModels.Admin.PortalSessionsPageVm
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    // Portal session telemetry uses the shared admin/module shell so monitoring pages feel like the other admin list and KPI surfaces.
+    ViewData["Title"] = Localizer["Tid i portalen"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page admin-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">@Localizer["Admin"]</div>
+        <h1 class="module-page-title">@Localizer["Tid i portalen"]</h1>
+        <div class="module-page-subtitle">@Localizer["Följ användning, sessionsvolym och bolagsaktivitet för de senaste 30 dagarna."]</div>
+        <div class="module-page-meta">@Localizer["Visar både sammanfattning och senaste sessioner för att hjälpa drift och adoption."]</div>
+    </div>
+</div>
+
+<div class="row g-2 mb-2">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 admin-kpi-card">
+            <div class="card-body">
+                <div class="admin-kpi-label">@Localizer["Totala sessioner"]</div>
+                <div class="admin-kpi-value mb-0">@Model.TotalSessions</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 admin-kpi-card">
+            <div class="card-body">
+                <div class="admin-kpi-label">@Localizer["Totala minuter"]</div>
+                <div class="admin-kpi-value mb-0">@Model.TotalMinutes</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mb-2">
+    <div class="col-lg-6">
+        <div class="card kpi-card p-2 h-100">
+            <div class="admin-section-title mb-2">@Localizer["Toppbolag (minuter)"]</div>
+            <div class="module-table-shell telemetry-table">
+                <div class="table-responsive">
+                <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Bolag"]</th>
+                            <th class="text-end">@Localizer["Minuter"]</th>
+                            <th class="text-end">@Localizer["Sessioner"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopCompanies)
+                        {
+                            <tr>
+                                <td>@item.CompanyName</td>
+                                <td class="text-end">@item.TotalMinutes</td>
+                                <td class="text-end">@item.Sessions</td>
+                            </tr>
+                        }
+                        @if (!Model.TopCompanies.Any())
+                        {
+                            <tr><td colspan="3" class="text-center admin-empty-copy">@Localizer["Inga data"]</td></tr>
+                        }
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card kpi-card p-2 h-100">
+            <div class="admin-section-title mb-2">@Localizer["Senaste sessioner"]</div>
+            <div class="module-table-shell telemetry-table">
+                <div class="table-responsive">
+                <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Användare"]</th>
+                            <th>@Localizer["Bolag"]</th>
+                            <th class="text-end">@Localizer["Minuter"]</th>
+                            <th class="text-end">@Localizer["Senast"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Latest)
+                        {
+                                DateTime localTime;
+                                try
+                                {
+                                    var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Stockholm");
+                                    localTime = TimeZoneInfo.ConvertTimeFromUtc(item.LastSeenAtUtc, tz);
+                                }
+                                catch
+                                {
+                                    localTime = item.LastSeenAtUtc.ToLocalTime();
+                                }
+                            <tr>
+                                <td>@item.UserEmail</td>
+                                <td>@item.CompanyName</td>
+                                <td class="text-end">@item.DurationMinutes</td>
+                                <td class="text-end">@localTime.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                        @if (!Model.Latest.Any())
+                        {
+                            <tr><td colspan="4" class="text-center admin-empty-copy">@Localizer["Inga data"]</td></tr>
+                        }
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

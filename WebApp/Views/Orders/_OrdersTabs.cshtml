@@ -1,0 +1,14 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    var active = (ViewData["OrdersSection"]?.ToString() ?? "list").ToLowerInvariant();
+
+    string TabClass(string key) => active == key
+        ? "btn active"
+        : "btn";
+}
+
+<div class="module-tab-toggle mb-4 orders-tabs">
+    <a class="@TabClass("list")" asp-controller="Orders" asp-action="Index">@sharedLocalizer["Orders_ListTitle"]</a>
+    <a class="@TabClass("forecast")" asp-controller="Orders" asp-action="DeliveryForecast">@sharedLocalizer["Orders_ForecastTitle"]</a>
+</div>

@@ -1,0 +1,93 @@
+﻿@model Entities.ViewModels.Admin.AdminCreateUserViewModel
+
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+
+@* Shared admin create-user modal used from the user list. Keeps onboarding form styling aligned with the rest of the admin module. *@
+<div class="modal fade admin-form-modal" id="createUser" tabindex="-1" aria-labelledby="createUserTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title hidden-print" id="createUserTitle">@sharedLocalizer["AddUser"]</h2>
+                    <div class="modal-subtitle">@sharedLocalizer["Skapa en ny användare och koppla den till rätt bolag, språk och portalbehörighet från start."]</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="Admin" asp-action="CreateUser" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger pb-2"></div>
+                    @* Identity fields are grouped first so onboarding starts with the same structure as the rest of the admin forms. *@
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <input asp-for="FirstName" class="form-control" placeholder="@sharedLocalizer["FirstName"]" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <input asp-for="LastName" class="form-control" placeholder="@sharedLocalizer["LastName"]" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class ="input-group pt-2">
+                                <div class="input-group-text">@@</div>
+                                <input asp-for="Email" class="form-control" placeholder="@sharedLocalizer["Email"]" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="input-group pt-2">
+                                <div class="input-group-text"><div class="fa fa-phone"></div></div>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="@sharedLocalizer["PhoneNumber"]" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <div class="input-group pt-2">
+                                    <div class="input-group-text"><div class="fas fa-globe-americas"></div></div>
+                                    <select id="languageSelect" class="form-select" asp-for="Language">
+                                        <option selected="selected" value="sv">Svenska</option>
+                                        <option value="en">English</option>
+                                    </select>                                   
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <div class="input-group pt-2">
+                                    <div class="input-group-text"><div class="fa fa-id-card-o"></div></div>
+                                    <input asp-for="PersSign" class="form-control" placeholder="@sharedLocalizer["Perssign"]" />
+                                    <span asp-validation-for="PersSign" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="input-group pt-2">
+                                <div class="input-group-text"><div class="fa fa-building-o"></div></div>
+                                <select id="companySelect" class="form-select" asp-for="CompanyId" asp-items="@(new SelectList(Model.AllCompanies, "Id", "Name"))"></select>
+                                <span asp-validation-for="CompanyId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-modal-actions">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">@sharedLocalizer["Cancel"]</button>
+                        <button type="submit" class="btn btn-primary" data-save="modal">@sharedLocalizer["Save"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

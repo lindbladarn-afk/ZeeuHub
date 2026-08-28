@@ -1,0 +1,275 @@
+﻿@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout))
+    {
+        Layout = parentLayout as string ?? "/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "/Views/Shared/_Layout.cshtml";
+    }
+}
+
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<style>
+    .account-manage-page {
+        padding: 0.5rem 0 1.5rem;
+    }
+
+    .account-manage-shell {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.58) 100%);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.22);
+        overflow: hidden;
+    }
+
+    .account-manage-nav-wrap {
+        padding: 1rem 1rem 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .account-manage-body {
+        padding: 1.25rem;
+    }
+
+    .account-manage-card {
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.68) 0%, rgba(15, 23, 42, 0.78) 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .account-manage-card-title {
+        color: #f8fafc;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+    }
+
+    .account-manage-page .form-floating > .form-control,
+    .account-manage-page .form-group .form-control,
+    .account-manage-page .form-group .form-select {
+        min-height: 3.5rem;
+        border-radius: 0.95rem;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        background: linear-gradient(180deg, rgba(39, 49, 65, 0.72) 0%, rgba(30, 41, 59, 0.82) 100%);
+        color: #f8fafc;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    }
+
+    .account-manage-page .form-floating > .form-control:disabled {
+        background: linear-gradient(180deg, rgba(39, 49, 65, 0.52) 0%, rgba(30, 41, 59, 0.62) 100%);
+        color: #cbd5e1;
+        opacity: 1;
+    }
+
+    .account-manage-page .form-floating > label,
+    .account-manage-page .form-group > label,
+    .account-manage-page .form-check-label {
+        color: #cbd5e1;
+        font-weight: 600;
+    }
+
+    .account-manage-page .form-floating > .form-control:focus,
+    .account-manage-page .form-group .form-control:focus,
+    .account-manage-page .form-group .form-select:focus {
+        border-color: rgba(96, 165, 250, 0.42);
+        box-shadow: 0 0 0 0.18rem rgba(59, 130, 246, 0.12);
+    }
+
+    .account-manage-tabs {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        margin-bottom: 1rem;
+    }
+
+    .account-manage-tabs .nav-item {
+        margin-bottom: 0;
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+
+    .account-manage-tabs .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.7rem;
+        border-radius: 0.95rem;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        padding: 0.58rem 1.2rem;
+        background: linear-gradient(180deg, rgba(58, 72, 91, 0.92) 0%, rgba(42, 54, 70, 0.98) 100%);
+        color: #e2e8f0;
+        font-size: 0.92rem;
+        font-weight: 700;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 18px rgba(2, 6, 23, 0.18);
+        white-space: nowrap;
+    }
+
+    .account-manage-tabs .nav-link:hover,
+    .account-manage-tabs .nav-link:focus {
+        background: linear-gradient(180deg, rgba(69, 86, 108, 0.94) 0%, rgba(49, 62, 79, 1) 100%);
+        border-color: rgba(148, 163, 184, 0.42);
+        color: #ffffff;
+    }
+
+    .account-manage-tabs .nav-link.active,
+    .account-manage-tabs .show > .nav-link {
+        background: linear-gradient(180deg, #4fc3ff 0%, #20a4f3 100%);
+        color: #ffffff;
+        border-color: rgba(79, 195, 255, 0.76);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 20px rgba(32, 164, 243, 0.28);
+    }
+
+    body:not(.theme-dark) .account-manage-tabs .nav-link {
+        color: #e2e8f0;
+        background: linear-gradient(180deg, rgba(74, 98, 129, 0.92) 0%, rgba(56, 78, 106, 0.98) 100%);
+        border-color: rgba(74, 98, 129, 0.46);
+    }
+
+    body:not(.theme-dark) .account-manage-tabs .nav-link:hover,
+    body:not(.theme-dark) .account-manage-tabs .nav-link:focus {
+        color: #ffffff;
+        background: linear-gradient(180deg, rgba(87, 113, 145, 0.96) 0%, rgba(66, 91, 121, 1) 100%);
+        border-color: rgba(74, 98, 129, 0.62);
+    }
+
+    body:not(.theme-dark) .account-manage-tabs .nav-link.active,
+    body:not(.theme-dark) .account-manage-tabs .show > .nav-link {
+        color: #ffffff;
+        background: linear-gradient(180deg, #4fc3ff 0%, #20a4f3 100%);
+        border-color: rgba(32, 164, 243, 0.76);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 20px rgba(32, 164, 243, 0.22);
+    }
+
+    body:not(.theme-dark) .account-manage-shell {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+        border-color: rgba(15, 23, 42, 0.08);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
+    }
+
+    body:not(.theme-dark) .account-manage-nav-wrap {
+        border-bottom-color: rgba(15, 23, 42, 0.08);
+    }
+
+    body:not(.theme-dark) .account-manage-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-color: rgba(15, 23, 42, 0.08);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    body:not(.theme-dark) .account-manage-card-title {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .account-manage-page .form-floating > .form-control,
+    body:not(.theme-dark) .account-manage-page .form-group .form-control,
+    body:not(.theme-dark) .account-manage-page .form-group .form-select {
+        border-color: rgba(148, 163, 184, 0.34);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        color: #0f172a;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    body:not(.theme-dark) .account-manage-page .form-floating > .form-control:disabled {
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #475569;
+    }
+
+    body:not(.theme-dark) .account-manage-page .form-floating > label,
+    body:not(.theme-dark) .account-manage-page .form-group > label,
+    body:not(.theme-dark) .account-manage-page .form-check-label {
+        color: #334155;
+    }
+
+    .account-manage-page .account-manage-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .account-manage-page .account-manage-note {
+        color: #cbd5e1;
+    }
+
+    .account-manage-page .account-manage-inline-link {
+        color: #93c5fd;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .account-manage-page .account-manage-inline-link:hover,
+    .account-manage-page .account-manage-inline-link:focus {
+        color: #dbeafe;
+        text-decoration: underline;
+    }
+
+    .account-manage-page .alert {
+        border-radius: 1rem;
+        border-width: 1px;
+    }
+
+    body:not(.theme-dark) .account-manage-page .account-manage-note {
+        color: #475569;
+    }
+
+    body:not(.theme-dark) .account-manage-page .account-manage-inline-link {
+        color: #1d4ed8;
+    }
+
+    body:not(.theme-dark) .account-manage-page .account-manage-inline-link:hover,
+    body:not(.theme-dark) .account-manage-page .account-manage-inline-link:focus {
+        color: #1e40af;
+    }
+
+    @@media (max-width: 991.98px) {
+        .account-manage-tabs {
+            gap: 0.55rem;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .account-manage-tabs {
+            flex-direction: column;
+        }
+
+        .account-manage-tabs .nav-item {
+            width: 100%;
+        }
+
+        .account-manage-tabs .nav-link {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="dashboard-readable module-page account-manage-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Konto</div>
+            <h1 class="module-page-title">@ViewData["Title"]</h1>
+            <div class="module-page-subtitle">Hantera profil, säkerhet och personuppgifter med samma hubbdesign som övriga moduler.</div>
+        </div>
+    </div>
+
+    <div class="account-manage-shell">
+        <div class="account-manage-nav-wrap">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="account-manage-body">
+            <div class="tab-content">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

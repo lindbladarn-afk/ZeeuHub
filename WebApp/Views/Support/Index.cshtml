@@ -1,0 +1,258 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    // Support page kept on the same module-page shell as the operational modules for a more unified portal feel.
+    ViewData["Title"] = Localizer["Kundsupport"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        .support-page { font-size: 16px; }
+        .support-page .support-muted { color: #cbd5e1; }
+        body.theme-dark .support-page .support-muted { color: #e2e8f0; }
+        body.theme-dark .support-page .support-guide-title { color: #ffffff; }
+        .support-page .support-link { color: #e2e8f0; text-decoration: none; }
+        .support-page .support-link:hover { text-decoration: underline; }
+        .support-page .support-form .form-control {
+            background: linear-gradient(180deg, rgba(39, 49, 65, 0.72) 0%, rgba(30, 41, 59, 0.82) 100%);
+            border-color: rgba(148, 163, 184, 0.24);
+            color: #fff;
+            min-height: 2.55rem;
+            border-radius: 0.88rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+        }
+        .support-page .support-form .form-control::placeholder { color: #98a6b8; }
+        .support-page .support-form .form-control:focus {
+            border-color: rgba(148, 163, 184, 0.34);
+            background: linear-gradient(180deg, rgba(46, 57, 74, 0.8) 0%, rgba(34, 45, 63, 0.9) 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 0 3px rgba(148, 163, 184, 0.08);
+            color: #ffffff;
+        }
+        .support-page .support-collapse-btn { padding: 0; border: 0; background: transparent; }
+        .support-page .support-guide-title { font-size: 1.05rem; }
+        .support-page .guide-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; }
+        .support-page .guide-card ul { padding-left: 1rem; margin-bottom: .5rem; }
+        .support-page .guide-card li { margin-bottom: .4rem; color: #e2e8f0; }
+        .support-page .guide-card .badge { background: rgba(255,255,255,0.12); color: #fff; }
+        body:not(.theme-dark) .support-page .support-muted { color: #0f172a; }
+        body:not(.theme-dark) .support-page .support-link { color: #0f172a; }
+        body:not(.theme-dark) .support-page .support-form .form-control {
+            background: #ffffff;
+            border-color: rgba(15,23,42,0.16);
+            color: #0f172a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+        }
+        body:not(.theme-dark) .support-page .support-form .form-control::placeholder { color: #64748b; }
+        body:not(.theme-dark) .support-page .support-form .form-control:focus {
+            border-color: rgba(15, 23, 42, 0.28);
+            background: #ffffff;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.82),
+                0 0 0 3px rgba(15, 23, 42, 0.06);
+            color: #0f172a;
+        }
+        body:not(.theme-dark) .support-page .guide-card {
+            background: #f8fafc;
+            border-color: rgba(15,23,42,0.12);
+        }
+        body:not(.theme-dark) .support-page .guide-card li { color: #0f172a; }
+        body:not(.theme-dark) .support-page .guide-card .badge { background: #e2e8f0; color: #0f172a; }
+    </style>
+}
+
+<div class="dashboard-readable module-page support-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Support"]</div>
+            <h1 class="module-page-title">@Localizer["Kundsupport"]</h1>
+            <div class="module-page-subtitle mt-1">@Localizer["Behöver du hjälp? Hör av dig eller kika i våra guider nedan."]</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" href="mailto:support@zeeu.se">
+                <i class="fa fa-envelope me-1"></i> @Localizer["Maila oss"]
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-xl-4 col-md-6">
+            <div class="card kpi-card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="dashboard-card-title m-0">@Localizer["Kontakta oss"]</div>
+                    <div class="icon-box bg-primary-subtle text-primary">
+                        <i class="fa fa-life-ring"></i>
+                    </div>
+                </div>
+                <div class="action-meta">
+                    <div class="mb-2">
+                        <div class="support-muted">@Localizer["E-post"]</div>
+                        <a class="support-link fw-bold" href="mailto:support@zeeu.se">support@zeeu.se</a>
+                    </div>
+                    <div class="mb-2">
+                        <div class="support-muted">@Localizer["Telefon"]</div>
+                        <span class="fw-bold">+46 (0)10-123 45 67</span>
+                    </div>
+                    <div>
+                        <div class="support-muted">@Localizer["Öppettider"]</div>
+                        <span class="fw-bold">@Localizer["Vardagar 08–17"]</span>
+                    </div>
+                    <div class="support-muted small mt-2">
+                        @Localizer["Tips: skicka med modul, bolag, tidpunkt samt länk/id till relevant Action Center-kort."]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="card kpi-card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="dashboard-card-title m-0">@Localizer["Guider & FAQ"]</div>
+                    <div class="icon-box bg-success-subtle text-success">
+                        <i class="fa fa-book"></i>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush bg-transparent">
+                    <div class="list-group-item bg-transparent action-item px-0 border-0 py-3">
+                        <button class="support-collapse-btn w-100 text-start" data-bs-toggle="collapse" data-bs-target="#guide-excel" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold support-guide-title">
+                                    <i class="fa fa-angle-right me-2 support-muted"></i>@Localizer["Hur importerar jag Excel?"]
+                                </div>
+                                <span class="support-muted">@Localizer["Guide"]</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="list-group-item bg-transparent action-item px-0 border-0 py-3">
+                        <button class="support-collapse-btn w-100 text-start" data-bs-toggle="collapse" data-bs-target="#guide-ai" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold support-guide-title">
+                                    <i class="fa fa-angle-right me-2 support-muted"></i>@Localizer["Kom igång med ZeeU Intelligence"]
+                                </div>
+                                <span class="support-muted">@Localizer["Guide"]</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="list-group-item bg-transparent px-0 border-0 py-3">
+                        <button class="support-collapse-btn w-100 text-start" data-bs-toggle="collapse" data-bs-target="#guide-action-center" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold support-guide-title">
+                                    <i class="fa fa-angle-right me-2 support-muted"></i>@Localizer["ZeeU Action Center"]
+                                </div>
+                                <span class="support-muted">@Localizer["Guide"]</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="list-group-item bg-transparent px-0 border-0 py-3">
+                        <button class="support-collapse-btn w-100 text-start" data-bs-toggle="collapse" data-bs-target="#guide-billing" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold support-guide-title">
+                                    <i class="fa fa-angle-right me-2 support-muted"></i>@Localizer["Vanliga frågor om fakturor och order"]
+                                </div>
+                                <span class="support-muted">@Localizer["Guide"]</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-12">
+            <div class="card kpi-card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="dashboard-card-title m-0">@Localizer["Skicka en förfrågan"]</div>
+                    <div class="icon-box bg-info-subtle text-info">
+                        <i class="fa fa-paper-plane"></i>
+                    </div>
+                </div>
+                <p class="action-meta mb-3">@Localizer["Beskriv ditt ärende så återkommer vi så snart vi kan."]</p>
+                <form class="support-form">
+                    <div class="mb-2">
+                        <input type="text" class="form-control" placeholder="@Localizer["Ämne"]" />
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" rows="3" placeholder="@Localizer["Beskriv ditt problem"]"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-portal w-100">@Localizer["Skicka"]</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-3 mt-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <div class="dashboard-card-title">@Localizer["Guide"]</div>
+                <div class="fw-bold" style="font-size: 1.15rem;">@Localizer["Så använder du portalen"]</div>
+            </div>
+            <div class="icon-box bg-warning-subtle text-warning">
+                <i class="fa fa-lightbulb"></i>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-3">
+                <div class="guide-card h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold">@Localizer["Excelimport"]</div>
+                        <span class="badge">3 steg</span>
+                    </div>
+                    <ul class="list-unstyled mb-2 action-meta">
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Välj importtyp (Voucher, Budget, Inköpspris, Prisuppdatering)."]</li>
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Ladda upp .xls/.xlsx/.xlsm/.csv, bekräfta importtyp och starta."]</li>
+                        <li><i class="fa fa-check text-success me-2"></i>@Localizer["Resultatet sparas i staging med rådata (RawJson) för spårbarhet."]</li>
+                    </ul>
+                    <div class="support-muted small">@Localizer["Tip: vid fel, kontrollera rubriker och datatyp (datum/belopp) i filen."]</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="guide-card h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold">@Localizer["ZeeU Intelligence"]</div>
+                        <span class="badge">AI</span>
+                    </div>
+                    <ul class="list-unstyled mb-2 action-meta">
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Använd snabbknapparna för mallfrågor (saldo, senaste ordrar/fakturor)."]</li>
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Chatten svarar med SQL-baserad data och mockade exempel där det saknas koppling."]</li>
+                        <li><i class="fa fa-check text-success me-2"></i>@Localizer["Tokenräknare visar kvarvarande frågor per dag."]</li>
+                    </ul>
+                    <div class="support-muted small">@Localizer["Behöver du fler frågor? Kontakta supporten så ökar vi din kvot."]</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="guide-card h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold">@Localizer["ZeeU Action Center"]</div>
+                        <span class="badge">Tasks</span>
+                    </div>
+                    <ul class="list-unstyled mb-2 action-meta">
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Se samlade uppgifter/notifieringar (approvals, faktura/ordervarningar) på ett ställe."]</li>
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Pausa eller markera klart när åtgärd är tagen; lägg interna kommentarer för spårbarhet."]</li>
+                        <li><i class="fa fa-check text-success me-2"></i>@Localizer["Påminnelser och eskaleringar styrs av dina inställningar – säg till supporten om de behöver justeras."]</li>
+                    </ul>
+                    <div class="support-muted small">@Localizer["Tips: skicka ärende-ID eller länk till kortet om du rapporterar ett Action Center-problem."]</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="guide-card h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold">@Localizer["Fakturor & Order – vanliga frågor"]</div>
+                        <span class="badge">FAQ</span>
+                    </div>
+                    <ul class="list-unstyled mb-2 action-meta">
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Fakturor: filtrera på obetalda/betalda, se status och skicka påminnelse/inkasso."]</li>
+                        <li class="mb-2"><i class="fa fa-check text-success me-2"></i>@Localizer["Orders: sortera, sök på kund/datum/order nr; visa detaljer med orderrader."]</li>
+                        <li><i class="fa fa-check text-success me-2"></i>@Localizer["Data hämtas per bolag utifrån din inloggning och Jeeves-koppling."]</li>
+                    </ul>
+                    <div class="support-muted small">@Localizer["Saknar du data? Säkerställ att ditt konto är kopplat till rätt företag i Jeeves."]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,62 @@
+@using Entities.ViewModels.Admin
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model AdminUserViewModel
+@{
+    ViewData["Title"] = Localizer["Redigera användare"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<h2 class="page-header">@Localizer["Redigera användare"] <small>@Localizer["begränsat till ditt bolag"]</small></h2>
+
+<form asp-action="ManageUser" method="post" class="card shadow-sm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="UserId" />
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">@Localizer["Förnamn"]</label>
+                <input asp-for="FirstName" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">@Localizer["Efternamn"]</label>
+                <input asp-for="LastName" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">@Localizer["E-post (låst)"]</label>
+                <input asp-for="Email" class="form-control" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">@Localizer["Telefon"]</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+            </div>
+        </div>
+
+        <hr class="my-4" />
+        <h5>@Localizer["Roller (endast User/SuperUser)"]</h5>
+        <div class="row">
+            @foreach (var role in Model.Roles ?? new List<AdminUserRolesViewModel>())
+            {
+                <div class="col-sm-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Roles[@Model.Roles.IndexOf(role)].Selected" value="true" @(role.Selected ? "checked" : "") />
+                        <input type="hidden" name="Roles[@Model.Roles.IndexOf(role)].RoleName" value="@role.RoleName" />
+                        <label class="form-check-label">@role.RoleName</label>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-portal">@Localizer["Spara"]</button>
+            <form asp-action="ResetUserPassword" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" value="@Model.UserId" />
+                <button type="submit" class="btn btn-portal-danger-outline" onclick="return confirm('@Localizer["Återställ lösenordet?"]')">@Localizer["Återställ lösenord"]</button>
+            </form>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,267 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeOverviewVm
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    ViewData["Title"] = sharedLocalizer["NotifyMe_NotificationsTitle"];
+    ViewData["NotifyMeSection"] = "notifications";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@sharedLocalizer["NotifyMe_NotificationsTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["NotifyMe_NotificationsSubtitle"]</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" asp-controller="NotifyMe" asp-action="Editor">@sharedLocalizer["NotifyMe_OpenEditor"]</a>
+        </div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = Model.IsInstalled ? sharedLocalizer["NotifyMe_StatusTitle"] : sharedLocalizer["NotifyMe_RequiresAttentionTitle"],
+            Message = Model.StatusMessage,
+            Tone = Model.IsInstalled ? "info" : "warning",
+            IconClass = Model.IsInstalled ? "fa fa-circle-info" : "fa fa-triangle-exclamation"
+        })
+    }
+
+    <div class="row g-2 mb-3">
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_TotalNotifications"]</div>
+                <div class="metric-value">@Model.TotalNotifications</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_Active"]</div>
+                <div class="metric-value">@Model.ActiveNotifications</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_DueNow"]</div>
+                <div class="metric-value">@Model.DueNowCount</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_ShownAfterFilter"]</div>
+                <div class="metric-value">@Model.FilteredNotificationsCount</div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.IsInstalled)
+    {
+        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+        {
+            Title = sharedLocalizer["NotifyMe_NotAvailableTitle"],
+            Message = sharedLocalizer["NotifyMe_NotAvailableMessage"],
+            Note = sharedLocalizer["NotifyMe_NotAvailableNote"],
+            Tone = "warning",
+            IconClass = "fa fa-triangle-exclamation",
+            ActionText = sharedLocalizer["NotifyMe_OpenEditor"],
+            ActionUrl = Url.Action("Editor", "NotifyMe")
+        })
+    }
+    else
+    {
+        <div class="row g-2">
+            <div class="col-12 col-xl-8">
+                <div class="card kpi-card p-2 h-100 notifyme-shell">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_NotificationsTitle"]</div>
+                            <div class="module-page-meta">@sharedLocalizer["NotifyMe_NotificationsCardSubtitle"]</div>
+                        </div>
+                    </div>
+                    <form method="get" asp-action="Notifications" class="mb-3 module-filter-card">
+                        <div class="notifyme-filter-grid">
+                            <input class="form-control" type="text" name="search" value="@Model.Filters.Search" placeholder="@sharedLocalizer["NotifyMe_SearchPlaceholder"]" />
+                            <select class="form-select" name="status">
+                                <option value="all" selected="@(Model.Filters.Status == "all")">@sharedLocalizer["NotifyMe_AllStatuses"]</option>
+                                <option value="active" selected="@(Model.Filters.Status == "active")">@sharedLocalizer["NotifyMe_Active"]</option>
+                                <option value="inactive" selected="@(Model.Filters.Status == "inactive")">@sharedLocalizer["NotifyMe_Inactive"]</option>
+                                <option value="due" selected="@(Model.Filters.Status == "due")">@sharedLocalizer["NotifyMe_DueNow"]</option>
+                            </select>
+                            <select class="form-select" name="type">
+                                <option value="">@sharedLocalizer["NotifyMe_AllTypes"]</option>
+                                @foreach (var option in Model.Filters.TypeOptions)
+                                {
+                                    <option value="@option.Value" selected="@(string.Equals(Model.Filters.Type, option.Value, StringComparison.OrdinalIgnoreCase))">@option.Label</option>
+                                }
+                            </select>
+                            <select class="form-select" name="priority">
+                                <option value="">@sharedLocalizer["NotifyMe_AllPriorities"]</option>
+                                @foreach (var option in Model.Filters.PriorityOptions)
+                                {
+                                    <option value="@option.Value" selected="@(string.Equals(Model.Filters.Priority, option.Value, StringComparison.OrdinalIgnoreCase))">@option.Label</option>
+                                }
+                            </select>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-portal">@sharedLocalizer["Filter"]</button>
+                                <a class="btn btn-portal btn-portal-outline" asp-action="Notifications">@sharedLocalizer["Filter_Clear"]</a>
+                            </div>
+                        </div>
+                    </form>
+                    @if (Model.Notifications.Count == 0)
+                    {
+                        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+                        {
+                            Title = sharedLocalizer["NotifyMe_NoNotificationsForFilterTitle"],
+                            Message = sharedLocalizer["NotifyMe_NoNotificationsForFilterMessage"],
+                            Tone = "neutral",
+                            IconClass = "fa fa-filter-circle-xmark",
+                            Compact = true
+                        })
+                    }
+                    else
+                    {
+                        <div class="table-responsive notifyme-table module-table">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>@sharedLocalizer["Description"]</th>
+                                        <th>@sharedLocalizer["NotifyMe_Type"]</th>
+                                        <th>@sharedLocalizer["NotifyMe_PriorityShort"]</th>
+                                        <th>@sharedLocalizer["Schedule"]</th>
+                                        <th>@sharedLocalizer["NotifyMe_NextRun"]</th>
+                                        <th>@sharedLocalizer["Status"]</th>
+                                        <th class="text-end">@sharedLocalizer["Action"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.Notifications)
+                                {
+                                    <tr>
+                                        <td><a asp-action="Detail" asp-route-id="@item.NotificationId">@item.NotificationId</a></td>
+                                        <td>
+                                            <div class="notifyme-item-title">@item.Description</div>
+                                            <div class="notifyme-item-meta">@item.WarningText</div>
+                                        </td>
+                                        <td>@item.TypeLabel</td>
+                                        <td>@item.PriorityLabel</td>
+                                        <td>@item.ScheduleLabel</td>
+                                        <td>
+                                            <div>@item.NextExecutionDisplay</div>
+                                            @if (!string.IsNullOrWhiteSpace(item.LatestExecutionStatus))
+                                            {
+                                                <div class="notifyme-item-meta mt-1">
+                                                    <span class="badge bg-@item.LatestExecutionStatusTone me-1">@item.LatestExecutionStatus</span>
+                                                    @item.LatestExecutionSummary
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.IsActive)
+                                            {
+                                                <span class="badge bg-success">@sharedLocalizer["NotifyMe_Active"]</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@sharedLocalizer["NotifyMe_Inactive"]</span>
+                                            }
+                                            @if (item.IsDueNow)
+                                            {
+                                                <span class="badge bg-warning text-dark ms-1">@sharedLocalizer["NotifyMe_Due"]</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <a class="btn btn-portal btn-portal-outline btn-sm" asp-action="Detail" asp-route-id="@item.NotificationId">@sharedLocalizer["View"]</a>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-3">
+                            <div class="notifyme-meta">
+                                @sharedLocalizer["Orders_PageOf", Model.Pagination.Page, Model.Pagination.TotalPages]
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if (Model.Pagination.HasPreviousPage)
+                                {
+                                    <a class="btn btn-portal btn-portal-outline btn-sm"
+                                       asp-action="Notifications"
+                                       asp-route-search="@Model.Filters.Search"
+                                       asp-route-status="@Model.Filters.Status"
+                                       asp-route-type="@Model.Filters.Type"
+                                       asp-route-priority="@Model.Filters.Priority"
+                                       asp-route-page="@(Model.Pagination.Page - 1)">@sharedLocalizer["Previous"]</a>
+                                }
+                                @if (Model.Pagination.HasNextPage)
+                                {
+                                    <a class="btn btn-portal btn-portal-outline btn-sm"
+                                       asp-action="Notifications"
+                                       asp-route-search="@Model.Filters.Search"
+                                       asp-route-status="@Model.Filters.Status"
+                                       asp-route-type="@Model.Filters.Type"
+                                       asp-route-priority="@Model.Filters.Priority"
+                                       asp-route-page="@(Model.Pagination.Page + 1)">@sharedLocalizer["Next"]</a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <div class="card kpi-card p-2 notifyme-shell">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <div class="dashboard-card-title mb-0">@sharedLocalizer["NotifyMe_RecentDeliveriesTitle"]</div>
+                        <a class="btn btn-portal btn-portal-outline btn-sm" asp-action="History">@sharedLocalizer["History"]</a>
+                    </div>
+                    @if (Model.RecentLogEntries.Count == 0)
+                    {
+                        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+                        {
+                            Title = sharedLocalizer["NotifyMe_NoHistoryTitle"],
+                            Message = sharedLocalizer["NotifyMe_NoHistoryMessage"],
+                            Tone = "neutral",
+                            IconClass = "fa fa-clock-rotate-left",
+                            Compact = true
+                        })
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                        @foreach (var log in Model.RecentLogEntries)
+                        {
+                            <div class="notifyme-log-item p-2">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="notifyme-log-title">@log.Subject</div>
+                                        <div class="notifyme-log-meta">@sharedLocalizer["NotifyMe_LogMeta", log.NotificationId, (log.SentAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")]</div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge bg-@log.ExecutionStatusTone">@log.ExecutionStatus</span>
+                                        <span class="badge bg-dark">@log.SchemaCode</span>
+                                    </div>
+                                </div>
+                                <div class="notifyme-log-recipients mt-2"><span class="notifyme-log-label">@sharedLocalizer["Recipients"]:</span> @log.Recipients</div>
+                                @if (!string.IsNullOrWhiteSpace(log.HtmlPreviewText))
+                                {
+                                    <div class="notifyme-log-preview mt-2">@log.HtmlPreviewText</div>
+                                }
+                            </div>
+                        }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,626 @@
+﻿@model Entities.Purchase.IPurchaseOrderVM
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    // Purchase order creation keeps the existing supplier/article autocomplete flow,
+    // but the surrounding page shell should match the shared module-page structure used by invoices and orders.
+    ViewData["Title"] = @localizer["PageHeader"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        /* Local purchase-order builder styles stay here because they only apply to the editable card layout on this page. */
+        .purchase-create-page .po-shell {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .purchase-create-page .po-card {
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #1e293b;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+        .purchase-create-page .po-card-header {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+            padding: 12px 14px;
+        }
+        .purchase-create-page .po-kicker {
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--portal-text-muted, #94a3b8);
+        }
+        .purchase-create-page .po-title {
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .purchase-create-page .po-order-no,
+        .purchase-create-page .po-total {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+        .purchase-create-page .po-total {
+            min-width: 120px;
+            text-align: right;
+        }
+        .purchase-create-page .po-thead th {
+            background: rgba(15, 23, 42, 0.24);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .purchase-create-page #articleRows {
+            --bs-table-bg: transparent;
+            --bs-table-accent-bg: transparent;
+            --bs-table-hover-bg: transparent;
+            --bs-table-striped-bg: transparent;
+            --bs-table-hover-color: inherit;
+            --bs-table-color: inherit;
+        }
+        .purchase-create-page #articleRows > :not(caption) > * > * {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        .purchase-create-page #articleRows.table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: transparent;
+            background-color: transparent !important;
+            color: inherit !important;
+        }
+        .purchase-create-page .po-total-row {
+            background: transparent;
+        }
+        .purchase-create-page .po-card #articleRows > tbody > tr > td {
+            background-color: transparent;
+            border-color: rgba(148, 163, 184, 0.14);
+        }
+        .purchase-create-page .po-card #articleRows > tbody > tr:nth-child(odd) > td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .purchase-create-page .po-card #articleRows > tbody > tr:nth-child(even) > td {
+            background: rgba(255, 255, 255, 0.045);
+        }
+        .purchase-create-page .po-card .form-control,
+        .purchase-create-page .po-card .form-select {
+            min-height: 2.55rem;
+            border-radius: 0.88rem;
+            color: #e5e7eb;
+            background: linear-gradient(180deg, rgba(43, 52, 68, 0.98) 0%, rgba(29, 38, 54, 0.98) 100%);
+            border-color: rgba(148, 163, 184, 0.24);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .purchase-create-page .po-card .form-control::placeholder,
+        .purchase-create-page .po-card .form-select::placeholder {
+            color: #94a3b8;
+        }
+        .purchase-create-page .po-date-label {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+        .purchase-create-page .po-date-group .input-group-text {
+            min-width: 2.7rem;
+            border-top-left-radius: 0.88rem;
+            border-bottom-left-radius: 0.88rem;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: 0;
+            background: linear-gradient(180deg, rgba(43, 52, 68, 0.98) 0%, rgba(29, 38, 54, 0.98) 100%);
+            color: #dbe7ff;
+            border-color: rgba(148, 163, 184, 0.24);
+        }
+        .purchase-create-page .po-date-group .form-control {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .purchase-create-page .po-card .form-control:focus,
+        .purchase-create-page .po-card .form-select:focus {
+            border-color: rgba(255,255,255,0.28);
+            background: linear-gradient(180deg, rgba(46, 57, 74, 0.99) 0%, rgba(31, 41, 57, 0.99) 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.05),
+                0 0 0 3px rgba(148, 163, 184, 0.08);
+            color: #f8fafc;
+        }
+        .purchase-create-page #articleRows tbody .form-control {
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+        }
+        .purchase-create-page #articleRows tbody .form-control:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.22);
+        }
+        .purchase-create-page #articleRows tbody .form-control:focus,
+        .purchase-create-page #articleRows tbody .form-control:focus-visible {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.24);
+            outline: none;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-shell {
+            background: rgba(226, 232, 240, 0.45);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card {
+            background-color: rgba(255, 255, 255, 0.88);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 18px 34px rgba(148, 163, 184, 0.18);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card-header {
+            background-color: rgba(248, 250, 252, 0.92);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-title,
+        body:not(.theme-dark) .purchase-create-page .po-order-no,
+        body:not(.theme-dark) .purchase-create-page .po-total {
+            color: #0f172a;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows > tbody > tr > td {
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows > tbody > tr:nth-child(odd) > td {
+            background: rgba(15, 23, 42, 0.015);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows > tbody > tr:nth-child(even) > td {
+            background: rgba(15, 23, 42, 0.035);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-date-label {
+            color: #475569;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-date-group .input-group-text {
+            background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+            color: #475569;
+            border-color: rgba(148, 163, 184, 0.34);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-control,
+        body:not(.theme-dark) .purchase-create-page .po-card .form-select {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-control::placeholder,
+        body:not(.theme-dark) .purchase-create-page .po-card .form-select::placeholder {
+            color: #64748b;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-control:focus,
+        body:not(.theme-dark) .purchase-create-page .po-card .form-select:focus {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a;
+            border-color: rgba(63, 97, 138, 0.55) !important;
+            box-shadow: 0 0 0 3px rgba(63, 97, 138, 0.12) !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-check-input {
+            background-color: #ffffff;
+            border-color: rgba(148, 163, 184, 0.45);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            accent-color: #3f618a;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-check-input:hover {
+            border-color: rgba(63, 97, 138, 0.6);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-check-input:focus {
+            border-color: rgba(63, 97, 138, 0.7);
+            box-shadow: 0 0 0 3px rgba(63, 97, 138, 0.12);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-check-input:checked {
+            background-color: #3f618a;
+            border-color: #3f618a;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .form-control.disabled,
+        body:not(.theme-dark) .purchase-create-page .po-card .form-control:disabled {
+            background: #f8fafc !important;
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            box-shadow: none !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-control {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a;
+            border-color: rgba(148, 163, 184, 0.26) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-control:hover {
+            border-color: rgba(63, 97, 138, 0.45) !important;
+            box-shadow: 0 0 0 1px rgba(63, 97, 138, 0.12) !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-control:focus,
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-control:focus-visible {
+            border-color: rgba(63, 97, 138, 0.62) !important;
+            box-shadow: 0 0 0 2px rgba(63, 97, 138, 0.14) !important;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-check-input {
+            background-color: #ffffff;
+            border-color: rgba(148, 163, 184, 0.5);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+            accent-color: #3f618a;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-check-input:hover {
+            border-color: rgba(63, 97, 138, 0.65);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-check-input:focus {
+            border-color: rgba(63, 97, 138, 0.7);
+            box-shadow: 0 0 0 3px rgba(63, 97, 138, 0.12);
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card #articleRows tbody .form-check-input:checked {
+            background-color: #3f618a;
+            border-color: #3f618a;
+        }
+        body:not(.theme-dark) .purchase-create-page .po-card .input-group-text {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+        }
+        body.theme-dark .purchase-create-page .po-shell {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        body.theme-dark .purchase-create-page .po-card { background-color: #1e293b; border-color: rgba(255,255,255,0.08); }
+        body.theme-dark .purchase-create-page .po-card-header { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.08); }
+        body.theme-dark .purchase-create-page .po-title,
+        body.theme-dark .purchase-create-page .po-order-no,
+        body.theme-dark .purchase-create-page .po-total { color: #e2e8f0; }
+        body.theme-dark .purchase-create-page .po-kicker { color: #cbd5e1; }
+        body.theme-dark .purchase-create-page .po-total-row { background: transparent; }
+        body.theme-dark .purchase-create-page #articleRows {
+            --bs-table-bg: transparent;
+            --bs-table-accent-bg: transparent;
+            --bs-table-hover-bg: transparent;
+            --bs-table-striped-bg: transparent;
+            --bs-table-hover-color: #e2e8f0;
+            --bs-table-color: #e2e8f0;
+        }
+        body.theme-dark .purchase-create-page #articleRows > :not(caption) > * > * {
+            background-color: transparent !important;
+            color: #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+        body.theme-dark .purchase-create-page #articleRows.table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: transparent;
+            background-color: transparent !important;
+            color: #e2e8f0 !important;
+        }
+        body.theme-dark .purchase-create-page .po-card #articleRows > tbody > tr > td {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        body.theme-dark .purchase-create-page .form-control {
+            color: #e2e8f0;
+        }
+        body.theme-dark .purchase-create-page .form-control:focus {
+            color: #f8fafc;
+        }
+        body.theme-dark .purchase-create-page #articleRows tbody .form-control:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.26);
+        }
+        body.theme-dark .purchase-create-page #articleRows tbody .form-control:focus,
+        body.theme-dark .purchase-create-page #articleRows tbody .form-control:focus-visible {
+            border-color: #22d3ee;
+            box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.3);
+            outline: none;
+        }
+        body.theme-dark .purchase-create-page .input-group-text {
+            background: linear-gradient(180deg, rgba(43, 52, 68, 0.98) 0%, rgba(29, 38, 54, 0.98) 100%);
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.24);
+        }
+        body.theme-dark .purchase-create-page .table > :not(caption) > * > * {
+            color: #e2e8f0;
+            border-color: #334155;
+            background-color: #1e293b;
+        }
+        body.theme-dark .purchase-create-page .po-thead th {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: #334155 !important;
+        }
+    </style>
+}
+
+<div class="dashboard-readable module-page purchase-create-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Inköp</div>
+            <h1 class="module-page-title">@localizer["PageHeader"]</h1>
+            <div class="module-page-subtitle">@localizer["PageSubHeader"]</div>
+            <div class="module-page-meta">Skapa en inköpsorder med leveransuppgifter, rader och totalsumma i samma arbetsyta.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" asp-action="PurchaseOrders">Till inköpsorder</a>
+        </div>
+    </div>
+
+@await Html.PartialAsync("_Alert")
+
+<form asp-controller="Purchase" asp-action="CreatePurchaseOrder">
+    <div class="po-shell">
+
+        <!-- Top cards -->
+        <div class="row g-3">
+            <div class="col-12 col-xl-5">
+                <div class="card po-card h-100">
+                    <div class="card-header po-card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="po-kicker">@localizer["Header_From"]</div>
+                                <div class="po-title">@localizer["Header_SupplierName"]</div>
+                            </div>
+                            <i class="fa fa-building opacity-75"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <input type="hidden" asp-for="@Model.SupplierNumber" id="hfSupplierNumber" />
+
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.SupplierName" class="form-control" id="txtSupplierName"
+                                   placeholder="@localizer["Header_SupplierName"]" />
+                            <span asp-validation-for="@Model.SupplierName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.Co" class="form-control" id="txtSupplierCo"
+                                   placeholder="@localizer["Header_Co"]" />
+                        </div>
+
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.Street" class="form-control" id="txtSupplierStreet"
+                                   placeholder="@localizer["Header_Street"]" />
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="text" asp-for="@Model.ZipCode" class="form-control" id="txtSupplierZipCode"
+                                       placeholder="@localizer["Header_ZipCode"]" />
+                            </div>
+                            <div class="col-8">
+                                <input type="text" asp-for="@Model.City" class="form-control" id="txtSupplierCity"
+                                       placeholder="@localizer["Header_City"]" />
+                            </div>
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="text" asp-for="@Model.Country" class="form-control" id="txtSupplierCountry"
+                                   placeholder="@localizer["Header_Country"]" />
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="text" asp-for="@Model.Currency" class="form-control" id="txtSupplierCurrency"
+                                   placeholder="@localizer["Header_Currency"]" />
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="text" asp-for="@Model.ContactNumber" class="form-control" list="selSupplierContact"
+                                   placeholder="@localizer["Header_ContactNumber"]" />
+                            <datalist id="selSupplierContact"></datalist>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="card po-card h-100">
+                    <div class="card-header po-card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="po-kicker">@localizer["Header_To"]</div>
+                                <div class="po-title">@localizer["Header_To_Company"]</div>
+                            </div>
+                            <i class="fa fa-truck opacity-75"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.DeliveryCompany" class="form-control" id="txtDeliveryCompany"
+                                   placeholder="@localizer["Header_To_Company"]" />
+                            <span asp-validation-for="@Model.DeliveryCompany" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.DeliveryCo" class="form-control" id="txtDeliveryCo"
+                                   placeholder="@localizer["Header_To_Co"]" />
+                        </div>
+
+                        <div class="mb-2">
+                            <input type="text" asp-for="@Model.DeliveryStreet" class="form-control" id="txtDeliveryStreet"
+                                   placeholder="@localizer["Header_To_Street"]" />
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="text" asp-for="@Model.DeliveryZip" class="form-control" id="txtDeliveryZipCode"
+                                       placeholder="@localizer["Header_To_ZipCode"]" />
+                            </div>
+                            <div class="col-8">
+                                <input type="text" asp-for="@Model.DeliveryCity" class="form-control" id="txtDeliveryCity"
+                                       placeholder="@localizer["Header_To_City"]" />
+                            </div>
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="text" asp-for="@Model.DeliveryCountry" class="form-control" id="txtDeliveryCountry"
+                                   placeholder="@localizer["Header_To_Country"]" />
+                        </div>
+
+                        <div class="row g-2 mt-1">
+                            <div class="col-12 col-md-6">
+                                <div class="po-date-label">Skapad:</div>
+                                <div class="input-group po-date-group">
+                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" asp-for="@Model.RegisteredDate" class="form-control po-datepicker-input"
+                                           id="txtRegisteredDate"
+                                           data-fe-datepicker="true"
+                                           autocomplete="off"
+                                           value="@(Model.RegisteredDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))"
+                                           placeholder="YYYY-MM-DD" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="po-date-label">Önskad leverans:</div>
+                                <div class="input-group po-date-group">
+                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" asp-for="@Model.DeliveryDate" class="form-control po-datepicker-input"
+                                           id="txtDesiredDeliveryDate"
+                                           data-fe-datepicker="true"
+                                           autocomplete="off"
+                                           value="@(Model.DeliveryDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))"
+                                           placeholder="YYYY-MM-DD" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-2">
+                <div class="card po-card h-100">
+                    <div class="card-header po-card-header">
+                        <div class="po-kicker">@localizer["Header_OrderDetails"]</div>
+                        <div class="po-title">@localizer["Header_OrderNumber"]</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="po-order-no">@Model.OrderNumber</div>
+                        <hr class="my-3" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* The editable row table stays local because row cloning and total calculation depend on predictable DOM ids. *@
+        <!-- Rows table -->
+        <div class="card po-card mt-3">
+            <div class="card-header po-card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="po-kicker">@localizer["PageHeader"]</div>
+                    <div class="po-title">Orderrader</div>
+                </div>
+                <div class="text-muted small d-flex align-items-center gap-2">
+                    <span>@localizer["Header_SalesValue"] (@Html.DisplayFor(u => u.Currency))</span>
+                    <span class="fw-semibold" id="OrderTotalHeader">0</span>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-invoice mb-0" id="articleRows">
+                        <thead class="po-thead">
+                            <tr>
+                                <th>@localizer["RowHeader_ArticleNumber"]</th>
+                                <th>@localizer["RowHeader_ArticleDescription"]</th>
+                                <th class="text-end">@localizer["RowHeader_Quantity"]</th>
+                                <th>@localizer["RowHeader_Unit"]</th>
+                                <th class="text-end">@localizer["RowHeader_Price"]</th>
+                                <th class="text-end">@localizer["RowHeader_Discount"]</th>
+                                <th class="text-end">@localizer["RowHeader_RowTotal"]</th>
+                                <th>@localizer["RowHeader_Account"]</th>
+                                <th>@localizer["RowHeader_CostCenter"]</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.OrderRows.Count; i++)
+                            {
+                                <tr>
+                                    <td style="width:6%">
+                                        <input type="text" class="form-control article-number"
+                                               asp-for="@Model.OrderRows[i].ArticleNumber"
+                                               id="@($"OrderRows_{i}__ArticleNumber")">
+                                    </td>
+                                    <td style="width:20%">
+                                        <input type="text" class="form-control article-description"
+                                               asp-for="@Model.OrderRows[i].ArticleDescription"
+                                               id="@($"OrderRows_{i}__ArticleDescription")">
+                                    </td>
+                                    <td style="width:7%">
+                                        <input type="text" class="form-control text-end"
+                                               asp-for="@Model.OrderRows[i].Quantity"
+                                               id="@($"{i}_Quantity")"
+                                               onfocusout="CalculateRowTotal(this)">
+                                    </td>
+                                    <td style="width:6%">
+                                        <input type="text" class="form-control disabled"
+                                               asp-for="@Model.OrderRows[i].Unit"
+                                               id="@($"OrderRows_{i}__Unit")">
+                                    </td>
+                                    <td style="width:7%">
+                                        <input type="text" class="form-control text-end"
+                                               asp-for="@Model.OrderRows[i].Price"
+                                               id="@($"{i}_Price")"
+                                               onfocusout="CalculateRowTotal(this)">
+                                    </td>
+                                    <td style="width:7%">
+                                        <input type="text" class="form-control text-end"
+                                               asp-for="@Model.OrderRows[i].Discount"
+                                               id="@($"{i}_Discount")"
+                                               onfocusout="CalculateRowTotal(this)">
+                                    </td>
+                                    <td style="width:7%;vertical-align:middle;" class="text-end">
+                                        <label class="form-label m-0" id="@($"{i}_Total")">0</label>
+                                    </td>
+                                    <td style="width:8%">
+                                        <input type="text" class="form-control"
+                                               asp-for="@Model.OrderRows[i].Account"
+                                               id="@($"OrderRows_{i}__Account")">
+                                    </td>
+                                    <td style="width:8%">
+                                        <input type="text" class="form-control"
+                                               asp-for="@Model.OrderRows[i].CostCenter"
+                                               id="@($"OrderRows_{i}__CostCenter")">
+                                    </td>
+                                    <td style="width:6%" class="text-end">
+                                        <div class="btn-group" role="group">
+                                            <button id="btnAdd-@i" type="button" class="btn btn-portal btn-sm"
+                                                    onclick="AddOrderRow(this)" style="display:block;">
+                                                <i class="fas fa-plus-circle"></i>
+                                            </button>
+                                            <button id="btnRemove-@i" type="button" class="btn btn-portal-danger-outline btn-sm"
+                                                    onclick="DeleteOrderRow(this)" style="display:none;">
+                                                <i class="fas fa-minus-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+    }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="po-total-row d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 px-3 py-3">
+                <div class="text-muted small">
+                    @localizer["Header_SalesValue"] (@Html.DisplayFor(u => u.Currency))
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="text-muted small">Total</div>
+                    <div class="po-total" id="OrderTotalFooter">0</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-end mt-3">
+            <input type="submit" class="btn btn-portal px-4" id="btnSubmit" value="@localizer["Submit"]">
+        </div>
+
+        <input type="hidden" id="hdnLastIndex" value="0" />
+    </div>
+</form>
+</div>
+
+@section Scripts {
+    <script src="~/js/purchase-order.js" asp-append-version="true"></script>
+}

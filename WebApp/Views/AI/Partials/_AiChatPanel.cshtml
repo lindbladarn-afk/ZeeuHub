@@ -1,0 +1,191 @@
+@* Renders Intelligence chat messages, suggestions, progress, feedback, and input controls. *@
+@using Entities.Application
+@using WebApp.Services
+@model WebApp.Controllers.AIController.AiViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var sessionUser = HttpContextAccessor.HttpContext?.Session.Get<UserSession>("UserObject");
+    var userInitials = GetUserInitials(sessionUser);
+    var greetingName = string.IsNullOrWhiteSpace(sessionUser?.FirstName) ? Localizer["där"].Value : sessionUser!.FirstName!;
+    var compactWidget = ViewData["AiCompactWidget"] as bool? == true;
+}
+
+@functions {
+    private static string GetUserInitials(UserSession? user)
+    {
+        static string? FirstLetter(string? value)
+            => string.IsNullOrWhiteSpace(value) ? null : value.Trim()[0].ToString().ToUpperInvariant();
+
+        var first = FirstLetter(user?.FirstName);
+        var last = FirstLetter(user?.LastName);
+
+        if (!string.IsNullOrWhiteSpace(first) && !string.IsNullOrWhiteSpace(last))
+        {
+            return first + last;
+        }
+
+        if (!string.IsNullOrWhiteSpace(first))
+        {
+            return first;
+        }
+
+        if (!string.IsNullOrWhiteSpace(last))
+        {
+            return last;
+        }
+
+        return "IU";
+    }
+}
+
+<div id="ai-assisted-panel">
+    <div id="ai-chat" class="flex-grow-1 mb-3 rounded-3 p-3" aria-live="polite">
+        <div class="chat-bubble system">
+            <div class="chat-avatar"><span class="fw-bold fs-5">Z</span></div>
+            <div>
+                <div class="bubble-label">ZeeU Intelligence</div>
+                <div class="bubble-text">
+                    @Localizer["Hej {0}! Jag är redo att hjälpa dig att hämta, analysera och visa data från ditt aktiva bolag.", greetingName]
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-bubble user d-none">
+            <div class="chat-avatar user" title="@($"{sessionUser?.FirstName} {sessionUser?.LastName}".Trim())">@userInitials</div>
+            <div>
+                <div class="bubble-label">@Localizer["Inloggad användare"]</div>
+                <div class="bubble-text"></div>
+            </div>
+        </div>
+
+        <div class="chat-bubble ai d-none">
+            <div class="chat-avatar"><span class="fw-bold fs-5">Z</span></div>
+            <div>
+                <div class="bubble-label">ZeeU Intelligence</div>
+                <div class="bubble-text"></div>
+                <div class="bubble-next mt-2 d-flex flex-wrap gap-2"></div>
+                <div class="bubble-badges small mt-2 d-flex flex-wrap gap-2"></div>
+                <div class="bubble-feedback mt-3 d-none">
+                    <span class="bubble-feedback__label">@Localizer["Var svaret hjälpsamt?"]</span>
+                    <button type="button" class="bubble-feedback__button" data-ai-feedback="helpful" title="@Localizer["Ja, svaret var hjälpsamt"]" aria-label="@Localizer["Ja, svaret var hjälpsamt"]">
+                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="bubble-feedback__button" data-ai-feedback="not_helpful" title="@Localizer["Nej, svaret behöver förbättras"]" aria-label="@Localizer["Nej, svaret behöver förbättras"]">
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    </button>
+                    <span class="bubble-feedback__confirmation" role="status"></span>
+                    <div class="bubble-feedback__detail d-none">
+                        <label class="visually-hidden">@Localizer["Vad saknades i svaret?"]</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               maxlength="500"
+                               placeholder="@Localizer["Vad saknades? (valfritt)"]" />
+                        <button type="button" class="btn btn-portal btn-sm" data-ai-feedback-submit>
+                            @Localizer["Skicka feedback"]
+                        </button>
+                    </div>
+                </div>
+                <details class="bubble-sqlwrap mt-2 d-none">
+                    <summary class="text-muted small">SQL</summary>
+                    <pre class="bubble-sql small mb-0"></pre>
+                </details>
+            </div>
+        </div>
+
+        <div class="chat-bubble ai d-none" id="ai-loading-template">
+            <div class="chat-avatar"><span class="fw-bold fs-5">Z</span></div>
+            <div class="ai-progress" role="status" aria-live="polite">
+                <div class="bubble-label">ZeeU Intelligence</div>
+                <div class="ai-progress__current">
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span class="ai-progress__message">@Localizer["Startar analysen..."]</span>
+                    <span class="ai-progress__percent">0%</span>
+                </div>
+                <div class="ai-progress__track" aria-hidden="true">
+                    <span class="ai-progress__bar"></span>
+                </div>
+                <ol class="ai-progress__events"></ol>
+            </div>
+        </div>
+        
+        <div class="chat-bubble ai-error-bubble d-none" id="ai-error-template">
+            <div class="chat-avatar"><i class="fa fa-triangle-exclamation"></i></div>
+            <div>
+                <div class="bubble-label ai-error-title">@Localizer["Frågan kunde inte slutföras"]</div>
+                <div class="bubble-text text-danger">@Localizer["Ett oväntat fel uppstod. Kontrollera nätverket och försök igen."]</div>
+                <div class="ai-error-actions mt-2 d-flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+    </div>
+    
+    <form id="ai-form" class="mt-auto" data-skip-page-loader="true">
+        <div class="ai-suggestion-wrap" aria-label="@Localizer["Förslag på frågor"]">
+            <button type="button" class="ai-suggestion-chip" data-text="@Localizer["Visa omsättning per månad i år"]">
+                <i class="fa fa-chart-line" aria-hidden="true"></i>
+                @Localizer["Omsättning per månad"]
+            </button>
+            <button type="button" class="ai-suggestion-chip" data-text="@Localizer["Visa de fem största kunderna i år"]">
+                <i class="fa fa-users" aria-hidden="true"></i>
+                @Localizer["Största kunderna"]
+            </button>
+            <button type="button" class="ai-suggestion-chip" data-text="@Localizer["Visa förfallna kundfakturor"]">
+                <i class="fa fa-file-invoice-dollar" aria-hidden="true"></i>
+                @Localizer["Förfallna fakturor"]
+            </button>
+        </div>
+        <div class="input-group ai-input-group">
+            <textarea class="form-control" id="ai-input" rows="1"
+                      placeholder="@Localizer["Fråga om ordrar, kunder, fakturor eller trender..."]"></textarea>
+            <button class="btn btn-portal ai-send-btn" id="ai-send" type="submit" title="@Localizer["Skicka (Enter)"]">
+                <i class="fa fa-bolt me-2"></i>@Localizer["Analysera"]
+            </button>
+            <button class="btn btn-outline-secondary d-none" id="ai-cancel" type="button" title="@Localizer["Avbryt analysen"]">
+                <i class="fa fa-stop me-2" aria-hidden="true"></i>@Localizer["Avbryt"]
+            </button>
+        </div>
+        <div class="text-end small text-muted mt-2 ai-input-hint">
+            @Localizer["Tryck Enter för att skicka. Använd Shift+Enter för ny rad."]
+        </div>
+        <div id="ai-quota-inline" class="ai-quota-inline d-none mt-2" aria-live="polite">
+            <i class="fa fa-triangle-exclamation me-2"></i>
+            <span id="ai-quota-inline-text"></span>
+        </div>
+        <div class="ai-quota-control-row mt-2">
+            <div id="ai-quota-inline-actions" class="ai-quota-inline-actions d-none">
+                <button type="button" id="ai-quota-allow-btn" class="btn ai-choice-btn ai-choice-btn--allow">
+                    <i class="fa fa-credit-card me-1"></i>Fortsätt med kostnad
+                </button>
+                <button type="button" id="ai-quota-block-btn" class="btn ai-choice-btn ai-choice-btn--pause">
+                    <i class="fa fa-pause me-1"></i>Pausa AI tills ny period
+                </button>
+            </div>
+            @if (compactWidget)
+            {
+                <span id="ai-status" class="small text-muted d-flex align-items-center gap-2 ai-status-pill">
+                    <span class="ai-dot"></span>
+                    <span id="ai-status-text">Redo</span>
+                </span>
+            }
+            <span id="ai-quota-paid-pill" class="ai-paid-pill d-none">Betalläge aktivt</span>
+            <div id="ai-quota-widget" class="ai-quota-widget d-none">
+                <button id="ai-quota-trigger"
+                        type="button"
+                        class="ai-quota-trigger"
+                        title="AI-kvot"
+                        aria-label="Visa AI-kvot">
+                    <span class="ai-quota-trigger__inner">
+                        <span id="ai-quota-mini">0%</span>
+                    </span>
+                </button>
+                <div id="ai-quota-pop" class="ai-quota-pop d-none" role="dialog" aria-label="AI-kvot detaljer">
+                    <div class="small fw-semibold mb-1">AI kvot</div>
+                    <div id="ai-quota-pop-text" class="small text-muted mb-2"></div>
+                    <div class="ai-quota-progress">
+                        <div id="ai-quota-pop-bar" class="ai-quota-progress__bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

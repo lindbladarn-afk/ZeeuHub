@@ -1,0 +1,29 @@
+@model WebApp.Models.Integration.FlowEngineJobSnapshot
+
+@{
+    var modalId = $"flowengine-job-modal-{Model.Id:N}";
+}
+
+<div class="modal fade flowengine-job-modal" id="@modalId" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Run #@Model.Id.ToString("N")[..8].ToUpperInvariant()</h2>
+                    <div class="flowengine-job-modal-subtitle">@Model.UiLabel</div>
+                </div>
+                <button type="button"
+                        class="btn btn-portal btn-portal-outline flowengine-job-modal-close"
+                        data-bs-dismiss="modal"
+                        data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+            <div class="modal-body">
+                <partial name="FlowEngine/Partials/_FlowEngineHistorySelectedJobDetail"
+                         model="Model"
+                         view-data='new ViewDataDictionary(ViewData) { ["FlowEngineModalMode"] = true }' />
+            </div>
+        </div>
+    </div>
+</div>

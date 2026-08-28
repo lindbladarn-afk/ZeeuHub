@@ -1,0 +1,198 @@
+@model IReadOnlyList<WebApp.Models.Application.SidebarRuntimeStatusItemViewModel>
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> SharedLocalizer
+@using WebApp.Services.ExcelImport
+
+@{
+    // Shows the recent Excel import runtime events directly under the upload card.
+    var items = Model ?? Array.Empty<WebApp.Models.Application.SidebarRuntimeStatusItemViewModel>();
+    var visibleItems = items.Take(5).ToList();
+
+    string StatusText(string? statusLabel) => statusLabel switch
+    {
+        "Running" => SharedLocalizer["RuntimeStatus_Running"].Value,
+        "Queued" => SharedLocalizer["RuntimeStatus_Queued"].Value,
+        "Completed" => SharedLocalizer["RuntimeStatus_Completed"].Value,
+        "Failed" => SharedLocalizer["RuntimeStatus_Failed"].Value,
+        "Canceled" or "Cancelled" => SharedLocalizer["RuntimeStatus_Canceled"].Value,
+        _ => string.IsNullOrWhiteSpace(statusLabel) ? SharedLocalizer["RuntimeStatus_Unknown"].Value : statusLabel
+    };
+
+    string StatusTitle(string? statusLabel) => statusLabel switch
+    {
+        "Queued" => SharedLocalizer["ExcelImport_Runtime_QueuedTitle"].Value,
+        "Running" => SharedLocalizer["ExcelImport_Runtime_RunningTitle"].Value,
+        "Completed" => SharedLocalizer["ExcelImport_Runtime_CompletedTitle"].Value,
+        "Failed" => SharedLocalizer["ExcelImport_Runtime_FailedTitle"].Value,
+        "Canceled" or "Cancelled" => SharedLocalizer["ExcelImport_Runtime_CanceledTitle"].Value,
+        _ => statusLabel ?? string.Empty
+    };
+
+    string StatusDescription(string? statusLabel) => statusLabel switch
+    {
+        "Queued" => SharedLocalizer["ExcelImport_Runtime_QueuedDescription"].Value,
+        "Running" => SharedLocalizer["ExcelImport_Runtime_RunningDescription"].Value,
+        "Completed" => SharedLocalizer["ExcelImport_Runtime_CompletedDescription"].Value,
+        "Failed" => SharedLocalizer["ExcelImport_Runtime_FailedDescription"].Value,
+        "Canceled" or "Cancelled" => SharedLocalizer["ExcelImport_Runtime_CanceledDescription"].Value,
+        _ => SharedLocalizer["ExcelImport_Runtime_UnknownDescription"].Value
+    };
+
+    string StatusBadgeClass(string? statusLabel) => statusLabel switch
+    {
+        "Queued" => "excel-runtime-status-badge--queued",
+        "Running" => "excel-runtime-status-badge--running",
+        "Completed" => "excel-runtime-status-badge--completed",
+        "Failed" => "excel-runtime-status-badge--failed",
+        "Canceled" or "Cancelled" => "excel-runtime-status-badge--canceled",
+        _ => "excel-runtime-status-badge--muted"
+    };
+
+    string StatusAccentClass(string? statusLabel) => statusLabel switch
+    {
+        "Queued" => "excel-runtime-status-item--queued",
+        "Running" => "excel-runtime-status-item--running",
+        "Completed" => "excel-runtime-status-item--completed",
+        "Failed" => "excel-runtime-status-item--failed",
+        "Canceled" or "Cancelled" => "excel-runtime-status-item--canceled",
+        _ => "excel-runtime-status-item--muted"
+    };
+
+    string StatusIconClass(string? statusLabel) => statusLabel switch
+    {
+        "Queued" => "fa-clock",
+        "Running" => "fa-circle-notch",
+        "Completed" => "fa-check",
+        "Failed" => "fa-triangle-exclamation",
+        "Canceled" or "Cancelled" => "fa-ban",
+        _ => "fa-circle"
+    };
+
+    string ImportTypeText(WebApp.Models.Application.SidebarRuntimeStatusItemViewModel item)
+        => ExcelImportTypeDefinitions.GetDisplayName(ExcelImportTypeDefinitions.ResolveRuntimeImportType(item));
+}
+
+@if (visibleItems.Count > 0)
+{
+    <div class="card kpi-card p-3 mt-4 excel-runtime-status-card">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <div class="dashboard-card-title mb-1">@SharedLocalizer["ExcelImport_RuntimeStatusTitle"]</div>
+                    <div class="module-page-meta">@SharedLocalizer["ExcelImport_RuntimeStatusSubtitle"]</div>
+                </div>
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 excel-runtime-status-live">@SharedLocalizer["ExcelImport_RuntimeLive"]</span>
+            </div>
+
+            <div class="d-flex flex-column excel-runtime-status-list">
+                @for (var i = 0; i < visibleItems.Count; i++)
+                {
+                    var item = visibleItems[i];
+                    var itemHeaders = item.ColumnHeaders ?? new List<string>();
+                    var canLoadRows = itemHeaders.Any()
+                        && !string.IsNullOrWhiteSpace(item.AggregateKey)
+                        && (string.Equals(item.StatusLabel, "Completed", StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(item.StatusLabel, "Failed", StringComparison.OrdinalIgnoreCase));
+                    var isActive = string.Equals(item.StatusLabel, "Queued", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(item.StatusLabel, "Running", StringComparison.OrdinalIgnoreCase);
+                    <details class="excel-runtime-status-item @StatusAccentClass(item.StatusLabel) @(i == 0 ? "is-first" : string.Empty)"
+                             data-runtime-key="@item.AggregateKey"
+                             data-runtime-status="@item.StatusLabel"
+                             data-runtime-active="@(isActive.ToString().ToLowerInvariant())">
+                        <summary class="excel-runtime-status-summary list-unstyled">
+                            <div class="excel-runtime-status-summary-main">
+                                <div class="excel-runtime-status-title">
+                                    <span>@ImportTypeText(item)</span>
+                                    <span class="excel-runtime-status-title-state">@StatusTitle(item.StatusLabel)</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(item.SourceFileName))
+                                {
+                                    <div class="excel-runtime-status-summary-meta small text-muted">
+                                        @item.SourceFileName
+                                    </div>
+                                }
+                                <div class="excel-runtime-status-summary-text">@item.Summary</div>
+                                @if (item.TotalRows.HasValue)
+                                {
+                                    <div class="excel-runtime-status-summary-meta small text-muted">
+                                        @{
+                                            var validRows = item.ValidRows ?? 0;
+                                            var totalRows = item.TotalRows ?? 0;
+                                        }
+                                        @SharedLocalizer["ExcelImport_RuntimeRowProgress", validRows, totalRows]
+                                    </div>
+                                }
+                                @if (item.StagedRows.HasValue)
+                                {
+                                    <div class="excel-runtime-status-summary-meta small text-muted">
+                                        @SharedLocalizer["ExcelImport_RuntimeImportedCount", item.StagedRows.Value]
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.DurationLabel))
+                                {
+                                    var durationPrefix = "Körtid:";
+                                    <div class="excel-runtime-status-summary-meta small text-muted">
+                                        <span class="excel-runtime-duration"
+                                              data-runtime-duration="true"
+                                              data-runtime-duration-prefix="@durationPrefix"
+                                              data-runtime-status="@item.StatusLabel"
+                                              data-runtime-started-at="@item.StartedAtUtc?.ToUnixTimeMilliseconds()">
+                                            @item.DurationLabel
+                                        </span>
+                                    </div>
+                                }
+                                @if (item.ImportBatchId.HasValue)
+                                {
+                                    var importId = item.ImportBatchId.Value.ToString("D");
+                                    var importIdTargetId = $"excel-import-id-{i}";
+                                    <div class="excel-runtime-status-summary-meta small text-muted d-flex align-items-center gap-2 flex-wrap">
+                                        <span>Import-ID:</span>
+                                        <code id="@importIdTargetId" class="excel-runtime-import-id">@importId</code>
+                                        <button type="button"
+                                                class="btn btn-portal btn-portal-outline btn-sm excel-copy-action"
+                                                data-excel-copy-target="@importIdTargetId"
+                                                data-excel-copy-default-label="Kopiera"
+                                                data-excel-copy-success-label="Kopierad"
+                                                aria-label="Kopiera import-ID"
+                                                title="Kopiera import-ID">
+                                            <i class="fas fa-copy" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                }
+                                <div class="excel-runtime-status-help-text">@StatusDescription(item.StatusLabel)</div>
+                            </div>
+                            <div class="excel-runtime-status-summary-aside">
+                                <span class="excel-runtime-status-badge @StatusBadgeClass(item.StatusLabel)">
+                                    <i class="fas @StatusIconClass(item.StatusLabel)" aria-hidden="true"></i>
+                                    @StatusText(item.StatusLabel)
+                                </span>
+                                <span class="excel-runtime-status-toggle" aria-hidden="true">
+                                    <span>@SharedLocalizer["ExcelImport_RuntimeOpen"]</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </span>
+                            </div>
+                        </summary>
+                        @if (canLoadRows)
+                        {
+                            <div class="excel-runtime-status-details">
+                                <div id="excel-runtime-rows-@i"
+                                     class="excel-runtime-loaded-rows"
+                                     data-runtime-loaded-rows="true"
+                                     data-runtime-rows-url="@Url.Action("RuntimeRowsPanel", "ExcelImport", new { aggregateKey = item.AggregateKey })"
+                                     aria-live="polite">
+                                </div>
+                            </div>
+                        }
+                        else if (string.Equals(item.StatusLabel, "Failed", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="excel-runtime-status-details">
+                                <div class="small text-muted">
+                                    @SharedLocalizer["ExcelImport_RuntimeFailedBeforeRows"]
+                                </div>
+                            </div>
+                        }
+                    </details>
+                }
+            </div>
+        </div>
+    </div>
+}

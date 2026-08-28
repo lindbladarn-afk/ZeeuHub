@@ -1,0 +1,21 @@
+@model WebApp.Controllers.AIController.AiViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var initialMode = ViewData["AiMode"] ?? "assisted";
+}
+
+<div class="ai-mode-toggle d-flex flex-wrap align-items-center gap-2 mb-3" data-selected-mode="@initialMode">
+    <div class="ai-mode-pillbar" role="group" aria-label="AI mode">
+        <button type="button" class="btn btn-sm ai-mode-btn" data-ai-mode="assisted">
+            <i class="fa fa-magic me-1"></i> @Localizer["AI Assisted"]
+        </button>
+        <button type="button" class="btn btn-sm ai-mode-btn" data-ai-mode="manual">
+            <i class="fa fa-code me-1"></i> @Localizer["Manual SQL"]
+        </button>
+    </div>
+
+    <span id="ai-status" class="ms-auto small text-muted d-flex align-items-center gap-2 ai-status-pill">
+        <span class="ai-dot"></span>
+        <span id="ai-status-text">@Localizer["Redo"]</span>
+    </span>
+</div>

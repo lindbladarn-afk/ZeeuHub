@@ -1,0 +1,1311 @@
+.excel-readable { font-size: 16px; }
+.excel-readable .small { font-size: 0.95rem; }
+.excel-readable .fs-11px { font-size: 12px !important; }
+.excel-readable .dashboard-card-title { font-size: 0.85rem; }
+.excel-readable .action-meta { font-size: 0.95rem; }
+.excel-shell { border-radius: 16px; overflow: hidden; }
+.excel-import-primary .card-body {
+    padding: 1.15rem 1.25rem;
+}
+.excel-import-type-select {
+    width: min(100%, 24rem);
+}
+
+.excel-readable .module-select-caret.excel-import-type-select::after {
+    right: 0.95rem;
+}
+
+.excel-readable .excel-import-type-select select.form-select {
+    width: 100%;
+    padding-right: 2.55rem;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#excel-drop-zone {
+    border: 2px dashed #b7c3d2;
+    background: rgba(15, 23, 42, 0.35);
+    transition: all .2s ease;
+    border-radius: 16px;
+}
+
+#excel-drop-zone.is-dragover {
+    border-color: #198754;
+    background: #f0f9f4;
+    box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15);
+}
+
+#excel-drop-zone.has-file {
+    border-color: #198754;
+}
+
+#excel-drop-zone .import-icon {
+    font-size: 42px;
+}
+
+.excel-help-box {
+    background: rgba(15,23,42,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.excel-runtime-status-item > summary {
+    list-style: none;
+}
+
+.excel-runtime-status-item > summary::-webkit-details-marker {
+    display: none;
+}
+
+.excel-runtime-status-item > summary {
+    cursor: pointer;
+}
+
+.excel-runtime-status-card {
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    background: transparent;
+    overflow: hidden;
+}
+
+.excel-runtime-status-list {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.excel-runtime-status-item {
+    position: relative;
+    padding: 0.9rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.excel-runtime-status-item.is-first {
+    border-top-color: transparent;
+}
+
+.excel-runtime-status-item::before {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    top: 0.95rem;
+    bottom: 0.95rem;
+    width: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.excel-runtime-status-item--queued::before {
+    background: #38bdf8;
+}
+
+.excel-runtime-status-item--running::before {
+    background: #f59e0b;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.34);
+}
+
+.excel-runtime-status-item--completed::before {
+    background: #10b981;
+}
+
+.excel-runtime-status-item--failed::before {
+    background: #ef4444;
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.32);
+}
+
+.excel-runtime-status-item--canceled::before {
+    background: #94a3b8;
+}
+
+.excel-runtime-status-item--muted::before {
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.excel-runtime-status-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.excel-runtime-status-summary::-webkit-details-marker {
+    display: none;
+}
+
+.excel-runtime-status-summary-main {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.excel-runtime-status-summary-aside {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.excel-runtime-status-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    font-weight: 700;
+    font-size: 1rem;
+    color: inherit;
+    line-height: 1.2;
+}
+
+.excel-runtime-status-title-state {
+    color: rgba(226, 232, 240, 0.68);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.excel-runtime-status-summary-text {
+    margin-top: 0.35rem;
+    color: rgba(226, 232, 240, 0.68);
+    font-size: 0.93rem;
+    line-height: 1.35;
+}
+
+.excel-runtime-status-help-text {
+    margin-top: 0.25rem;
+    color: rgba(226, 232, 240, 0.56);
+    font-size: 0.82rem;
+    line-height: 1.3;
+}
+
+.excel-runtime-import-id {
+    display: inline-block;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+    border-radius: 0;
+    color: rgba(255, 255, 255, 0.92);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: normal;
+}
+
+.excel-runtime-import-id::before,
+.excel-runtime-import-id::after {
+    content: none;
+}
+
+.excel-runtime-status-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(226, 232, 240, 0.64);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: color .15s ease, transform .15s ease;
+}
+
+.excel-runtime-status-toggle i {
+    font-size: 0.78rem;
+    transition: transform .15s ease;
+}
+
+.excel-runtime-status-item[open] .excel-runtime-status-toggle {
+    color: rgba(226, 232, 240, 0.88);
+}
+
+.excel-runtime-status-item[open] .excel-runtime-status-toggle i {
+    transform: rotate(180deg);
+}
+
+.excel-runtime-status-details {
+    padding: 0.8rem 0 0.15rem 0;
+}
+
+.excel-runtime-status-table-title {
+    margin: 0.25rem 0 0.55rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.72);
+}
+
+.excel-runtime-status-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 12px;
+}
+
+.excel-runtime-status-table {
+    margin-bottom: 0;
+    color: inherit;
+    min-width: 100%;
+}
+
+.excel-runtime-status-table thead th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(226, 232, 240, 0.78);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom-color: rgba(148, 163, 184, 0.18);
+    white-space: nowrap;
+    background: rgba(15, 23, 42, 0.35);
+}
+
+.excel-runtime-status-table th.excel-empty-column,
+.excel-runtime-status-table td.excel-empty-column {
+    width: clamp(3.25rem, calc(var(--excel-col-ch, 8) * 0.58rem), 8rem);
+    min-width: clamp(3.25rem, calc(var(--excel-col-ch, 8) * 0.58rem), 8rem);
+    max-width: 8rem;
+    white-space: nowrap;
+}
+
+.excel-runtime-status-table tbody td {
+    border-top-color: rgba(148, 163, 184, 0.1);
+    vertical-align: top;
+    font-size: 0.88rem;
+}
+
+.excel-runtime-status-table tbody tr.row-invalid td {
+    background: rgba(127, 29, 29, 0.12);
+}
+
+.excel-runtime-status-row-no {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.excel-runtime-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    min-width: 6.3rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.42rem 0.72rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.excel-runtime-status-badge i {
+    font-size: 0.72rem;
+}
+
+.excel-runtime-status-badge--queued {
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.28);
+}
+
+.excel-runtime-status-badge--running {
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.32);
+}
+
+.excel-runtime-status-badge--running i {
+    animation: excel-status-spin 1s linear infinite;
+}
+
+.excel-runtime-status-badge--completed {
+    color: #86efac;
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.excel-runtime-status-badge--failed {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.34);
+}
+
+.excel-runtime-status-badge--canceled,
+.excel-runtime-status-badge--muted {
+    color: #cbd5e1;
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.26);
+}
+
+@keyframes excel-status-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.excel-runtime-status-live {
+    box-shadow: none;
+}
+
+.excel-runtime-status-card .module-page-meta {
+    color: rgba(226, 232, 240, 0.7);
+}
+
+.excel-runtime-status-card .btn-portal-outline {
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.excel-runtime-status-card .btn-portal-outline:hover {
+    border-color: rgba(148, 163, 184, 0.42);
+}
+
+body:not(.theme-dark) .excel-readable .text-muted { color: #0f172a !important; }
+body:not(.theme-dark) .excel-readable .dashboard-card-title { color: #0f172a !important; }
+body:not(.theme-dark) .excel-readable .page-header { color: #0f172a !important; }
+body:not(.theme-dark) .excel-readable .action-meta { color: #0f172a; }
+body:not(.theme-dark) #excel-drop-zone {
+    background: #f8fafc;
+    border-color: rgba(15,23,42,0.2);
+}
+body:not(.theme-dark) #excel-drop-zone.is-dragover {
+    background: #f0fdf4;
+    border-color: #16a34a;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+}
+body:not(.theme-dark) #excel-drop-zone.has-file { border-color: #16a34a; }
+body:not(.theme-dark) #excel-drop-zone h5,
+body:not(.theme-dark) #excel-drop-zone p { color: #0f172a; }
+body:not(.theme-dark) #excel-drop-zone .text-white { color: #0f172a !important; }
+body:not(.theme-dark) .excel-help-box {
+    background: #f8fafc;
+    border-color: rgba(15,23,42,0.12);
+}
+
+body:not(.theme-dark) .excel-runtime-status-card {
+    border-color: var(--hub-page-border-strong);
+}
+
+body:not(.theme-dark) .excel-runtime-status-list,
+body:not(.theme-dark) .excel-runtime-status-item {
+    border-color: var(--hub-page-border);
+}
+
+body:not(.theme-dark) .excel-runtime-status-item.is-first {
+    border-top-color: transparent;
+}
+
+body:not(.theme-dark) .excel-runtime-status-item--muted::before {
+    background: rgba(100, 116, 139, 0.22);
+}
+
+body:not(.theme-dark) .excel-runtime-status-title-state,
+body:not(.theme-dark) .excel-runtime-status-summary-text,
+body:not(.theme-dark) .excel-runtime-status-card .module-page-meta {
+    color: var(--hub-page-muted);
+}
+
+body:not(.theme-dark) .excel-runtime-status-help-text,
+body:not(.theme-dark) .excel-runtime-status-toggle,
+body:not(.theme-dark) .excel-runtime-status-table-title {
+    color: var(--hub-page-subtle);
+}
+
+body:not(.theme-dark) .excel-runtime-status-item[open] .excel-runtime-status-toggle {
+    color: var(--hub-page-muted);
+}
+
+body:not(.theme-dark) .excel-runtime-status-table-wrap {
+    border-color: var(--hub-page-border-strong);
+}
+
+body:not(.theme-dark) .excel-runtime-status-table thead th {
+    background: var(--hub-page-surface-muted);
+    border-bottom-color: var(--hub-page-border);
+    color: var(--hub-page-muted);
+}
+
+body:not(.theme-dark) .excel-runtime-status-table tbody td {
+    border-top-color: var(--hub-page-border);
+    color: var(--hub-page-text);
+}
+
+body:not(.theme-dark) .excel-runtime-status-table tbody tr.row-invalid td {
+    background: rgba(220, 38, 38, 0.06);
+}
+
+body:not(.theme-dark) .excel-runtime-status-badge--queued {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: rgba(14, 116, 144, 0.18);
+    color: #0369a1;
+}
+
+body:not(.theme-dark) .excel-runtime-status-badge--running {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(180, 83, 9, 0.22);
+    color: #92400e;
+}
+
+body:not(.theme-dark) .excel-runtime-status-badge--completed {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(21, 128, 61, 0.2);
+    color: #166534;
+}
+
+body:not(.theme-dark) .excel-runtime-status-badge--failed {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(185, 28, 28, 0.22);
+    color: #b91c1c;
+}
+
+body:not(.theme-dark) .excel-runtime-status-badge--canceled,
+body:not(.theme-dark) .excel-runtime-status-badge--muted {
+    background: rgba(100, 116, 139, 0.1);
+    border-color: rgba(71, 85, 105, 0.18);
+    color: #475569;
+}
+
+body.theme-dark #excel-drop-zone {
+    background: #0f172a;
+    border-color: #334155;
+}
+body.theme-dark #excel-drop-zone.is-dragover {
+    background: #111827;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+}
+body.theme-dark #excel-drop-zone.has-file {
+    border-color: #22c55e;
+}
+body.theme-dark #excel-drop-zone h5,
+body.theme-dark #excel-drop-zone p { color: #e2e8f0; }
+body.theme-dark .card-body h6,
+body.theme-dark .card-body h3,
+body.theme-dark .card-body .text-muted,
+body.theme-dark .card-body .fw-bold { color: #e2e8f0 !important; }
+body.theme-dark .card-body .bg-light { background-color: #111827 !important; color: #e2e8f0; }
+body.theme-dark .card-body .bg-light p { color: #cbd5e1 !important; }
+body.theme-dark .btn-outline-secondary { color: #e2e8f0; border-color: #475569; }
+.excel-runtime-status-card .badge {
+    line-height: 1.1;
+}
+.excel-required-marker { color: #f59e0b; margin-left: 4px; font-weight: 700; }
+.excel-required-header { white-space: nowrap; }
+.excel-required-legend { opacity: 0.85; }
+body.theme-dark .btn-outline-secondary:hover { background-color: #1f2937; color: #f8fafc; }
+.excel-validation-card {
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+body.theme-dark .excel-validation-card {
+    border-color: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+}
+body:not(.theme-dark) .excel-validation-card {
+    border-color: rgba(15,23,42,0.12);
+}
+.excel-validation-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: var(--excel-table-min-width, max-content);
+}
+.excel-table-wrap {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.8rem;
+    scrollbar-gutter: stable both-edges;
+}
+
+.excel-table-wrap--rows {
+    overflow-y: auto !important;
+    max-height: calc(2.9rem + (5 * 2.6rem) + 0.9rem);
+}
+
+.excel-table-scroll-inner {
+    display: block;
+    width: 100%;
+    min-width: max(100%, var(--excel-table-min-width, 100%));
+    vertical-align: top;
+}
+.excel-table-wrap::-webkit-scrollbar {
+    height: 12px;
+}
+.excel-table-wrap::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+.excel-table-wrap::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.95) 100%);
+    border-radius: 999px;
+    border: 2px solid rgba(15, 23, 42, 0.45);
+}
+.excel-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.96) 0%, rgba(100, 116, 139, 0.96) 100%);
+}
+#excel-edit-session-form {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+.excel-validation-card .card-body {
+    overflow-x: hidden;
+}
+.excel-validation-table thead th {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 0.62rem 0.56rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.excel-validation-table th,
+.excel-validation-table td {
+    white-space: nowrap;
+}
+.excel-validation-table tbody tr {
+    height: 2.6rem;
+    min-height: 2.6rem;
+    background: rgba(255, 255, 255, 0.022);
+}
+.excel-validation-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.045);
+}
+.excel-validation-table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.022);
+}
+.excel-validation-table tbody tr + tr td {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+.excel-validation-table tbody td {
+    font-size: 0.86rem;
+    vertical-align: middle;
+    padding: 0.08rem;
+}
+.excel-validation-table tbody td + td {
+    border-left: 1px solid rgba(148, 163, 184, 0.14);
+}
+.excel-validation-table tbody td:nth-child(1),
+.excel-validation-table tbody td:nth-child(2) {
+    padding-left: 0.32rem;
+    padding-right: 0.32rem;
+    text-align: center;
+    min-width: 52px;
+}
+.excel-validation-table thead th:nth-child(1),
+.excel-validation-table thead th:nth-child(2) {
+    width: 52px;
+    min-width: 52px;
+}
+.excel-validation-table tbody td:nth-child(1) {
+    position: relative;
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    overflow: visible;
+}
+.excel-validation-table thead th:nth-child(1) {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+}
+.excel-validation-table tbody td:nth-child(2) {
+    border-left: none !important;
+}
+.excel-validation-table .excel-row-error-row td,
+.excel-runtime-status-table .excel-row-error-row td {
+    padding: 0.34rem 0.55rem 0.5rem;
+    border-left: none;
+    border-top: 0;
+    background: rgba(239, 68, 68, 0.08);
+    text-align: left;
+}
+.excel-row-error-message {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    color: #fca5a5;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+body:not(.theme-dark) .excel-validation-table .excel-row-error-row td,
+body:not(.theme-dark) .excel-runtime-status-table .excel-row-error-row td {
+    background: rgba(220, 38, 38, 0.06);
+}
+body:not(.theme-dark) .excel-row-error-message {
+    color: #b91c1c;
+}
+.excel-edit-cell,
+.excel-read-cell {
+    min-width: clamp(5.5rem, calc(var(--excel-col-ch, 10) * 0.68rem), 10.75rem);
+    color: #f8fafc;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.4rem 0.52rem;
+    background: transparent;
+}
+.excel-validation-table thead th:nth-child(n + 3) {
+    min-width: clamp(5.5rem, calc(var(--excel-col-ch, 10) * 0.68rem), 10.75rem);
+}
+.excel-validation-table thead th.excel-empty-column,
+.excel-validation-table .excel-edit-cell.excel-empty-column,
+.excel-validation-table .excel-read-cell.excel-empty-column {
+    width: clamp(3.25rem, calc(var(--excel-col-ch, 8) * 0.58rem), 8rem);
+    min-width: clamp(3.25rem, calc(var(--excel-col-ch, 8) * 0.58rem), 8rem);
+    max-width: 8rem;
+}
+.excel-edit-cell:focus {
+    background: rgba(56, 189, 248, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.34);
+}
+.excel-edit-cell[contenteditable="true"]:empty::after {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    font-style: italic;
+}
+.excel-edit-cell[contenteditable="true"].excel-cell-empty::after {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    font-style: italic;
+}
+.excel-read-cell-value {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+body:not(.theme-dark) .excel-edit-cell,
+body:not(.theme-dark) .excel-read-cell {
+    color: #0f172a;
+}
+body:not(.theme-dark) .excel-edit-cell:focus {
+    background: rgba(56, 189, 248, 0.09);
+    box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.24);
+}
+body:not(.theme-dark) .excel-edit-cell[contenteditable="true"]:empty::after {
+    color: #64748b;
+}
+body:not(.theme-dark) .excel-edit-cell[contenteditable="true"].excel-cell-empty::after {
+    color: #64748b;
+}
+#voucher-posting-date-group,
+#voucher-posting-date-edit-group,
+#voucher-reversal-date-group,
+#voucher-reversal-date-edit-group {
+    max-width: 20rem;
+}
+.excel-delete-icon {
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+.excel-delete-icon:hover {
+    color: #f87171;
+}
+body:not(.theme-dark) .excel-delete-icon {
+    color: #dc2626;
+}
+.excel-add-icon {
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #22c55e;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+.excel-add-icon:hover {
+    color: #4ade80;
+}
+body:not(.theme-dark) .excel-add-icon {
+    color: #16a34a;
+}
+.excel-error-item {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    column-gap: 8px;
+    align-items: start;
+}
+.excel-error-content {
+    grid-column: 2;
+}
+.excel-error-check {
+    opacity: 0;
+    color: #22c55e;
+    font-weight: 700;
+    margin-top: 2px;
+}
+.excel-error-item.is-resolved .excel-error-check {
+    opacity: 1;
+}
+.excel-error-item.is-resolved {
+    color: #22c55e;
+}
+.excel-error-item.is-resolved .excel-error-data {
+    display: none;
+}
+
+.excel-page .excel-result-card {
+    background: rgba(15, 23, 42, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    border-radius: 24px;
+    color: #e2e8f0;
+    position: relative;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.excel-page .excel-result-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+}
+
+.excel-page .excel-result-card .card-body {
+    padding: 1rem 1.1rem;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.excel-page .module-result-card {
+    margin-bottom: 0.8rem !important;
+    border-radius: 14px;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.excel-page .module-result-card > .card-body {
+    padding: 0.75rem 0.85rem;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block;
+}
+
+.excel-page .module-result {
+    border-radius: 14px;
+    padding: 0.78rem 0.9rem;
+}
+
+.excel-page .module-result-header {
+    gap: 0.7rem;
+}
+
+.excel-page .module-result-title-wrap {
+    gap: 0.65rem;
+}
+
+.excel-page .module-result-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+    font-size: 0.8rem;
+}
+
+.excel-page .module-result-title {
+    font-size: 0.94rem;
+    line-height: 1.25;
+}
+
+.excel-page .module-result-message {
+    margin-top: 0.12rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+}
+
+.excel-page .module-result-note {
+    margin-top: 0.55rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.excel-page .module-result .btn-close {
+    padding: 0.25rem;
+    margin: -0.1rem -0.1rem 0 0;
+}
+
+@media (min-width: 1024px) and (max-width: 1536px) {
+    .excel-page {
+        padding: 4px 8px 8px;
+    }
+
+    .excel-page .module-page-header {
+        gap: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .excel-page .dashboard-card-title {
+        font-size: 0.78rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .excel-page .module-page-title {
+        font-size: 1.85rem;
+        line-height: 1.05;
+    }
+
+    .excel-page .module-page-subtitle {
+        font-size: 0.86rem;
+        line-height: 1.35;
+    }
+
+    .excel-page .row.g-4 {
+        --bs-gutter-x: 0.8rem;
+        --bs-gutter-y: 0.8rem;
+    }
+
+    .excel-page .excel-shell {
+        border-radius: 14px;
+    }
+
+    .excel-page .excel-import-primary {
+        padding: 0.8rem !important;
+    }
+
+    .excel-page .excel-import-primary .card-body {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .excel-page .excel-import-primary > .card-body > p.text-muted {
+        margin-bottom: 0.8rem;
+        font-size: 0.84rem;
+        line-height: 1.35;
+    }
+
+    .excel-page label.small,
+    .excel-page .form-check-label.small,
+    .excel-page .small.text-muted,
+    .excel-page .text-muted.small {
+        font-size: 0.8rem !important;
+    }
+
+    .excel-page .form-select,
+    .excel-page .form-control {
+        min-height: 42px;
+        padding-top: 0.45rem;
+        padding-bottom: 0.45rem;
+        font-size: 0.9rem;
+    }
+
+    .excel-page #voucher-posting-date-group,
+    .excel-page #voucher-posting-date-edit-group,
+    .excel-page #voucher-reversal-date-group,
+    .excel-page #voucher-reversal-date-edit-group {
+        max-width: 17rem;
+    }
+
+    .excel-page .form-check {
+        margin-top: 0.55rem !important;
+    }
+
+    .excel-page #excel-drop-zone {
+        padding: 1.8rem 1rem !important;
+        margin-bottom: 0.8rem !important;
+        border-radius: 14px;
+    }
+
+    .excel-page #excel-drop-zone .import-icon {
+        margin-bottom: 0.7rem !important;
+        font-size: 30px;
+    }
+
+    .excel-page #excel-drop-zone h5 {
+        margin-bottom: 0.35rem !important;
+        font-size: 1rem;
+    }
+
+    .excel-page #excel-drop-zone p {
+        font-size: 0.84rem;
+        line-height: 1.3;
+    }
+
+    .excel-page #excel-file-button,
+    .excel-page #excel-clear-btn,
+    .excel-page #excel-upload-btn,
+    .excel-page .excel-create-edit-form .btn,
+    .excel-page .module-page-header .btn {
+        min-height: 38px;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.82rem;
+    }
+
+    .excel-page #excel-file-button {
+        margin-top: 0.7rem !important;
+    }
+
+    .excel-page #excel-file-info {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
+
+    .excel-page .mt-3.d-none + .mt-3.d-none {
+        margin-top: 0.8rem !important;
+    }
+
+    .excel-page .mt-3:not(.d-none) {
+        margin-top: 0.8rem !important;
+    }
+
+    .excel-page .excel-result-card {
+        border-radius: 20px;
+    }
+
+    .excel-page .excel-result-card .card-body {
+        padding: 0.9rem 1rem;
+    }
+
+    .excel-page .module-result-card {
+        margin-bottom: 0.7rem !important;
+        border-radius: 12px;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .excel-page .module-result-card > .card-body {
+        padding: 0.55rem 0.65rem;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .excel-page .module-result {
+        border-radius: 12px;
+        padding: 0.62rem 0.72rem;
+    }
+
+    .excel-page .module-result-header {
+        gap: 0.55rem;
+    }
+
+    .excel-page .module-result-title-wrap {
+        gap: 0.55rem;
+    }
+
+    .excel-page .module-result-icon {
+        width: 1.45rem;
+        height: 1.45rem;
+        font-size: 0.72rem;
+    }
+
+    .excel-page .module-result-title {
+        font-size: 0.86rem;
+        line-height: 1.2;
+    }
+
+    .excel-page .module-result-message {
+        margin-top: 0.1rem;
+        font-size: 0.76rem;
+        line-height: 1.28;
+    }
+
+    .excel-page .module-result-note {
+        margin-top: 0.45rem;
+        font-size: 0.76rem;
+        line-height: 1.3;
+    }
+
+    .excel-page .module-result .btn-close {
+        transform: scale(0.86);
+        transform-origin: top right;
+    }
+
+    .excel-page .excel-validation-card .card-body {
+        padding: 0.9rem 1rem;
+    }
+
+    .excel-page .excel-result-card-title {
+        font-size: 0.95rem;
+    }
+
+    .excel-page .excel-result-card-subtitle,
+    .excel-page .excel-required-legend {
+        font-size: 0.78rem !important;
+        line-height: 1.3;
+    }
+
+    .excel-page #voucher-posting-date-edit,
+    .excel-page #voucher-reversal-date-edit {
+        max-width: 15rem;
+        min-height: 40px;
+        font-size: 0.88rem;
+    }
+
+    .excel-page .excel-table-wrap {
+        padding-bottom: 0.5rem;
+    }
+
+    .excel-page .excel-table-wrap--rows {
+        max-height: calc(2.45rem + (5 * 2.35rem) + 0.7rem);
+    }
+
+    .excel-page .excel-validation-table thead th {
+        font-size: 0.74rem;
+        padding: 0.55rem 0.48rem;
+    }
+
+    .excel-page .excel-validation-table tbody tr {
+        height: 2.35rem;
+        min-height: 2.35rem;
+    }
+
+    .excel-page .excel-validation-table tbody td {
+        font-size: 0.8rem;
+        padding: 0.04rem;
+    }
+
+    .excel-page .excel-validation-table tbody td:nth-child(1),
+    .excel-page .excel-validation-table thead th:nth-child(1) {
+        min-width: 0;
+        width: 0;
+    }
+
+    .excel-page .excel-validation-table tbody td:nth-child(2),
+    .excel-page .excel-validation-table thead th:nth-child(2) {
+        min-width: 46px;
+        width: 46px;
+    }
+
+    .excel-page .excel-edit-cell,
+    .excel-page .excel-read-cell,
+    .excel-page .excel-validation-table thead th:nth-child(n + 3) {
+        min-width: clamp(4.75rem, calc(var(--excel-col-ch, 10) * 0.62rem), 9.5rem);
+    }
+
+    .excel-page .excel-edit-cell,
+    .excel-page .excel-read-cell {
+        padding: 0.32rem 0.42rem;
+        font-size: 0.8rem;
+    }
+
+    .excel-page .excel-delete-icon,
+    .excel-page .excel-add-icon {
+        font-size: 14px;
+        width: 20px;
+        height: 20px;
+        left: -18px;
+    }
+
+    .excel-page #excel-edit-session-form > .d-flex.justify-content-end {
+        margin-top: 0.75rem !important;
+    }
+
+    .excel-page #excel-edit-session-form > .d-flex.justify-content-end .btn {
+        min-height: 38px;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.82rem;
+    }
+}
+
+.excel-page .excel-validation-card .card-body {
+    display: grid;
+    gap: 0.9rem;
+    align-content: start;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.excel-page .excel-validation-card .card-body {
+    display: block;
+    overflow-x: hidden;
+}
+
+.excel-page .excel-validation-card .card-body > * + * {
+    margin-top: 0.9rem;
+}
+
+.excel-page .excel-validation-card .card-body > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.excel-page .excel-result-card-head {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.excel-page .excel-result-card-title {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.excel-page .excel-result-card-subtitle {
+    color: #94a3b8 !important;
+}
+
+.excel-page .excel-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 34px;
+    padding: 0.48rem 0.92rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(15, 23, 42, 0.52) !important;
+    color: #f8fafc !important;
+    font-size: 0.84rem;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.excel-page .excel-status-pill.bg-success {
+    border-color: rgba(74, 222, 128, 0.36);
+    color: #86efac !important;
+}
+
+.excel-page .excel-status-pill.bg-danger {
+    border-color: rgba(251, 113, 133, 0.35);
+    color: #fda4af !important;
+}
+
+.excel-page .excel-status-pill.bg-secondary {
+    border-color: rgba(148, 163, 184, 0.26);
+    color: #cbd5e1 !important;
+}
+
+.excel-page .excel-validation-list {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+}
+
+.excel-page .excel-validation-list-item {
+    padding: 0.85rem 0.95rem;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.excel-page .excel-validation-card--compact .card-body {
+    padding: 0.95rem 1rem;
+}
+
+.excel-page .excel-validation-card--compact .excel-validation-list {
+    margin-top: 0.9rem !important;
+}
+
+.excel-page .excel-validation-card--compact .excel-validation-list-item {
+    padding: 0.8rem 0.9rem;
+}
+
+.excel-page .excel-validation-card .form-check {
+    margin-top: 0.1rem !important;
+}
+
+.excel-page .excel-validation-list-summary {
+    color: #f8fafc;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.excel-page .excel-validation-list-detail {
+    margin-top: 0.35rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.excel-page .excel-validation-list-detail span {
+    color: #cbd5e1;
+    font-weight: 700;
+}
+
+.excel-page .excel-validation-table .excel-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 28px;
+    padding: 0.32rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(15, 23, 42, 0.52) !important;
+    color: #f8fafc !important;
+    font-size: 0.76rem;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.excel-page .excel-validation-table .excel-status-badge.bg-success {
+    border-color: rgba(74, 222, 128, 0.36);
+    color: #86efac !important;
+}
+
+.excel-page .excel-validation-table .excel-status-badge.bg-danger {
+    border-color: rgba(251, 113, 133, 0.35);
+    color: #fda4af !important;
+}
+
+.excel-page .excel-validation-table .excel-status-badge.bg-warning {
+    border-color: rgba(251, 191, 36, 0.34);
+    color: #fcd34d !important;
+}
+
+body:not(.theme-dark) .excel-page .excel-result-card {
+    background: rgba(255, 255, 255, 0.88);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+}
+
+body:not(.theme-dark) .excel-page .excel-result-card::before {
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+body:not(.theme-dark) .excel-page .excel-result-card-title,
+body:not(.theme-dark) .excel-page .excel-validation-list-summary {
+    color: #0f172a;
+}
+
+body:not(.theme-dark) .excel-page .excel-result-card-subtitle,
+body:not(.theme-dark) .excel-page .excel-validation-list-detail {
+    color: #64748b !important;
+}
+
+body:not(.theme-dark) .excel-page .excel-validation-list-item {
+    background: rgba(248, 250, 252, 0.96);
+    border-color: rgba(15, 23, 42, 0.1);
+}
+
+body:not(.theme-dark) .excel-page .excel-status-pill,
+body:not(.theme-dark) .excel-page .excel-validation-table .excel-status-badge {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a !important;
+}

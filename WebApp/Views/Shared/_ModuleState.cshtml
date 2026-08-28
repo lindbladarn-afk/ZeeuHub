@@ -1,0 +1,30 @@
+@model WebApp.ViewModels.Shared.ModuleStateViewModel
+@{
+    // Shared module state card used for empty, loading and warning states across portal modules.
+    // Keep the markup intentionally small so modules can reuse the same component without carrying local state-card markup.
+    var tone = string.IsNullOrWhiteSpace(Model.Tone) ? "neutral" : Model.Tone.Trim().ToLowerInvariant();
+    var rootClasses = $"module-state module-state--{tone}" + (Model.Compact ? " module-state--compact" : string.Empty);
+}
+
+<div class="@rootClasses" role="status">
+    <div class="module-state-icon" aria-hidden="true">
+        <i class="@Model.IconClass"></i>
+    </div>
+    <div class="module-state-content">
+        <div class="module-state-title">@Model.Title</div>
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="module-state-message">@Model.Message</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+        {
+            <div class="module-state-note">@Model.Note</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ActionText) && !string.IsNullOrWhiteSpace(Model.ActionUrl))
+        {
+            <div class="module-state-actions">
+                <a class="btn btn-portal btn-portal-outline btn-sm" href="@Model.ActionUrl">@Model.ActionText</a>
+            </div>
+        }
+    </div>
+</div>

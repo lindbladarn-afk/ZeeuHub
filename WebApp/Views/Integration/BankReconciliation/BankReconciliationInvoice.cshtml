@@ -1,0 +1,74 @@
+@using WebApp.ViewModels.Shared
+@model WebApp.ViewModels.Integration.BankReconciliation.BankReconciliationInvoicePageViewModel
+@{
+    // Bank reconciliation invoice detail uses the shared module shell while keeping the session-bound reconciliation state and JS rendering intact.
+    ViewData["Title"] = "Faktura";
+    var transactionsJson = Model.TransactionsJson;
+    var invoicesJson = Model.InvoicesJson;
+    var invoiceId = Model.InvoiceId;
+    var hasUploadedFile = Model.HasUploadedFile;
+    var latestFileName = Model.LatestFileName;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bankrec.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page bankrec-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Integration</div>
+            <h1 class="module-page-title">Faktura</h1>
+            <div class="module-page-subtitle">Detaljer för vald faktura och dess matchade banktransaktioner.</div>
+            <div class="module-page-meta">Datan bygger bara på den camt.053-fil som laddats upp i den aktuella sessionen.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn bankrec-btn bankrec-btn-ghost rounded-pill" asp-controller="BankReconciliation" asp-action="BankReconciliation">
+                Tillbaka till bankavstämning
+            </a>
+        </div>
+    </div>
+
+    @if (Model.RuntimeBanner is ModuleBannerViewModel runtimeBanner)
+    {
+        @await Html.PartialAsync("_ModuleBanner", runtimeBanner)
+    }
+
+    @if (!hasUploadedFile)
+    {
+        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+        {
+            Title = "Ingen fil uppladdad",
+            Message = "Ladda upp en camt.053-fil i bankavstämningen först.",
+            Note = "Fakturadetaljen använder bara transaktioner från aktuell session.",
+            Tone = "warning",
+            IconClass = "fa fa-file-arrow-up"
+        })
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 bankrec-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h6 class="mb-1" id="bankrec-invoice-detail-title">Ingen faktura vald.</h6>
+                        <p class="text-muted mb-0">Här visas betalningsstatus och matchade transaktioner.</p>
+                    </div>
+                    <span class="badge rounded-pill bg-secondary" id="bankrec-invoice-detail-status">—</span>
+                </div>
+                <div class="mt-3" id="bankrec-invoice-detail-body"></div>
+            </div>
+        </div>
+    }
+</div>
+
+<script id="bankrec-transactions-json" type="application/json">@Html.Raw(transactionsJson)</script>
+<script id="bankrec-invoices-json" type="application/json">@Html.Raw(invoicesJson)</script>
+<script id="bankrec-invoice-id" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(invoiceId))</script>
+<script id="bankrec-file-key" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(latestFileName))</script>
+
+@section Scripts {
+    <script src="~/js/bank-reconciliation-matching.js" asp-append-version="true"></script>
+    <script src="~/js/bank-reconciliation-invoice.js" asp-append-version="true"></script>
+}

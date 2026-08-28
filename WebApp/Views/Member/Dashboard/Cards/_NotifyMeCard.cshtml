@@ -1,0 +1,95 @@
+@* Renders the NotifyMe status snapshot for the information-driven dashboard layout. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.NotifyMeCardViewModel ?? new();
+    var overview = card.Overview ?? new WebApp.ViewModels.NotifyMe.NotifyMeOverviewVm();
+    var recentEntries = overview.RecentLogEntries.Take(3).ToList();
+    var latestEntry = recentEntries.FirstOrDefault();
+}
+
+<div class="card kpi-card p-2 dashboard-info-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+            <h5 class="dashboard-card-title m-0">NotifyMe</h5>
+            <div class="dashboard-card-subtitle">Aktiva notifieringar och de senaste körningarna</div>
+        </div>
+        <a asp-controller="NotifyMe" asp-action="NotifyMe" class="btn btn-portal btn-portal-outline btn-sm dashboard-card-action-btn flex-shrink-0">
+            Öppna
+        </a>
+    </div>
+
+    @if (!overview.IsInstalled)
+    {
+        <div class="dashboard-empty-state">
+            <div class="dashboard-empty-icon">
+                <i class="fa fa-bell-slash"></i>
+            </div>
+            <div class="dashboard-empty-title">NotifyMe finns inte i den här miljön</div>
+            <div class="dashboard-empty-subtitle">@(!string.IsNullOrWhiteSpace(overview.StatusMessage) ? overview.StatusMessage : "Visa den här vyn i ett bolag där NotifyMe är installerat.")</div>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-info-summary-grid dashboard-info-summary-grid--2">
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Aktiva</div>
+                <div class="dashboard-info-summary-value">@overview.ActiveNotifications</div>
+                <div class="dashboard-info-summary-meta">planerade notifieringar</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Kör nu</div>
+                <div class="dashboard-info-summary-value">@overview.DueNowCount</div>
+                <div class="dashboard-info-summary-meta">ska levereras idag</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Visas nu</div>
+                <div class="dashboard-info-summary-value">@((overview.FilteredNotificationsCount > 0 ? overview.FilteredNotificationsCount : overview.TotalNotifications))</div>
+                <div class="dashboard-info-summary-meta">i aktuell vy</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Eskalerar</div>
+                <div class="dashboard-info-summary-value">@overview.EscalationConfiguredCount</div>
+                <div class="dashboard-info-summary-meta">har uppföljningsflöde</div>
+            </div>
+        </div>
+
+        <div class="dashboard-info-status-strip dashboard-info-status-strip--info">
+            <span class="dashboard-info-status-strip__label">Senaste körning</span>
+            <span class="dashboard-info-status-strip__value">
+                @(latestEntry?.NotificationDescription ?? "Inga körningar ännu")
+            </span>
+            <span class="dashboard-info-status-strip__meta">
+                @(latestEntry is not null
+                    ? $"{latestEntry.ExecutionStatus} · {(latestEntry.SentAt.HasValue ? latestEntry.SentAt.Value.ToString("yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture) : "-")}"
+                    : "Visa senaste körning när NotifyMe skickat något")
+            </span>
+        </div>
+
+        @if (recentEntries.Count > 0)
+        {
+            <div class="dashboard-info-list list-group list-group-flush bg-transparent">
+                @foreach (var entry in recentEntries)
+                {
+                    <div class="list-group-item bg-transparent border-0 px-0 py-2">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate">@entry.NotificationDescription</div>
+                                <div class="small dashboard-info-muted text-truncate">@entry.Subject</div>
+                            </div>
+                            <span class="badge rounded-pill bg-@(entry.ExecutionStatusTone)">@entry.ExecutionStatus</span>
+                        </div>
+                        <div class="small dashboard-info-muted mt-1">
+                            @(entry.SentAt.HasValue ? entry.SentAt.Value.ToString("yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture) : "-")
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="small dashboard-info-muted">Inga senaste körningar att visa ännu.</div>
+        }
+    }
+</div>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Fakturor" xml:space="preserve">
+    <value>Invoices</value>
+  </data>
+  <data name="Översikt" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Betalda och obetalda fakturor, summerade per månad." xml:space="preserve">
+    <value>Paid and unpaid invoices, summarized per month.</value>
+  </data>
+  <data name="Obetalda" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="{0} st · {1} över förfallodatum" xml:space="preserve">
+    <value>{0} pcs · {1} past due</value>
+  </data>
+  <data name="Betalda" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="{0} st" xml:space="preserve">
+    <value>{0} pcs</value>
+  </data>
+  <data name="obetalat · {0} betalt" xml:space="preserve">
+    <value>unpaid · {0} paid</value>
+  </data>
+  <data name="Sök faktura, kund eller säljare" xml:space="preserve">
+    <value>Search invoice, customer or salesperson</value>
+  </data>
+  <data name="Sök" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Rensa" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Standardvy visar obetalda; växla till betalda via knappen." xml:space="preserve">
+    <value>Default view shows unpaid; switch to paid using the button.</value>
+  </data>
+  <data name="Faktura" xml:space="preserve">
+    <value>Invoice</value>
+  </data>
+  <data name="Kund" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="Säljare" xml:space="preserve">
+    <value>Salesperson</value>
+  </data>
+  <data name="Förfallodatum" xml:space="preserve">
+    <value>Due date</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Belopp" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Visa faktura" xml:space="preserve">
+    <value>View invoice</value>
+  </data>
+  <data name="Betald" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Betaldatum" xml:space="preserve">
+    <value>Paid date</value>
+  </data>
+  <data name="Denna månad" xml:space="preserve">
+    <value>This month</value>
+  </data>
+  <data name="Förra månaden" xml:space="preserve">
+    <value>Last month</value>
+  </data>
+  <data name="Två månader sedan" xml:space="preserve">
+    <value>Two months ago</value>
+  </data>
+</root>

@@ -1,0 +1,190 @@
+@model WebApp.Models.Integration.FlowEngineModuleViewModel
+@{
+    var shopifySingleOrderId = !string.IsNullOrWhiteSpace(Model.Forms.ShopifySendOrder.OrderId)
+        ? Model.Forms.ShopifySendOrder.OrderId
+        : !string.IsNullOrWhiteSpace(Model.Forms.CompleteOrder.OrderId)
+            ? Model.Forms.CompleteOrder.OrderId
+            : Model.Forms.ShopifyFetchOrder.OrderId;
+    var shopifySchedulerPreviewRuns = Enumerable.Range(1, 5)
+        .Select(offset => DateTimeOffset.Now.Date.AddDays(offset).AddHours(8).AddMinutes(offset % 2 == 0 ? 30 : 0).ToString("ddd d MMM HH:mm"))
+        .ToArray();
+    var selectedShopifyJob = Model.ShopifyHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 flowengine-surface-card flowengine-shopify-console" id="flowengine-section-shopify">
+            <div class="card-body">
+                <div class="flowengine-shopify-console-header">
+                    <div>
+                        <div class="dashboard-card-title mb-2">Shopify</div>
+                    </div>
+                </div>
+
+                <div class="flowengine-shopify-console-grid">
+                    <form method="post" class="flowengine-shopify-console-panel">
+                        @Html.AntiForgeryToken()
+                        <div class="flowengine-shopify-console-title">Batchkörningar</div>
+                        <label class="form-label text-muted small">Datum (UTC)</label>
+                        <div class="flowengine-shopify-console-field-row flowengine-shopify-console-field-row--scheduler">
+                            <input name="DateUtc" type="date" value="@Model.Forms.ShopifySendOrders.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            <partial name="FlowEngine/Partials/_FlowEngineSchedulerPopover"
+                                     model='new WebApp.Models.Integration.FlowEngineSchedulerPopoverViewModel
+                                     {
+                                         ToggleKey = "shopify-scheduler",
+                                         InfoRows = new[]
+                                         {
+                                             ("Operations", "Send Orders, Create Shipments"),
+                                             ("Window", "08:00-18:00"),
+                                             ("Interval", "Every 30 min"),
+                                             ("Time zone", "Europe/Stockholm")
+                                         },
+                                         NextRuns = shopifySchedulerPreviewRuns
+                                     }' />
+                        </div>
+                        <div class="flowengine-shopify-console-actions">
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunShopifyCheckOrders", "Integration")" class="btn btn-portal btn-portal-outline">Check Orders</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunShopifySendOrders", "Integration")" class="btn btn-portal btn-portal-outline">Send Orders</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunCompleteOrders", "Integration")" class="btn btn-portal btn-portal-outline">Create Shipments</button>
+                        </div>
+                    </form>
+
+                    <form method="post" class="flowengine-shopify-console-panel">
+                        @Html.AntiForgeryToken()
+                        <div class="flowengine-shopify-console-title">Enskild order</div>
+                        <label class="form-label text-muted small">Order ID eller URL</label>
+                        <input id="flowengine-shopify-order-id" value="@shopifySingleOrderId" class="form-control mb-3" placeholder="e.g. 12325831639388, admin URL, or gid://shopify/Order/&lt;id&gt;" oninput="document.getElementById('flowengine-shopify-send-order-id').value=this.value;document.getElementById('flowengine-shopify-complete-order-id').value=this.value;" />
+                        <input id="flowengine-shopify-send-order-id" type="hidden" name="OrderId" value="@shopifySingleOrderId" />
+                        <input id="flowengine-shopify-complete-order-id" type="hidden" name="OrderId" value="@shopifySingleOrderId" />
+                        <div class="flowengine-shopify-console-actions">
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunShopifySendOrder", "Integration")" class="btn btn-portal btn-portal-outline">Send Order</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunCompleteOrder", "Integration")" class="btn btn-portal btn-portal-outline">Create Shipment</button>
+                        </div>
+                        <label class="flowengine-toggle-row flowengine-shopify-console-close-toggle" for="FlowEngineShopifyWorkbenchCloseOrder">
+                            <span>Close order on complete</span>
+                            <span class="flowengine-switch">
+                                <input id="FlowEngineShopifyWorkbenchCloseOrder" type="checkbox" name="CloseOrder" value="true" @(Model.Forms.CompleteOrder.CloseOrder || Model.Forms.CompleteOrders.CloseOrder || Model.Forms.CompleteOrdersPending.CloseOrder ? "checked" : null) />
+                                <span class="flowengine-switch-slider"></span>
+                            </span>
+                        </label>
+                    </form>
+                </div>
+
+                <details class="flowengine-shopify-advanced">
+                    <summary>Avancerade Shopify-flöden</summary>
+                    <div class="flowengine-shopify-advanced-grid">
+                        <form method="post" asp-action="FlowEngineRunShopifyScopesCheck" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Scopes check</div>
+                            <div class="module-page-meta small mb-3">Verifierar granted scopes innan fetch, send och fulfillment.</div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kör check</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunShopifyGetProducts" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Get products</div>
+                            <input name="Query" value="@Model.Forms.ShopifyGetProducts.Query" class="form-control mb-3" placeholder="Query" />
+                            <input name="UpdatedSince" value="@Model.Forms.ShopifyGetProducts.UpdatedSince" class="form-control mb-3" placeholder="Updated since" />
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifyGetProducts.Limit" class="form-control mb-3" placeholder="Limit" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Hämta produkter</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunShopifyFetchOrder" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch order</div>
+                            <input name="OrderId" value="@Model.Forms.ShopifyFetchOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123 eller 123" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Hämta order</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunShopifyValidateOrder" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Validate order</div>
+                            <input name="OrderId" value="@Model.Forms.ShopifyValidateOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123 eller 123" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Validera order</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunShopifyFetchOrders" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch orders</div>
+                            <div class="flowengine-shopify-range-grid">
+                                <input name="DateUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="SinceUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.SinceUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="UntilUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.UntilUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            </div>
+                            <div class="flowengine-shopify-console-options mt-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" @(Model.Forms.ShopifyFetchOrders.UseLatestDay ? "checked" : null) />
+                                    <span class="form-check-label small">Latest day</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ForceRange" value="true" @(Model.Forms.ShopifyFetchOrders.ForceRange ? "checked" : null) />
+                                    <span class="form-check-label small">Force range</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100 mt-3">Hämta orders</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunShopifyValidateOrders" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Validate orders</div>
+                            <div class="flowengine-shopify-range-grid">
+                                <input name="DateUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="SinceUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.SinceUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="UntilUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.UntilUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            </div>
+                            <div class="flowengine-shopify-console-options mt-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" @(Model.Forms.ShopifyValidateOrders.UseLatestDay ? "checked" : null) />
+                                    <span class="form-check-label small">Latest day</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ForceRange" value="true" @(Model.Forms.ShopifyValidateOrders.ForceRange ? "checked" : null) />
+                                    <span class="form-check-label small">Force range</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100 mt-3">Validera orders</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunCompleteOrdersPending" class="flowengine-shopify-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Create shipments pending</div>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CompleteOrdersPending.Limit" class="form-control mb-3" placeholder="Limit" />
+                            <label class="flowengine-toggle-row mb-3" for="FlowEngineShopifyPendingCloseOrder">
+                                <span>Close order</span>
+                                <span class="flowengine-switch">
+                                    <input id="FlowEngineShopifyPendingCloseOrder" type="checkbox" name="CloseOrder" value="true" @(Model.Forms.CompleteOrdersPending.CloseOrder ? "checked" : null) />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kör pending</button>
+                        </form>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                 model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                 {
+                     CardId = "flowengine-shopify-history",
+                     Title = "Execution History",
+                     Subtitle = "Shopify-körningar i den här portalmiljön.",
+                     EmptyMessage = "Inga Shopify-jobb har körts i den här portalmiljön än.",
+                     SelectedJobAction = "FlowEngineShopify",
+                     Fragment = "flowengine-shopify-history",
+                     ShowSystemColumn = false,
+                     EnableFilters = false,
+                     ShowDetail = true,
+                     Jobs = Model.ShopifyHistory.Jobs,
+                     SelectedJob = selectedShopifyJob,
+                     CurrentPage = Model.ShopifyHistory.CurrentPage,
+                     TotalPages = Model.ShopifyHistory.TotalPages,
+                     TotalCount = Model.ShopifyHistory.TotalCount,
+                     PageSize = Model.ShopifyHistory.PageSize
+                 }' />
+    </div>
+</div>

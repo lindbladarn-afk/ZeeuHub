@@ -1,0 +1,587 @@
+@model WebApp.ViewModels.Admin.AiQueriesPageVm
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.ViewModels.Shared
+@inject IViewLocalizer Localizer
+@{
+    // Admin telemetry page for AI usage, quota control and invoice exports.
+    // The page keeps admin-specific tabs and actions, but reuses shared module-page primitives for headers, KPI cards and tables.
+    ViewData["Title"] = Localizer["AI-frågor"];
+    var failedLatest = Model.Latest.Where(x => !x.WasSuccessful).ToList();
+    var monthOptions = new[]
+    {
+        new { Value = 1, Label = "Januari" },
+        new { Value = 2, Label = "Februari" },
+        new { Value = 3, Label = "Mars" },
+        new { Value = 4, Label = "April" },
+        new { Value = 5, Label = "Maj" },
+        new { Value = 6, Label = "Juni" },
+        new { Value = 7, Label = "Juli" },
+        new { Value = 8, Label = "Augusti" },
+        new { Value = 9, Label = "September" },
+        new { Value = 10, Label = "Oktober" },
+        new { Value = 11, Label = "November" },
+        new { Value = 12, Label = "December" }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="admin-page dashboard-readable module-page ai-queries-admin-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">Admin</div>
+        <h1 class="module-page-title">@Localizer["AI-frågor"]</h1>
+        <div class="module-page-subtitle">Översikt, kvotstyrning och fakturaunderlag för portalens AI-användning.</div>
+    </div>
+    <div class="module-page-meta admin-ai-toolbar-note">@Localizer["senaste 30 dagar"]</div>
+</div>
+<div class="module-page-meta admin-ai-toolbar-note mb-2">Välj vy:</div>
+
+<ul class="nav nav-pills module-tab-toggle admin-tab-toggle mb-3" id="aiQueriesTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(Model.IsOverviewTabActive ? "active" : "")" id="ai-overview-tab" data-bs-toggle="tab" data-bs-target="#ai-overview-pane" type="button" role="tab" aria-controls="ai-overview-pane" aria-selected="@Model.IsOverviewTabActive">Översikt</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(Model.IsQuotaTabActive ? "active" : "")" id="ai-quota-tab" data-bs-toggle="tab" data-bs-target="#ai-quota-pane" type="button" role="tab" aria-controls="ai-quota-pane" aria-selected="@Model.IsQuotaTabActive">AI kvotstyrning</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(Model.IsBillingTabActive ? "active" : "")" id="ai-billing-tab" data-bs-toggle="tab" data-bs-target="#ai-billing-pane" type="button" role="tab" aria-controls="ai-billing-pane" aria-selected="@Model.IsBillingTabActive">Fakturaunderlag</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="aiQueriesTabContent">
+    <div class="tab-pane fade @(Model.IsOverviewTabActive ? "show active" : "")" id="ai-overview-pane" role="tabpanel" aria-labelledby="ai-overview-tab" tabindex="0">
+        <div class="row g-2 mb-2">
+            <div class="col-md-3">
+                <div class="card kpi-card p-2 h-100">
+                    <div class="admin-kpi-label">@Localizer["Totala frågor"]</div>
+                    <div class="metric-value">@Model.TotalQueries</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-2 h-100">
+                    <div class="admin-kpi-label">Lyckade</div>
+                    <div class="metric-value">@Model.SuccessfulQueries</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-2 h-100">
+                    <div class="admin-kpi-label">Misslyckade</div>
+                    <div class="metric-value">@Math.Max(0, Model.TotalQueries - Model.SuccessfulQueries)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-2 h-100">
+                    <div class="admin-kpi-label">Totala tokens</div>
+                    <div class="metric-value">@Model.TotalTokens</div>
+                    <div class="admin-row-meta mt-2">Kostnad (ca)</div>
+                    <div class="admin-metric-support-value">@(Model.TotalCostSek.HasValue ? $"{Model.TotalCostSek.Value:N2} kr" : "-")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+            <div class="col-lg-6">
+                <div class="card kpi-card p-2 h-100 module-table-shell" data-sortable="false">
+                    <div class="admin-section-title mb-2">@Localizer["Toppbolag (antal)"]</div>
+                    <div class="table-responsive telemetry-table module-table">
+                        <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>@Localizer["Bolag"]</th>
+                                    <th class="text-end">@Localizer["Frågor"]</th>
+                                    <th class="text-end">Lyckade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.TopCompanies)
+                                {
+                                    <tr>
+                                        <td>@item.CompanyName</td>
+                                        <td class="text-end">@item.Count</td>
+                                        <td class="text-end">@item.Successful</td>
+                                    </tr>
+                                }
+                                @if (!Model.TopCompanies.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center admin-empty-copy">@Localizer["Inga data"]</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card kpi-card p-2 h-100 module-table-shell" data-sortable="false">
+                    <div class="admin-section-title mb-2">@Localizer["Senaste frågor"]</div>
+                    @* Latest AI questions remain paged so the admin view stays readable without loading the full telemetry history. *@
+                    <div class="table-responsive telemetry-table module-table">
+                        <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>@Localizer["Fråga"]</th>
+                                    <th>@Localizer["Bolag"]</th>
+                                    <th>@Localizer["Användare"]</th>
+                                    <th class="text-end">Tokens</th>
+                                    <th class="text-end">Kostnad (kr)</th>
+                                    <th class="text-end">@Localizer["Status"]</th>
+                                    <th class="text-end">@Localizer["Tid"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Latest)
+                                {
+                                    <tr>
+                                        <td>@item.Question</td>
+                                        <td>@item.CompanyName</td>
+                                        <td>@item.UserEmail</td>
+                                        <td class="text-end">@(item.TotalTokens ?? 0)</td>
+                                        <td class="text-end">@(item.TotalCostSek.HasValue ? item.TotalCostSek.Value.ToString("N4") : "-")</td>
+                                        <td class="text-end">@(item.WasSuccessful ? "Lyckad" : "Misslyckad")</td>
+                                        <td class="text-end">@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                }
+                                @if (!Model.Latest.Any())
+                                {
+                                    <tr><td colspan="7" class="text-center text-muted">@Localizer["Inga data"]</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                        @if (Model.LatestTotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+                                <div class="admin-row-meta">
+                                    Sida @Model.LatestPage av @Model.LatestTotalPages
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Paginering senaste frågor">
+                                    <a class="btn btn-outline-secondary @(Model.LatestPage <= 1 ? "disabled" : "")"
+                                       asp-action="AiQueries"
+                                       asp-route-latestPage="@(Model.LatestPage - 1)"
+                                       asp-route-latestPageSize="@Model.LatestPageSize"
+                                       asp-route-revenueDemo="@Model.RevenueDemoEnabled"
+                                       asp-route-tab="@Model.ActiveTab"
+                                       asp-route-quotaYear="@Model.QuotaSelectedYear"
+                                       asp-route-quotaMonth="@Model.QuotaSelectedMonth">Föregående</a>
+                                    <a class="btn btn-outline-secondary @(Model.LatestPage >= Model.LatestTotalPages ? "disabled" : "")"
+                                       asp-action="AiQueries"
+                                       asp-route-latestPage="@(Model.LatestPage + 1)"
+                                       asp-route-latestPageSize="@Model.LatestPageSize"
+                                       asp-route-revenueDemo="@Model.RevenueDemoEnabled"
+                                       asp-route-tab="@Model.ActiveTab"
+                                       asp-route-quotaYear="@Model.QuotaSelectedYear"
+                                       asp-route-quotaMonth="@Model.QuotaSelectedMonth">Nästa</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+            <div class="col-12">
+                <div class="card kpi-card p-2 module-table-shell" data-sortable="false">
+                    <div class="admin-section-title mb-2">Misslyckade frågor</div>
+                    <div class="table-responsive telemetry-table module-table">
+                        <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Fråga</th>
+                                    <th>Bolag</th>
+                                    <th>Användare</th>
+                                    <th class="text-end">Tid</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < failedLatest.Count; i++)
+                                {
+                                    var item = failedLatest[i];
+                                    var detailId = $"failed-sql-{i}";
+                                    <tr>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn btn-link p-0 text-start text-decoration-none"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#@detailId"
+                                                aria-expanded="false"
+                                                aria-controls="@detailId">
+                                                @item.Question
+                                            </button>
+                                        </td>
+                                        <td>@item.CompanyName</td>
+                                        <td>@item.UserEmail</td>
+                                        <td class="text-end">@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="p-0 border-0">
+                                            <div id="@detailId" class="collapse px-3 py-2">
+                                                <div class="admin-row-meta mb-1"><strong>Fel:</strong> @(!string.IsNullOrWhiteSpace(item.ErrorMessage) ? item.ErrorMessage : "-")</div>
+                                                <div class="admin-row-meta mb-1"><strong>SQL:</strong></div>
+                                                <div class="admin-sql-text">@(!string.IsNullOrWhiteSpace(item.SqlText) ? item.SqlText : "-")</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!failedLatest.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center text-muted">Inga misslyckade frågor.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade @(Model.IsQuotaTabActive ? "show active" : "")" id="ai-quota-pane" role="tabpanel" aria-labelledby="ai-quota-tab" tabindex="0">
+        <div class="row g-2 mb-2">
+            <div class="col-12">
+                <div class="card kpi-card p-2 module-table-shell" data-sortable="false">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                        <div class="admin-section-title mb-0">AI kvotstyrning</div>
+                            @if (Model.RevenueDemoEnabled)
+                            {
+                                    <a asp-action="AiQueries"
+                                       asp-route-latestPage="@Model.LatestPage"
+                                       asp-route-latestPageSize="@Model.LatestPageSize"
+                                       asp-route-revenueDemo="false"
+                                       asp-route-tab="quota"
+                                       asp-route-quotaYear="@Model.QuotaSelectedYear"
+                                       asp-route-quotaMonth="@Model.QuotaSelectedMonth"
+                                       class="btn btn-sm btn-outline-warning">Stäng demo-intäkt</a>
+                            }
+                            else
+                            {
+                                <a asp-action="AiQueries"
+                                   asp-route-latestPage="@Model.LatestPage"
+                                   asp-route-latestPageSize="@Model.LatestPageSize"
+                                   asp-route-revenueDemo="true"
+                                   asp-route-tab="quota"
+                                   asp-route-quotaYear="@Model.QuotaSelectedYear"
+                                   asp-route-quotaMonth="@Model.QuotaSelectedMonth"
+                                   class="btn btn-sm btn-outline-info">Visa demo-intäkt</a>
+                            }
+                    </div>
+                    @* Periodbyte för kvotvyn påverkar både historiskt snapshot och override-kontekst, därför är submiten medvetet explicit. *@
+                    <form asp-action="AiQueries" method="get" class="row g-2 align-items-end mb-2 module-filter-card p-2">
+                            <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                            <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                            <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                            <input type="hidden" name="tab" value="quota" />
+                            <div class="col-md-3">
+                                <label class="form-label admin-kpi-label mb-1">Period (månad)</label>
+                                <select name="quotaMonth" class="form-select form-select-sm">
+                                    @foreach (var m in monthOptions)
+                                    {
+                                        <option value="@m.Value" selected="@(m.Value == Model.QuotaSelectedMonth ? "selected" : null)">@m.Label</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label admin-kpi-label mb-1">Period (år)</label>
+                                <select name="quotaYear" class="form-select form-select-sm">
+                                    @foreach (var y in Model.QuotaSelectableYears)
+                                    {
+                                        <option value="@y" selected="@(y == Model.QuotaSelectedYear ? "selected" : null)">@y</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-sm btn-outline-secondary admin-toolbar-btn w-100" type="submit">Visa period</button>
+                            </div>
+                    </form>
+
+                        @if (Model.QuotaIsHistoricalPeriod)
+                        {
+                            @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                            {
+                                Title = "Historikläge",
+                                Message = $"Tabellen visar fryst data för vald period ({monthOptions.First(x => x.Value == Model.QuotaSelectedMonth).Label} {Model.QuotaSelectedYear}).",
+                                Tone = "info",
+                                IconClass = "fa fa-history",
+                                Compact = true
+                            })
+                        }
+
+                        @if (Model.RevenueDemoEnabled)
+                        {
+                            @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                            {
+                                Title = "Demo-läge aktivt",
+                                Message = "Tokenförbrukning och intäkter i denna vy är simulerade för visualisering. Ingen data har sparats i databasen.",
+                                Tone = "warning",
+                                IconClass = "fa fa-exclamation-triangle",
+                                Compact = true
+                            })
+                        }
+                        <form asp-action="SaveAiQuotaGlobal" method="post" class="row g-2 align-items-end mb-3">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                            <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                            <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                            <input type="hidden" name="tab" value="quota" />
+                            <input type="hidden" name="quotaYear" value="@Model.QuotaSelectedYear" />
+                            <input type="hidden" name="quotaMonth" value="@Model.QuotaSelectedMonth" />
+                            <div class="col-md-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="quotaEnabled" name="Enabled" value="true" @(Model.Quota.GlobalEnabled ? "checked" : "") />
+                                    <input type="hidden" name="Enabled" value="false" />
+                                    <label class="form-check-label admin-row-meta" for="quotaEnabled">Globalt aktiv</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label admin-kpi-label mb-1">Fria tokens / period</label>
+                                <input class="form-control form-control-sm" type="number" min="1" name="FreeTokensPerPeriod" value="@Model.Quota.GlobalFreeTokensPerPeriod" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label admin-kpi-label mb-1">Varning (%)</label>
+                                <input class="form-control form-control-sm" type="number" min="1" max="99" name="WarningThresholdPercent" value="@Model.Quota.GlobalWarningThresholdPercent" />
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-sm btn-primary" type="submit">Spara globalt</button>
+                            </div>
+                        </form>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="admin-kpi-label">Debiterbara tokens (period)</div>
+                                    <div class="metric-value">@Model.Quota.TotalPaidExtraTokensCurrentPeriod</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="admin-kpi-label">Bas-kostnad extra tokens</div>
+                                    <div class="metric-value">@Model.Quota.TotalPaidExtraBaseCostSekCurrentPeriod.ToString("N2") kr</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="admin-kpi-label">Intäkt påslag (@Model.Quota.SurchargePercent.ToString("N0")%)</div>
+                                    <div class="metric-value">@Model.Quota.TotalPaidExtraRevenueSekCurrentPeriod.ToString("N2") kr</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card kpi-card p-2 h-100">
+                                    <div class="admin-kpi-label">Total fakturering (period)</div>
+                                    <div class="metric-value">@Model.Quota.TotalPaidExtraBillableSekCurrentPeriod.ToString("N2") kr</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive telemetry-table module-table">
+                            <table class="table table-sm table-striped table-borderless align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Bolag</th>
+                                        <th class="text-end">Använt (månad)</th>
+                                        <th class="text-end">Läge (period)</th>
+                                        <th class="text-end">Extra tokens</th>
+                                        <th class="text-end">Bas (kr)</th>
+                                        <th class="text-end">Intäkt (kr)</th>
+                                        <th class="text-end">Fakturera (kr)</th>
+                                        <th class="text-end">Aktiv</th>
+                                        <th class="text-end">Fria tokens</th>
+                                        <th class="text-end">Varning %</th>
+                                        <th class="text-end">Override</th>
+                                        <th class="text-end">Åtgärd</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var c in Model.Quota.Companies)
+                                    {
+                                        <tr>
+                                            <td>@c.CompanyName</td>
+                                            <td class="text-end">@c.UsedTokensCurrentPeriod (@c.UsagePercentCurrentPeriod%)</td>
+                                            <td class="text-end">
+                                                @if (c.CurrentPeriodMode == "paid")
+                                                {
+                                                    <span class="badge bg-info">Betalläge (@c.PaidUsersCount)</span>
+                                                }
+                                                else if (c.CurrentPeriodMode == "blocked")
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pausad (@c.BlockedUsersCount)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Standard</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">@c.PaidExtraTokensCurrentPeriod</td>
+                                            <td class="text-end">@c.PaidExtraBaseCostSekCurrentPeriod.ToString("N2")</td>
+                                            <td class="text-end">@c.PaidExtraRevenueSekCurrentPeriod.ToString("N2")</td>
+                                            <td class="text-end admin-metric-support-value">@c.PaidExtraBillableSekCurrentPeriod.ToString("N2")</td>
+                                            <td class="text-end">@(c.EffectiveEnabled ? "Ja" : "Nej")</td>
+                                            <td class="text-end">@c.EffectiveFreeTokensPerPeriod</td>
+                                            <td class="text-end">@c.EffectiveWarningThresholdPercent</td>
+                                            <td class="text-end">@(c.HasOverride ? "Ja" : "Nej")</td>
+                                            <td>
+                                                <form asp-action="SaveAiQuotaCompanyOverride" method="post" class="d-flex gap-2 justify-content-end">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="CompanyId" value="@c.CompanyId" />
+                                                    <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                                                    <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                                                    <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                                                    <input type="hidden" name="tab" value="quota" />
+                                                    <input type="hidden" name="quotaYear" value="@Model.QuotaSelectedYear" />
+                                                    <input type="hidden" name="quotaMonth" value="@Model.QuotaSelectedMonth" />
+                                                    <select class="form-select form-select-sm" name="EnabledOverride" style="max-width:180px;">
+                                                        <option value="" selected="@(c.EnabledOverride is null ? "selected" : null)">Aktiv: Ärv globalt</option>
+                                                        <option value="true" selected="@(c.EnabledOverride == true ? "selected" : null)">Aktiv: Ja</option>
+                                                        <option value="false" selected="@(c.EnabledOverride == false ? "selected" : null)">Aktiv: Nej</option>
+                                                    </select>
+                                                    <input class="form-control form-control-sm" type="number" min="1" name="FreeTokensPerPeriodOverride" value="@c.FreeTokensPerPeriodOverride" placeholder="Tokens (ärv blankt)" style="max-width:170px;" />
+                                                    <input class="form-control form-control-sm" type="number" min="1" max="99" name="WarningThresholdPercentOverride" value="@c.WarningThresholdPercentOverride" placeholder="Varning % (ärv blankt)" style="max-width:170px;" />
+                                                    <button class="btn btn-sm btn-primary" type="submit">Spara</button>
+                                                </form>
+                                                @if (c.HasOverride)
+                                                {
+                                                    <form asp-action="RemoveAiQuotaCompanyOverride" method="post" class="d-flex justify-content-end mt-2">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="companyId" value="@c.CompanyId" />
+                                                        <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                                                        <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                                                        <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                                                        <input type="hidden" name="tab" value="quota" />
+                                                        <input type="hidden" name="quotaYear" value="@Model.QuotaSelectedYear" />
+                                                        <input type="hidden" name="quotaMonth" value="@Model.QuotaSelectedMonth" />
+                                                        <button class="btn btn-sm btn-outline-warning" type="submit">Ta bort override</button>
+                                                    </form>
+                                                }
+                                                @if (c.CurrentPeriodMode != "standard")
+                                                {
+                                                    <form asp-action="ResetAiQuotaCompanyMode" method="post" class="d-flex justify-content-end mt-2">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="companyId" value="@c.CompanyId" />
+                                                        <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                                                        <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                                                        <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                                                        <input type="hidden" name="tab" value="quota" />
+                                                        <input type="hidden" name="quotaYear" value="@Model.QuotaSelectedYear" />
+                                                        <input type="hidden" name="quotaMonth" value="@Model.QuotaSelectedMonth" />
+                                                        <button class="btn btn-sm btn-outline-info" type="submit">Återställ till standard</button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade @(Model.IsBillingTabActive ? "show active" : "")" id="ai-billing-pane" role="tabpanel" aria-labelledby="ai-billing-tab" tabindex="0">
+        <div class="row g-2 mb-2">
+            <div class="col-12">
+                @await Html.PartialAsync("~/Views/Admin/Partials/Ai/_AiQuotaRevenueCard.cshtml", Model.RevenueOverview)
+            </div>
+        </div>
+        <div class="row g-2 mb-2">
+            <div class="col-12">
+                <div class="card kpi-card p-2 module-table-shell" data-sortable="false">
+                    <div class="admin-section-title mb-2">Fakturaunderlag</div>
+                    @* Billing export is month-bound and should stay explicit-submit so export files always reflect the selected snapshot. *@
+                    <form asp-action="AiQueries" method="get" class="row g-2 align-items-end mb-2 module-filter-card p-2">
+                            <input type="hidden" name="latestPage" value="@Model.LatestPage" />
+                            <input type="hidden" name="latestPageSize" value="@Model.LatestPageSize" />
+                            <input type="hidden" name="revenueDemo" value="@Model.RevenueDemoEnabled.ToString().ToLowerInvariant()" />
+                            <input type="hidden" name="tab" value="billing" />
+                            <div class="col-md-3">
+                                <label class="form-label admin-kpi-label mb-1">Period (månad)</label>
+                                <select name="quotaMonth" class="form-select form-select-sm">
+                                    @foreach (var m in monthOptions)
+                                    {
+                                        <option value="@m.Value" selected="@(m.Value == Model.InvoiceExport.SelectedMonth ? "selected" : null)">@m.Label</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label admin-kpi-label mb-1">Period (år)</label>
+                                <select name="quotaYear" class="form-select form-select-sm">
+                                    @foreach (var y in Model.QuotaSelectableYears)
+                                    {
+                                        <option value="@y" selected="@(y == Model.InvoiceExport.SelectedYear ? "selected" : null)">@y</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-sm btn-primary admin-toolbar-btn-wide w-100" type="submit">Visa period</button>
+                            </div>
+                            <div class="col-md-3">
+                                <a asp-action="ExportAiQuotaInvoice"
+                                   asp-route-quotaYear="@Model.InvoiceExport.SelectedYear"
+                                   asp-route-quotaMonth="@Model.InvoiceExport.SelectedMonth"
+                                   asp-route-revenueDemo="@Model.RevenueDemoEnabled"
+                                   class="btn btn-sm btn-outline-primary admin-toolbar-btn-wide w-100">Exportera alla (.xlsx)</a>
+                            </div>
+                    </form>
+
+                        @if (Model.RevenueDemoEnabled)
+                        {
+                            @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                            {
+                                Title = "Demo-läge aktivt",
+                                Message = "Fakturaunderlag och export använder simulerade värden i den här vyn.",
+                                Tone = "warning",
+                                IconClass = "fa fa-exclamation-triangle",
+                                Compact = true
+                            })
+                        }
+
+                        <div class="table-responsive telemetry-table module-table">
+                            <table class="table table-sm table-striped table-borderless align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Bolag</th>
+                                        <th class="text-end">Använt (antal)</th>
+                                        <th class="text-end">Extra tokens</th>
+                                        <th class="text-end">Bas-kostnad (kr)</th>
+                                        <th class="text-end">Intäkt påslag (kr)</th>
+                                        <th class="text-end">Total att fakturera (kr)</th>
+                                        <th class="text-end">Export</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in Model.InvoiceExport.Rows)
+                                    {
+                                        <tr>
+                                            <td>@row.CompanyName</td>
+                                            <td class="text-end">@row.UsedTokens</td>
+                                            <td class="text-end">@row.ExtraTokens</td>
+                                            <td class="text-end">@row.BaseCostSek.ToString("N2")</td>
+                                            <td class="text-end">@row.SurchargeSek.ToString("N2")</td>
+                                            <td class="text-end admin-metric-support-value">@row.TotalBillableSek.ToString("N2")</td>
+                                            <td class="text-end">
+                                                <a asp-action="ExportAiQuotaInvoiceCompany"
+                                                   asp-route-companyId="@row.CompanyId"
+                                                   asp-route-quotaYear="@Model.InvoiceExport.SelectedYear"
+                                                   asp-route-quotaMonth="@Model.InvoiceExport.SelectedMonth"
+                                                   asp-route-revenueDemo="@Model.RevenueDemoEnabled"
+                                                   class="btn btn-sm btn-outline-primary admin-row-export-btn">Exportera</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (!Model.InvoiceExport.Rows.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center admin-empty-copy">Inga rader för vald period.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

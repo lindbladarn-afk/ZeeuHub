@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>Omsättning</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>Rullande 12 månader med jämförelse per vecka, månad, kvartal och 12 mån</value></data>
+  <data name="Week" xml:space="preserve"><value>Vecka</value></data>
+  <data name="Month" xml:space="preserve"><value>Månad</value></data>
+  <data name="Quarter" xml:space="preserve"><value>Kvartal</value></data>
+  <data name="All" xml:space="preserve"><value>12 mån</value></data>
+  <data name="SummaryTotal" xml:space="preserve"><value>Total</value></data>
+  <data name="SummaryAverage" xml:space="preserve"><value>Snitt per period</value></data>
+  <data name="SummaryBestPeriod" xml:space="preserve"><value>Bästa period</value></data>
+  <data name="SummaryBestValue" xml:space="preserve"><value>Högsta värde</value></data>
+  <data name="HoverHint" xml:space="preserve"><value>Hovra över en stapel för att se beloppet.</value></data>
+  <data name="WeekDescription" xml:space="preserve"><value>Visar senaste 10 veckorna inom rullande 12 månader</value></data>
+  <data name="MonthDescription" xml:space="preserve"><value>Visar 12 månader månad för månad</value></data>
+  <data name="QuarterDescription" xml:space="preserve"><value>Visar senaste 4 kvartalen inom rullande 12 månader</value></data>
+  <data name="AllDescription" xml:space="preserve"><value>Visar summerad översikt för rullande 12 månader</value></data>
+  <data name="MetricRevenue" xml:space="preserve"><value>Omsättning</value></data>
+  <data name="YAxis" xml:space="preserve"><value>MSEK</value></data>
+  <data name="UnitMsek" xml:space="preserve"><value>Mkr</value></data>
+  <data name="UnitKsek" xml:space="preserve"><value>tkr</value></data>
+  <data name="UnitSek" xml:space="preserve"><value>kr</value></data>
+</root>

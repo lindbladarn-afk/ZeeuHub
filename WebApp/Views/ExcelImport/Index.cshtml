@@ -1,0 +1,563 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System
+@using System.Text.Json
+@model WebApp.ViewModels.ExcelImport.ExcelImportPageVm
+@inject IViewLocalizer Localizer
+@using WebApp.ViewModels.Shared
+
+@{
+    ViewData["Title"] = Localizer["Excelimport"];
+    var adminInitMessage = TempData["ExcelImportAdminMessage"] as string;
+    var adminInitMessageType = TempData["ExcelImportAdminMessageType"] as string ?? "info";
+    var adminInitDetails = TempData["ExcelImportAdminDetails"] as string;
+    var voucherPostingDate = string.IsNullOrWhiteSpace(Model?.VoucherPostingDate)
+        ? DateTime.Today.ToString("yyyy-MM-dd")
+        : Model!.VoucherPostingDate!;
+    var voucherReversalDate = Model?.VoucherReversalDate ?? string.Empty;
+    var selectedImportType = string.IsNullOrWhiteSpace(Model?.ImportType)
+        ? "voucher"
+        : Model!.ImportType!;
+    var isUploadVoucherImport = string.Equals(selectedImportType, "voucher", StringComparison.OrdinalIgnoreCase);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/excel-import.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page excel-readable excel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Import"]</div>
+            <h1 class="module-page-title">@Localizer["Excelimport"]</h1>
+            <div class="module-page-subtitle">@Localizer["Välj importtyp och ladda upp filen."]</div>
+        </div>
+
+        @if (User.IsInRole("Administrator"))
+        {
+            <form asp-action="EnsureImportTables" asp-controller="ExcelImport" method="post" class="d-flex align-items-center">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-portal btn-portal-outline">Initiera importtabeller</button>
+            </form>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(adminInitMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = adminInitMessage,
+            Message = adminInitDetails,
+            Tone = string.Equals(adminInitMessageType, "danger", StringComparison.OrdinalIgnoreCase) ? "danger" : "info",
+            IconClass = string.Equals(adminInitMessageType, "danger", StringComparison.OrdinalIgnoreCase) ? "fa fa-exclamation-triangle" : "fa fa-info-circle"
+        })
+    }
+
+    @if (TempData["ExcelImportSuccessMessage"] is string successMessage && !string.IsNullOrWhiteSpace(successMessage))
+    {
+        var successDetails = TempData["ExcelImportSuccessDetails"] as string;
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = successMessage,
+            Message = successDetails,
+            Tone = "success",
+            IconClass = "fa fa-check-circle",
+            Compact = true
+        })
+    }
+
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card kpi-card p-3 h-100 excel-shell excel-import-primary module-filter-card">
+                <div class="card-body">
+                    <p class="text-muted">
+                        @Localizer["Dra in en eller flera Excel-filer eller klicka på Importera fil för att välja från din dator. Vi tar emot .xls, .xlsx, .xlsm och .csv."]
+                    </p>
+
+                    @* Import setup is the primary decision point, so the file-type confirmation stays close to the upload controls. *@
+                    <form asp-action="Upload" asp-controller="ExcelImport" method="post" enctype="multipart/form-data" id="excel-upload-form" data-skip-page-loader="true">
+                        <div class="mb-3">
+                            <label class="text-muted small mb-1">@Localizer["Importtyp"]</label>
+                            <div class="module-select-caret excel-import-type-select">
+                                <select name="importType" class="form-select" id="excel-import-type">
+                                    <option value="voucher" selected="@isUploadVoucherImport">
+                                        Voucher
+                                    </option>
+                                    <option value="budget" selected="@(string.Equals(selectedImportType, "budget", StringComparison.OrdinalIgnoreCase))">
+                                        Budget
+                                    </option>
+                                    <option value="purchaseprice" selected="@(string.Equals(selectedImportType, "purchaseprice", StringComparison.OrdinalIgnoreCase))">
+                                        Inköpspriser
+                                    </option>
+                                    <option value="priceupdate" selected="@(string.Equals(selectedImportType, "priceupdate", StringComparison.OrdinalIgnoreCase))">
+                                        Prisuppdatering
+                                    </option>
+                                    <option value="transautoprice" selected="@(string.Equals(selectedImportType, "transautoprice", StringComparison.OrdinalIgnoreCase))">
+                                        Prisinläsning Trans Auto
+                                    </option>
+                                    <option value="presskogyoprice" selected="@(string.Equals(selectedImportType, "presskogyoprice", StringComparison.OrdinalIgnoreCase))">
+                                        Prisinläsning Press Kogyo
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="excel-confirm-type" />
+                                <label class="form-check-label small" for="excel-confirm-type">
+                                    @Localizer["Jag bekräftar att vald importtyp stämmer med filen."]
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 @(isUploadVoucherImport ? string.Empty : "d-none")" id="voucher-posting-date-group">
+                            <label class="text-muted small mb-1" for="voucher-posting-date">Bokföringsdatum (voucher)</label>
+                            <input type="date"
+                                   class="form-control module-date-input flowengine-date-input"
+                                   data-fe-datepicker="true"
+                                   id="voucher-posting-date"
+                                   name="voucherPostingDate"
+                                   required="@isUploadVoucherImport"
+                                   value="@voucherPostingDate" />
+                        </div>
+
+                        <div class="mb-3 @(isUploadVoucherImport ? string.Empty : "d-none")" id="voucher-reversal-date-group">
+                            <label class="text-muted small mb-1" for="voucher-reversal-date">Återbokningsdatum (valfritt)</label>
+                            <input type="date"
+                                   class="form-control module-date-input flowengine-date-input"
+                                   data-fe-datepicker="true"
+                                   id="voucher-reversal-date"
+                                   name="voucherReversalDate"
+                                   value="@voucherReversalDate" />
+                            <div class="small text-muted mt-1">
+                                @Localizer["Om datum anges skapas ett vändande verifikat via stagingproceduren."]
+                            </div>
+                        </div>
+
+                        <div id="excel-drop-zone" class="rounded-3 p-5 text-center mb-3">
+                            <div class="import-icon text-success mb-3">
+                                <i class="far fa-file-excel"></i>
+                            </div>
+                            <h5 class="mb-2 text-white">@Localizer["Släpp filerna här"]</h5>
+                            <p class="text-muted mb-0">@Localizer["eller klicka nedan för att importera från datorn"]</p>
+                            <input type="file" name="file" id="excel-file-input" accept=".xls,.xlsx,.xlsm,.csv" class="d-none" multiple />
+                            <button type="button" class="btn btn-portal btn-portal-outline mt-3" id="excel-file-button">
+                                @Localizer["Importera fil"]
+                            </button>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="small text-muted"
+                                     id="excel-file-info"
+                                     data-empty-text="@(Localizer["Ingen fil vald ännu."].Value)">
+                                    @Localizer["Ingen fil vald ännu."]
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-portal btn-portal-outline" id="excel-clear-btn" disabled>
+                                    @Localizer["Rensa"]
+                                </button>
+                                <button type="submit" class="btn btn-portal" id="excel-upload-btn" data-processing-text="@Localizer["ExcelImport_ProcessingButton"].Value" disabled>
+                                    @Localizer["Starta import"]
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mt-3 d-none" id="excel-manual-tools">
+                        <form asp-action="CreateEditSession" asp-controller="ExcelImport" method="post" class="excel-create-edit-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" id="excel-manual-import-type" name="importType" value="@selectedImportType" />
+                            <input type="hidden" id="voucher-posting-date-manual" name="voucherPostingDate" value="@voucherPostingDate" />
+                            <input type="hidden" id="voucher-reversal-date-manual" name="voucherReversalDate" value="@voucherReversalDate" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline btn-sm">
+                                @Localizer["Skapa tom mall"]
+                            </button>
+                        </form>
+                        <div class="small text-muted mt-2">
+                            @Localizer["Starta med en tom mall och fyll i rader manuellt."]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="excel-runtime-status-slot"
+         data-runtime-status-url="@Url.Action("RuntimeStatusPanel", "ExcelImport")"
+         data-runtime-status-poll-ms="3000"
+         aria-live="polite"
+         aria-busy="false">
+        @await Html.PartialAsync("~/Views/ExcelImport/Partials/_ExcelImportRuntimeStatusPanel.cshtml", Model.RuntimeStatusItems)
+    </div>
+
+    <div class="portal-page-loader excel-import-loader"
+         id="excelImportLoader"
+         aria-hidden="true"
+         hidden
+         data-title="@Localizer["ExcelImport_LoaderTitle"].Value"
+         data-copy="@Localizer["ExcelImport_LoaderCopy"].Value">
+        <div class="portal-page-loader__panel" role="status" aria-live="polite" aria-label="@Localizer["ExcelImport_LoaderAriaLabel"]">
+            <div class="portal-page-loader__badge" aria-hidden="true">
+                <span class="portal-page-loader__spinner"></span>
+            </div>
+            <div class="portal-page-loader__content">
+                <div class="portal-page-loader__title">@Localizer["ExcelImport_LoaderTitle"]</div>
+                <div class="portal-page-loader__copy">@Localizer["ExcelImport_LoaderCopy"]</div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.ShowValidation)
+    {
+        var isVoucherEditSession = string.Equals(Model.ImportType, "voucher", StringComparison.OrdinalIgnoreCase)
+            && Model.CanEditSession;
+
+        var showEditableSession = Model.CanEditSession;
+        var visibleRows = Model.IsServerPagedRows
+            ? Model.VisibleRowResults
+            : Model.VisibleRowResults.Any()
+                ? Model.VisibleRowResults
+                : Model.RowResults.Take(Model.RowPageSize).ToList();
+        var filteredRowCount = Math.Max(Model.RowFilteredCount, visibleRows.Count);
+        var pageStart = filteredRowCount == 0 ? 0 : ((Model.RowPage - 1) * Model.RowPageSize) + 1;
+        var pageEnd = filteredRowCount == 0 ? 0 : Math.Min(Model.RowPage * Model.RowPageSize, filteredRowCount);
+        var shouldShowStandaloneImportResult = !string.IsNullOrWhiteSpace(Model.ImportMessage)
+            && !Model.IsFatalValidationError
+            && !showEditableSession;
+
+        var requiredHeaders = Model.ImportTypeDefinition.RequiredHeaders.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var emptyColumnHeaders = Model.RowHeaders
+            .Where(header => Model.RowResults.All(rr =>
+                rr.Data == null
+                || !rr.Data.TryGetValue(header, out var cellValue)
+                || string.IsNullOrWhiteSpace(cellValue)))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var headerWidthChars = Model.RowHeaders.ToDictionary(
+            header => header,
+            header =>
+            {
+                var longestValueLength = Model.RowResults
+                    .Select(rr => rr.Data != null && rr.Data.TryGetValue(header, out var cellValue)
+                        ? (cellValue?.Trim().Length ?? 0)
+                        : 0)
+                    .DefaultIfEmpty(0)
+                    .Max();
+
+                var estimatedChars = Math.Max(header.Length, longestValueLength);
+                return emptyColumnHeaders.Contains(header)
+                    ? Math.Clamp(estimatedChars, 4, 14)
+                    : Math.Clamp(estimatedChars + 2, 8, 18);
+            },
+            StringComparer.OrdinalIgnoreCase);
+
+        var leadingColumnWidth = 2 * 60;
+        var dataColumnMinWidth = Model.RowHeaders.Sum(header =>
+        {
+            var chars = headerWidthChars.TryGetValue(header, out var widthChars) ? widthChars : 10;
+            return emptyColumnHeaders.Contains(header)
+                ? Math.Clamp(chars * 8, 52, 120)
+                : Math.Clamp(chars * 9, 88, 172);
+        });
+
+        var validationTableMinWidth = $"{leadingColumnWidth + dataColumnMinWidth}px";
+
+        <div data-excel-import-result="true" class="d-none"></div>
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                @{
+                    var validationItems = Model.ImportErrors.Select(err =>
+                    {
+                        var parts = err.Split(" | Raddata:", StringSplitOptions.RemoveEmptyEntries);
+                        var rowNo = 0;
+                        var rowNoMatch = System.Text.RegularExpressions.Regex.Match(err, @"^Rad\s+(\d+):");
+
+                        if (rowNoMatch.Success && int.TryParse(rowNoMatch.Groups[1].Value, out var parsedRowNo))
+                        {
+                            rowNo = parsedRowNo;
+                        }
+
+                        return new ModuleResultItemViewModel
+                        {
+                            Summary = parts.Length == 2 ? parts[0] : err,
+                            DetailLabel = parts.Length == 2 ? Localizer["Raddata"].Value : null,
+                            Detail = parts.Length == 2 ? parts[1] : null,
+                            RowNumber = rowNo > 0 ? rowNo : null
+                        };
+                    }).ToList();
+                }
+
+                @if (Model.IsFatalValidationError)
+                {
+                    @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                    {
+                        Title = Model.ImportMessage ?? Localizer["Importen kunde inte valideras"].Value,
+                        Message = validationItems.FirstOrDefault()?.Summary,
+                        Note = Model.ValidationHint,
+                        Tone = "danger",
+                        IconClass = "fa fa-exclamation-triangle",
+                        Compact = true
+                    })
+                }
+                else if (string.Equals(Model.ImportMessageType, "success", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(Model.ImportMessage))
+                {
+                    @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                    {
+                        Title = Model.ImportMessage ?? string.Empty,
+                        Message = Model.ImportDetails,
+                        Tone = "success",
+                        IconClass = "fa fa-check-circle",
+                        Compact = true
+                    })
+                }
+                else if (shouldShowStandaloneImportResult)
+                {
+                    @await Html.PartialAsync("_ModuleResult", new ModuleResultViewModel
+                    {
+                        HtmlId = "excel-import-result",
+                        Title = Model.ImportMessage ?? string.Empty,
+                        Message = Model.ImportDetails,
+                        Tone = string.Equals(Model.ImportMessageType, "error", StringComparison.OrdinalIgnoreCase) ? "danger" : "success",
+                        IconClass = string.Equals(Model.ImportMessageType, "error", StringComparison.OrdinalIgnoreCase) ? "fa fa-exclamation-triangle" : "fa fa-check-circle",
+                        Dismissible = true,
+                        AllowUpdate = string.Equals(Model.ImportMessageType, "error", StringComparison.OrdinalIgnoreCase),
+                        Items = new List<ModuleResultItemViewModel>()
+                    })
+                }
+
+                @if (Model.RowHeaders.Any() && showEditableSession)
+                {
+                    <div class="card kpi-card mb-3 border-0 shadow-sm excel-validation-card excel-result-card module-filter-card">
+                        <div class="card-body">
+                            <script id="excel-edit-state" type="application/json">
+                                @Html.Raw(JsonSerializer.Serialize(new
+                                {
+                                    rows = Model.IsServerPagedRows ? visibleRows : Model.RowResults,
+                                    page = Model.RowPage,
+                                    pageSize = Model.RowPageSize,
+                                    showOnlyInvalidRows = Model.ShowOnlyInvalidRows,
+                                    serverPaged = Model.IsServerPagedRows,
+                                    totalCount = Model.RowTotalCount,
+                                    filteredCount = Model.RowFilteredCount,
+                                    totalPages = Model.RowTotalPages,
+                                    importType = Model.ImportType,
+                                    importTypeDefinition = Model.ImportTypeDefinition,
+                                    rowHeaders = Model.RowHeaders,
+                                    canEdit = showEditableSession
+                                }))
+                            </script>
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                                <div>
+                                    <div class="fw-semibold excel-result-card-title">@Localizer["Redigeringsläge"]</div>
+                                    <div class="small text-muted excel-result-card-subtitle">
+                                        @Localizer["Ändra raderna och importera igen."]
+                                    </div>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="excel-filter-invalid"
+                                           @(Model.ShowOnlyInvalidRows ? "checked" : null) />
+                                    <label class="form-check-label small" for="excel-filter-invalid">
+                                        @Localizer["Visa endast rader med fel"]
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if (requiredHeaders.Count > 0)
+                            {
+                                <div class="excel-required-legend small text-muted mb-2">
+                                    <span class="excel-required-marker">*</span> @Localizer["Markerar obligatoriska fält."]
+                                </div>
+                            }
+
+                            @if (showEditableSession)
+                            {
+                                <form asp-action="ImportEditedRows" asp-controller="ExcelImport" method="post" id="excel-edit-session-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="importType" value="@Model.ImportType" />
+                                    <input type="hidden" name="editSessionId" value="@Model.EditSessionId" />
+                                    <input type="hidden" name="rowsJson" id="excel-rows-json" />
+
+                                    @if (isVoucherEditSession)
+                                    {
+                                        <div class="mb-3" id="voucher-posting-date-edit-group">
+                                            <label class="text-muted small mb-1" for="voucher-posting-date-edit">Bokföringsdatum</label>
+                                            <input type="date"
+                                                   class="form-control module-date-input flowengine-date-input"
+                                                   data-fe-datepicker="true"
+                                                   id="voucher-posting-date-edit"
+                                                   name="voucherPostingDate"
+                                                   value="@voucherPostingDate" />
+                                        </div>
+                                        <div class="mb-3" id="voucher-reversal-date-edit-group">
+                                            <label class="text-muted small mb-1" for="voucher-reversal-date-edit">Återbokningsdatum (valfritt)</label>
+                                            <input type="date"
+                                                   class="form-control module-date-input flowengine-date-input"
+                                                   data-fe-datepicker="true"
+                                                   id="voucher-reversal-date-edit"
+                                                   name="voucherReversalDate"
+                                                   value="@voucherReversalDate" />
+                                        </div>
+                                    }
+
+                                    <div class="table-responsive excel-table-wrap excel-table-wrap--rows" style="--excel-table-min-width:@validationTableMinWidth;">
+                                        <div class="excel-table-scroll-inner">
+                                            <table class="table table-sm table-borderless align-middle excel-validation-table" id="excel-edit-table" data-import-type="@Model.ImportType">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>@Localizer["Rad"]</th>
+                                                        @foreach (var header in Model.RowHeaders)
+                                                        {
+                                                            var isRequired = requiredHeaders.Contains(header);
+                                                            var isEmptyColumn = emptyColumnHeaders.Contains(header);
+                                                            var widthChars = headerWidthChars.TryGetValue(header, out var estimatedWidthChars) ? estimatedWidthChars : 10;
+
+                                                            <th class="@(isRequired ? "excel-required-header" : "") @(isEmptyColumn ? "excel-empty-column" : "")" style="--excel-col-ch:@widthChars;">
+                                                                @header
+                                                                @if (isRequired)
+                                                                {
+                                                                    <span class="excel-required-marker"
+                                                                          title="@Localizer["Obligatoriskt fält"]"
+                                                                          aria-label="@Localizer["Obligatoriskt fält"]">*</span>
+                                                                }
+                                                            </th>
+                                                        }
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (visibleRows.Count == 0)
+                                                    {
+                                                        <tr class="excel-empty-row">
+                                                            <td colspan="@(Model.RowHeaders.Count + 2)" class="text-muted small">
+                                                                @Localizer["Inga rader matchar filtret."]
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    @foreach (var rr in visibleRows)
+                                                    {
+                                                        var rowClass = rr.IsValid ? "row-valid" : "row-invalid";
+
+                                                        <tr class="@rowClass" data-rowno="@rr.RowNo">
+                                                            <td class="text-start">
+                                                                <button type="button" class="excel-delete-row excel-delete-icon" aria-label="@Localizer["Ta bort"]">
+                                                                    <span aria-hidden="true">−</span>
+                                                                </button>
+                                                            </td>
+                                                            <td>@rr.RowNo</td>
+
+                                                            @foreach (var header in Model.RowHeaders)
+                                                            {
+                                                                var isRequired = requiredHeaders.Contains(header);
+                                                                var isEmptyColumn = emptyColumnHeaders.Contains(header);
+                                                                string? value = null;
+                                                                var hasValue = rr.Data != null && rr.Data.TryGetValue(header, out value);
+                                                                value = hasValue ? value : string.Empty;
+                                                                var displayValue = string.IsNullOrWhiteSpace(value) ? string.Empty : value;
+                                                                var widthChars = headerWidthChars.TryGetValue(header, out var estimatedWidthChars) ? estimatedWidthChars : 10;
+
+                                                                <td contenteditable="true"
+                                                                    spellcheck="false"
+                                                                    class="excel-edit-cell @(isRequired ? "excel-required-cell" : "") @(isEmptyColumn ? "excel-empty-column" : "") @(string.IsNullOrWhiteSpace(displayValue) ? "excel-cell-empty" : "")"
+                                                                    data-header="@header"
+                                                                    data-required="@(isRequired ? "true" : "false")"
+                                                                    data-placeholder="@(isRequired ? Localizer["Måste fyllas i"] : string.Empty)"
+                                                                    style="--excel-col-ch:@widthChars;">
+@displayValue</td>
+                                                            }
+                                                        </tr>
+                                                        @if (!rr.IsValid)
+                                                        {
+                                                            <tr class="excel-row-error-row">
+                                                                <td colspan="@(Model.RowHeaders.Count + 2)">
+                                                                    <span class="excel-row-error-message">
+                                                                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                                                        @(string.IsNullOrWhiteSpace(rr.ErrorMessage) ? Localizer["Raden klarade inte valideringen."] : rr.ErrorMessage)
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                    @if (showEditableSession)
+                                                    {
+                                                        <tr class="excel-add-row-row" data-rowno="0">
+                                                            <td class="text-start">
+                                                                <button type="button" class="excel-add-row-btn excel-add-icon" aria-label="@Localizer["Lägg till rad"]">
+                                                                    <span aria-hidden="true">+</span>
+                                                                </button>
+                                                            </td>
+                                                            <td></td>
+
+                                                            @foreach (var header in Model.RowHeaders)
+                                                            {
+                                                                var isRequired = requiredHeaders.Contains(header);
+                                                                var isEmptyColumn = emptyColumnHeaders.Contains(header);
+                                                                var widthChars = headerWidthChars.TryGetValue(header, out var estimatedWidthChars) ? estimatedWidthChars : 10;
+
+                                                                <td class="excel-edit-cell @(isRequired ? "excel-required-cell" : "") @(isEmptyColumn ? "excel-empty-column" : "") excel-cell-empty"
+                                                                    data-header="@header"
+                                                                    data-required="@(isRequired ? "true" : "false")"
+                                                                    data-placeholder="@(isRequired ? Localizer["Måste fyllas i"] : string.Empty)"
+                                                                    style="--excel-col-ch:@widthChars;"></td>
+                                                            }
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.RowTotalPages > 1 || Model.RowFilteredCount > 0)
+                                    {
+                                        <div class="excel-row-pager mt-3 d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                            <div class="small text-muted" id="excel-page-info">
+                                                @if (Model.RowFilteredCount > 0)
+                                                {
+                                                    @($"Visar {pageStart}-{pageEnd} av {Model.RowFilteredCount} rader")
+                                                }
+                                                else
+                                                {
+                                                    @("Inga rader att visa")
+                                                }
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button type="button" class="btn btn-portal btn-portal-outline btn-sm" id="excel-page-prev" @(Model.RowPage <= 1 ? "disabled" : null)>
+                                                    Föregående
+                                                </button>
+                                                <span class="small text-muted" id="excel-page-indicator">Sida @Model.RowPage av @Model.RowTotalPages</span>
+                                                <button type="button" class="btn btn-portal btn-portal-outline btn-sm" id="excel-page-next" @(Model.RowPage >= Model.RowTotalPages ? "disabled" : null)>
+                                                    Nästa
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                        @if (!string.IsNullOrWhiteSpace(Model.CancelEditUrl))
+                                        {
+                                            <a href="@Model.CancelEditUrl"
+                                               class="btn btn-portal btn-portal-outline"
+                                               data-excel-edit-cancel="true">
+                                                @Localizer["Avbryt redigeringen"]
+                                            </a>
+                                        }
+                                        <button type="submit" class="btn btn-portal" @(Model.RowResults.Any() ? "" : "disabled")>
+                                            @Localizer["Importera korrigerade rader"]
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/excel-import.js" asp-append-version="true"></script>
+}

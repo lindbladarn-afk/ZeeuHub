@@ -1,0 +1,33 @@
+@model WebApp.Controllers.AIController.AiViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var isAdmin = Model?.IsAdmin == true;
+    var hasDataSources = Model?.DataSources?.Any() ?? false;
+}
+
+@if (isAdmin && hasDataSources)
+{
+    <div class="ai-ds-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
+        <div class="flex-grow-1">
+            <strong>@Localizer["Databas för ZeeU Intelligence"]</strong> 
+            <div class="small text-muted mb-0">@Localizer["Välj vilken datakälla frågor och analyser ska köras mot."]</div>
+            @if (TempData["AiDataSourceMessage"] is string dsMsg)
+            {
+                <div class="small text-muted mb-0">@dsMsg</div>
+            }
+        </div>
+
+        <form asp-action="SetDataSource" asp-controller="AI" method="post" class="d-flex align-items-center gap-2 m-0 ai-ds-form">
+            @Html.AntiForgeryToken()
+            <select class="form-select form-select-sm" name="key" onchange="this.form.submit()">
+                @foreach (var ds in Model!.DataSources)
+                {
+                    var isSelected = string.Equals(ds.Key, Model.SelectedDataSourceKey, StringComparison.OrdinalIgnoreCase);
+                    <option value="@ds.Key" selected="@(isSelected)">
+                        @ds.Name
+                    </option>
+                }
+            </select>
+        </form>
+    </div>
+}

@@ -1,0 +1,532 @@
+@model WebApp.ViewModels.Integration.CustomerSync.CustomerSyncPageViewModel
+@using WebApp.ViewModels.Shared
+@{
+    ViewData["Title"] = "CustomerSync";
+    var importedPager = Model.ImportedHubSpotCompaniesPagination;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        .customer-sync-company-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+            border-radius: 1rem;
+        }
+
+        .customer-sync-run-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0.9rem;
+        }
+
+        .customer-sync-meta-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .customer-sync-section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .customer-sync-company-name {
+            font-size: 1.45rem;
+            line-height: 1.1;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .customer-sync-company-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.45rem;
+        }
+
+        .customer-sync-state-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 4.8rem;
+            padding: 0.34rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1;
+            white-space: nowrap;
+            min-height: 2rem;
+        }
+
+        .customer-sync-state-pill--success {
+            background: rgba(16, 185, 129, 0.16);
+            color: #9ff3d3;
+            border-color: rgba(52, 211, 153, 0.28);
+        }
+
+        .customer-sync-state-pill--danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ffb8c0;
+            border-color: rgba(248, 113, 113, 0.28);
+        }
+
+        .customer-sync-mini-field {
+            min-width: 112px;
+            padding: 0.5rem 0.7rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .customer-sync-mini-field__label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.62);
+            margin-bottom: 0.2rem;
+        }
+
+        .customer-sync-mini-field__value {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.15;
+        }
+
+        .customer-sync-runtime-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.25rem;
+            align-items: center;
+        }
+
+        .customer-sync-runtime-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.2rem;
+            min-width: 150px;
+            padding: 0.05rem 0;
+        }
+
+        .customer-sync-runtime-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .customer-sync-runtime-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.65);
+            white-space: nowrap;
+        }
+
+        .customer-sync-run-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .customer-sync-run-description {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .customer-sync-toggle-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-height: 2.5rem;
+        }
+
+        .customer-sync-header-form {
+            display: flex;
+            align-items: center;
+            min-height: 2.5rem;
+        }
+
+        .customer-sync-toggle {
+            margin: 0;
+            min-width: 3rem;
+            padding-left: 0;
+        }
+
+        .customer-sync-toggle .form-check-input {
+            float: none;
+            margin: 0;
+            width: 2.65rem;
+            height: 1.55rem;
+            border-radius: 999px;
+            border: 1px solid rgba(239, 68, 68, 0.55);
+            background-color: rgba(239, 68, 68, 0.22);
+            background-image: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .customer-sync-toggle .form-check-input:focus {
+            border-color: rgba(255,255,255,0.28);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.04),
+                0 0 0 3px rgba(148, 163, 184, 0.08);
+        }
+
+        .customer-sync-toggle .form-check-input::after {
+            content: "";
+            display: block;
+            width: 1.12rem;
+            height: 1.12rem;
+            margin: 0.16rem;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #f8fafc 0%, #dbe7f5 100%);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.28);
+            transform: translateX(0);
+            transition: transform 0.16s ease;
+        }
+
+        .customer-sync-toggle .form-check-input:not(:checked) {
+            background-color: rgba(239, 68, 68, 0.22);
+            border-color: rgba(239, 68, 68, 0.55);
+        }
+
+        .customer-sync-toggle .form-check-input:not(:checked)::after {
+            transform: translateX(0);
+        }
+
+        .customer-sync-toggle .form-check-input:checked {
+            background-color: rgba(16, 185, 129, 0.22);
+            border-color: rgba(52, 211, 153, 0.55);
+        }
+
+        .customer-sync-toggle .form-check-input:checked::after {
+            transform: translateX(1.08rem);
+            background: linear-gradient(180deg, #ffffff 0%, #ecfeff 100%);
+        }
+
+        body:not(.theme-dark) .customer-sync-toggle .form-check-input {
+            background-color: #e2e8f0;
+            border-color: rgba(15, 23, 42, 0.16);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.82);
+        }
+
+        body:not(.theme-dark) .customer-sync-toggle .form-check-input:not(:checked) {
+            background-color: rgba(239, 68, 68, 0.16);
+            border-color: rgba(220, 38, 38, 0.38);
+        }
+
+        body:not(.theme-dark) .customer-sync-toggle .form-check-input:focus {
+            border-color: rgba(15, 23, 42, 0.24);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.82),
+                0 0 0 3px rgba(15, 23, 42, 0.06);
+        }
+
+        body:not(.theme-dark) .customer-sync-toggle .form-check-input:checked {
+            background-color: rgba(16, 185, 129, 0.16);
+            border-color: rgba(5, 150, 105, 0.38);
+        }
+
+        .customer-sync-toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            justify-content: center;
+            min-height: 2.5rem;
+        }
+
+        .customer-sync-toggle-label__title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .customer-sync-toggle-label__value {
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+    </style>
+}
+
+<div class="dashboard-readable module-page integration-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Integration</div>
+            <h1 class="module-page-title">CustomerSync</h1>
+            <div class="module-page-subtitle mt-1">
+                Visar om CustomerSync-konfigurationen är inläst och hur HubSpot-token kommer in i huben.
+            </div>
+            <div class="module-page-meta">
+                Token visas aldrig här. Sidan visar bara status och hämtade HubSpot-företag.
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <form asp-action="CustomerSyncImportHubSpotCompanies" method="post" class="customer-sync-header-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-portal">
+                    <i class="fa fa-cloud-arrow-down me-1"></i> Hämta företag från HubSpot
+                </button>
+            </form>
+            <form asp-action="CustomerSyncSetEnabled" method="post" class="customer-sync-header-form">
+                @Html.AntiForgeryToken()
+                <div class="customer-sync-toggle-row">
+                    <div class="form-check form-switch customer-sync-toggle">
+                        <input class="form-check-input" type="checkbox" name="enabled" value="true" @(Model.IsEnabled ? "checked" : null) onchange="this.form.submit();" aria-label="Pausa eller återuppta automatisk körning av CustomerSync" />
+                    </div>
+                    <div class="customer-sync-toggle-label">
+                        <span class="customer-sync-toggle-label__title">Automatisk körning</span>
+                        <span class="customer-sync-toggle-label__value">@(Model.IsEnabled ? "Aktiverad" : "Pausad")</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-3 mt-3">
+        <div class="card-body">
+            <div class="customer-sync-section-title mb-3">Driftsläge</div>
+            <div class="customer-sync-runtime-row">
+                <div class="customer-sync-runtime-item">
+                    <span class="customer-sync-runtime-label">Aktiverad</span>
+                    <span class="customer-sync-runtime-value">@(Model.IsEnabled ? "Ja" : "Nej")</span>
+                </div>
+                <div class="customer-sync-runtime-item">
+                    <span class="customer-sync-runtime-label">Hämtintervall</span>
+                    <span class="customer-sync-runtime-value">@Model.PollIntervalMinutes min</span>
+                </div>
+                <div class="customer-sync-runtime-item">
+                    <span class="customer-sync-runtime-label">Hämtstorlek</span>
+                    <span class="customer-sync-runtime-value">@Model.BatchSize</span>
+                </div>
+                <div class="customer-sync-runtime-item">
+                    <span class="customer-sync-runtime-label">Max försök</span>
+                    <span class="customer-sync-runtime-value">@Model.MaxAttempts</span>
+                </div>
+            </div>
+            <div class="module-page-meta mt-3">
+                Steg 1 hämtar företag från HubSpot och visar dem här i huben. Inget skrivs till Jeeves. Hämtningen fortsätter tills alla sidor är genomgångna.
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4 pt-3 border-top border-white border-opacity-10">
+                <div>
+                    <div class="customer-sync-section-title mb-1">Företag</div>
+                    <div class="module-page-meta">Konfigurerade CustomerSync-företag med senaste körning och kontaktstatus.</div>
+                </div>
+                <div class="module-page-meta">
+                    @(Model.Companies.Count == 1 ? "1 företag" : $"{Model.Companies.Count} företag")
+                </div>
+            </div>
+
+            @if (Model.Companies.Count == 0)
+            {
+                <div class="module-page-meta mt-3">Inga CustomerSync-företag är konfigurerade ännu.</div>
+            }
+            else
+            {
+                <div class="row g-3 mt-1">
+                    @foreach (var company in Model.Companies)
+                    {
+                        <div class="col-12">
+                            <div class="customer-sync-company-card p-3 p-lg-4">
+                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                                    <div>
+                                        <div class="customer-sync-company-name mb-1">@company.DisplayName</div>
+                                    </div>
+                                    <div class="customer-sync-company-status">
+                                        <span class="customer-sync-state-pill @(company.Enabled ? "customer-sync-state-pill--success" : "customer-sync-state-pill--danger")">
+                                            @(company.Enabled ? "Aktiv" : "Inaktiv")
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 align-items-stretch">
+                                    <div class="col-12 col-lg-5 col-xl-4">
+                                        <div class="customer-sync-run-card p-3 h-100">
+                                            <div class="customer-sync-run-title mb-1">Synkläge</div>
+                                            <div class="customer-sync-run-description mb-3">En snabb överblick av bolagets status i CustomerSync.</div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <div class="customer-sync-mini-field">
+                                                    <span class="customer-sync-mini-field__label">Nya</span>
+                                                    <span class="customer-sync-mini-field__value">@(company.LatestRun?.CreatedCount ?? 0)</span>
+                                                </div>
+                                                <div class="customer-sync-mini-field">
+                                                    <span class="customer-sync-mini-field__label">Uppdaterade</span>
+                                                    <span class="customer-sync-mini-field__value">@(company.LatestRun?.UpdatedCount ?? 0)</span>
+                                                </div>
+                                                <div class="customer-sync-mini-field">
+                                                    <span class="customer-sync-mini-field__label">Skippade</span>
+                                                    <span class="customer-sync-mini-field__value">@(company.LatestRun?.SkippedCount ?? 0)</span>
+                                                </div>
+                                                <div class="customer-sync-mini-field">
+                                                    <span class="customer-sync-mini-field__label">Fel</span>
+                                                    <span class="customer-sync-mini-field__value">@(company.LatestRun?.FailedCount ?? 0)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-7 col-xl-8">
+                                        <div class="customer-sync-run-card p-3 h-100">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                                <div>
+                                                    <div class="customer-sync-run-title mb-1">Senaste körning</div>
+                                                    <div class="customer-sync-run-description">Senaste status och kördatum för bolaget.</div>
+                                                </div>
+                                                @if (company.LatestRun is not null)
+                                                {
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <span class="badge @(company.LatestRun.StatusTone switch
+                                                        {
+                                                            "success" => "bg-success",
+                                                            "info" => "bg-info text-dark",
+                                                            "warning" => "bg-warning text-dark",
+                                                            _ => "bg-danger"
+                                                        })">@company.LatestRun.StatusLabel</span>
+                                                        @if (!string.IsNullOrWhiteSpace(company.LatestRun.DirectionLabel))
+                                                        {
+                                                            <span class="badge bg-secondary">@company.LatestRun.DirectionLabel</span>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(company.LatestRun.TriggerLabel))
+                                                        {
+                                                            <span class="badge bg-secondary">@company.LatestRun.TriggerLabel</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            @if (company.LatestRun is null)
+                                            {
+                                                <div class="module-page-meta">Inga körningar ännu.</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="customer-sync-run-description">
+                                                    @if (company.LatestRun.FinishedAtUtc.HasValue)
+                                                    {
+                                                        <span>Klart @company.LatestRun.FinishedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Datum saknas</span>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card kpi-card p-3 mt-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="dashboard-card-title mb-0">Hämtade HubSpot-företag</div>
+                @if (importedPager.TotalCount > 0)
+                {
+                    <div class="module-page-meta">
+                        Visar sida @importedPager.Page av @importedPager.TotalPages, @importedPager.PageSize per sida. Totalt @importedPager.TotalCount.
+                    </div>
+                }
+            </div>
+
+            @if (Model.ImportedHubSpotCompanies.Count == 0)
+            {
+                <div class="module-page-meta">Inga HubSpot-företag har hämtats till huben ännu.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Namn</th>
+                                <th>HubSpot ID</th>
+                                <th>Org.nr</th>
+                                <th>Domän</th>
+                                <th>E-post</th>
+                                <th>Telefon</th>
+                                <th>HubSpot uppdaterad</th>
+                                <th>Hämtad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var company in Model.ImportedHubSpotCompanies)
+                            {
+                                <tr>
+                                    <td>@(string.IsNullOrWhiteSpace(company.Name) ? "-" : company.Name)</td>
+                                    <td><code>@company.HubSpotCompanyId</code></td>
+                                    <td>@(string.IsNullOrWhiteSpace(company.OrganizationNumber) ? "-" : company.OrganizationNumber)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(company.Domain) ? "-" : company.Domain)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(company.Email) ? "-" : company.Email)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(company.Phone) ? "-" : company.Phone)</td>
+                                    <td>
+                                        @if (company.HubSpotUpdatedAtUtc.HasValue)
+                                        {
+                                            <span>@company.HubSpotUpdatedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="module-page-meta">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (company.LastImportedAtUtc.HasValue)
+                                        {
+                                            <span>@company.LastImportedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="module-page-meta">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (importedPager.TotalPages > 1)
+                {
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                        <a asp-action="CustomerSync"
+                           asp-route-importedPage="@(importedPager.Page - 1)"
+                           class="btn btn-sm btn-portal btn-portal-outline @(importedPager.HasPreviousPage ? string.Empty : "disabled")"
+                           aria-disabled="@(!importedPager.HasPreviousPage)">
+                            Föregående
+                        </a>
+                        <div class="module-page-meta">
+                            Sida @importedPager.Page / @importedPager.TotalPages
+                        </div>
+                        <a asp-action="CustomerSync"
+                           asp-route-importedPage="@(importedPager.Page + 1)"
+                           class="btn btn-sm btn-portal btn-portal-outline @(importedPager.HasNextPage ? string.Empty : "disabled")"
+                           aria-disabled="@(!importedPager.HasNextPage)">
+                            Nästa
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

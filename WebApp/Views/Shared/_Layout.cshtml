@@ -1,0 +1,564 @@
+﻿@{
+    var disableTheme = string.Equals(ViewData["DisableTheme"]?.ToString(), "true", StringComparison.OrdinalIgnoreCase);
+    var savedTheme = Context.Request.Cookies["portal-theme"];
+    var showGlobalAiLauncher = Context.User?.Identity?.IsAuthenticated == true;
+    var initialBodyClass = (ViewData["AppBodyClass"]?.ToString() ?? string.Empty).Trim();
+    if (!disableTheme && string.Equals(savedTheme, "dark", StringComparison.OrdinalIgnoreCase))
+    {
+        initialBodyClass = string.IsNullOrWhiteSpace(initialBodyClass)
+            ? "theme-dark"
+            : $"{initialBodyClass} theme-dark";
+    }
+}
+<!DOCTYPE html>
+<html lang="en" @ViewData["AppHtmlAttr"]>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - ZeeU Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="@ViewData["MetaDescription"]" />
+    <meta name="author" content="@ViewData["MetaAuthor"]" />
+    <meta name="keywords" content="@ViewData["MetaKeywords"]" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b365c'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial, Helvetica, sans-serif' font-size='34' font-weight='700' fill='%23c9e8ff'%3EZ%3C/text%3E%3C/svg%3E" />
+
+    <script>
+      (function () {
+        const themeDisabled = @disableTheme.ToString().ToLowerInvariant();
+        const storedTheme = themeDisabled ? 'light' : (localStorage.getItem('theme') || '@(savedTheme ?? "light")');
+        window.__portalTheme = storedTheme;
+        if (storedTheme === 'dark' && !themeDisabled) {
+          document.documentElement.classList.add('theme-dark');
+        } else {
+          document.documentElement.classList.remove('theme-dark');
+        }
+      })();
+    </script>
+ 
+    @RenderSection("MetaTag", required: false)
+ 
+    <!-- ================== BEGIN core-css ================== -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
+    <link href="~/css/vendor.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/app.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/zeeu.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/hub.shared.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/WebApp.styles.css" rel="stylesheet" asp-append-version="true" /> <!-- References to all the isolated css files -->
+    <style>
+      /* Enkel dark-mode palette som täcker header/sidebar/kort/panels */
+      body.theme-dark { background-color: #0f172a; color: #e2e8f0; }
+      body.theme-dark h1, body.theme-dark h2, body.theme-dark h3,
+      body.theme-dark h4, body.theme-dark h5, body.theme-dark h6,
+      body.theme-dark .panel-title, body.theme-dark .text-dark { color: #f8fafc !important; }
+      body.theme-dark .text-muted { color: #cbd5e1 !important; }
+      body.theme-dark .app-header { background-color: #0b1220; border-color: #111827; }
+      body.theme-dark .app-sidebar,
+      body.theme-dark .app-sidebar-bg { background-color: #0b1220; }
+      body.theme-dark .menu > .menu-item > .menu-link,
+      body.theme-dark .menu-text { color: #e2e8f0; }
+      body.theme-dark .menu > .menu-header { color: #94a3b8; }
+      body.theme-dark .menu > .menu-item.active > .menu-link { color: #f8fafc; }
+      body.theme-dark .app-content { background-color: #0f172a; }
+      body.theme-dark .card,
+      body.theme-dark .panel,
+      body.theme-dark .panel-body,
+      body.theme-dark .panel-heading { background-color: #1f2937; color: #e2e8f0; border-color: #2d3748; }
+      body.theme-dark .card .text-muted,
+      body.theme-dark .panel .text-muted { color: #cbd5e1 !important; }
+      body.theme-dark .panel .panel-heading { border-color: #334155; background-color: #111827; color: #e2e8f0; }
+      body.theme-dark .panel .panel-title { color: #f8fafc !important; }
+      body.theme-dark .timeline-body { background: #0b1220; border-color: #334155; }
+      body.theme-dark .timeline::before { background: #334155; }
+      body.theme-dark .timeline-body .title { color: #f8fafc; }
+      body.theme-dark .timeline-dot { box-shadow: 0 0 0 1px #334155; }
+      body.theme-dark .table { color: #e2e8f0; }
+      body.theme-dark .table thead th { color: #f8fafc; border-color: #475569; background-color: #111827; }
+      body.theme-dark .table tbody tr td { border-color: #1f2937; color: #e2e8f0; }
+      body.theme-dark .table tbody tr:hover { background-color: #0b1220; }
+      body.theme-dark .badge.bg-secondary { background-color: #475569 !important; color: #e2e8f0 !important; }
+      body.theme-dark .form-control { background-color: #111827; color: #e2e8f0; border-color: #334155; }
+      body.theme-dark .form-control:focus { background-color: #111827; color: #f8fafc; border-color: #4b5563; }
+      body.theme-dark a { color: #60a5fa; }
+      body.theme-dark .navbar-link.icon i { color: #e2e8f0; }
+      body.theme-dark .app-header .navbar-brand,
+      body.theme-dark .app-header .navbar-brand b { color: #f8fafc !important; }
+      body.theme-dark .navbar-header .icon-bar { background-color: #f8fafc; }
+      body.theme-dark .app-header .navbar-nav .navbar-link,
+      body.theme-dark .app-header .navbar-nav .navbar-item .navbar-text { color: #f8fafc; }
+      body.theme-dark .dropdown-menu { background-color: #111827; color: #e2e8f0; }
+      body.theme-dark .dropdown-item { color: #e2e8f0; }
+      body.theme-dark .dropdown-item:hover { background-color: #1f2937; }
+      body.theme-dark .badge.bg-light { background-color: #1f2937 !important; color: #e2e8f0 !important; }
+      /* Header toggle button */
+      #themeToggle.btn,
+      .navbar-nav .btn-outline-secondary,
+      .navbar-nav .btn-outline-warning { border-color: #4b5563; color: #0f172a; background: #f8fafc; }
+      body.theme-dark #themeToggle.btn,
+      body.theme-dark .navbar-nav .btn-outline-secondary,
+      body.theme-dark .navbar-nav .btn-outline-warning { background: #111827; color: #e2e8f0; border-color: #374151; }
+
+      .app-header {
+        min-height: 58px;
+        height: 58px;
+      }
+
+      .app-header .navbar-header,
+      .app-header .navbar-nav {
+        min-height: 58px;
+        height: 58px;
+        align-items: center;
+      }
+
+      .app-header .navbar-item {
+        display: flex;
+        align-items: center;
+      }
+
+      .app-sidebar,
+      .app-sidebar-bg {
+        top: 58px;
+      }
+
+      .app-sidebar {
+        padding-top: 0 !important;
+      }
+
+      .app-sidebar .app-sidebar-content {
+        padding-top: 0 !important;
+      }
+
+      .app-sidebar .menu {
+        padding-top: 0;
+        margin-top: 0;
+      }
+
+      .app-sidebar .menu > .menu-header {
+        margin-top: 0;
+        padding-top: 0;
+        margin-bottom: 8px;
+      }
+
+      .global-ai-assistant {
+        width: min(560px, 96vw) !important;
+        border-left: 1px solid rgba(148, 163, 184, 0.18);
+        background: linear-gradient(180deg, rgba(19, 27, 40, 0.98), rgba(15, 23, 42, 0.98));
+        color: #e2e8f0;
+      }
+
+      .global-ai-assistant .offcanvas-body {
+        padding: 0;
+      }
+
+      .global-ai-assistant__frame {
+        display: block;
+        width: 100%;
+        height: 100dvh;
+        border: 0;
+        background: #0f172a;
+      }
+
+      .global-ai-fab {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        z-index: 1045;
+        width: 50px;
+        height: 50px;
+        padding: 0;
+        border: 1px solid rgba(96, 165, 250, 0.34);
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+        box-shadow: 0 20px 42px rgba(2, 6, 23, 0.42), 0 0 0 1px rgba(148, 163, 184, 0.08);
+        color: #f8fafc;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+      }
+
+      .global-ai-fab:hover,
+      .global-ai-fab:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(96, 165, 250, 0.56);
+        box-shadow: 0 24px 48px rgba(2, 6, 23, 0.52), 0 0 0 1px rgba(96, 165, 250, 0.12);
+        color: #ffffff;
+      }
+
+      .global-ai-fab__icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      }
+
+      .global-ai-fab__label {
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 0.75rem);
+        transform: translateY(-50%) translateX(0.5rem);
+        opacity: 0;
+        pointer-events: none;
+        white-space: nowrap;
+        padding: 0.65rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.22);
+        background: linear-gradient(180deg, rgba(19, 27, 40, 0.98), rgba(15, 23, 42, 0.98));
+        color: #e2e8f0;
+        font-size: 0.88rem;
+        font-weight: 700;
+        box-shadow: 0 16px 34px rgba(2, 6, 23, 0.3);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+      }
+
+      .global-ai-fab:hover .global-ai-fab__label,
+      .global-ai-fab:focus-visible .global-ai-fab__label {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+      }
+
+      @@media (max-width: 767.98px) {
+        .global-ai-fab {
+          right: 1rem;
+          bottom: 1rem;
+          width: 48px;
+          height: 48px;
+        }
+
+        .global-ai-fab__icon {
+          width: 32px;
+          height: 32px;
+          font-size: 0.86rem;
+        }
+
+        .global-ai-fab__label {
+          display: none;
+        }
+      }
+    </style>
+    <!-- ================== END core-css ================== -->
+    <!-- ================== BEGIN JQuery ================== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <!-- JQuery -->
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js" integrity="sha256-xH4q8N0pEzrZMaRmd7gQVcTZiFei+HfRTBPJ1OGXC0k=" crossorigin="anonymous"></script> <!-- JQuery UI -->
+    <!-- ================== END JQuery ================== -->
+ 
+    @RenderSection("Styles", required: false)
+</head>
+<body class="@initialBodyClass">
+  <script>
+    (function () {
+      const themeDisabled = @disableTheme.ToString().ToLowerInvariant();
+      if (themeDisabled) {
+        document.body.classList.remove('theme-dark');
+        return;
+      }
+
+      const theme = window.__portalTheme || 'light';
+      if (theme === 'dark') {
+        document.body.classList.add('theme-dark');
+      } else {
+        document.body.classList.remove('theme-dark');
+      }
+    })();
+  </script>
+  <!-- BEGIN #app -->
+  <div id="app" class="app @(ViewData["AppSidebarNone"] == null ? "app-sidebar-fixed" : "") @(ViewData["AppHeaderNone"] == null ? "app-header-fixed" : "") @ViewData["AppClass"]">
+    <style type="text/css">
+    .pace,
+    .app-loader {
+    display: none !important;
+    }
+    </style>
+    @if (ViewData["AppHeaderNone"] == null) 
+    {
+        @await Html.PartialAsync("_Header");
+    }
+    
+    @if (ViewData["AppTopMenu"] != null) 
+    {
+        @await Html.PartialAsync("TopMenu");
+        @*<partial name="_TopMenu" />*@
+    }
+ 
+    @if (ViewData["AppSidebarNone"] == null) 
+    {
+        @await Html.PartialAsync("_Sidebar");
+    }
+ 
+    @if (ViewData["AppEmpty"] == null) 
+    {
+      <div id="content" class="app-content @ViewData["AppContentClass"]" @ViewData["AppContentAttr"]>
+        @RenderBody()
+      </div>
+    } 
+    else 
+    {
+      @RenderBody()
+    }
+ 
+    @RenderSection("AppOutterContent", required: false)
+
+    @if (showGlobalAiLauncher)
+    {
+      <button type="button"
+              class="btn global-ai-fab"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#globalAiAssistant"
+              aria-controls="globalAiAssistant"
+              aria-label="Öppna ZeeU Intelligence">
+        <span class="global-ai-fab__label" aria-hidden="true">ZeeU AI är redo att hjälpa dig</span>
+        <span class="global-ai-fab__icon" aria-hidden="true">
+          <i class="fa fa-magic"></i>
+        </span>
+      </button>
+    }
+
+    <div class="offcanvas offcanvas-end global-ai-assistant" tabindex="-1" id="globalAiAssistant" aria-label="ZeeU Intelligence">
+      <div class="offcanvas-body">
+        <iframe id="globalAiAssistantFrame"
+                class="global-ai-assistant__frame"
+                title="ZeeU Intelligence"
+                src="@Url.Action("AssistantWidget", "AI")"></iframe>
+      </div>
+    </div>
+    @if (showGlobalAiLauncher)
+    {
+      <div class="portal-page-loader" id="portalPageLoader" aria-hidden="true" hidden>
+        <div class="portal-page-loader__panel" role="status" aria-live="polite" aria-label="Laddar sida">
+          <div class="portal-page-loader__badge" aria-hidden="true">
+            <span class="portal-page-loader__spinner"></span>
+          </div>
+          <div class="portal-page-loader__content">
+            <div class="portal-page-loader__title">Laddar sida...</div>
+            <div class="portal-page-loader__copy">Innehållet hämtas i bakgrunden.</div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <!-- END #app -->
+ 
+  <!-- ================== BEGIN core-js ================== -->
+  <script src="~/js/vendor.min.js"></script>
+  <script src="~/js/app.min.js?v=20251203"></script>
+  <script src="~/js/theme/material.min.js"></script>
+  <script src="~/js/modal.popup.js"></script>
+  <script src="~/js/actionCenterBadge.js" asp-append-version="true"></script>
+  <script src="~/js/hub-notifications.js" asp-append-version="true"></script>
+  <!-- ================== END core-js ================== -->
+  <script>
+    (function() {
+      const body = document.body;
+      const root = document.documentElement;
+      const themeDisabled = @disableTheme.ToString().ToLowerInvariant();
+      const btn = () => document.getElementById('themeToggle');
+      if (themeDisabled) {
+        root.classList.remove('theme-dark');
+        body.classList.remove('theme-dark');
+        window.addEventListener('DOMContentLoaded', () => body.classList.remove('theme-dark'));
+        return;
+      }
+      const setTheme = (theme) => {
+        if (theme === 'dark') {
+          root.classList.add('theme-dark');
+          body.classList.add('theme-dark');
+        } else {
+          root.classList.remove('theme-dark');
+          body.classList.remove('theme-dark');
+        }
+        localStorage.setItem('theme', theme);
+        document.cookie = 'portal-theme=' + theme + '; path=/; max-age=31536000; samesite=lax';
+        const toggle = btn();
+        if (toggle) {
+          const icon = toggle.querySelector('i');
+          const label = toggle.querySelector('span');
+          if (theme === 'dark') {
+            icon.className = 'fa fa-sun';
+            label.textContent = 'Light';
+          } else {
+            icon.className = 'fa fa-moon';
+            label.textContent = 'Dark';
+          }
+        }
+      };
+      const saved = window.__portalTheme || localStorage.getItem('theme') || 'light';
+      setTheme(saved);
+      window.addEventListener('DOMContentLoaded', () => {
+        const toggle = btn();
+        if (toggle) {
+          toggle.addEventListener('click', () => {
+            const next = body.classList.contains('theme-dark') ? 'light' : 'dark';
+            setTheme(next);
+          });
+        }
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const drawer = document.getElementById('globalAiAssistant');
+      const frame = document.getElementById('globalAiAssistantFrame');
+      if (!drawer || !frame) {
+        return;
+      }
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+
+        if (event.data?.type !== 'zeeu-ai-close') {
+          return;
+        }
+
+        const offcanvas = window.bootstrap?.Offcanvas?.getOrCreateInstance(drawer);
+        offcanvas?.hide();
+      });
+    })();
+  </script>
+  @if (showGlobalAiLauncher)
+  {
+    <script>
+      (function () {
+        const loader = document.getElementById('portalPageLoader');
+        if (!loader) {
+          return;
+        }
+
+        let active = false;
+        let showTimer = null;
+
+        const clearShowTimer = () => {
+          if (showTimer !== null) {
+            window.clearTimeout(showTimer);
+            showTimer = null;
+          }
+        };
+
+        const showLoader = () => {
+          if (active) {
+            return;
+          }
+
+          clearShowTimer();
+          active = true;
+          loader.hidden = false;
+          loader.setAttribute('aria-hidden', 'false');
+
+          window.requestAnimationFrame(() => {
+            loader.classList.add('is-visible');
+          });
+        };
+
+        const scheduleLoader = () => {
+          if (active || showTimer !== null) {
+            return;
+          }
+
+          showTimer = window.setTimeout(() => {
+            showTimer = null;
+            showLoader();
+          }, 250);
+        };
+
+        const hideLoader = () => {
+          clearShowTimer();
+          active = false;
+          loader.classList.remove('is-visible');
+          loader.setAttribute('aria-hidden', 'true');
+          window.setTimeout(() => {
+            if (!active) {
+              loader.hidden = true;
+            }
+          }, 180);
+        };
+
+        const shouldHandleAnchor = (anchor, event) => {
+          if (!anchor || event.defaultPrevented || isModifiedClick(event)) {
+            return false;
+          }
+
+          const href = anchor.getAttribute('href');
+          if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+            return false;
+          }
+
+          if (anchor.hasAttribute('download') || anchor.dataset.skipPageLoader === 'true') {
+            return false;
+          }
+
+          const target = (anchor.getAttribute('target') || '').trim().toLowerCase();
+          if (target && target !== '_self') {
+            return false;
+          }
+
+          if (href.startsWith('#')) {
+            return false;
+          }
+
+          try {
+            const resolvedUrl = new URL(anchor.href, window.location.href);
+            if (resolvedUrl.origin !== window.location.origin) {
+              return false;
+            }
+
+            const samePath = resolvedUrl.pathname === window.location.pathname
+              && resolvedUrl.search === window.location.search;
+            if (samePath && resolvedUrl.hash) {
+              return false;
+            }
+          } catch {
+            return false;
+          }
+
+          return true;
+        };
+
+        document.addEventListener('click', (event) => {
+          const anchor = event.target instanceof Element
+            ? event.target.closest('a[href]')
+            : null;
+
+          if (!shouldHandleAnchor(anchor, event)) {
+            return;
+          }
+
+          scheduleLoader();
+        }, true);
+
+        document.addEventListener('submit', (event) => {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement) || event.defaultPrevented) {
+            return;
+          }
+
+          if (form.dataset.skipPageLoader === 'true') {
+            return;
+          }
+
+          const target = (form.getAttribute('target') || '').trim().toLowerCase();
+          if (target && target !== '_self') {
+            return;
+          }
+
+          scheduleLoader();
+        }, true);
+
+        window.addEventListener('pageshow', hideLoader);
+        window.addEventListener('pagehide', () => {
+          loader.classList.remove('is-visible');
+        });
+      })();
+    </script>
+  }
+    <base href="~/" />
+    @* Not using Blazor; avoid 404 for blazor.server.js *@
+  @await Component.InvokeAsync("Notyf")
+  @RenderSection("Scripts", required: false)
+</body>
+</html>

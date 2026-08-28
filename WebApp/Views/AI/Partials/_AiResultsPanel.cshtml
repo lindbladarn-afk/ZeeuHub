@@ -1,0 +1,84 @@
+@* Renders tabular results and accessible chart controls. *@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<div class="row g-4 ai-readable mt-2" id="ai-results-row">
+    <div class="col-12">
+        <div class="card kpi-card p-0">
+            <div class="card-body p-0">
+                <div class="ai-section-head ai-results-topbar px-3 pt-3">
+                    <div>
+                        <div class="ai-section-title">@Localizer["Resultat och visualisering"]</div>
+                        <div class="ai-section-copy">@Localizer["När ZeeU Intelligence hittar strukturerad data visas tabell och diagram här."]</div>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-start justify-content-between gap-2 p-3 border-bottom" id="ai-results-header">
+                    
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="nav nav-pills" id="results-tabs" role="tablist">
+                            <button class="nav-link active" id="tab-table" data-bs-toggle="tab" data-bs-target="#results-tab-table" type="button" role="tab" aria-selected="true">
+                                <i class="fa fa-table me-1"></i> @Localizer["Tabell"]
+                            </button>
+                            <button class="nav-link" id="tab-visualization" data-bs-toggle="tab" data-bs-target="#results-tab-visualization" type="button" role="tab" aria-selected="false">
+                                <i class="fa fa-chart-bar me-1"></i> @Localizer["Visualisering"]
+                            </button>
+                        </div>
+                        <div class="small text-muted d-none d-md-block" id="ai-results-meta">@Localizer["Ingen data ännu."]</div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="text" id="ai-table-filter" class="form-control form-control-sm ai-table-filter-input" placeholder="@Localizer["Filtrera tabell..."]"/>
+                        
+                        <details class="ai-colmenu dropdown">
+                            <summary class="btn btn-portal btn-portal-outline btn-sm dropdown-toggle">@Localizer["Kolumner"]</summary>
+                            <div class="ai-colmenu__body dropdown-menu p-3 small" id="ai-colmenu-body">
+                                <div class="text-muted">@Localizer["Kör en fråga för att visa kolumner."]</div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    
+                    <div class="tab-pane fade show active ai-results__body" id="results-tab-table" role="tabpanel" tabindex="0">
+                        <div id="ai-results-body">
+                            <div class="ai-empty-state text-muted small text-center">
+                                <i class="fa fa-table fa-2x mb-2 d-block"></i>
+                                @Localizer["Kör en fråga så visas tabellen här."]
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade ai-results__body p-3" id="results-tab-visualization" role="tabpanel" tabindex="0">
+                        <div id="ai-visualization-body">
+                            <div class="ai-chart-toolbar">
+                                <div>
+                                    <div class="fw-semibold">@Localizer["Diagram"]</div>
+                                    <div class="small text-muted">@Localizer["Diagramtypen väljs automatiskt utifrån resultatet."]</div>
+                                </div>
+                                <label class="ai-chart-type">
+                                    <span>@Localizer["Diagramtyp"]</span>
+                                    <select id="ai-chart-type" class="form-select form-select-sm" disabled>
+                                        <option value="auto">@Localizer["Automatisk"]</option>
+                                        <option value="bar">@Localizer["Staplar"]</option>
+                                        <option value="horizontalBar">@Localizer["Horisontella staplar"]</option>
+                                        <option value="line">@Localizer["Linje"]</option>
+                                        <option value="doughnut">@Localizer["Ring"]</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="ai-chart-stage">
+                                <canvas id="ai-chart" hidden></canvas>
+                            </div>
+                            <div id="ai-chart-summary" class="visually-hidden" aria-live="polite"></div>
+                            <div id="viz-placeholder" class="text-muted small text-center p-5">
+                                <i class="fa fa-chart-line fa-2x mb-2 d-block"></i>
+                                @Localizer["Visualiseringar visas här när AI:n kan generera data som lämpar sig för grafer (t.ex. tidsserier, jämförelser)."]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

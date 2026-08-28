@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>ZeeU Dashboard</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>real-time insights</value></data>
+  <data name="KpiAnnualRunRate" xml:space="preserve"><value>Annual run rate</value></data>
+  <data name="KpiForecast" xml:space="preserve"><value>Forecast</value></data>
+  <data name="KpiAverageOrderValue" xml:space="preserve"><value>Average order value</value></data>
+  <data name="KpiAovSubtitle" xml:space="preserve"><value>Last 7 days · {0} orders</value></data>
+  <data name="RevenueLabel" xml:space="preserve"><value>Revenue</value></data>
+  <data name="SegmentedTitle" xml:space="preserve"><value>Segmented revenue</value></data>
+  <data name="SegmentedSubtitle" xml:space="preserve"><value>By market/area with filters</value></data>
+  <data name="SegWeek" xml:space="preserve"><value>Week</value></data>
+  <data name="SegMonth" xml:space="preserve"><value>Month</value></data>
+  <data name="SegQuarter" xml:space="preserve"><value>Quarter</value></data>
+  <data name="SegYAxis" xml:space="preserve"><value>MSEK</value></data>
+  <data name="SegXAxisWeek" xml:space="preserve"><value>Week</value></data>
+  <data name="SegXAxisMonth" xml:space="preserve"><value>Month</value></data>
+  <data name="SegXAxisQuarter" xml:space="preserve"><value>Quarter</value></data>
+  <data name="SegMarketNorth" xml:space="preserve"><value>Nordic market</value></data>
+  <data name="SegMarketEurope" xml:space="preserve"><value>Europe market</value></data>
+  <data name="SegMarketNew" xml:space="preserve"><value>New segment</value></data>
+  <data name="PipelineTitle" xml:space="preserve"><value>Pipeline &amp; opportunities</value></data>
+  <data name="PipelineOpportunity" xml:space="preserve"><value>Opportunity</value></data>
+  <data name="PipelineValue" xml:space="preserve"><value>Value</value></data>
+  <data name="PipelineStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="StatusWon" xml:space="preserve"><value>Won</value></data>
+  <data name="StatusInProgress" xml:space="preserve"><value>In progress</value></data>
+  <data name="StatusRisk" xml:space="preserve"><value>Risk</value></data>
+  <data name="StatusQualifying" xml:space="preserve"><value>Qualifying</value></data>
+  <data name="PipelineOpp1" xml:space="preserve"><value>Quote #2024-178</value></data>
+  <data name="PipelineOpp2" xml:space="preserve"><value>Framework agreement Nordplast</value></data>
+  <data name="PipelineOpp3" xml:space="preserve"><value>Tender CityEnergi</value></data>
+  <data name="PipelineOpp4" xml:space="preserve"><value>Accessory package 3303</value></data>
+  <data name="PipelineVal1" xml:space="preserve"><value>450 kSEK</value></data>
+  <data name="PipelineVal2" xml:space="preserve"><value>1.2 MSEK</value></data>
+  <data name="PipelineVal3" xml:space="preserve"><value>980 kSEK</value></data>
+  <data name="PipelineVal4" xml:space="preserve"><value>210 kSEK</value></data>
+</root>

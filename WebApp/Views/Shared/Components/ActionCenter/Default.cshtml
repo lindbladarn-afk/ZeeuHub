@@ -1,0 +1,433 @@
+@model WebApp.Models.ActionCenter.ActionCenterViewModel
+@using System.Globalization
+@using System.Text.RegularExpressions
+@using WebApp.Models.ActionCenter
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    var culture = CultureInfo.CurrentCulture;
+    var insights = Model?.Insights ?? Array.Empty<ActionCenterInsight>();
+    var total = Model?.TotalCount ?? 0;
+    var isFullPage = ViewData["ActionCenterFullPage"] as bool? == true;
+    var compactCountLabel = !isFullPage && total > insights.Count
+        ? $" · visar {insights.Count}"
+        : string.Empty;
+    var availabilityBanner = Model?.AvailabilityBanner;
+    var highCount = insights.Count(x => x.Priority == ActionCenterPriority.High);
+    var dueSoonThreshold = DateTime.Now.AddDays(3);
+    var dueSoonCount = insights.Count(x => x.DueAt.HasValue && x.DueAt.Value <= dueSoonThreshold);
+    var impactedAmount = insights.SelectMany(x => x.Timeline).Sum(x => x.Amount);
+    var categories = insights
+        .Select(x => x.Category)
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .Distinct(StringComparer.CurrentCultureIgnoreCase)
+        .OrderBy(x => x)
+        .Take(6)
+        .ToArray();
+
+    string FilterToken(string value)
+    {
+        var normalized = Regex.Replace(value.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+        return string.IsNullOrWhiteSpace(normalized) ? "general" : normalized;
+    }
+
+    string PriorityText(ActionCenterPriority p) =>
+        p switch
+        {
+            ActionCenterPriority.High => sharedLocalizer["Priority_High"].Value,
+            ActionCenterPriority.Medium => sharedLocalizer["Priority_Medium"].Value,
+            ActionCenterPriority.Low => sharedLocalizer["Priority_Low"].Value,
+            _ => sharedLocalizer["Priority_Info"].Value
+        };
+
+    string StatusText(ActionCenterStatus s) =>
+        s switch
+        {
+            ActionCenterStatus.Open => sharedLocalizer["Status_Open"].Value,
+            ActionCenterStatus.InProgress => sharedLocalizer["Status_InProgress"].Value,
+            _ => sharedLocalizer["Status_Done"].Value
+        };
+
+    string StatusClass(ActionCenterStatus s) =>
+        s switch
+        {
+            ActionCenterStatus.Open => "bg-danger-subtle text-danger",
+            ActionCenterStatus.InProgress => "bg-warning-subtle text-warning",
+            _ => "bg-success-subtle text-success"
+        };
+
+    string IconClass(string key, ActionCenterPriority priority)
+    {
+        return key switch
+        {
+            "unpaid-invoices" => "fas fa-file-invoice",
+            "orders-overdue-delivery" => "fas fa-exclamation-circle",
+            "orders-future-delivery" => "fas fa-calendar-alt",
+            "notifyme-due-now" => "fas fa-bell",
+            "notifyme-manual-action" => "fas fa-bell-slash",
+            "notifyme-stale-high-warning" => "fas fa-sliders",
+            "purchase-approvals" => "fas fa-file-signature",
+            "margin-drop" => "fas fa-chart-line",
+            "stockout-risk" => "fas fa-exclamation-triangle",
+            "customer-anomaly" => "fas fa-user-check",
+            "vendor-delay" => "fas fa-truck-loading",
+            "catalog-update" => "fas fa-book",
+            "overdue-maintenance" => "fas fa-tools",
+            _ => "fas fa-bolt"
+        };
+    }
+
+    string IconBoxClass(string key, ActionCenterPriority priority)
+    {
+        return priority switch
+        {
+            ActionCenterPriority.High => "bg-danger-subtle text-danger",
+            ActionCenterPriority.Medium => "bg-warning-subtle text-warning",
+            ActionCenterPriority.Low => "bg-primary-subtle text-primary",
+            _ => "bg-info-subtle text-info"
+        };
+    }
+
+    string PriorityBadgeClass(ActionCenterPriority p) =>
+        p switch
+        {
+            ActionCenterPriority.High => "bg-danger-subtle text-danger",
+            ActionCenterPriority.Medium => "bg-warning-subtle text-warning",
+            ActionCenterPriority.Low => "bg-primary-subtle text-primary",
+            _ => "bg-info-subtle text-info"
+        };
+}
+
+<div class="card kpi-card p-3 h-100 ac-card @(isFullPage ? "ac-card--workspace" : string.Empty)"
+     data-dashboard-action-center="true"
+     data-update-url="@Url.Action("UpdateStatus", "ActionCenter")"
+     data-summary-url="@Url.Action("Summary", "ActionCenter")">
+    <input type="hidden" class="ac-antiforgery" value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="dashboard-card-title m-0"><i class="fa fa-bolt text-warning me-2"></i>@sharedLocalizer["ActionCenter_Title"]</h5>
+        <span class="action-center-badge fw-bold text-white">@sharedLocalizer["ActionCenter_InsightsCount", total]@compactCountLabel</span>
+    </div>
+
+    @if (availabilityBanner is not null)
+    {
+        @await Html.PartialAsync("_ModuleBanner", availabilityBanner)
+    }
+
+    @if (isFullPage)
+    {
+        <div class="ac-summary-grid">
+            <div class="ac-summary-card">
+                <div class="ac-summary-label">@sharedLocalizer["ActionCenter_SummaryOpen"]</div>
+                <div class="ac-summary-value">@total</div>
+            </div>
+            <div class="ac-summary-card">
+                <div class="ac-summary-label">@sharedLocalizer["ActionCenter_SummaryCritical"]</div>
+                <div class="ac-summary-value">@highCount</div>
+            </div>
+            <div class="ac-summary-card">
+                <div class="ac-summary-label">@sharedLocalizer["ActionCenter_SummaryDueSoon"]</div>
+                <div class="ac-summary-value">@dueSoonCount</div>
+            </div>
+            <div class="ac-summary-card">
+                <div class="ac-summary-label">@sharedLocalizer["ActionCenter_SummaryImpact"]</div>
+                <div class="ac-summary-value">@($"{impactedAmount:N0} kr")</div>
+            </div>
+        </div>
+
+        <div class="ac-filterbar" aria-label="@sharedLocalizer["ActionCenter_FilterAria"]">
+            <button type="button" class="btn btn-sm btn-portal ac-filter active" data-ac-filter="all">@sharedLocalizer["ActionCenter_FilterAll"]</button>
+            <button type="button" class="btn btn-sm btn-portal btn-portal-outline ac-filter" data-ac-filter="priority-high">@sharedLocalizer["ActionCenter_FilterCritical"]</button>
+            <button type="button" class="btn btn-sm btn-portal btn-portal-outline ac-filter" data-ac-filter="due-soon">@sharedLocalizer["ActionCenter_FilterDueSoon"]</button>
+            @foreach (var category in categories)
+            {
+                <button type="button" class="btn btn-sm btn-portal btn-portal-outline ac-filter" data-ac-filter="category-@FilterToken(category)">@category</button>
+            }
+        </div>
+    }
+
+    @if (!insights.Any())
+    {
+        <div class="dashboard-empty-state">
+            <div class="dashboard-empty-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="dashboard-empty-title">@sharedLocalizer["ActionCenter_NoInsightsTitle"]</div>
+            <div class="dashboard-empty-subtitle">@sharedLocalizer["ActionCenter_NoInsightsSubtitle"]</div>
+        </div>
+    }
+    else
+    {
+        <div class="@(isFullPage ? "ac-workspace" : string.Empty)">
+            <div class="ac-queue">
+        <div class="list-group list-group-flush bg-transparent ac-list">
+            @foreach (var item in insights)
+            {
+                var ageDays = (DateTime.Now - item.DetectedAt).TotalDays;
+                var ageText = ageDays < 1
+                    ? sharedLocalizer["ActionCenter_AgeDays", 0].Value
+                    : sharedLocalizer["ActionCenter_AgeDays", (int)ageDays].Value;
+                var displayTitle = string.IsNullOrWhiteSpace(item.Title) ? item.Description : item.Title;
+                var maxTimelineCount = item.Timeline.Count == 0 ? 0 : item.Timeline.Max(x => x.Count);
+                if (string.IsNullOrWhiteSpace(displayTitle))
+                {
+                    displayTitle = item.Category;
+                }
+                var isDueSoon = item.DueAt.HasValue && item.DueAt.Value <= dueSoonThreshold;
+                var categoryToken = $"category-{FilterToken(item.Category)}";
+                var priorityToken = $"priority-{item.Priority.ToString().ToLowerInvariant()}";
+                var dueToken = isDueSoon ? "due-soon" : "due-later";
+                <div class="list-group-item bg-transparent action-item py-2 px-0 border-0"
+                     data-insight-id="@item.Key"
+                     data-title="@item.Title"
+                     data-description="@item.Description"
+                     data-category="@item.Category"
+                     data-priority="@item.Priority"
+                     data-detected="@item.DetectedAt.ToString("o")"
+                     data-ac-filter-terms="all @priorityToken @categoryToken @dueToken">
+                    <div class="ac-row ac-toggle">
+                        <div class="ac-icon">
+                            <div class="icon-box @IconBoxClass(item.Key, item.Priority)">
+                                <i class="@IconClass(item.Key, item.Priority) fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="ac-title">
+                            <div class="fw-bold ac-title-text" title="@displayTitle">@displayTitle</div>
+                            <div class="ac-title-meta" title="@item.DetectedAt.ToString("yyyy-MM-dd HH:mm", culture)">
+                                @item.DetectedAt.ToString("yyyy-MM-dd HH:mm", culture)
+                            </div>
+                        </div>
+                        <div class="ac-tags">
+                            <div class="ac-status">
+                                <span class="badge @StatusClass(item.Status) rounded-pill px-2 py-0 ac-tag-badge">@StatusText(item.Status)</span>
+                            </div>
+                            <div class="ac-mock">
+                                @if (item.IsMock)
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-0 ac-tag-badge">@sharedLocalizer["Mockup"]</span>
+                                }
+                            </div>
+                            <div class="ac-category">
+                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-0 ac-tag-badge">@item.Category</span>
+                            </div>
+                            <div class="ac-priority">
+                                <span class="badge @PriorityBadgeClass(item.Priority) rounded-pill px-2 py-0 ac-tag-badge">@PriorityText(item.Priority)</span>
+                            </div>
+                        </div>
+                        <div class="ac-chevron">
+                            <i class="fa fa-chevron-down text-muted"></i>
+                        </div>
+                    </div>
+                    <div class="ac-details d-none mt-2 ps-4">
+                        <p class="action-meta mb-2 mt-1">@item.Description</p>
+                        @if (item.Metrics.Count > 0)
+                        {
+                            <div class="ac-forecast-metrics mb-3">
+                                @foreach (var metric in item.Metrics)
+                                {
+                                    <div class="ac-forecast-metric">
+                                        <div class="ac-forecast-metric-label">@metric.Label</div>
+                                        <div class="ac-forecast-metric-value">@metric.Value</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (item.Timeline.Count > 0)
+                        {
+                            <div class="ac-forecast mb-3">
+                                <div class="ac-forecast-header">
+                                    <div class="ac-forecast-title">@sharedLocalizer["ActionCenter_ForecastTitle"]</div>
+                                    <div class="ac-forecast-meta">@sharedLocalizer["ActionCenter_ForecastMeta"]</div>
+                                </div>
+                                <div class="ac-forecast-grid">
+                                    @foreach (var point in item.Timeline)
+                                    {
+                                        var heightPercent = maxTimelineCount <= 0
+                                            ? 14
+                                            : Math.Max(14, (int)Math.Round((double)point.Count / maxTimelineCount * 100));
+                                        <div class="ac-forecast-point" title="@sharedLocalizer["ActionCenter_ForecastPointTitle", point.Label, point.Count, point.Amount.ToString("N0", culture)]">
+                                            <div class="ac-forecast-bar-wrap">
+                                                <div class="ac-forecast-bar" style="height:@heightPercent%;"></div>
+                                            </div>
+                                            <div class="ac-forecast-count">@point.Count</div>
+                                            <div class="ac-forecast-label">@point.Label</div>
+                                            <div class="ac-forecast-amount">@($"{point.Amount:N0} kr")</div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <p class="action-meta mb-1 mt-0">@sharedLocalizer["ActionCenter_Detected"]: @item.DetectedAt.ToString("yyyy-MM-dd HH:mm", culture)</p>
+                        @if (item.DueAt.HasValue)
+                        {
+                            <p class="action-meta mb-1 mt-0">@sharedLocalizer["ActionCenter_Sla"]: @item.DueAt.Value.ToString("yyyy-MM-dd HH:mm", culture)</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                        {
+                            <p class="action-meta mb-1 mt-0">@sharedLocalizer["ActionCenter_AssignedTo"]: @item.AssignedTo</p>
+                        }
+                        <p class="action-meta mb-2">@sharedLocalizer["ActionCenter_Unhandled"]: @ageText</p>
+                        @if (!string.IsNullOrWhiteSpace(item.LinkUrl) && !string.IsNullOrWhiteSpace(item.LinkText))
+                        {
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <a href="@item.LinkUrl" class="btn btn-sm btn-portal">@item.LinkText</a>
+                            </div>
+                        }
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-portal btn-portal-outline ac-mark-done"
+                                    data-insight-id="@item.Key">
+                                @sharedLocalizer["ActionCenter_MarkDone"]
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-portal btn-portal-outline ac-reopen"
+                                    data-insight-id="@item.Key">
+                                @sharedLocalizer["ActionCenter_Reopen"]
+                            </button>
+                        </div>
+                        <div class="ac-comment-box d-none mt-2">
+                            <label class="text-muted small mb-1">@sharedLocalizer["ActionCenter_CommentOptional"]</label>
+                            <textarea class="form-control form-control-sm ac-comment-input" rows="2" placeholder="@sharedLocalizer["ActionCenter_CommentPlaceholder"]"></textarea>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-portal ac-send-comment"
+                                        data-insight-id="@item.Key">
+                                    @sharedLocalizer["Send"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+            </div>
+
+            @if (isFullPage)
+            {
+                <aside class="ac-detail-panel" aria-live="polite">
+                    <div class="ac-detail-placeholder">
+                        <div class="dashboard-empty-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="dashboard-empty-title">@sharedLocalizer["ActionCenter_DetailPlaceholderTitle"]</div>
+                        <div class="dashboard-empty-subtitle">@sharedLocalizer["ActionCenter_DetailPlaceholderText"]</div>
+                    </div>
+
+                    @foreach (var item in insights)
+                    {
+                        var ageDays = (DateTime.Now - item.DetectedAt).TotalDays;
+                        var ageText = ageDays < 1
+                            ? sharedLocalizer["ActionCenter_AgeDays", 0].Value
+                            : sharedLocalizer["ActionCenter_AgeDays", (int)ageDays].Value;
+                        var displayTitle = string.IsNullOrWhiteSpace(item.Title) ? item.Description : item.Title;
+                        var maxTimelineCount = item.Timeline.Count == 0 ? 0 : item.Timeline.Max(x => x.Count);
+                        if (string.IsNullOrWhiteSpace(displayTitle))
+                        {
+                            displayTitle = item.Category;
+                        }
+
+                        <div class="ac-detail-content d-none" data-ac-detail-panel="@item.Key">
+                            <div class="ac-detail-eyebrow">@item.Category</div>
+                            <h3 class="ac-detail-title">@displayTitle</h3>
+                            <p class="ac-detail-description">@item.Description</p>
+                            <div class="ac-detail-status-row">
+                                <span class="badge @StatusClass(item.Status) rounded-pill ac-tag-badge">@StatusText(item.Status)</span>
+                                <span class="badge @PriorityBadgeClass(item.Priority) rounded-pill ac-tag-badge">@PriorityText(item.Priority)</span>
+                            </div>
+
+                            @if (item.Metrics.Count > 0)
+                            {
+                                <div class="ac-forecast-metrics ac-detail-metrics">
+                                    @foreach (var metric in item.Metrics)
+                                    {
+                                        <div class="ac-forecast-metric">
+                                            <div class="ac-forecast-metric-label">@metric.Label</div>
+                                            <div class="ac-forecast-metric-value">@metric.Value</div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            @if (item.Timeline.Count > 0)
+                            {
+                                <div class="ac-forecast ac-detail-forecast">
+                                    <div class="ac-forecast-header">
+                                        <div class="ac-forecast-title">@sharedLocalizer["ActionCenter_ForecastTitle"]</div>
+                                        <div class="ac-forecast-meta">@sharedLocalizer["ActionCenter_ForecastMeta"]</div>
+                                    </div>
+                                    <div class="ac-forecast-grid">
+                                        @foreach (var point in item.Timeline)
+                                        {
+                                            var heightPercent = maxTimelineCount <= 0
+                                                ? 14
+                                                : Math.Max(14, (int)Math.Round((double)point.Count / maxTimelineCount * 100));
+                                            <div class="ac-forecast-point" title="@sharedLocalizer["ActionCenter_ForecastPointTitle", point.Label, point.Count, point.Amount.ToString("N0", culture)]">
+                                                <div class="ac-forecast-bar-wrap">
+                                                    <div class="ac-forecast-bar" style="height:@heightPercent%;"></div>
+                                                </div>
+                                                <div class="ac-forecast-count">@point.Count</div>
+                                                <div class="ac-forecast-label">@point.Label</div>
+                                                <div class="ac-forecast-amount">@($"{point.Amount:N0} kr")</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <dl class="ac-detail-facts">
+                                <div>
+                                    <dt>@sharedLocalizer["ActionCenter_Detected"]</dt>
+                                    <dd>@item.DetectedAt.ToString("yyyy-MM-dd HH:mm", culture)</dd>
+                                </div>
+                                @if (item.DueAt.HasValue)
+                                {
+                                    <div>
+                                        <dt>@sharedLocalizer["ActionCenter_Sla"]</dt>
+                                        <dd>@item.DueAt.Value.ToString("yyyy-MM-dd HH:mm", culture)</dd>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                                {
+                                    <div>
+                                        <dt>@sharedLocalizer["ActionCenter_AssignedTo"]</dt>
+                                        <dd>@item.AssignedTo</dd>
+                                    </div>
+                                }
+                                <div>
+                                    <dt>@sharedLocalizer["ActionCenter_Unhandled"]</dt>
+                                    <dd>@ageText</dd>
+                                </div>
+                            </dl>
+
+                            <div class="ac-detail-actions">
+                                @if (!string.IsNullOrWhiteSpace(item.LinkUrl) && !string.IsNullOrWhiteSpace(item.LinkText))
+                                {
+                                    <a href="@item.LinkUrl" class="btn btn-sm btn-portal">@item.LinkText</a>
+                                }
+                                <button type="button"
+                                        class="btn btn-sm btn-portal btn-portal-outline ac-mark-done"
+                                        data-insight-id="@item.Key">
+                                    @sharedLocalizer["ActionCenter_MarkDone"]
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-portal btn-portal-outline ac-reopen"
+                                        data-insight-id="@item.Key">
+                                    @sharedLocalizer["ActionCenter_Reopen"]
+                                </button>
+                            </div>
+                            <div class="ac-comment-box d-none mt-3">
+                                <label class="text-muted small mb-1">@sharedLocalizer["ActionCenter_CommentOptional"]</label>
+                                <textarea class="form-control form-control-sm ac-comment-input" rows="2" placeholder="@sharedLocalizer["ActionCenter_CommentPlaceholder"]"></textarea>
+                                <div class="d-flex gap-2 mt-2">
+                                    <button type="button"
+                                            class="btn btn-sm btn-portal ac-send-comment"
+                                            data-insight-id="@item.Key">
+                                        @sharedLocalizer["Send"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </aside>
+            }
+        </div>
+    }
+</div>

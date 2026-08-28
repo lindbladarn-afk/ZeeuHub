@@ -1,0 +1,30 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    ViewData["Title"] = @localizer["PageHeader_ProductionDashboardAdmin"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page production-dashboard-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">ZeeU</div>
+            <h1 class="module-page-title">@localizer["PageHeader_ProductionDashboardAdmin"]</h1>
+            <div class="module-page-subtitle">@localizer["PageHeader_ProductionDashboardAdmin_SubTitle"]</div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Alert")
+
+    <div class="card kpi-card production-dashboard-shell">
+        <div class="card-body">
+            @await Html.PartialAsync("_CttProductionAdmin")
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+@model WebApp.ViewModels.Shared.ModuleUnavailableViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Model.ModuleLabel</div>
+            <h1 class="module-page-title">@Model.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(Model.Subtitle))
+            {
+                <div class="module-page-subtitle">@Model.Subtitle</div>
+            }
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_ModuleState", Model.State)
+</div>

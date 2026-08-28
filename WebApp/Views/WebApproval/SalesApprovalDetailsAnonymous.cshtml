@@ -1,0 +1,159 @@
+﻿@model Entities.ViewModels.WebApproval.WebApprovalSaleOrderVM
+
+@using Entities.Application
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.Services
+@using Microsoft.AspNetCore.Http
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+  // Anonymous sales approval uses the same hub-style shell as the authenticated detail page.
+  // The page stays lightweight, but the layout and actions match the rest of Web Approval.
+  ViewData["Title"] = localizer["PageName"];
+  ViewData["AppSidebarNone"] = "true";
+  ViewData["AppClass"] = "app-without-sidebar";
+  var orderRows = Model?.OrderRows?.ToList() ?? new System.Collections.Generic.List<Entities.ViewModels.WebApproval.WebApprovalSaleOrderRowVM>();
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/webapproval.css" asp-append-version="true" />
+}
+
+
+<div class="dashboard-readable module-page webapproval-anonymous-page webapproval-module">
+	<div class="module-page-header">
+		<div>
+			<div class="dashboard-card-title">Web Approval</div>
+			<h1 class="module-page-title">@localizer["PageHeader_SalesApproval"]</h1>
+			<div class="module-page-subtitle">@localizer["PageHeader_SalesApproval_SubTitle"]</div>
+			<div class="module-page-meta">@Model?.CustomerName · @localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	@using (Html.BeginForm())
+	{
+		@Html.AntiForgeryToken()
+		@Html.HiddenFor(u => u.Id)
+		<div id="approval-details" class="approval-shell card kpi-card p-3 p-lg-4">
+			<div class="row g-3 mb-3">
+				<div class="col-12 col-xl-4">
+					<div class="card kpi-card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_To"]</div>
+							<div class="approval-meta-value mt-1">@Model?.CustomerName</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_CustomerReference"] @Model?.CustomerReference</div>
+							<div class="approval-meta-note">@Model?.DeliveryAddress2</div>
+							<div class="approval-meta-note">@Model?.DeliveryAddress3</div>
+							<div class="approval-meta-note">@Model?.DeliveryAddress4</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-xl-4">
+					<div class="card kpi-card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_From"]</div>
+							<div class="approval-meta-value mt-1">@localizer["Header_SalesPerson"] @Model?.SalesReference</div>
+							<div class="approval-meta-note">@localizer["Header_Approver"] @Model?.AttestantName</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-xl-4">
+					<div class="card kpi-card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_OrderDetails"]</div>
+							<div class="approval-meta-value mt-1">@localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_OrderType"] @Model?.OrderType</div>
+							<div class="approval-meta-note">@localizer["Header_RegistrationDate"] @Model?.OrderRegisteredDate</div>
+							<div class="approval-meta-note">@localizer["Header_DeliveryDate"] @Model?.OrderEstimatedDeliveryDate</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card kpi-card mb-3">
+				<div class="card-body">
+					<div class="dashboard-card-title mb-2">@localizer["Header_OrderDetails"]</div>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle approval-table">
+							<thead>
+								<tr>
+									<th class="text-center" width="10%">@localizer["Header_Row"]</th>
+									<th class="text-left">@localizer["Header_Article"]</th>
+									<th class="text-left" width="10%">@localizer["Header_Quantity"]</th>
+									<th class="text-left" width="10%">@localizer["Header_Price"]</th>
+									<th class="text-left" width="10%">@localizer["Header_Discount"]</th>
+									<th class="text-left" width="10%">@localizer["Header_DeliveryDay"]</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < orderRows.Count; i++)
+								{
+									<tr>
+										<td class="text-center">@Html.DisplayFor(u => u.OrderRows[i].OrderRowNumber)</td>
+										<td>
+											<div class="approval-row-article">@Html.DisplayFor(u => u.OrderRows[i].ArticleNumber)</div>
+											<div class="approval-row-subtitle">@Html.DisplayFor(u => u.OrderRows[i].ArticleDescription)</div>
+										</td>
+										<td class="text-center">@Html.DisplayFor(u => u.OrderRows[i].Quantity)</td>
+										<td class="text-center">@Html.DisplayFor(u => u.OrderRows[i].Price)</td>
+										<td class="text-center">@Html.DisplayFor(u => u.OrderRows[i].Discount)</td>
+										<td class="text-end">@Html.DisplayFor(u => u.OrderRows[i].DeliveryDate)</td>
+									</tr>
+
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="row g-3 mb-3">
+				<div class="col-12 col-lg-5">
+					<div class="card kpi-card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_SalesValue"] (@Html.DisplayFor(u => u.Currency))</div>
+							<div class="approval-total-amount mt-2">@Html.DisplayFor(u => u.OrderValueLocal)</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_SalesValueLocal"] @Html.DisplayFor(u => u.OrderValue)</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-lg-7">
+					<div class="card kpi-card h-100">
+						<div class="card-body">
+							<div class="dashboard-card-title mb-2">@localizer["Approve_Question"]</div>
+							<div class="text-muted">@localizer["Approve_Message"]</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card kpi-card">
+				<div class="card-body">
+					<div class="d-flex flex-column gap-3">
+						<div>
+							<div class="dashboard-card-title mb-1">@localizer["Approve_Question"]</div>
+							<div class="text-muted">@localizer["Approve_Message"]</div>
+						</div>
+						<div>
+							<label asp-for="Message" class="form-label mb-1">@localizer["Approve_Message"]</label>
+							@Html.TextBoxFor(u => u.Message, new { @class = "form-control approval-message", placeholder = "Skriv ett meddelande..." })
+						</div>
+						<div class="approval-actions">
+							<button name="action" type="submit" class="btn btn-portal" value="1">@sharedLocalizer["Approve"]</button>
+							<button name="action" type="submit" class="btn btn-portal-danger-outline" value="2">@sharedLocalizer["Reject"]</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+</div>

@@ -1,0 +1,143 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeHistoryPageVm
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // NotifyMe history page aligned with the shared module-page shell and table presentation.
+    ViewData["Title"] = sharedLocalizer["History"];
+    ViewData["NotifyMeSection"] = "overview";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-history-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@sharedLocalizer["History"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["NotifyMe_HistorySubtitle"]</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" asp-action="NotifyMe">@sharedLocalizer["NotifyMe_BackToOverview"]</a>
+        </div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = Model.IsInstalled ? sharedLocalizer["NotifyMe_StatusTitle"] : sharedLocalizer["NotifyMe_RequiresAttentionTitle"],
+            Message = Model.StatusMessage,
+            Tone = Model.IsInstalled ? "info" : "warning",
+            IconClass = Model.IsInstalled ? "fa fa-circle-info" : "fa fa-triangle-exclamation"
+        })
+    }
+
+    <div class="card kpi-card p-2 module-shell-divider">
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+            <div>
+                <div class="dashboard-card-title">@sharedLocalizer["History"]</div>
+                <div class="module-page-meta">@sharedLocalizer["NotifyMe_HistoryTotalHits", Model.TotalHistoryEntries]</div>
+            </div>
+        </div>
+
+        @* History remains explicit-submit because both notification scope and free-text search can change the query cost materially. *@
+        <form method="get" asp-action="History" class="mb-3 module-filter-card p-2">
+            <div class="notifyme-history-grid">
+                <select class="form-select" name="historyNotificationId">
+                    <option value="">@sharedLocalizer["NotifyMe_AllNotifications"]</option>
+                    @foreach (var option in Model.Filters.HistoryNotificationOptions)
+                    {
+                        var selected = Model.Filters.HistoryNotificationId?.ToString() == option.Value;
+                        <option value="@option.Value" selected="@selected">@option.Label</option>
+                    }
+                </select>
+                <input class="form-control" type="text" name="historySearch" value="@Model.Filters.HistorySearch" placeholder="@sharedLocalizer["NotifyMe_HistorySearchPlaceholder"]" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-portal">@sharedLocalizer["Filter"]</button>
+                    <a class="btn btn-portal btn-portal-outline" asp-action="History">@sharedLocalizer["Filter_Clear"]</a>
+                </div>
+            </div>
+        </form>
+
+        @if (Model.HistoryEntries.Count == 0)
+        {
+            @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+            {
+                Title = sharedLocalizer["NotifyMe_NoHistoryMatchesFilterTitle"],
+                Message = sharedLocalizer["NotifyMe_NoHistoryMatchesFilterMessage"],
+                Tone = "neutral",
+                IconClass = "fa fa-clock-rotate-left",
+                Compact = true
+            })
+        }
+        else
+        {
+            <div class="table-responsive notifyme-history-table module-table module-table-shell">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@sharedLocalizer["Time"]</th>
+                            <th>@sharedLocalizer["Status"]</th>
+                            <th>@sharedLocalizer["NotifyMe_Notification"]</th>
+                            <th>@sharedLocalizer["NotifyMe_Subject"]</th>
+                            <th>@sharedLocalizer["Recipients"]</th>
+                            <th>@sharedLocalizer["Schedule"]</th>
+                            <th>@sharedLocalizer["NotifyMe_Preview"]</th>
+                            <th class="text-end">@sharedLocalizer["Action"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var log in Model.HistoryEntries)
+                    {
+                        <tr>
+                            <td>@(log.SentAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                            <td><span class="badge bg-@log.ExecutionStatusTone">@log.ExecutionStatus</span></td>
+                            <td>
+                                <div class="notifyme-table-title">@log.NotificationId</div>
+                                <div class="notifyme-table-meta">@log.NotificationDescription</div>
+                            </td>
+                            <td class="notifyme-table-title">@log.Subject</td>
+                            <td>@log.Recipients</td>
+                            <td><span class="module-inline-pill">@log.SchemaCode</span></td>
+                            <td><div class="notifyme-preview">@log.HtmlPreviewText</div></td>
+                            <td class="text-end">
+                                <a class="btn btn-portal btn-portal-outline btn-sm" asp-action="Detail" asp-route-id="@log.NotificationId">@sharedLocalizer["View"]</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-3">
+                <div class="module-page-meta">
+                    @* History stays paged to keep query cost and render size bounded even for noisy tenants. *@
+                    @sharedLocalizer["Orders_PageOf", Model.Pagination.Page, Model.Pagination.TotalPages]
+                </div>
+                <div class="d-flex gap-2">
+                    @if (Model.Pagination.HasPreviousPage)
+                    {
+                        <a class="btn btn-portal btn-portal-outline btn-sm"
+                           asp-action="History"
+                           asp-route-historyNotificationId="@Model.Filters.HistoryNotificationId"
+                           asp-route-historySearch="@Model.Filters.HistorySearch"
+                           asp-route-page="@(Model.Pagination.Page - 1)">@sharedLocalizer["Previous"]</a>
+                    }
+                    @if (Model.Pagination.HasNextPage)
+                    {
+                        <a class="btn btn-portal btn-portal-outline btn-sm"
+                           asp-action="History"
+                           asp-route-historyNotificationId="@Model.Filters.HistoryNotificationId"
+                           asp-route-historySearch="@Model.Filters.HistorySearch"
+                           asp-route-page="@(Model.Pagination.Page + 1)">@sharedLocalizer["Next"]</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

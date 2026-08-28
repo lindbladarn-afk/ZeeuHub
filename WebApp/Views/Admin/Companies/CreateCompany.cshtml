@@ -1,0 +1,120 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Entities.ViewModels.Admin
+@using WebApp.ViewModels.Shared
+@model AdminCreateCompanyViewModel
+
+@inject IViewLocalizer Localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    // Create company follows the same admin/module shell as list and manage views so onboarding feels consistent end-to-end.
+    ViewData["Title"] = Localizer["Skapa bolag"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page admin-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">@Localizer["Admin"]</div>
+        <h1 class="module-page-title">@Localizer["Skapa bolag"]</h1>
+        <div class="module-page-subtitle">@Localizer["Lägg till nytt bolag i Identity och förbered anslutningen för vidare onboarding."]</div>
+        <div class="module-page-meta">@Localizer["Skapa först bolaget här, öppna sedan bolaget i admin för att lägga anslutningar och modulåtkomst."]</div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+{
+    Title = "Guide för nytt bolag",
+    Message = "Skapa bolaget här först, koppla sedan rätt Jeeves-anslutning och öppna bolaget i admin för vidare onboarding.",
+    Note = "Sätt gärna standard ForetagKod om bolaget ska kunna användas utan PersSign.",
+    Tone = "info",
+    IconClass = "fa fa-info-circle"
+})
+
+@await Html.PartialAsync("_Alert")
+
+<div class="row">
+    <div class="col-lg-8 col-md-10">
+        <div class="admin-panel">
+            <div class="admin-section-heading">@Localizer["Nytt bolag"]</div>
+                <form asp-action="CreateCompany" method="post" novalidate>
+
+                    <!-- Hidden – skickas till backend -->
+                    <input type="hidden" asp-for="CompanyId" />
+                    <input type="hidden" asp-for="ConnectionStringId" />
+                    <input type="hidden" asp-for="EnvironmentVariableName" />
+
+                    <!-- Company name -->
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <!-- Company ID (read-only) -->
+                    <div class="mb-3">
+                        <label class="form-label">Company ID</label>
+                        <input class="form-control" value="@Model.CompanyId" disabled />
+                        <span class="admin-help-copy d-block mt-1">
+                            Detta ID används internt i Identity, SQL, loggar och integrationer.
+                        </span>
+                    </div>
+
+                    <!-- Database name (valfri metadata) -->
+                    <div class="mb-3">
+                        <label asp-for="DatabaseName" class="form-label"></label>
+                        <input asp-for="DatabaseName" class="form-control" />
+                        <span class="admin-help-copy d-block mt-1">
+                            Valfritt. Används endast som metadata för att beskriva databasen.
+                        </span>
+                        <span asp-validation-for="DatabaseName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DefaultJeevesCompanyCode" class="form-label"></label>
+                        <input asp-for="DefaultJeevesCompanyCode" class="form-control" type="number" min="0" />
+                        <span class="admin-help-copy d-block mt-1">
+                            Valfritt. Om satt används denna ForetagKod som aktivt Jeeves-bolag för whitelistade användare utan PersSign.
+                        </span>
+                        <span asp-validation-for="DefaultJeevesCompanyCode" class="text-danger"></span>
+                    </div>
+
+                    <!-- Connection string info (read-only) -->
+                    <div class="mb-3">
+                        <label class="form-label">Connection string</label>
+                        <input class="form-control" value="Local Development (standard)" disabled />
+                        <span class="admin-help-copy d-block mt-1">
+                            Connection string sätts utanför Huben via Azure App Settings, Key Vault reference eller Docker environment variable.
+                        </span>
+                    </div>
+
+                    <!-- Env var key -->
+                    <div class="mb-3">
+                        <label class="form-label">Environment variable key</label>
+                        <input class="form-control font-monospace" value="@Model.EnvironmentVariableName" disabled />
+                        <span class="admin-help-copy d-block mt-1">
+                            Sätt denna environment variable till rätt connection string i aktuell driftmiljö.
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 mt-4">
+                        <a class="btn btn-portal btn-portal-outline" asp-action="Companies">
+                            @sharedLocalizer["Back"]
+                        </a>
+                        <button type="submit" class="btn btn-portal">
+                            @Localizer["Skapa bolag"]
+                        </button>
+                    </div>
+
+                </form>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />
+</div>

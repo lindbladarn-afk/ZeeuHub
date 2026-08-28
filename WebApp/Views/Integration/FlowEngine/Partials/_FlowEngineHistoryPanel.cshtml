@@ -1,0 +1,211 @@
+@model WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+
+<div class="card shadow-sm border-0 flowengine-surface-card flowengine-history-card" id="@Model.CardId">
+    <div class="card-body">
+        <div class="flowengine-history-header">
+            <div>
+                <div class="dashboard-card-title mb-2">@Model.Title</div>
+                <div class="module-page-meta">@Model.Subtitle</div>
+            </div>
+
+            @if (Model.EnableFilters)
+            {
+                <div class="flowengine-popover-anchor">
+                    <button type="button"
+                            class="btn btn-sm btn-portal btn-portal-outline flowengine-history-filter-btn"
+                            data-fe-toggle="dashboard-history-filters">
+                        <i class="fa fa-filter me-1"></i> Filters
+                        @{
+                            var activeFilterCount = 0;
+                            if (!string.IsNullOrWhiteSpace(Model.Filters.System)) activeFilterCount++;
+                            if (!string.IsNullOrWhiteSpace(Model.Filters.Operation)) activeFilterCount++;
+                            if (!string.IsNullOrWhiteSpace(Model.Filters.Status)) activeFilterCount++;
+                            if (!string.IsNullOrWhiteSpace(Model.Filters.DateStart)) activeFilterCount++;
+                            if (!string.IsNullOrWhiteSpace(Model.Filters.DateEnd)) activeFilterCount++;
+                        }
+                        <span class="flowengine-chip-count flowengine-history-filter-count" data-fe-dashboard-filter-count @(activeFilterCount == 0 ? "hidden" : null)>@(activeFilterCount == 0 ? string.Empty : activeFilterCount)</span>
+                    </button>
+
+                    <form method="get"
+                          asp-action="@Model.SelectedJobAction"
+                          class="flowengine-popover flowengine-history-filters-popover"
+                          data-fe-popover="dashboard-history-filters"
+                          data-fe-dashboard-filter-form
+                          hidden>
+                        <input type="hidden" name="historyPage" value="1" />
+
+                        <div class="flowengine-history-filters-head">
+                            <span class="flowengine-popover-title">History Filters</span>
+                            <a asp-action="@Model.SelectedJobAction"
+                               asp-fragment="@Model.Fragment"
+                               class="btn btn-sm btn-portal btn-portal-outline"
+                               data-fe-dashboard-filter-reset>
+                                Reset
+                            </a>
+                        </div>
+
+                        <div class="flowengine-history-filter-row">
+                            <span class="flowengine-history-filter-label">System</span>
+                            <select class="form-select flowengine-history-filter-select" name="historySystem" data-fe-dashboard-filter-system>
+                                <option value="all">All Systems</option>
+                                @foreach (var system in Model.AvailableSystems)
+                                {
+                                    <option value="@system" selected="@(string.Equals(Model.Filters.System, system, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@system</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="flowengine-history-filter-row">
+                            <span class="flowengine-history-filter-label">Operation</span>
+                            <select class="form-select flowengine-history-filter-select" name="historyOperation" data-fe-dashboard-filter-operation>
+                                <option value="all">All Operations</option>
+                                @foreach (var operation in Model.AvailableOperations)
+                                {
+                                    <option value="@operation" selected="@(string.Equals(Model.Filters.Operation, operation, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@operation</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="flowengine-history-filter-row">
+                            <span class="flowengine-history-filter-label">Status</span>
+                            <select class="form-select flowengine-history-filter-select" name="historyStatus" data-fe-dashboard-filter-status>
+                                <option value="all">All Statuses</option>
+                                @foreach (var status in Model.AvailableStatuses)
+                                {
+                                    <option value="@status" selected="@(string.Equals(Model.Filters.Status, status, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="flowengine-history-filter-divider"></div>
+
+                        <div class="flowengine-history-filter-row flowengine-history-filter-row--date">
+                            <span class="flowengine-history-filter-label">Date</span>
+                            <div class="flowengine-history-filter-date-grid">
+                                <input type="date" class="form-control" name="historyDateStart" value="@Model.Filters.DateStart" data-fe-dashboard-filter-date-start />
+                                <input type="date" class="form-control" name="historyDateEnd" value="@Model.Filters.DateEnd" data-fe-dashboard-filter-date-end />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }
+        </div>
+
+        @if (WebApp.Models.Integration.FlowEngineJobPresentation.HasFallbackStorage(Model.Jobs))
+        {
+            <div class="flowengine-history-warning">
+                <i class="fa fa-triangle-exclamation"></i>
+                <span>@(WebApp.Models.Integration.FlowEngineJobPresentation.GetFallbackWarning(Model.Jobs) ?? "History is temporarily using in-memory fallback mode and may not survive an app restart.")</span>
+            </div>
+        }
+
+        @if (Model.Jobs.Count == 0)
+        {
+            <div class="module-page-meta">@Model.EmptyMessage</div>
+        }
+        else
+        {
+            <div class="flowengine-history-table-wrap">
+                <table class="table flowengine-history-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            @if (Model.ShowSystemColumn)
+                            {
+                                <th>System</th>
+                            }
+                            <th>Operation</th>
+                            <th>Status</th>
+                            <th>Start</th>
+                            <th>Ended</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var job in Model.Jobs)
+                        {
+                            var systemLabel = WebApp.Models.Integration.FlowEngineJobPresentation.GetSystemLabel(job);
+                            var statusText = WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusLabel(job.Status);
+                            var localCreated = job.CreatedAtUtc.ToLocalTime();
+
+                            <tr>
+                                <td>@job.Id.ToString("N")[..8].ToUpperInvariant()</td>
+                                @if (Model.ShowSystemColumn)
+                                {
+                                    <td>@systemLabel</td>
+                                }
+                                <td>@job.UiLabel</td>
+                                <td>
+                                    <div class="flowengine-job-status-group">
+                                        @foreach (var chip in WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusChips(job))
+                                        {
+                                            <span class="@chip.CssClass">
+                                                <span class="flowengine-job-status-dot" aria-hidden="true"></span>
+                                                <span>@chip.Label</span>
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>@localCreated.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                <td>@(job.FinishedAtUtc?.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss") ?? "-")</td>
+                                <td>
+                                    <a asp-action="FlowEngineJobModal"
+                                       asp-controller="Integration"
+                                       asp-route-jobId="@job.Id"
+                                       class="btn btn-sm btn-portal btn-portal-outline flowengine-history-view-btn">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.EnableFilters)
+            {
+                <div class="module-page-meta mt-3" data-fe-dashboard-history-empty @(Model.Jobs.Count == 0 ? null : "hidden")>No history entries match the selected filters.</div>
+            }
+
+            @if (Model.TotalPages > 1)
+            {
+                var previousPage = Math.Max(1, Model.CurrentPage - 1);
+                var nextPage = Math.Min(Model.TotalPages, Model.CurrentPage + 1);
+
+                <div class="flowengine-history-pager">
+                    <div class="module-page-meta">
+                        Visar @(((Model.CurrentPage - 1) * Model.PageSize) + 1)-@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount) av @Model.TotalCount
+                    </div>
+                    <div class="flowengine-history-pager-actions">
+                        <a asp-action="@Model.SelectedJobAction"
+                           asp-route-historyPage="@previousPage"
+                           asp-route-historySystem="@Model.Filters.System"
+                           asp-route-historyOperation="@Model.Filters.Operation"
+                           asp-route-historyStatus="@Model.Filters.Status"
+                           asp-route-historyDateStart="@Model.Filters.DateStart"
+                           asp-route-historyDateEnd="@Model.Filters.DateEnd"
+                           asp-fragment="@Model.Fragment"
+                           class="btn btn-sm btn-portal btn-portal-outline @(Model.CurrentPage <= 1 ? "disabled" : null)"
+                           aria-disabled="@(Model.CurrentPage <= 1 ? "true" : "false")">
+                            Föregående
+                        </a>
+                        <span class="flowengine-history-pager-label">Sida @Model.CurrentPage av @Model.TotalPages</span>
+                        <a asp-action="@Model.SelectedJobAction"
+                           asp-route-historyPage="@nextPage"
+                           asp-route-historySystem="@Model.Filters.System"
+                           asp-route-historyOperation="@Model.Filters.Operation"
+                           asp-route-historyStatus="@Model.Filters.Status"
+                           asp-route-historyDateStart="@Model.Filters.DateStart"
+                           asp-route-historyDateEnd="@Model.Filters.DateEnd"
+                           asp-fragment="@Model.Fragment"
+                           class="btn btn-sm btn-portal btn-portal-outline @(Model.CurrentPage >= Model.TotalPages ? "disabled" : null)"
+                           aria-disabled="@(Model.CurrentPage >= Model.TotalPages ? "true" : "false")">
+                            Nästa
+                        </a>
+                    </div>
+                </div>
+            }
+
+        }
+    </div>
+</div>

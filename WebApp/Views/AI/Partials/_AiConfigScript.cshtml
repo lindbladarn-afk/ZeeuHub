@@ -1,0 +1,45 @@
+@* Exposes localized Intelligence UI copy to the client bundle. *@
+@model WebApp.Controllers.AIController.AiViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<script>
+    window.ZeeUAI_CONFIG = {
+        source: "@(ViewData["AiQuerySource"]?.ToString() ?? "intelligence")",
+        selectedDataSourceKey: "@(Model?.SelectedDataSourceKey ?? string.Empty)",
+        strings: {
+            busyText: "@Localizer["Arbetar..."]",
+            readyText: "@Localizer["Redo"]",
+            errorBubble: "@Localizer["Ett oväntat fel uppstod. Försök igen om en stund."]",
+            errorStatus: "@Localizer["Fel!"]",
+            retry: "@Localizer["Försök igen"]",
+            feedbackThanks: "@Localizer["Tack för feedbacken."]",
+            feedbackError: "@Localizer["Feedbacken kunde inte sparas. Försök igen."]",
+            vizNeedData: "@Localizer["Ingen lämplig data hittades för grafisk visualisering (behöver minst två kolumner och rader)."]",
+            vizNoNumeric: "@Localizer["Data innehåller inga kvantitativa värden som kan visualiseras i ett diagram."]",
+            vizDefault: "@Localizer["Visualiseringar visas här när AI:n kan generera data som lämpar sig för grafer (t.ex. tidsserier, jämförelser)."]",
+            noColumns: "@Localizer["Resultatet innehåller inga kolumner."]",
+            noColumnsMenu: "@Localizer["Ingen kolumn att visa."]",
+            truncatedNote: "@Localizer["Visar trunkerat resultat (maxrader). Förfina frågan för fler/specifika rader."]",
+            rowsLabel: "@Localizer["Rader"]",
+            columnsLabel: "@Localizer["Kolumner"]",
+            updatedLabel: "@Localizer["Senast uppdaterad"]",
+            noTableMeta: "@Localizer["Ingen tabell."]",
+            noTableFromAnswer: "@Localizer["Frågan resulterade inte i en tabell. Svaret visas ovan."]",
+            noDataReturned: "@Localizer["Ingen data returnerades."]",
+            vizPer: "@Localizer["per"]",
+            vizTitle: "@Localizer["Visualisering"]",
+            showMoreRows: "@Localizer["Visa fler rader"]",
+            refine: "@Localizer["Förfina fråga"]",
+            gotoTable: "@Localizer["Gå till tabell"]",
+            manualMode: "@Localizer["Skriv egna SELECT-frågor mot databasen (max 200 rader)."]",
+            assistedMode: "@Localizer["Ställ naturliga språkfrågor för att hämta och analysera data."]",
+            runningSql: "@Localizer["Kör fråga..."]",
+            done: "@Localizer["Klar."]",
+            doneNoData: "@Localizer["Klar (ingen data)."]",
+            sqlError: "@Localizer["Fel vid körning av SQL-frågan."]",
+            errorPrefix: "@Localizer["Ett fel uppstod:"]",
+            showMore: "@Localizer["Visa mer"]"
+        }
+    };
+</script>

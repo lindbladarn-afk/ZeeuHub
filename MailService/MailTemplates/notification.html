@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8"> <!-- utf-8 works for most cases -->
+    <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
+    <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+
+    <!-- CSS Reset : BEGIN -->
+    <style>
+
+        /* What it does: Remove spaces around the email design added by some email clients. */
+        /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            background: #f1f1f1;
+        }
+
+        /* What it does: Stops email clients resizing small text. */
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* What it does: Centers email on Android 4.4 */
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+
+        /* What it does: Stops Outlook from adding extra spacing to tables. */
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        /* What it does: Fixes webkit padding issue. */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+
+        /* What it does: Uses a better rendering method when resizing images in IE. */
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+        a {
+            text-decoration: none;
+        }
+
+        /* What it does: A work-around for email clients meddling in triggered links. */
+        *[x-apple-data-detectors], /* iOS */
+        .unstyle-auto-detected-links *,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+
+        /* What it does: Prevents Gmail from changing the text color in conversation threads. */
+        .im {
+            color: inherit !important;
+        }
+
+        /* If the above doesn't work, add a .g-img class to any image in question. */
+        img.g-img + div {
+            display: none !important;
+        }
+
+        /* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */
+        /* Create one of these media queries for each additional viewport size you'd like to fix */
+
+        /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
+        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+            u ~ div .email-container {
+                min-width: 320px !important;
+            }
+        }
+        /* iPhone 6, 6S, 7, 8, and X */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+            u ~ div .email-container {
+                min-width: 375px !important;
+            }
+        }
+        /* iPhone 6+, 7+, and 8+ */
+        @media only screen and (min-device-width: 414px) {
+            u ~ div .email-container {
+                min-width: 414px !important;
+            }
+        }
+    </style>
+
+    <!-- CSS Reset : END -->
+    <!-- Progressive Enhancements : BEGIN -->
+    <style>
+
+        .primary {
+            background: #30e3ca;
+        }
+
+        .bg_white {
+            background: #ffffff;
+        }
+
+        .bg_light {
+            background: #fafafa;
+        }
+
+        .bg_black {
+            background: #000000;
+        }
+
+        .bg_dark {
+            background: rgba(0,0,0,.8);
+        }
+
+        .email-section {
+            padding: 2.5em;
+        }
+
+        /*BUTTON*/
+        .btn {
+            padding: 10px 15px;
+            display: inline-block;
+        }
+
+            .btn.btn-primary {
+                border-radius: 5px;
+                background: #42c2ed;
+                color: #ffffff;
+            }
+
+            .btn.btn-white {
+                border-radius: 5px;
+                background: #ffffff;
+                color: #000000;
+            }
+
+            .btn.btn-white-outline {
+                border-radius: 5px;
+                background: transparent;
+                border: 1px solid #fff;
+                color: #fff;
+            }
+
+            .btn.btn-black-outline {
+                border-radius: 0px;
+                background: transparent;
+                border: 2px solid #000;
+                color: #000;
+                font-weight: 700;
+            }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Lato', sans-serif;
+            color: #000000;
+            margin-top: 0;
+            font-weight: 400;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            font-weight: 400;
+            font-size: 15px;
+            line-height: 1.8;
+            color: rgba(0,0,0,.4);
+        }
+
+        a {
+            color: #349BBD;
+        }
+
+        table {
+        }
+        /*LOGO*/
+
+        .logo h1 {
+            margin: 0;
+        }
+
+            .logo h1 a {
+                color: #42c2ed;
+                font-size: 24px;
+                font-weight: 700;
+                font-family: 'Lato', sans-serif;
+            }
+
+        /*HERO*/
+        .hero {
+            position: relative;
+            z-index: 0;
+        }
+
+            .hero .text {
+                color: rgba(0,0,0,.3);
+            }
+
+                .hero .text h2 {
+                    color: #000;
+                    font-size: 40px;
+                    margin-bottom: 0;
+                    font-weight: 400;
+                    line-height: 1.4;
+                }
+
+                .hero .text h3 {
+                    font-size: 24px;
+                    font-weight: 300;
+                }
+
+                .hero .text h2 span {
+                    font-weight: 600;
+                    color: #30e3ca;
+                }
+
+
+        /*HEADING SECTION*/
+        .heading-section {
+        }
+
+            .heading-section h2 {
+                color: #000000;
+                font-size: 28px;
+                margin-top: 0;
+                line-height: 1.4;
+                font-weight: 400;
+            }
+
+            .heading-section .subheading {
+                margin-bottom: 20px !important;
+                display: inline-block;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(0,0,0,.4);
+                position: relative;
+            }
+
+                .heading-section .subheading::after {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: -10px;
+                    content: '';
+                    width: 100%;
+                    height: 2px;
+                    background: #30e3ca;
+                    margin: 0 auto;
+                }
+
+        .heading-section-white {
+            color: rgba(255,255,255,.8);
+        }
+
+            .heading-section-white h2 {
+                line-height: 1;
+                padding-bottom: 0;
+            }
+
+            .heading-section-white h2 {
+                color: #ffffff;
+            }
+
+            .heading-section-white .subheading {
+                margin-bottom: 0;
+                display: inline-block;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(255,255,255,.4);
+            }
+
+
+        ul.social {
+            padding: 0;
+        }
+
+            ul.social li {
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+        /*FOOTER*/
+
+        .footer {
+            border-top: 1px solid rgba(0,0,0,.05);
+            color: rgba(0,0,0,.5);
+        }
+
+            .footer .heading {
+                color: #000;
+                font-size: 20px;
+            }
+
+            .footer ul {
+                margin: 0;
+                padding: 0;
+            }
+
+                .footer ul li {
+                    list-style: none;
+                    margin-bottom: 10px;
+                }
+
+                    .footer ul li a {
+                        color: rgba(0,0,0,1);
+                    }
+
+
+        @media screen and (max-width: 500px) {
+        }
+    </style>
+
+
+</head>
+
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f1f1f1;">
+    <center style="width: 100%; background-color: #f1f1f1;">
+        <div style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
+            &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+        </div>
+        <div style="max-width: 600px; margin: 0 auto;" class="email-container">
+            <!-- BEGIN BODY -->
+            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
+                <tr>
+                    <td valign="top" class="bg_white" style="padding: 1em 2.5em 1em 2.5em;">
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td class="logo" style="text-align: center;">
+                                    <h1><a href="#">ZeeU Customer Portal</a></h1>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="hero bg_white" style="text-align:center; padding: 2em 0 4em 0;">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="text" style="padding: 0 2.5em; text-align: left;">
+                                        <h2>{{HEADER}}</h2>
+                                        <p>{{TEXT}}</p>
+                                        <p>{{ERROR_MESSAGE}}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- 1 Column Text + Button : END -->
+            </table>
+            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
+                <tr>
+                    <td valign="middle" class="bg_light footer email-section" style="text-align:center">
+                        <table>
+                            <tr>
+                                <td valign="top" width="33.333%" style="padding: 20px 0 1em 0;">
+                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="text-align: center">
+                                                <p>ZeeU AB</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center">
+                                                <p>info@zeeu.se</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center;padding:10px 0 20px 0;">
+                                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAAAeCAMAAACbv/lKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmVkYTJiM2ZhYywgMjAyMS8xMS8xNy0xNzoyMzoxOSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjEgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjFGMDRCN0QzNzU0NTExRUM4RERGQTYzMDdERTFDN0NDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjFGMDRCN0Q0NzU0NTExRUM4RERGQTYzMDdERTFDN0NDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MUYwNEI3RDE3NTQ1MTFFQzhEREZBNjMwN0RFMUM3Q0MiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MUYwNEI3RDI3NTQ1MTFFQzhEREZBNjMwN0RFMUM3Q0MiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4U5uwRAAABgFBMVEXBCAi2traSkpIbGxu+AAD33NzuurrCwsKdnZ0jIyOCgoJ9fX1KSkoxMTGJiYng4ODZ2dmlpaXJJSX66urOzs7MzMz29vZDQ0Prq6vd3d3EEhLwwcG/v7+ZmZm4uLgSEhKNjY3yycn09PSpqanu7u7r6+v45OTn5+fj4+MJCQk8PDzoo6P99/fIyMi6urppaWn+/PyysrKtra12dnagoKAuLi7++vrGxsb55uYpKSmwsLBWVlYEBATNMjJRUVFzc3NfX182NjbYX1+6AABaWlr+/v79/f29AAC8AACUlJT//v7////U1NTo6Ojbbm767e3xxsb7+/vklJT5+fn4+Pj8/Pzx8fHl5eXy8vLLy8u8vLzz8/Pp6ens7Oz89PSjo6P6+vrExMTQ0NDHHh7cbm7vv7/YZmbss7PyzMzijY3LKyv00tL77e3TUFDXXV3X19dgYGD88vLT09Pgf3/jkJDjlJT77OzTSkpubm7cdHTffHz9+Pj++fnAAAAAAAD///+hbk2RAAAAgHRSTlP/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ADgFS2cAAAMJSURBVHjatJbpV9pAEMCDIIqKeCC2ilDriTeKrVZasEoSCdimIuBVj96Hve8W9l/vzizJbjA+4T2ZL9mZzP52MzM7G4k0TCRCslsXJVMHIj39hMoMNwxS9fsKoFvKF+VWPWhJVZSNXm54uEH1QUDP2qCb6kH3uEol5RE3bFNdfXzJruPZ60FPtnNp60D0IrketEUeAHlNawC6CcjhALl+9EcMh1+wFP2OaNCnW7x0337UcXZQFzrnBHI7N/g2WVqdMdm0nQw5mTE5UTtaS8KM1V1Tj/Ga6c9VjNlVbmypGR1F/4Kpb6EeCTN2Cm1HEdTCcXzcrBE9hu7dpn6GjNOcPjYPoyjY5GUM2agemIM1VuWa0LIXZnWYdSdDSCOHGBmodg9sewR8OvH9XSPjV6Pb8OvNvJM+4Rv8MKZZkz2wBktpCsZLtaBxdnmWOyTgwO+wcQDeBQkpiCGDMK1rV6MDmKwl/j4FUQ3vZVAc8DJGSAi7IrNlIErh3SvRGh5wj3A09LBNo22qtkVODPR7PvU5oN8Z6G509AmVGIhXYzor+bC0SBox7T6gx/nUD4BurqAn0a9VPJk7UFwRryDHhHTitwm2KfjOc0AN85OHS/UytO4RDoVYe049xUWrfNypJhjB9StFuf6YM59StST9Y+gEhi1v6UFYy+Witcn5bW+gFyplDfw11GmFrvRTQzReM/G+qglDNpjb2Kv0Kk/cputlmmkrEtXUG3ij57EtrE8cZrnQ7BzhgkaD3Q1BiWtrYJw3GpjvS+WeBbZy3ryQTs+8kjAeM4CW+22u3Xt0wi8cJTKjxdGuIU85x/O97Mjm84X9zfIxQ/+gIaD7Vgbe9kg4hE1TtN2FXnZAjXgsFcy6aqvFzbhD3RslhLtc+FS3NUTvX4YmB1OiqdKwLewR869GUhgVIqN+S7O/p1mnjQRZAS4uG3v+5Ddaoi9pHCZvLGem8vObZ4oKogz8Hjd+zFKyjRglnhrbmwvN7RV2xIoIdAVDoZauouUckIXe1263e3jljvDP1yj5L8AAiB9oJ9eqmRkAAAAASUVORK5CYII=" style="width: 50px; max-width: 50px; height: auto; margin: auto; display: block;">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </center>
+</body>
+</html>

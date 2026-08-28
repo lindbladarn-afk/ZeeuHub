@@ -1,0 +1,135 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeStatisticsVm
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // NotifyMe statistics page aligned with the shared module-page shell and metric presentation.
+    ViewData["Title"] = sharedLocalizer["NotifyMe_Statistics"];
+    ViewData["NotifyMeSection"] = "statistics";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-statistics-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@sharedLocalizer["NotifyMe_Statistics"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["NotifyMe_StatisticsSubtitle"]</div>
+        </div>
+        <div class="module-page-meta">@Model.PeriodLabel</div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    <div class="row g-2 mb-3">
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_RunsInPeriod"]</div>
+                <div class="metric-value">@Model.TotalRuns</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_ActiveWithRuns"]</div>
+                <div class="metric-value">@Model.TotalHits</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_ShareActiveWithRuns"]</div>
+                <div class="metric-value">@Model.HitRatePercent.ToString("0.0")%</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_AverageRunsPerActive"]</div>
+                <div class="metric-value">@Model.EstimatedHoursSaved.ToString("0.0")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-12 col-xl-7">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                    <div>
+                        <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_RunsOverTime"]</div>
+                        <div class="module-page-meta">@sharedLocalizer["NotifyMe_RunsOverTimeSubtitle"]</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_TotalWarnings"]</div>
+                        <div class="notifyme-stats-highlight-value">@Model.EstimatedValueProtectedSek.ToString("N0")</div>
+                    </div>
+                </div>
+                @* Trendgrafen använder redan aggregerad månadsdata, så layouten hålls lätt och konsekvent med övriga modulkort. *@
+                <div class="chart-wrap">
+                    @foreach (var point in Model.Trend)
+                    {
+                        <div class="chart-col">
+                            <div class="chart-meta">@sharedLocalizer["NotifyMe_NotificationCount", point.HitCount]</div>
+                            <div class="chart-bar" style="height:@point.HeightPercent%"></div>
+                            <div class="notifyme-chart-label text-center">@point.Label</div>
+                            <div class="chart-meta text-center">@sharedLocalizer["NotifyMe_RunCount", point.RunCount]</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-5">
+            <div class="card kpi-card p-2 h-100 stats-shell">
+                <div class="dashboard-card-title mb-2">@sharedLocalizer["NotifyMe_InsightsFromPeriod"]</div>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var insight in Model.Insights)
+                    {
+                        <div class="insight-card p-2 bg-transparent">
+                            <div class="notifyme-insight-title mb-1">@insight.Title</div>
+                            <div class="notifyme-insight-copy">@insight.Description</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-2 mt-3 stats-shell module-table-shell">
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
+            <div>
+                <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_NotificationActivity"]</div>
+                <div class="module-page-meta">@sharedLocalizer["NotifyMe_NotificationActivitySubtitle"]</div>
+            </div>
+            <a class="btn btn-portal btn-portal-outline" asp-action="Library">@sharedLocalizer["NotifyMe_OpenTemplates"]</a>
+        </div>
+        <div class="table-responsive module-table">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>@sharedLocalizer["NotifyMe_Notification"]</th>
+                        <th>@sharedLocalizer["NotifyMe_Category"]</th>
+                        <th>@sharedLocalizer["NotifyMe_TotalWarnings"]</th>
+                        <th>@sharedLocalizer["NotifyMe_RunsInPeriod"]</th>
+                        <th>@sharedLocalizer["NotifyMe_ShareOfPeriod"]</th>
+                        <th>@sharedLocalizer["NotifyMe_Quality"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.NotificationRows)
+                {
+                    <tr>
+                        <td>@row.NotificationId</td>
+                        <td class="notifyme-table-title">@row.Description</td>
+                        <td>@row.Category</td>
+                        <td>@row.RunCount</td>
+                        <td>@row.HitCount</td>
+                        <td>@row.HitRatePercent.ToString("0.0")%</td>
+                        <td><span class="quality-pill @row.QualityTone">@row.QualityLabel</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

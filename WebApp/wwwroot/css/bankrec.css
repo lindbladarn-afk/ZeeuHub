@@ -1,0 +1,3395 @@
+/* Styles the bank reconciliation workflow, validation, review and matching surfaces. */
+.bankrec-empty-state {
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.bankrec-empty-state .module-state-content {
+    flex: 1 1 auto;
+}
+
+.bankrec-summary-row {
+    --bs-gutter-y: 0.75rem;
+}
+
+.bankrec-page .bankrec-mode-shell .card-body,
+.bankrec-page .bankrec-classification-panel .card-body,
+.bankrec-page .bankrec-coding-panel .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.bankrec-page .bankrec-mode-shell__copy {
+    min-width: 0;
+    max-width: 46rem;
+}
+
+.bankrec-page .bankrec-mode-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.bankrec-page .bankrec-mode-switch__btn {
+    min-width: 0;
+    padding: 0.48rem 0.9rem;
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.bankrec-page .bankrec-mode-switch__btn.is-active {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(96, 165, 250, 0.72);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+}
+
+.bankrec-page .bankrec-classification-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.bankrec-page .bankrec-coding-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.bankrec-page .bankrec-classification-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.bankrec-page .bankrec-classification-filter__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.42rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.42);
+    color: #e5e7eb;
+    font-size: 0.84rem;
+    font-weight: 800;
+    line-height: 1;
+    transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.bankrec-page .bankrec-classification-filter__chip strong {
+    font-size: 0.78rem;
+    color: #cbd5e1;
+}
+
+.bankrec-page .bankrec-classification-filter__chip:hover,
+.bankrec-page .bankrec-classification-filter__chip:focus-visible {
+    border-color: rgba(56, 189, 248, 0.42);
+    background: rgba(15, 23, 42, 0.62);
+    outline: none;
+}
+
+.bankrec-page .bankrec-classification-filter__chip.is-active {
+    border-color: rgba(96, 165, 250, 0.7);
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+}
+
+.bankrec-page .bankrec-classification-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 120px;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.bankrec-page .bankrec-classification-card__button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bankrec-page .bankrec-classification-card.is-default {
+    border-color: rgba(125, 211, 252, 0.35);
+    background: rgba(14, 165, 233, 0.12);
+}
+
+.bankrec-page .bankrec-classification-card.is-selected {
+    border-color: rgba(96, 165, 250, 0.72);
+    background: rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+}
+
+.bankrec-page .bankrec-classification-card__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.65rem;
+}
+
+.bankrec-page .bankrec-classification-card__label {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-classification-card__meta,
+.bankrec-page .bankrec-classification-card__footer {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+}
+
+.bankrec-page .bankrec-classification-card__amount {
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-classification-card__suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+    font-size: 0.82rem;
+    color: #cbd5e1;
+}
+
+.bankrec-page .bankrec-classification-card__suggestions strong {
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-classification-card__badge {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-classification-empty {
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px dashed rgba(148, 163, 184, 0.24);
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.25);
+}
+
+.bankrec-page .bankrec-coding-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.bankrec-page .bankrec-coding-bank-account {
+    text-align: right;
+    max-width: 28rem;
+}
+
+.bankrec-page .bankrec-coding-legend__item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.34rem 0.72rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.bankrec-page .bankrec-coding-legend .btn {
+    min-height: 1.9rem;
+    padding-top: 0.22rem;
+    padding-bottom: 0.22rem;
+}
+
+.bankrec-page .bankrec-coding-legend__item--suggested {
+    background: rgba(14, 165, 233, 0.14);
+    color: #e0f2fe;
+}
+
+.bankrec-page .bankrec-coding-legend__item--editable {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fef3c7;
+}
+
+.bankrec-page .bankrec-coding-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 220px;
+    padding: 0.95rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.bankrec-page .bankrec-coding-card.is-default {
+    border-color: rgba(125, 211, 252, 0.35);
+    background: rgba(14, 165, 233, 0.12);
+}
+
+.bankrec-page .bankrec-coding-card.is-overridden {
+    border-color: rgba(245, 158, 11, 0.35);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+}
+
+.bankrec-page .bankrec-coding-card__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.65rem;
+}
+
+.bankrec-page .bankrec-coding-card__label {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-coding-card__meta,
+.bankrec-page .bankrec-coding-card__stats,
+.bankrec-page .bankrec-coding-card__source,
+.bankrec-page .bankrec-coding-card__hint {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+}
+
+.bankrec-page .bankrec-coding-card__amount {
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-coding-card__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.bankrec-page .bankrec-coding-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.bankrec-page .bankrec-coding-input {
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.78);
+    border-color: rgba(148, 163, 184, 0.24);
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-coding-input::placeholder {
+    color: rgba(226, 232, 240, 0.6);
+}
+
+.bankrec-page .bankrec-coding-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.bankrec-page .bankrec-coding-card__badge {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+}
+
+.bankrec-page .bankrec-coding-empty {
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px dashed rgba(148, 163, 184, 0.24);
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.25);
+}
+
+.bankrec-page .bankrec-card.module-kpi-surface--compact > .card-body,
+.bankrec-page .bankrec-card > .card-body {
+    padding: 0.72rem;
+}
+
+.bankrec-empty-actions {
+    min-width: 320px;
+    max-width: 360px;
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+}
+
+.bankrec-validation-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.65rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.bankrec-source-file {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: #e2e8f0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.bankrec-source-file i {
+    margin-top: 0.18rem;
+    color: #7dd3fc;
+}
+
+.bankrec-source-file span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.bankrec-validation-summary strong {
+    color: #f8fafc;
+    font-size: 0.82rem;
+    line-height: 1.3;
+}
+
+.bankrec-validation-summary__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.bankrec-validation-summary__status.is-valid {
+    color: #6ee7b7;
+}
+
+.bankrec-validation-summary__status.is-warning {
+    color: #fcd34d;
+}
+
+.bankrec-validation-summary__status.is-invalid {
+    color: #fca5a5;
+}
+
+.bankrec-validation-summary__status strong {
+    color: currentColor;
+}
+
+.bankrec-validation-summary__divider {
+    width: 1px;
+    height: 1rem;
+    background: rgba(148, 163, 184, 0.38);
+}
+
+.bankrec-validation-summary__metric {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+}
+
+.bankrec-validation-summary__metric span {
+    color: #94a3b8;
+}
+
+.bankrec-validation-warning-panel {
+    margin-top: 0.8rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 10px;
+    background: rgba(120, 53, 15, 0.18);
+    color: #fde68a;
+}
+
+.bankrec-validation-warning-panel__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.86rem;
+}
+
+.bankrec-validation-warning-panel ul {
+    margin: 0;
+    padding-left: 1.05rem;
+    color: #e2e8f0;
+    font-size: 0.82rem;
+}
+
+.bankrec-validation-warning-panel li + li {
+    margin-top: 0.25rem;
+}
+
+.bankrec-validation-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 0.9rem;
+    align-self: stretch;
+    border-radius: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: none;
+}
+
+.bankrec-clear-upload-form .btn {
+    width: 100%;
+}
+
+.bankrec-validation-modal .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.bankrec-validation-result {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.35);
+}
+
+.bankrec-validation-result > i {
+    font-size: 1.25rem;
+}
+
+.bankrec-validation-result > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.bankrec-validation-result span {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+}
+
+.bankrec-validation-result.is-valid > i {
+    color: #34d399;
+}
+
+.bankrec-validation-result.is-invalid > i {
+    color: #f87171;
+}
+
+.bankrec-validation-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.bankrec-validation-details > div {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+    gap: 0.75rem;
+    padding: 0.65rem 0.4rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.bankrec-validation-details dt {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.bankrec-validation-details dd {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.bankrec-validation-issues {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.bankrec-validation-issue {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+}
+
+.bankrec-validation-issue > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.bankrec-validation-issue.is-valid {
+    color: #6ee7b7;
+    border-color: rgba(52, 211, 153, 0.28);
+}
+
+.bankrec-validation-issue.is-warning {
+    color: #fcd34d;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.bankrec-validation-issue.is-error {
+    color: #fca5a5;
+    border-color: rgba(248, 113, 113, 0.3);
+}
+
+.bankrec-validation-issue span {
+    color: #cbd5e1;
+    font-size: 0.84rem;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary {
+    border-top-color: rgba(15, 23, 42, 0.14);
+}
+
+body:not(.theme-dark) .bankrec-source-file {
+    color: #0f172a;
+}
+
+body:not(.theme-dark) .bankrec-validation-details dt {
+    color: #64748b;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary__metric strong {
+    color: #0f172a;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary__metric span {
+    color: #64748b;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary strong,
+body:not(.theme-dark) .bankrec-validation-details dd {
+    color: #0f172a;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary__status.is-valid,
+body:not(.theme-dark) .bankrec-validation-summary__status.is-valid strong {
+    color: #047857;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary__status.is-warning,
+body:not(.theme-dark) .bankrec-validation-summary__status.is-warning strong {
+    color: #92400e;
+}
+
+body:not(.theme-dark) .bankrec-validation-summary__status.is-invalid,
+body:not(.theme-dark) .bankrec-validation-summary__status.is-invalid strong {
+    color: #b91c1c;
+}
+
+body:not(.theme-dark) .bankrec-validation-warning-panel {
+    background: rgba(254, 243, 199, 0.82);
+    border-color: rgba(217, 119, 6, 0.35);
+    color: #92400e;
+}
+
+body:not(.theme-dark) .bankrec-validation-warning-panel ul {
+    color: #334155;
+}
+
+body:not(.theme-dark) .bankrec-validation-result {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+body:not(.theme-dark) .bankrec-validation-result span,
+body:not(.theme-dark) .bankrec-validation-issue span {
+    color: #475569;
+}
+
+.bankrec-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bankrec-upload-trigger {
+    width: 100%;
+}
+
+.bankrec-page .bankrec-upload-trigger,
+.bankrec-page .bankrec-empty-actions .btn-portal-outline,
+.bankrec-page .bankrec-demo-panel .btn-portal-outline,
+.bankrec-page .bankrec-demo-scenario {
+    min-height: 1.9rem;
+    padding-top: 0.22rem;
+    padding-bottom: 0.22rem;
+}
+
+body:not(.theme-dark) .bankrec-empty-actions .form-control {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.bankrec-page .module-page-title { margin-bottom: 0.2rem; }
+.bankrec-page .bankrec-card {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: none;
+}
+.bankrec-page .bankrec-card .text-muted.small {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffffff !important;
+}
+.bankrec-page .bankrec-card .h4 {
+    font-size: 1.45rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+}
+.bankrec-page .bankrec-card .h6 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+.bankrec-page .bankrec-demo-panel .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+}
+
+.bankrec-page .bankrec-demo-panel .card-body {
+    padding: 0.72rem;
+}
+.bankrec-page .bankrec-demo-eyebrow {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #38bdf8;
+    margin-bottom: 0.35rem;
+}
+.bankrec-page .bankrec-demo-scenarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    align-items: center;
+}
+.bankrec-page .bankrec-demo-scenario-form {
+    margin: 0;
+    flex: 0 0 auto;
+}
+.bankrec-page .bankrec-demo-scenario {
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-demo-scenario.is-active {
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+.bankrec-page .bankrec-demo-guide {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    background: rgba(14, 165, 233, 0.08);
+}
+.bankrec-page .bankrec-demo-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+.bankrec-page .bankrec-demo-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    min-height: 66px;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.42);
+    width: 100%;
+    text-align: left;
+}
+.bankrec-page .bankrec-demo-status-card__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.bankrec-page .bankrec-demo-status-card__label {
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #f8fafc;
+    margin-bottom: 0;
+}
+.bankrec-page .bankrec-demo-status-card__meta {
+    font-size: 0.78rem;
+    line-height: 1.25;
+    color: #cbd5e1;
+}
+.bankrec-page .bankrec-demo-status-card__value {
+    flex: 0 0 auto;
+    min-width: 2.4rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #f8fafc;
+    text-align: center;
+    line-height: 1;
+}
+.bankrec-page .bankrec-demo-guide-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7dd3fc;
+    margin-bottom: 0.35rem;
+}
+.bankrec-page .bankrec-demo-guide-message {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #dbe7f5;
+}
+.bankrec-page .bankrec-process-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.bankrec-page .bankrec-process-complete {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.bankrec-page .bankrec-process-complete__label,
+.bankrec-page .bankrec-workspace-focus__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+.bankrec-page .bankrec-process-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+.bankrec-page .bankrec-process-step {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.3rem;
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.42);
+    color: #e5e7eb;
+    transition: border-color 120ms ease, background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.bankrec-page .bankrec-process-step:hover,
+.bankrec-page .bankrec-process-step:focus-visible {
+    border-color: rgba(56, 189, 248, 0.38);
+    background: rgba(15, 23, 42, 0.62);
+    transform: translateY(-1px);
+    outline: none;
+}
+.bankrec-page .bankrec-process-step.is-active {
+    border-color: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+        0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+.bankrec-page .bankrec-process-step:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    transform: none;
+}
+.bankrec-page .bankrec-account-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid rgba(245, 158, 11, 0.24);
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.08);
+    color: #fde68a;
+}
+.bankrec-page .bankrec-account-check i {
+    margin-top: 0.15rem;
+}
+.bankrec-page .bankrec-account-check div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+}
+.bankrec-page .bankrec-account-check span {
+    color: #dbe7f5;
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+.bankrec-page .bankrec-coding-dirty {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.14);
+    color: #fbbf24;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-complete-state {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(245, 158, 11, 0.24);
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.08);
+}
+.bankrec-page .bankrec-complete-state.is-ready {
+    border-color: rgba(34, 197, 94, 0.28);
+    background: rgba(34, 197, 94, 0.08);
+}
+.bankrec-page .bankrec-complete-state__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+}
+.bankrec-page .bankrec-complete-state.is-ready .bankrec-complete-state__icon {
+    background: rgba(34, 197, 94, 0.16);
+    color: #4ade80;
+}
+.bankrec-page .bankrec-complete-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+.bankrec-page .bankrec-complete-summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.34);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+.bankrec-page .bankrec-complete-summary-item:hover,
+.bankrec-page .bankrec-complete-summary-item:focus-visible,
+.bankrec-page .bankrec-complete-summary-item.is-active {
+    border-color: rgba(56, 189, 248, 0.62);
+    background: rgba(14, 116, 144, 0.2);
+    transform: translateY(-1px);
+}
+.bankrec-page .bankrec-complete-summary strong {
+    font-size: 1.2rem;
+}
+.bankrec-page .bankrec-complete-items {
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.2);
+}
+.bankrec-page .bankrec-complete-items__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+}
+.bankrec-page .bankrec-complete-items__list {
+    display: grid;
+    gap: 0.65rem;
+}
+.bankrec-page .bankrec-complete-items__message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 5rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.3);
+    color: #94a3b8;
+    text-align: center;
+}
+.bankrec-page .bankrec-complete-items__message.is-error {
+    background: rgba(239, 68, 68, 0.08);
+    color: #fca5a5;
+}
+.bankrec-page .bankrec-complete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.34);
+    color: inherit;
+    text-align: left;
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+.bankrec-page .bankrec-complete-item:hover,
+.bankrec-page .bankrec-complete-item:focus-visible {
+    border-color: rgba(56, 189, 248, 0.62);
+    background: rgba(14, 116, 144, 0.16);
+    transform: translateY(-1px);
+}
+.bankrec-page .bankrec-complete-item__main {
+    display: grid;
+    min-width: 0;
+    gap: 0.22rem;
+}
+.bankrec-page .bankrec-complete-item__top {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+.bankrec-page .bankrec-complete-item__status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.6rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.14);
+    color: #86efac;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-complete-item__status.is-review {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fcd34d;
+}
+.bankrec-page .bankrec-complete-item__status.is-unmatched {
+    background: rgba(239, 68, 68, 0.14);
+    color: #fca5a5;
+}
+.bankrec-page .bankrec-complete-item__body,
+.bankrec-page .bankrec-complete-item__meta,
+.bankrec-page .bankrec-complete-item__reason {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-complete-item__body {
+    font-size: 0.9rem;
+}
+.bankrec-page .bankrec-complete-item__meta,
+.bankrec-page .bankrec-complete-item__reason {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+.bankrec-page .bankrec-complete-item__action {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+    color: #7dd3fc;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-manual-invoice-intro {
+    margin-bottom: 0.75rem;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+.bankrec-page .bankrec-manual-invoice-list {
+    display: grid;
+    gap: 0.55rem;
+}
+.bankrec-page .bankrec-manual-invoice-item {
+    width: 100%;
+}
+.bankrec-page .bankrec-manual-invoice-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.55rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-manual-invoice-empty {
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.3);
+    color: #94a3b8;
+    text-align: center;
+}
+.bankrec-page .bankrec-manual-invoice-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+.bankrec-page .bankrec-auto-match-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.55rem;
+    max-width: 31rem;
+}
+.bankrec-page .bankrec-auto-match-feedback {
+    color: #bae6fd;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    text-align: right;
+}
+.bankrec-page .bankrec-process-step__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-process-step__title {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-process-step__meta {
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: #cbd5e1;
+    max-width: 92%;
+}
+.bankrec-page .bankrec-process-step__badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.9rem;
+    min-height: 1.9rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(148, 163, 184, 0.1);
+    color: #f8fafc;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-action-bar {
+    position: sticky;
+    top: 88px;
+    z-index: 15;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.34);
+}
+.bankrec-page .bankrec-action-bar__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+.bankrec-page .bankrec-action-bar__footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.bankrec-page .bankrec-action-bar__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.65rem;
+    flex: 1 1 420px;
+}
+.bankrec-page .bankrec-action-bar__hint {
+    text-align: right;
+}
+.bankrec-page .bankrec-workspace-focus {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.bankrec-page .bankrec-browse-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+}
+.bankrec-page .bankrec-browse-header__title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7dd3fc;
+}
+.bankrec-page .bankrec-browse-header__message {
+    color: #94a3b8;
+    font-size: 0.92rem;
+}
+.bankrec-page .bankrec-conflict-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(248, 113, 113, 0.26);
+    background: rgba(127, 29, 29, 0.18);
+}
+.bankrec-page .bankrec-conflict-banner__icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(248, 113, 113, 0.12);
+    color: #fca5a5;
+}
+.bankrec-page .bankrec-conflict-banner__content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.bankrec-page .bankrec-conflict-banner__title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fee2e2;
+    margin-bottom: 0.2rem;
+}
+.bankrec-page .bankrec-conflict-banner__message {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #fecaca;
+}
+.bankrec-page .bankrec-conflict-banner__action {
+    flex: 0 0 auto;
+}
+.bankrec-page .bankrec-confidence-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.bankrec-page .bankrec-confidence-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #e5e7eb;
+}
+.bankrec-page .bankrec-confidence-icons {
+    display: inline-flex;
+    gap: 4px;
+}
+.bankrec-page .bankrec-icon {
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-icon.ok {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+.bankrec-page .bankrec-table {
+    --bankrec-table-head-height: 42px;
+    --bankrec-table-row-height: 54px;
+    font-size: 0.93rem;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    min-width: 50rem;
+    width: 100%;
+}
+
+.bankrec-page #bankrec-tx-table {
+    min-width: 54rem;
+}
+
+.bankrec-page #bankrec-inv-table {
+    min-width: 60rem;
+}
+.bankrec-page .bankrec-table thead tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.bankrec-page .bankrec-table thead th {
+    color: #cbd5f5;
+    font-weight: 600;
+    font-size: 0.93rem;
+    height: var(--bankrec-table-head-height);
+    min-height: var(--bankrec-table-head-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: middle;
+}
+.bankrec-page .bankrec-table th,
+.bankrec-page .bankrec-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding-top: 0;
+    padding-right: 0.45rem;
+    padding-bottom: 0;
+    padding-left: 0.45rem;
+    line-height: 1.2;
+}
+.bankrec-page .bankrec-table tbody td {
+    height: var(--bankrec-table-row-height);
+    min-height: var(--bankrec-table-row-height);
+    border-bottom: 0;
+}
+.bankrec-page .bankrec-table td {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(1),
+.bankrec-page #bankrec-tx-table td:nth-child(1) {
+    width: 6.4rem;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(2),
+.bankrec-page #bankrec-tx-table td:nth-child(2) {
+    width: 9rem;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(3),
+.bankrec-page #bankrec-tx-table td:nth-child(3) {
+    width: 7rem;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(4),
+.bankrec-page #bankrec-tx-table td:nth-child(4) {
+    width: 8.8rem;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(5),
+.bankrec-page #bankrec-tx-table td:nth-child(5) {
+    width: 9rem;
+}
+.bankrec-page #bankrec-tx-table th:nth-child(6),
+.bankrec-page #bankrec-tx-table td:nth-child(6) {
+    width: 13.8rem;
+}
+.bankrec-page #bankrec-inv-table th:nth-child(1),
+.bankrec-page #bankrec-inv-table td:nth-child(1) {
+    width: 6.4rem;
+}
+.bankrec-page #bankrec-inv-table th:nth-child(2),
+.bankrec-page #bankrec-inv-table td:nth-child(2) {
+    width: 7rem;
+}
+.bankrec-page #bankrec-inv-table th:nth-child(3),
+.bankrec-page #bankrec-inv-table td:nth-child(3) {
+    width: 9.5rem;
+}
+.bankrec-page #bankrec-inv-table th:nth-child(4),
+.bankrec-page #bankrec-inv-table td:nth-child(4),
+.bankrec-page #bankrec-inv-table th:nth-child(5),
+.bankrec-page #bankrec-inv-table td:nth-child(5),
+.bankrec-page #bankrec-inv-table th:nth-child(6),
+.bankrec-page #bankrec-inv-table td:nth-child(6) {
+    width: 8rem;
+}
+.bankrec-page #bankrec-inv-table th:nth-child(7),
+.bankrec-page #bankrec-inv-table td:nth-child(7) {
+    width: 13rem;
+}
+.bankrec-page .bankrec-table tbody tr {
+    background: transparent;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+}
+.bankrec-page .bankrec-row { cursor: pointer; }
+.bankrec-page .bankrec-row.is-selected,
+.bankrec-page .bankrec-row.is-related {
+    position: relative;
+    z-index: 1;
+}
+.bankrec-page .bankrec-row.is-selected {
+    outline: none;
+}
+.bankrec-page .bankrec-row.is-related {
+    outline: none;
+}
+.bankrec-page .bankrec-row.is-selected > td {
+    background: rgba(255, 255, 255, 0.04);
+}
+.bankrec-page .bankrec-row.is-related > td {
+    background: rgba(255, 255, 255, 0.02);
+}
+.bankrec-page .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    font-size: 0.66rem;
+    padding: 4px 10px;
+    line-height: 1;
+}
+.bankrec-page .status-pill.matched { background: #16a34a; }
+.bankrec-page .status-pill.unmatched { background: #ef4444; }
+.bankrec-page .status-pill.manual { background: #0ea5e9; }
+.bankrec-page .bankrec-empty-actions .form-control {
+    min-height: 2.55rem;
+    border-radius: 0.88rem;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: linear-gradient(180deg, rgba(43, 52, 68, 0.98) 0%, rgba(29, 38, 54, 0.98) 100%);
+    color: #e5e7eb;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.bankrec-page .bankrec-empty-actions .form-control:focus {
+    border-color: rgba(255,255,255,0.28);
+    background: linear-gradient(180deg, rgba(46, 57, 74, 0.99) 0%, rgba(31, 41, 57, 0.99) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 0 0 3px rgba(148, 163, 184, 0.08);
+    color: #f8fafc;
+}
+.bankrec-page #bankrec-invoice-detail .card-body { font-size: 0.9rem; }
+.bankrec-page #bankrec-invoice-detail h6 { font-size: 0.95rem; }
+.bankrec-page #bankrec-invoice-detail-body {
+    background: rgba(15, 23, 42, 0.55);
+    border-radius: 12px;
+    padding: 16px;
+}
+.bankrec-page .bankrec-table-card-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+    min-height: 38px;
+}
+.bankrec-page .bankrec-table-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+.bankrec-page .bankrec-select-filters {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    min-height: 38px;
+}
+.bankrec-page .bankrec-select-filter {
+    min-height: 38px;
+    width: auto;
+    min-width: 180px;
+    max-width: 240px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: linear-gradient(180deg, rgba(43, 52, 68, 0.98) 0%, rgba(29, 38, 54, 0.98) 100%);
+    color: #e5e7eb;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.bankrec-page .bankrec-select-filter:focus {
+    border-color: rgba(255,255,255,0.28);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 0 0 3px rgba(148, 163, 184, 0.08);
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-table-scroll {
+    max-height: min(52vh, 34rem);
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    -webkit-overflow-scrolling: touch;
+}
+.bankrec-page .bankrec-table-scroll .bankrec-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #111827;
+}
+.bankrec-page .bankrec-select-filter.is-placeholder {
+    visibility: hidden;
+    pointer-events: none;
+}
+.bankrec-page .bankrec-table-action-cell {
+    width: 88px;
+    min-width: 88px;
+    text-align: right;
+    max-width: 88px !important;
+}
+.bankrec-page .bankrec-table-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    min-height: 32px;
+    min-width: 72px;
+    padding: 0.28rem 0.72rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.bankrec-page .bankrec-row.is-suggested > td {
+    background: rgba(255, 255, 255, 0.04);
+}
+.bankrec-page .status-pill.suggested {
+    background: #f59e0b;
+    color: #111827;
+}
+.bankrec-page .bankrec-workpanel {
+    position: sticky;
+    top: 92px;
+    z-index: 5;
+}
+.bankrec-page[data-workspace-mode="overview"] .bankrec-workpanel,
+.bankrec-page[data-workspace-mode="overview"] .bankrec-complete-panel {
+    display: none;
+}
+.bankrec-page[data-has-source="false"] .bankrec-summary-row,
+.bankrec-page[data-has-source="false"] .bankrec-browse-sections,
+.bankrec-page[data-has-source="false"] .bankrec-workpanel,
+.bankrec-page[data-has-source="false"] .bankrec-complete-panel {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="classification"] .bankrec-demo-panel,
+.bankrec-page[data-workspace-mode="classification"] .bankrec-workpanel,
+.bankrec-page[data-workspace-mode="classification"] #bankrec-invoice-detail,
+.bankrec-page[data-workspace-mode="classification"] .bankrec-invoices-column,
+.bankrec-page[data-workspace-mode="classification"] .bankrec-complete-panel {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="classification"] .bankrec-transactions-column {
+    width: 100%;
+}
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-browse-sections,
+.bankrec-page[data-workspace-mode="auto-match"] .bankrec-browse-sections,
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-browse-sections {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-demo-panel,
+.bankrec-page[data-workspace-mode="auto-match"] .bankrec-demo-panel,
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-demo-panel {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-workpanel {
+    margin-top: 0 !important;
+}
+.bankrec-page[data-workspace-mode="complete"] .bankrec-demo-panel,
+.bankrec-page[data-workspace-mode="complete"] .bankrec-browse-sections,
+.bankrec-page[data-workspace-mode="complete"] .bankrec-workpanel,
+.bankrec-page[data-workspace-mode="complete"] #bankrec-invoice-detail {
+    display: none;
+}
+.bankrec-page .bankrec-match-dock {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 14px;
+    border: 1px solid rgba(125, 211, 252, 0.22);
+    background: rgba(15, 23, 42, 0.94);
+    box-shadow: 0 18px 42px rgba(2, 6, 23, 0.32);
+    backdrop-filter: blur(10px);
+}
+.bankrec-page .bankrec-match-dock__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(240px, 0.95fr) minmax(0, 0.95fr);
+    gap: 0.65rem;
+    align-items: start;
+}
+.bankrec-page .bankrec-match-dock__selection,
+.bankrec-page .bankrec-match-dock__status {
+    min-width: 0;
+    padding: 0.5rem 0.65rem;
+    border-radius: 10px;
+    background: rgba(2, 6, 23, 0.18);
+}
+.bankrec-page .bankrec-confirm-bar__summary {
+    min-width: 0;
+    display: contents;
+}
+.bankrec-page .bankrec-match-dock__label {
+    margin-bottom: 0.22rem;
+    color: #94a3b8;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-match-dock__value {
+    color: #dbe7f5;
+    font-size: 0.88rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-match-dock__value strong {
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-match-difference {
+    margin-top: 0.35rem;
+    color: #94a3b8;
+    font-size: 0.77rem;
+    line-height: 1.25;
+}
+.bankrec-page .bankrec-confidence-summary-text {
+    color: #dbe7f5;
+    font-size: 0.81rem;
+    line-height: 1.25;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-confidence-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    margin-bottom: 0.2rem;
+}
+.bankrec-page .bankrec-confidence-score {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-step2-recommendations {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+.bankrec-page .bankrec-step2-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-step2-recommendation {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.58);
+    color: inherit;
+    text-align: left;
+}
+.bankrec-page .bankrec-step2-recommendation:hover,
+.bankrec-page .bankrec-step2-recommendation:focus-visible {
+    border-color: rgba(56, 189, 248, 0.32);
+    background: rgba(15, 23, 42, 0.72);
+    outline: none;
+}
+.bankrec-page .bankrec-step2-recommendation-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    margin-bottom: 0.25rem;
+}
+.bankrec-page .bankrec-step2-recommendation-meta {
+    font-size: 0.84rem;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-workpanel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+.bankrec-page .bankrec-workpanel-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0.62rem 0.9rem;
+    border-radius: 11px;
+    font-weight: 800;
+    line-height: 1.15;
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.12);
+}
+.bankrec-page .bankrec-match-amount-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+.bankrec-page .bankrec-match-amount-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+.bankrec-page .bankrec-match-amount-label {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+}
+.bankrec-page .bankrec-match-amount-control {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.bankrec-page .bankrec-match-amount-input {
+    min-height: 2.85rem;
+    padding-right: 4rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.58);
+    color: #f8fafc;
+    font-size: 0.96rem;
+}
+.bankrec-page .bankrec-match-amount-input:focus {
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    background: rgba(15, 23, 42, 0.7);
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-match-amount-currency {
+    position: absolute;
+    top: 50%;
+    right: 0.85rem;
+    transform: translateY(-50%);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    pointer-events: none;
+}
+.bankrec-page .bankrec-match-amount-note {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.25;
+}
+.bankrec-page .bankrec-panel-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.05fr) minmax(0, 0.9fr);
+    gap: 0.9rem;
+}
+.bankrec-page .bankrec-panel-section {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.42);
+    min-height: 180px;
+}
+.bankrec-page .bankrec-panel-section--queue {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.bankrec-page .bankrec-panel-section--queue .bankrec-panel-section-body {
+    max-height: 29rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+}
+.bankrec-page .bankrec-panel-section--full {
+    min-height: 0;
+}
+.bankrec-page .bankrec-panel-section--primary {
+    min-height: 240px;
+}
+.bankrec-page[data-workspace-mode="auto-match"] .bankrec-mode-panel--review,
+.bankrec-page[data-workspace-mode="auto-match"] .bankrec-mode-panel--partial {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-mode-panel--auto,
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-mode-panel--partial {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-mode-panel--auto,
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-mode-panel--review {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-auto-match-action {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-workpanel {
+    position: static;
+}
+.bankrec-page[data-workspace-mode="partial-payments"][data-partial-manual-count="0"] .bankrec-standard-match-workspace {
+    display: none;
+}
+.bankrec-page[data-workspace-mode="auto-match"] .bankrec-panel-section--secondary,
+.bankrec-page[data-workspace-mode="manual-review"] .bankrec-panel-section--secondary,
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-panel-section--secondary {
+    opacity: 0.82;
+}
+.bankrec-page .bankrec-allocations-section {
+    min-height: 0;
+}
+.bankrec-page .bankrec-allocation-item + .bankrec-allocation-item {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+.bankrec-page .bankrec-allocation-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.3rem;
+}
+.bankrec-page .bankrec-allocation-meta {
+    font-size: 0.84rem;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-allocation-actions {
+    margin-top: 0.6rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.bankrec-page .bankrec-payment-bundles-section {
+  display: none;
+}
+
+.bankrec-page[data-workspace-mode="partial-payments"] .bankrec-payment-bundles-section {
+  display: block;
+}
+
+.bankrec-page .bankrec-payment-bundles-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(248, 250, 252, 0.32);
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundles-heading {
+  border-bottom-color: rgba(15, 23, 42, 0.16);
+}
+
+.bankrec-page .bankrec-manual-bundle-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bankrec-page .bankrec-manual-bundle-builder {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  background: rgba(14, 165, 233, 0.06);
+}
+
+.bankrec-page .bankrec-manual-bundle-builder__heading,
+.bankrec-page .bankrec-manual-bundle-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bankrec-page .bankrec-manual-bundle-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.bankrec-page .bankrec-manual-bundle-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bankrec-page .bankrec-manual-bundle-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bankrec-page .bankrec-manual-bundle-summary > div {
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.bankrec-page .bankrec-manual-bundle-summary span,
+.bankrec-page .bankrec-manual-bundle-summary strong {
+  display: block;
+}
+
+.bankrec-page .bankrec-manual-bundle-summary span {
+  margin-bottom: 3px;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.bankrec-page .bankrec-manual-bundle-summary strong {
+  color: #f8fafc;
+  font-size: 0.88rem;
+}
+
+.bankrec-page .bankrec-manual-bundle-transactions {
+  max-height: 360px;
+  margin-top: 14px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.bankrec-page .bankrec-manual-bundle-recommendation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.bankrec-page .bankrec-manual-bundle-recommendation.is-empty {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.bankrec-page .bankrec-manual-bundle-recommendation strong,
+.bankrec-page .bankrec-manual-bundle-recommendation span {
+  display: block;
+}
+
+.bankrec-page .bankrec-manual-bundle-recommendation span {
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  cursor: pointer;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction:hover,
+.bankrec-page .bankrec-manual-bundle-transaction.is-selected {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction.is-suggested {
+  box-shadow: inset 3px 0 0 #22c55e;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction__badge {
+  display: inline-block;
+  width: fit-content;
+  margin-top: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.14);
+  color: #86efac !important;
+  font-size: 0.7rem !important;
+  font-weight: 800;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction__copy,
+.bankrec-page .bankrec-manual-bundle-transaction__copy strong,
+.bankrec-page .bankrec-manual-bundle-transaction__copy span {
+  display: block;
+  min-width: 0;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction__copy span {
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.bankrec-page .bankrec-manual-bundle-transaction__amount {
+  white-space: nowrap;
+}
+
+.bankrec-page .bankrec-manual-bundle-footer {
+  align-items: center;
+  margin-top: 14px;
+}
+
+.bankrec-page .bankrec-manual-bundle-footer .bankrec-payment-bundle-message {
+  flex: 1 1 auto;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-manual-bundle-builder {
+  background: rgba(14, 165, 233, 0.04);
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-manual-bundle-field label {
+  color: #475569;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-manual-bundle-summary > div {
+  background: #f8fafc;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-manual-bundle-summary strong {
+  color: #172033;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-manual-bundle-transaction__badge {
+  color: #15803d !important;
+}
+
+@media (max-width: 991.98px) {
+  .bankrec-page .bankrec-manual-bundle-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .bankrec-page .bankrec-payment-bundles-heading,
+  .bankrec-page .bankrec-manual-bundle-builder__heading,
+  .bankrec-page .bankrec-manual-bundle-recommendation,
+  .bankrec-page .bankrec-manual-bundle-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .bankrec-page .bankrec-manual-bundle-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bankrec-page .bankrec-manual-bundle-transaction {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .bankrec-page .bankrec-manual-bundle-transaction__amount {
+    grid-column: 2;
+  }
+}
+
+.bankrec-page .bankrec-payment-bundle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.bankrec-page .bankrec-payment-bundle:last-child {
+  border-bottom: 0;
+}
+
+.bankrec-page .bankrec-payment-bundle__header,
+.bankrec-page .bankrec-payment-bundle__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bankrec-page .bankrec-payment-bundle__header-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.bankrec-page .bankrec-payment-bundle__info {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 3px 10px rgba(2, 6, 23, 0.22);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bankrec-page .bankrec-payment-bundle__info:hover,
+.bankrec-page .bankrec-payment-bundle__info:focus-visible {
+  border-color: #ffffff;
+  background: #f1f5f9;
+  color: #0f172a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.bankrec-page .bankrec-payment-bundle__header,
+.bankrec-page .bankrec-payment-bundle__customer,
+.bankrec-page .bankrec-payment-bundle__evidence,
+.bankrec-page .bankrec-payment-bundle__allocations {
+  grid-column: 1;
+}
+
+.bankrec-page .bankrec-payment-bundle__header {
+  grid-column: 1 / -1;
+}
+
+.bankrec-page .bankrec-payment-bundle__evidence {
+  color: #bae6fd;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.bankrec-page .bankrec-payment-bundle__confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.bankrec-page .bankrec-payment-bundle__confidence-meter {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 42px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #172235 0 62%, transparent 64%),
+    conic-gradient(#22c55e var(--bankrec-confidence), rgba(148, 163, 184, 0.2) 0);
+  color: #dcfce7;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.bankrec-page .bankrec-payment-bundle__confidence-label {
+  color: #a7f3d0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundle__info {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  color: #172033;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundle__info:hover,
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundle__info:focus-visible {
+  border-color: rgba(15, 23, 42, 0.2);
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundle__confidence-meter {
+  background:
+    radial-gradient(circle, #ffffff 0 62%, transparent 64%),
+    conic-gradient(#16a34a var(--bankrec-confidence), rgba(148, 163, 184, 0.2) 0);
+  color: #166534;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-payment-bundle__confidence-label {
+  color: #15803d;
+}
+
+.bankrec-bundle-modal .modal-content {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  background: #162235;
+  color: #e2e8f0;
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.5);
+}
+
+.bankrec-bundle-modal .modal-header,
+.bankrec-bundle-modal .modal-footer {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.bankrec-bundle-modal__eyebrow {
+  color: #38bdf8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bankrec-bundle-modal .modal-title {
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.bankrec-bundle-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 0 0 22px;
+  list-style: none;
+}
+
+.bankrec-bundle-checks li {
+  min-height: 86px;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.bankrec-bundle-checks li > i {
+  margin-top: 3px;
+}
+
+.bankrec-bundle-checks li.is-passed > i {
+  color: #4ade80;
+}
+
+.bankrec-bundle-checks li.is-warning > i {
+  color: #fbbf24;
+}
+
+.bankrec-bundle-checks li strong,
+.bankrec-bundle-checks li span {
+  display: block;
+}
+
+.bankrec-bundle-checks li span {
+  margin-top: 4px;
+  color: #aebed1;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.bankrec-bundle-detail-section + .bankrec-bundle-detail-section {
+  margin-top: 24px;
+}
+
+.bankrec-bundle-detail-section h6 {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.bankrec-bundle-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.bankrec-bundle-detail-item {
+  min-width: 0;
+  padding: 11px 12px;
+  background: #111c2d;
+}
+
+.bankrec-bundle-detail-item span,
+.bankrec-bundle-detail-item strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.bankrec-bundle-detail-item span {
+  margin-bottom: 3px;
+  color: #8fa1b8;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.bankrec-bundle-detail-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.bankrec-bundle-detail-table th,
+.bankrec-bundle-detail-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.bankrec-bundle-detail-table th {
+  color: #8fa1b8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.bankrec-bundle-detail-total {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #38bdf8;
+  background: rgba(14, 165, 233, 0.08);
+  color: #e0f2fe;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.bankrec-bundle-confirmation-note {
+  margin: 22px 0 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px;
+  background: rgba(251, 191, 36, 0.08);
+  color: #fde68a;
+  font-size: 0.84rem;
+}
+
+body:not(.theme-dark) .bankrec-bundle-modal .modal-content {
+  background: #ffffff;
+  color: #172033;
+}
+
+body:not(.theme-dark) .bankrec-bundle-modal .btn-close {
+  filter: none;
+}
+
+body:not(.theme-dark) .bankrec-bundle-detail-item {
+  background: #f8fafc;
+}
+
+body:not(.theme-dark) .bankrec-bundle-checks li {
+  background: #f8fafc;
+}
+
+body:not(.theme-dark) .bankrec-bundle-checks li span,
+body:not(.theme-dark) .bankrec-bundle-detail-item span,
+body:not(.theme-dark) .bankrec-bundle-detail-table th {
+  color: #64748b;
+}
+
+body:not(.theme-dark) .bankrec-bundle-detail-total {
+  color: #075985;
+}
+
+body:not(.theme-dark) .bankrec-bundle-confirmation-note {
+  color: #854d0e;
+}
+
+.bankrec-page .bankrec-payment-bundle__customer,
+.bankrec-page .bankrec-payment-bundle-message {
+  color: #64748b;
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.bankrec-page .bankrec-payment-bundle-message.is-error {
+  color: #b91c1c;
+}
+
+.bankrec-page .bankrec-payment-bundle-message.is-success {
+  color: #22c55e;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.bankrec-page .bankrec-payment-bundle__allocations {
+  display: grid;
+  gap: 4px;
+  padding: 0;
+  margin: 4px 0;
+  list-style: none;
+}
+
+.bankrec-page .bankrec-payment-bundle__allocations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.84rem;
+}
+
+.bankrec-page .bankrec-payment-bundle__summary,
+.bankrec-page .bankrec-payment-bundle__actions {
+  grid-column: 2;
+  min-width: 220px;
+}
+
+.bankrec-page .bankrec-payment-bundle__actions {
+  align-self: end;
+  display: grid;
+  gap: 8px;
+}
+
+.bankrec-page .bankrec-payment-bundle__action,
+.bankrec-page .bankrec-payment-bundle__adjust {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 767.98px) {
+  .bankrec-page .bankrec-payment-bundle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bankrec-page .bankrec-payment-bundle__summary,
+  .bankrec-page .bankrec-payment-bundle__actions {
+    grid-column: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .bankrec-page .bankrec-payment-bundle__header {
+    align-items: flex-start;
+  }
+
+  .bankrec-page .bankrec-payment-bundle__header-actions {
+    flex-wrap: wrap;
+  }
+
+  .bankrec-bundle-checks,
+  .bankrec-bundle-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bankrec-page .bankrec-panel-section-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 0.35rem;
+}
+.bankrec-page .bankrec-panel-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 0.45rem;
+}
+.bankrec-page .bankrec-panel-section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+}
+.bankrec-page .bankrec-panel-section-title-row .bankrec-panel-section-title {
+    margin-bottom: 0;
+}
+.bankrec-page .bankrec-remaining-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    min-height: 1.8rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    background: rgba(14, 165, 233, 0.12);
+    color: #bae6fd;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.bankrec-page .bankrec-remaining-count strong {
+    color: #f8fafc;
+    font-size: 0.9rem;
+}
+.bankrec-page .bankrec-panel-section-body {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: #dbe7f5;
+}
+.bankrec-page .bankrec-insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+.bankrec-page .bankrec-insight-item {
+    width: 100%;
+    padding: 0.7rem 0.78rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.58);
+    color: inherit;
+    text-align: left;
+    transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease;
+}
+.bankrec-page button.bankrec-insight-item:hover,
+.bankrec-page button.bankrec-insight-item:focus-visible {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(15, 23, 42, 0.72);
+    transform: translateY(-1px);
+    outline: none;
+}
+.bankrec-page .bankrec-insight-item.is-selected {
+    border-color: rgba(34, 197, 94, 0.36);
+    background: rgba(34, 197, 94, 0.11);
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.12);
+}
+.bankrec-page button.bankrec-insight-item.is-selected:hover,
+.bankrec-page button.bankrec-insight-item.is-selected:focus-visible {
+    border-color: rgba(34, 197, 94, 0.42);
+    background: rgba(34, 197, 94, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.14);
+}
+.bankrec-page .bankrec-insight-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.28rem;
+}
+.bankrec-page .bankrec-insight-body {
+    color: #dbe7f5;
+}
+.bankrec-page .bankrec-insight-meta {
+    margin-top: 0.25rem;
+    font-size: 0.84rem;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-insight-footer {
+    margin-top: 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #7dd3fc;
+}
+.bankrec-page .bankrec-inline-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+.bankrec-page .bankrec-confidence-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.8rem;
+    padding: 0.24rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(148, 163, 184, 0.1);
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+.bankrec-page .bankrec-confidence-chip.high {
+    border-color: rgba(34, 197, 94, 0.28);
+    background: rgba(34, 197, 94, 0.14);
+    color: #bbf7d0;
+}
+.bankrec-page .bankrec-confidence-chip.medium {
+    border-color: rgba(245, 158, 11, 0.28);
+    background: rgba(245, 158, 11, 0.14);
+    color: #fde68a;
+}
+.bankrec-page .bankrec-confidence-chip.low {
+    border-color: rgba(239, 68, 68, 0.28);
+    background: rgba(239, 68, 68, 0.14);
+    color: #fecaca;
+}
+.bankrec-page .bankrec-recommendation-item {
+    width: 100%;
+    margin-top: 0.7rem;
+    padding: 0.8rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.58);
+    color: inherit;
+    text-align: left;
+    transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease;
+}
+.bankrec-page .bankrec-recommendation-item:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(15, 23, 42, 0.72);
+    transform: translateY(-1px);
+}
+.bankrec-page .bankrec-recommendation-item.is-selected {
+    border-color: rgba(34, 197, 94, 0.36);
+    background: rgba(34, 197, 94, 0.11);
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.12);
+}
+.bankrec-page .bankrec-recommendation-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+.bankrec-page .bankrec-recommendation-body {
+    color: #dbe7f5;
+}
+.bankrec-page .bankrec-recommendation-meta,
+.bankrec-page .bankrec-activity-meta,
+.bankrec-page .bankrec-activity-time,
+.bankrec-page .bankrec-activity-note {
+    font-size: 0.84rem;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-recommendation-evidence {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+}
+.bankrec-page .bankrec-recommendation-evidence span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.65rem;
+    max-width: 100%;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    background: rgba(14, 165, 233, 0.08);
+    color: #bae6fd;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.bankrec-page .bankrec-ai-status {
+    padding: 0.85rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.52);
+}
+.bankrec-page .bankrec-ai-status.is-disabled {
+    border-color: rgba(148, 163, 184, 0.2);
+}
+.bankrec-page .bankrec-ai-status.is-enabled {
+    border-color: rgba(34, 197, 94, 0.28);
+    background: rgba(34, 197, 94, 0.08);
+}
+.bankrec-page .bankrec-ai-status__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: #e2e8f0;
+}
+.bankrec-page .bankrec-ai-status__badge {
+    flex: 0 0 auto;
+    padding: 0.16rem 0.48rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-ai-status__meta,
+.bankrec-page .bankrec-ai-status__empty {
+    margin-top: 0.55rem;
+    color: #94a3b8;
+    font-size: 0.84rem;
+}
+.bankrec-page .bankrec-ai-status__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-top: 0.75rem;
+}
+.bankrec-page .bankrec-ai-status__grid div {
+    min-width: 0;
+    padding: 0.55rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    background: rgba(2, 6, 23, 0.22);
+}
+.bankrec-page .bankrec-ai-status__grid span,
+.bankrec-page .bankrec-ai-status__grid strong {
+    display: block;
+}
+.bankrec-page .bankrec-ai-status__grid span {
+    color: #94a3b8;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.bankrec-page .bankrec-ai-status__grid strong {
+    margin-top: 0.18rem;
+    color: #e2e8f0;
+    font-size: 0.84rem;
+    overflow-wrap: anywhere;
+}
+.bankrec-page .bankrec-ai-suggestion-list {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 0.75rem;
+}
+.bankrec-page .bankrec-ai-suggestion {
+    min-width: 0;
+    padding: 0.65rem 0.7rem;
+    border-radius: 10px;
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    background: rgba(2, 6, 23, 0.2);
+}
+.bankrec-page .bankrec-ai-suggestion__top,
+.bankrec-page .bankrec-ai-suggestion__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+.bankrec-page .bankrec-ai-suggestion__top strong {
+    color: #e2e8f0;
+    font-size: 0.88rem;
+    overflow-wrap: anywhere;
+}
+.bankrec-page .bankrec-ai-suggestion__top span {
+    flex: 0 0 auto;
+    color: #bbf7d0;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+.bankrec-page .bankrec-ai-suggestion__customer {
+    margin-top: 0.25rem;
+    color: #dbe7f5;
+    font-size: 0.84rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.bankrec-page .bankrec-ai-suggestion__meta {
+    margin-top: 0.35rem;
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+.bankrec-page .bankrec-ai-suggestion p {
+    margin: 0.45rem 0 0;
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+.bankrec-page .bankrec-activity-item + .bankrec-activity-item {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+.bankrec-page .bankrec-activity-type {
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.bankrec-page .bankrec-activity-note {
+    margin-top: 0.25rem;
+}
+.bankrec-page .bankrec-manual-confirmation {
+    margin-top: 0.65rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(245, 158, 11, 0.26);
+    background: rgba(245, 158, 11, 0.1);
+    color: #fde68a;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+.bankrec-page .bankrec-loading-state {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+.bankrec-page .bankrec-loading-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.bankrec-page .bankrec-loading-title {
+    font-weight: 700;
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-loading-note {
+    font-size: 0.86rem;
+    color: #94a3b8;
+}
+.bankrec-page .bankrec-spinner {
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    border: 2px solid rgba(148, 163, 184, 0.22);
+    border-top-color: #38bdf8;
+    animation: bankrec-spin 0.9s linear infinite;
+}
+.bankrec-page .bankrec-table-loading {
+    opacity: 0.4;
+}
+.bankrec-page .bankrec-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+}
+.bankrec-page .bankrec-btn {
+    min-width: 6.5rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: rgba(15, 23, 42, 0.48);
+    color: #e2e8f0;
+    font-weight: 700;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, opacity 120ms ease, transform 120ms ease;
+}
+.bankrec-page .bankrec-btn:hover:not(:disabled),
+.bankrec-page .bankrec-btn:focus-visible:not(:disabled) {
+    border-color: rgba(56, 189, 248, 0.42);
+    background: rgba(15, 23, 42, 0.7);
+    color: #f8fafc;
+}
+.bankrec-page .bankrec-btn:disabled {
+    opacity: 0.38;
+    color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
+.bankrec-page .bankrec-btn-ghost {
+    background: rgba(15, 23, 42, 0.38);
+}
+.bankrec-page .bankrec-pagination-info {
+    min-width: 72px;
+    text-align: center;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+.bankrec-page .bankrec-empty-row td {
+    white-space: normal;
+    color: #94a3b8 !important;
+    height: var(--bankrec-table-row-height);
+    min-height: var(--bankrec-table-row-height);
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    vertical-align: middle;
+}
+.bankrec-page .bankrec-filler-row td {
+    height: var(--bankrec-table-row-height);
+    min-height: var(--bankrec-table-row-height);
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.bankrec-page .badge.bg-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.8rem;
+    padding: 0.24rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(148, 163, 184, 0.1) !important;
+    color: #dbe7f5 !important;
+}
+.bankrec-page .bankrec-detail-drawer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+.bankrec-page .bankrec-detail-drawer.is-open {
+    pointer-events: auto;
+}
+.bankrec-page .bankrec-detail-drawer__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.5);
+    opacity: 0;
+    transition: opacity 160ms ease;
+}
+.bankrec-page .bankrec-detail-drawer.is-open .bankrec-detail-drawer__backdrop {
+    opacity: 1;
+}
+.bankrec-page .bankrec-detail-drawer__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(440px, 100%);
+    height: 100%;
+    background: #111827;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    box-shadow: -24px 0 48px rgba(15, 23, 42, 0.38);
+    transform: translateX(100%);
+    transition: transform 180ms ease;
+    display: flex;
+    flex-direction: column;
+}
+.bankrec-page .bankrec-detail-drawer.is-open .bankrec-detail-drawer__panel {
+    transform: translateX(0);
+}
+.bankrec-page .bankrec-detail-drawer__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+.bankrec-page .bankrec-detail-drawer__body {
+    padding: 1rem 1.1rem 1.2rem;
+    overflow: auto;
+}
+
+body:not(.theme-dark) .bankrec-page .bankrec-card {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-card .text-muted.small,
+body:not(.theme-dark) .bankrec-page .bankrec-card .text-muted,
+body:not(.theme-dark) .bankrec-page #bankrec-selection-hint,
+body:not(.theme-dark) .bankrec-page #bankrec-invoice-detail-title {
+    color: #475569 !important;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-card .h4,
+body:not(.theme-dark) .bankrec-page .bankrec-card .h5,
+body:not(.theme-dark) .bankrec-page .bankrec-card .h6,
+body:not(.theme-dark) .bankrec-page .bankrec-card th,
+body:not(.theme-dark) .bankrec-page .bankrec-card td,
+body:not(.theme-dark) .bankrec-page .bankrec-card p,
+body:not(.theme-dark) .bankrec-page .bankrec-card div,
+body:not(.theme-dark) .bankrec-page .bankrec-card span {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-table thead th {
+    color: #475569;
+    border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-table-scroll .bankrec-table thead th {
+    background: #f8fafc;
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-table tbody tr {
+    border-top-color: rgba(15, 23, 42, 0.06);
+}
+body:not(.theme-dark) .bankrec-page #bankrec-invoice-detail-body {
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-loading-state {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(14, 165, 233, 0.18);
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock__selection,
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock__status {
+    background: #ffffff;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-panel-section {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__label,
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__meta,
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-input { color: #0f172a; }
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-input {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.14);
+    box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-input:focus {
+    background: #ffffff;
+    border-color: rgba(14, 165, 233, 0.38);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__label,
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__meta {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-label,
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-currency,
+body:not(.theme-dark) .bankrec-page .bankrec-match-amount-note {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-loading-title,
+body:not(.theme-dark) .bankrec-page .bankrec-pagination-info {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-btn {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-btn:hover:not(:disabled),
+body:not(.theme-dark) .bankrec-page .bankrec-btn:focus-visible:not(:disabled) {
+    background: #f8fafc;
+    border-color: rgba(14, 165, 233, 0.3);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-btn:disabled {
+    color: #64748b;
+    background: #ffffff;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock__value,
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock__value strong,
+body:not(.theme-dark) .bankrec-page .bankrec-panel-section-title,
+body:not(.theme-dark) .bankrec-page .bankrec-panel-section-body,
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__value,
+body:not(.theme-dark) .bankrec-page .bankrec-activity-type {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-remaining-count {
+    background: #e0f2fe;
+    border-color: rgba(14, 165, 233, 0.22);
+    color: #0369a1;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-remaining-count strong {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-match-dock__label,
+body:not(.theme-dark) .bankrec-page .bankrec-match-difference,
+body:not(.theme-dark) .bankrec-page .bankrec-confirm-bar__hint {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-loading-note,
+body:not(.theme-dark) .bankrec-page .bankrec-empty-row td,
+body:not(.theme-dark) .bankrec-page .bankrec-demo-status-card__label,
+body:not(.theme-dark) .bankrec-page .bankrec-recommendation-meta,
+body:not(.theme-dark) .bankrec-page .bankrec-activity-meta,
+body:not(.theme-dark) .bankrec-page .bankrec-activity-time,
+body:not(.theme-dark) .bankrec-page .bankrec-activity-note {
+    color: #475569 !important;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-recommendation-item {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-insight-item {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-insight-body {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-insight-meta,
+body:not(.theme-dark) .bankrec-page .bankrec-insight-footer {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-recommendation-evidence span {
+    background: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.16);
+    color: #1d4ed8;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__top,
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__grid strong {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__meta,
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__empty,
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__grid span {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__badge {
+    background: #e2e8f0;
+    color: #334155;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-status__grid div {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-ai-suggestion__customer {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-manual-confirmation {
+    background: #fff7ed;
+    border-color: rgba(245, 158, 11, 0.28);
+    color: #9a3412;
+}
+body:not(.theme-dark) .bankrec-page .badge.bg-secondary {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border-color: rgba(15, 23, 42, 0.12);
+}
+body:not(.theme-dark) .bankrec-page .btn-portal:disabled,
+body:not(.theme-dark) .bankrec-page .btn-portal-outline:disabled {
+    background: #e2e8f0;
+    border-color: rgba(100, 116, 139, 0.2);
+    box-shadow: none;
+    color: #64748b;
+    -webkit-text-fill-color: #64748b;
+}
+body:not(.theme-dark) .bankrec-page .btn-portal:not(.btn-portal-outline):not(:disabled),
+body:not(.theme-dark) .bankrec-page a.btn-portal:not(.btn-portal-outline):not(:disabled),
+body:not(.theme-dark) .bankrec-page a.btn-portal:not(.btn-portal-outline):visited:not(:disabled) {
+    background: linear-gradient(180deg, #4c6f97 0%, #3f618a 100%);
+    border-color: rgba(63, 97, 138, 0.5);
+    box-shadow: 0 8px 18px rgba(63, 97, 138, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+}
+body:not(.theme-dark) .bankrec-page .btn-portal:not(.btn-portal-outline):hover,
+body:not(.theme-dark) .bankrec-page .btn-portal:not(.btn-portal-outline):focus {
+    background: linear-gradient(180deg, #587ba3 0%, #4b6f99 100%);
+    border-color: rgba(63, 97, 138, 0.62);
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-validation-trigger {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-validation-trigger:hover,
+body:not(.theme-dark) .bankrec-page .bankrec-validation-trigger:focus-visible {
+    background: #f8fafc;
+    border-color: rgba(14, 165, 233, 0.28);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-scenario:not(.is-active) {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-scenario.is-active {
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.14);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step:hover,
+body:not(.theme-dark) .bankrec-page .bankrec-process-step:focus-visible {
+    background: #ffffff;
+    border-color: rgba(14, 165, 233, 0.24);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step.is-active {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.24);
+    box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 0.08),
+        0 0 0 3px rgba(148, 163, 184, 0.12);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step__title,
+body:not(.theme-dark) .bankrec-page .bankrec-confidence-summary-text,
+body:not(.theme-dark) .bankrec-page .bankrec-step2-recommendation strong {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step__eyebrow,
+body:not(.theme-dark) .bankrec-page .bankrec-process-step__badge,
+body:not(.theme-dark) .bankrec-page .bankrec-confidence-score,
+body:not(.theme-dark) .bankrec-page .bankrec-step2-eyebrow,
+body:not(.theme-dark) .bankrec-page .bankrec-step2-recommendation-meta,
+body:not(.theme-dark) .bankrec-page .bankrec-allocation-meta,
+body:not(.theme-dark) .bankrec-page .bankrec-panel-section-label {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-process-step__badge {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-step2-recommendation {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-step2-recommendation:hover,
+body:not(.theme-dark) .bankrec-page .bankrec-step2-recommendation:focus-visible {
+    background: #f8fafc;
+    border-color: rgba(14, 165, 233, 0.24);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-allocation-item + .bankrec-allocation-item {
+    border-top-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-guide {
+    background: #eff6ff;
+    border-color: rgba(14, 165, 233, 0.18);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-guide-title {
+    color: #0369a1;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-demo-guide-message {
+    color: #0f172a;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-browse-header__title {
+    color: #0369a1;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-browse-header__message,
+body:not(.theme-dark) .bankrec-page .bankrec-process-complete__label,
+body:not(.theme-dark) .bankrec-page .bankrec-process-step__meta,
+body:not(.theme-dark) .bankrec-page .bankrec-workspace-focus__label {
+    color: #475569;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-detail-drawer__panel {
+    background: #ffffff;
+    border-left-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-account-check {
+    background: #fffbeb;
+    border-color: rgba(217, 119, 6, 0.24);
+    color: #92400e;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-account-check span {
+    color: #78350f;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-complete-summary-item {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-complete-items,
+body:not(.theme-dark) .bankrec-page .bankrec-complete-item,
+body:not(.theme-dark) .bankrec-page .bankrec-complete-items__message {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+body:not(.theme-dark) .bankrec-page .bankrec-complete-item__meta,
+body:not(.theme-dark) .bankrec-page .bankrec-complete-item__reason,
+body:not(.theme-dark) .bankrec-page .bankrec-complete-items__message {
+    color: #64748b;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-complete-item__action {
+    color: #0369a1;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-manual-invoice-intro,
+body:not(.theme-dark) .bankrec-page .bankrec-manual-invoice-pagination,
+body:not(.theme-dark) .bankrec-page .bankrec-manual-invoice-empty {
+    color: #64748b;
+}
+body:not(.theme-dark) .bankrec-page .bankrec-auto-match-feedback {
+    color: #075985;
+}
+
+@media (max-width: 1200px) {
+    .bankrec-page .bankrec-process-steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bankrec-page .bankrec-match-dock__top {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bankrec-page .bankrec-workpanel-actions {
+        justify-content: flex-start;
+    }
+
+    .bankrec-page .bankrec-panel-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .bankrec-page .bankrec-empty-state {
+        gap: 1.1rem;
+    }
+
+    .bankrec-page .bankrec-empty-actions {
+        gap: 0.6rem;
+    }
+
+    .bankrec-page .bankrec-summary-row {
+        --bs-gutter-y: 0.5rem;
+    }
+
+    .bankrec-page .bankrec-table-card-header {
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .bankrec-empty-state {
+        flex-direction: column;
+    }
+
+    .bankrec-page .bankrec-conflict-banner {
+        flex-wrap: wrap;
+    }
+
+    .bankrec-empty-actions {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .bankrec-validation-details {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-match-dock,
+    .bankrec-page .bankrec-action-bar__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-match-dock {
+        position: static;
+    }
+
+    .bankrec-page .bankrec-match-dock__top {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-confirm-bar__pair {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-workpanel-actions {
+        flex-wrap: wrap;
+    }
+
+    .bankrec-page .bankrec-panel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-workpanel,
+    .bankrec-page .bankrec-action-bar {
+        position: static;
+    }
+
+    .bankrec-page .bankrec-demo-scenarios {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-demo-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-process-steps {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-complete-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .bankrec-page .bankrec-complete-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .bankrec-page .bankrec-complete-item__body,
+    .bankrec-page .bankrec-complete-item__meta,
+    .bankrec-page .bankrec-complete-item__reason {
+        white-space: normal;
+    }
+
+    .bankrec-page .bankrec-browse-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .bankrec-page .bankrec-table-card-header {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .bankrec-page .bankrec-select-filters {
+        flex-wrap: wrap;
+        justify-content: stretch;
+    }
+
+    .bankrec-page .bankrec-select-filter {
+        min-width: 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .bankrec-page .bankrec-table-scroll {
+        max-height: min(46vh, 28rem);
+    }
+
+    .bankrec-page #bankrec-tx-table,
+    .bankrec-page #bankrec-inv-table {
+        min-width: 52rem;
+    }
+
+    .bankrec-page .bankrec-action-bar__actions {
+        align-items: stretch;
+    }
+
+    .bankrec-page .bankrec-action-bar__hint {
+        text-align: left;
+    }
+}
+
+.bankrec-page .bankrec-lifecycle {
+    border-top: 1px solid var(--bs-border-color);
+    padding-top: 1rem;
+}
+
+.bankrec-page .bankrec-reopen .form-control {
+    min-width: min(26rem, 100%);
+    flex: 1 1 18rem;
+}
+
+.bankrec-page.is-reconciliation-closed .bankrec-match-dock,
+.bankrec-page.is-reconciliation-closed .bankrec-payment-bundles-section {
+    opacity: 0.72;
+}
+
+@keyframes bankrec-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

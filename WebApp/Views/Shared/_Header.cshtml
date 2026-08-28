@@ -1,0 +1,121 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Entities.Application
+@using WebApp.Models.Dashboard
+@using WebApp.Services
+@using WebApp.Services.Dashboard
+@inject IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<style>
+  .header-runtime-bell {
+    display: none;
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.78);
+    color: #dbeafe;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  }
+
+  .header-runtime-bell:hover,
+  .header-runtime-bell:focus-visible {
+    border-color: rgba(125, 211, 252, 0.34);
+    background: rgba(15, 23, 42, 0.92);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .header-runtime-bell__count {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.94);
+    color: #fff;
+    font-size: 0.64rem;
+    font-weight: 800;
+  }
+
+  .header-runtime-bell {
+    display: inline-flex;
+  }
+
+</style>
+
+<!-- BEGIN #header -->
+<div id="header" class="app-header">
+@{
+    var currentCulture = System.Threading.Thread.CurrentThread.CurrentUICulture?.Name ?? "sv-SE";
+    var isSwedish = currentCulture.StartsWith("sv", StringComparison.OrdinalIgnoreCase);
+    var toggleLabel = isSwedish ? "EN" : "SV";
+    var toggleValue = isSwedish ? "en" : "sv";
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    if (string.IsNullOrWhiteSpace(returnUrl))
+    {
+        returnUrl = "/";
+    }
+}
+  <!-- BEGIN navbar-header -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-desktop-toggler" data-toggle="app-sidebar-minify">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <button type="button" class="navbar-mobile-toggler" data-toggle="app-sidebar-mobile">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a href="~/Member/Index" class="navbar-brand">
+      <b>ZeeU </b>Hub
+    </a>
+    <a class="btn btn-sm btn-portal btn-portal-outline ms-2" asp-controller="Support" asp-action="Index">
+      <i class="fa fa-life-ring me-1"></i>
+      Kundsupport
+    </a>
+  </div>
+  <!-- END navbar-header -->
+  <!-- BEGIN header-nav -->
+  <div class="navbar-nav">
+    <div class="navbar-item me-2">
+      <form asp-controller="Home" asp-action="SetLanguage" method="post" class="d-flex align-items-center gap-1 m-0">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+        <button type="submit" name="culture" value="@toggleValue" class="btn btn-sm btn-outline-secondary">@toggleLabel</button>
+      </form>
+    </div>
+    <div class="navbar-item me-2">
+      <button id="themeToggle" type="button" class="btn btn-sm btn-outline-secondary">
+        <i class="fa fa-moon"></i>
+        <span class="ms-1">@Localizer["Dark"]</span>
+      </button>
+    </div>
+    <div class="navbar-item me-2">
+      <button type="button"
+              class="header-runtime-bell"
+              data-sidebar-notifications-toggle
+              aria-label="Notifikationer"
+              aria-expanded="false"
+              aria-haspopup="dialog">
+        <i class="fa fa-bell-o"></i>
+        <span class="header-runtime-bell__count" data-sidebar-count-header hidden></span>
+        </button>
+    </div>
+    @await Html.PartialAsync("_CompanyPicker")
+    @await Html.PartialAsync("_LoginPartial")
+  </div>
+  <!-- END header-nav -->
+  
+</div>
+<!-- END #header -->

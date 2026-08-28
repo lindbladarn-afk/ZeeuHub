@@ -1,0 +1,145 @@
+@model WebApp.ViewModels.ExcelImport.ExcelImportRuntimeRowsViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> SharedLocalizer
+@using WebApp.Services.ExcelImport
+
+@{
+    var headers = Model.Headers ?? new List<string>();
+    var rows = Model.Rows;
+    var filteredCount = Model.FilteredCount;
+    var filterKey = System.Text.RegularExpressions.Regex.Replace(Model.AggregateKey ?? "import", "[^A-Za-z0-9_-]", "-");
+    var filterId = $"excel-runtime-filter-invalid-loaded-{filterKey}";
+    var pageStart = filteredCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var pageEnd = filteredCount == 0 ? 0 : Math.Min(Model.Page * Model.PageSize, filteredCount);
+    var emptyColumnHeaders = headers
+        .Where(header => rows.All(row =>
+            row.Data == null
+            || !row.Data.TryGetValue(header, out var cellValue)
+            || string.IsNullOrWhiteSpace(cellValue)))
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+}
+
+<div class="excel-runtime-status-table-title">@SharedLocalizer["ExcelImport_RuntimeImportedRows"]</div>
+<div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+    <div class="form-check">
+        <input class="form-check-input"
+               type="checkbox"
+               id="@filterId"
+               data-runtime-loaded-filter-invalid="true"
+               @(Model.ShowOnlyInvalidRows ? "checked" : null) />
+        <label class="form-check-label small" for="@filterId">
+            Visa endast rader med fel
+        </label>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.EditUrl))
+    {
+        <a href="@Model.EditUrl" class="btn btn-sm btn-portal btn-portal-outline">
+            Redigeringsläge
+        </a>
+    }
+</div>
+
+<div class="excel-runtime-row-pager small text-muted mb-2"
+     data-runtime-loaded-pager="true"
+     data-runtime-page="@Model.Page"
+     data-runtime-page-size="@Model.PageSize"
+     data-runtime-total-pages="@Model.TotalPages"
+     data-runtime-show-invalid="@(Model.ShowOnlyInvalidRows.ToString().ToLowerInvariant())"
+     data-runtime-show-all="@(Model.ShowAllRows.ToString().ToLowerInvariant())">
+    <span data-runtime-loaded-page-info>
+        @(filteredCount > 0 ? $"Visar {pageStart}-{pageEnd} av {filteredCount} rader" : "Inga rader att visa")
+    </span>
+    @if (Model.ShowAllRows)
+    {
+        <span class="ms-2" data-runtime-loaded-page-indicator>Sida @Model.Page av @Model.TotalPages</span>
+    }
+</div>
+
+<div class="table-responsive excel-runtime-status-table-wrap">
+    <table class="table table-sm align-middle excel-runtime-status-table mb-0">
+        <thead>
+            <tr>
+                <th scope="col">@SharedLocalizer["ExcelImport_RuntimeRow"]</th>
+                @foreach (var header in headers)
+                {
+                    var isEmptyColumn = emptyColumnHeaders.Contains(header);
+                    var widthChars = isEmptyColumn ? Math.Clamp(header.Length, 4, 14) : 10;
+                    <th scope="col" class="@(isEmptyColumn ? "excel-empty-column" : "")" style="--excel-col-ch:@widthChars;">@header</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="@(headers.Count + 1)" class="text-muted small">Inga rader matchar filtret.</td>
+                </tr>
+            }
+            @foreach (var row in rows)
+            {
+                <tr class="@(row.IsValid ? "row-valid" : "row-invalid")">
+                    <td>
+                        <span class="excel-runtime-status-row-no">#@row.RowNo</span>
+                        @if (!row.IsValid)
+                        {
+                            <span class="badge bg-danger-subtle text-danger rounded-pill ms-2">@SharedLocalizer["RuntimeStatus_Failed"]</span>
+                        }
+                    </td>
+                    @foreach (var header in headers)
+                    {
+                        string? cellValue = null;
+                        var hasValue = row.Data != null && row.Data.TryGetValue(header, out cellValue);
+                        cellValue = hasValue ? cellValue : string.Empty;
+                        var isEmptyColumn = emptyColumnHeaders.Contains(header);
+                        var widthChars = isEmptyColumn ? Math.Clamp(header.Length, 4, 14) : 10;
+                        <td class="@(isEmptyColumn ? "excel-empty-column" : "")" style="--excel-col-ch:@widthChars;">@(string.IsNullOrWhiteSpace(cellValue) ? "—" : cellValue)</td>
+                    }
+                </tr>
+                @if (!row.IsValid)
+                {
+                    <tr class="excel-row-error-row">
+                        <td colspan="@(headers.Count + 1)">
+                            <span class="excel-row-error-message">
+                                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                @(string.IsNullOrWhiteSpace(row.ErrorMessage) ? "Raden klarade inte valideringen." : row.ErrorMessage)
+                            </span>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="excel-runtime-row-pager-actions d-flex align-items-center gap-2 flex-wrap mt-2">
+    @if (Model.ShowAllRows)
+    {
+        <button type="button"
+                class="btn btn-sm btn-portal btn-portal-outline"
+                data-runtime-loaded-row-prev="true"
+                @(Model.Page <= 1 ? "disabled" : null)>
+            Föregående
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-portal btn-portal-outline"
+                data-runtime-loaded-row-next="true"
+                @(Model.Page >= Model.TotalPages ? "disabled" : null)>
+            Nästa
+        </button>
+    }
+    @if (!Model.ShowAllRows && filteredCount > Model.PageSize)
+    {
+        <button type="button"
+                class="btn btn-sm btn-portal"
+                data-runtime-loaded-row-all="true">
+            Visa alla rader
+        </button>
+    }
+    else if (Model.ShowAllRows)
+    {
+        <button type="button"
+                class="btn btn-sm btn-portal btn-portal-outline"
+                data-runtime-loaded-row-preview="true">
+            Visa 50 rader
+        </button>
+    }
+</div>

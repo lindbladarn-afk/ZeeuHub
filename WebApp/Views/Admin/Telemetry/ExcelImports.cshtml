@@ -1,0 +1,111 @@
+@model WebApp.ViewModels.Admin.ExcelImportsPageVm
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    // Admin telemetry page for Excel imports.
+    // Reuses the shared module-page shell so KPI cards and tables stay visually aligned with the rest of the portal.
+    ViewData["Title"] = Localizer["Excelimporter"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="admin-page dashboard-readable module-page excel-imports-admin-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">Admin</div>
+        <h1 class="module-page-title">@Localizer["Excelimporter"]</h1>
+        <div class="module-page-subtitle">@Localizer["Översikt över importaktivitet, senaste uppladdningar och toppbolag för de senaste 30 dagarna."]</div>
+    </div>
+    <div class="module-page-meta">@Localizer["senaste 30 dagar"]</div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-6">
+        <div class="card kpi-card p-3 h-100">
+            <div class="dashboard-card-title">@Localizer["Totala importer"]</div>
+            <div class="metric-value">@Model.TotalImports</div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card kpi-card p-3 h-100">
+            <div class="dashboard-card-title">@Localizer["Totala rader"]</div>
+            <div class="metric-value">@Model.TotalRows</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card kpi-card p-3 h-100 module-table-shell">
+            <div class="dashboard-card-title mb-3">@Localizer["Toppbolag (antal)"]</div>
+            <div class="table-responsive telemetry-table module-table">
+                <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Bolag"]</th>
+                            <th class="text-end">@Localizer["Importer"]</th>
+                            <th class="text-end">@Localizer["Rader"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopCompanies)
+                        {
+                            <tr>
+                                <td>@item.CompanyName</td>
+                                <td class="text-end">@item.Count</td>
+                                <td class="text-end">@item.TotalRows</td>
+                            </tr>
+                        }
+                        @if (!Model.TopCompanies.Any())
+                        {
+                            <tr><td colspan="3" class="text-center text-muted">@Localizer["Inga data"]</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card kpi-card p-3 h-100 module-table-shell">
+            <div class="dashboard-card-title mb-3">@Localizer["Senaste importer"]</div>
+            @* Latest imports stay table-based because admins compare file, company and row counts side by side. *@
+            <div class="table-responsive telemetry-table module-table">
+                <table class="table table-sm table-striped table-borderless mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Fil"]</th>
+                            <th>@Localizer["Typ"]</th>
+                            <th>@Localizer["Bolag"]</th>
+                            <th>@Localizer["Användare"]</th>
+                            <th class="text-end">@Localizer["Rader"]</th>
+                            <th class="text-end">@Localizer["Ogiltiga"]</th>
+                            <th class="text-end">@Localizer["Tid"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Latest)
+                        {
+                            <tr>
+                                <td>@item.FileName</td>
+                                <td>@item.ImportType</td>
+                                <td>@item.CompanyName</td>
+                                <td>@item.UserEmail</td>
+                                <td class="text-end">@item.TotalRows</td>
+                                <td class="text-end">@item.InvalidRows</td>
+                                <td class="text-end">@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                        @if (!Model.Latest.Any())
+                        {
+                            <tr><td colspan="7" class="text-center text-muted">@Localizer["Inga data"]</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

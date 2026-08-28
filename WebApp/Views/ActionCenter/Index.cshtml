@@ -1,0 +1,78 @@
+@model WebApp.Models.ActionCenter.ActionCenterViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> sharedLocalizer
+@{
+    // Action Center should read like a first-class module page, not a dashboard-only fragment,
+    // so the header and support cards reuse the same module-page hierarchy as invoices and orders.
+    ViewData["Title"] = sharedLocalizer["ActionCenter_Title"].Value;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/dashboard/action-center-card.js" asp-append-version="true"></script>
+}
+
+<div class="dashboard-readable module-page action-center-page">
+    <div class="module-page-header mb-4">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["ActionCenter_Label"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["ActionCenter_Title"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["ActionCenter_Subtitle"]</div>
+        </div>
+        <a asp-controller="Member" asp-action="Index" class="btn btn-portal btn-portal-outline btn-sm">
+            <i class="fa fa-arrow-left me-1"></i> @sharedLocalizer["BackToDashboard"]
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12">
+            @await Component.InvokeAsync("ActionCenter", new { take = 50, fullPage = true })
+        </div>
+    </div>
+
+    @if (Model?.History?.Any() == true)
+    {
+        <div class="card kpi-card p-3 mt-3"
+             data-dashboard-action-center-history="true"
+             data-update-url="@Url.Action("UpdateStatus", "ActionCenter")"
+             data-summary-url="@Url.Action("Summary", "ActionCenter")">
+            <input type="hidden" class="ac-antiforgery" value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="dashboard-card-title m-0">@sharedLocalizer["ActionCenter_HistoryRecent"]</h6>
+            </div>
+            <div class="list-group list-group-flush bg-transparent">
+                @foreach (var h in Model.History)
+                {
+                    <div class="list-group-item bg-transparent action-item py-2 px-0 border-0"
+                         data-insight-id="@h.Key">
+                        <div class="d-flex justify-content-between align-items-center ac-history-toggle">
+                            <div class="text-white fw-bold">@h.Title</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="module-page-meta">@(h.CompletedAt?.ToString("yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture) ?? string.Empty)</small>
+                                <i class="fa fa-chevron-down text-muted"></i>
+                            </div>
+                        </div>
+                        <div class="ac-history-details d-none mt-2 ps-3">
+                            <div class="action-meta mb-1">@h.Description</div>
+                            @if (!string.IsNullOrWhiteSpace(h.Comment))
+                            {
+                                <div class="text-warning small mb-1">@sharedLocalizer["Comment"]: @h.Comment</div>
+                            }
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-portal btn-portal-outline ac-reopen"
+                                        data-insight-id="@h.Key">
+                                    @sharedLocalizer["ActionCenter_Reopen"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

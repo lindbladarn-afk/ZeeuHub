@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Kundsupport" xml:space="preserve">
+    <value>Kundsupport</value>
+  </data>
+  <data name="Support" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="Behöver du hjälp? Hör av dig eller kika i våra guider nedan." xml:space="preserve">
+    <value>Behöver du hjälp? Hör av dig eller kika i våra guider nedan.</value>
+  </data>
+  <data name="Tips: skicka med modul, bolag, tidpunkt samt länk/id till relevant Action Center-kort." xml:space="preserve">
+    <value>Tips: skicka med modul, bolag, tidpunkt samt länk/id till relevant Action Center-kort.</value>
+  </data>
+  <data name="3 steg" xml:space="preserve">
+    <value>3 steg</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Uppgifter</value>
+  </data>
+  <data name="Kontakta oss" xml:space="preserve">
+    <value>Kontakta oss</value>
+  </data>
+  <data name="Vardagar 08–17" xml:space="preserve">
+    <value>Vardagar 08–17</value>
+  </data>
+  <data name="Guider &amp; FAQ" xml:space="preserve">
+    <value>Guider &amp; FAQ</value>
+  </data>
+  <data name="Hur importerar jag Excel?" xml:space="preserve">
+    <value>Hur importerar jag Excel?</value>
+  </data>
+  <data name="Kom igång med ZeeU Intelligence" xml:space="preserve">
+    <value>Kom igång med ZeeU Intelligence</value>
+  </data>
+  <data name="ZeeU Action Center" xml:space="preserve">
+    <value>ZeeU Action Center</value>
+  </data>
+  <data name="Vanliga frågor om fakturor och order" xml:space="preserve">
+    <value>Vanliga frågor om fakturor och order</value>
+  </data>
+  <data name="Skicka en förfrågan" xml:space="preserve">
+    <value>Skicka en förfrågan</value>
+  </data>
+  <data name="Beskriv ditt ärende så återkommer vi så snart vi kan." xml:space="preserve">
+    <value>Beskriv ditt ärende så återkommer vi så snart vi kan.</value>
+  </data>
+  <data name="Ämne" xml:space="preserve">
+    <value>Ämne</value>
+  </data>
+  <data name="Beskriv ditt problem" xml:space="preserve">
+    <value>Beskriv ditt problem</value>
+  </data>
+  <data name="Skicka" xml:space="preserve">
+    <value>Skicka</value>
+  </data>
+  <data name="Guide" xml:space="preserve">
+    <value>Guide</value>
+  </data>
+  <data name="Så använder du portalen" xml:space="preserve">
+    <value>Så använder du portalen</value>
+  </data>
+  <data name="Excelimport" xml:space="preserve">
+    <value>Excelimport</value>
+  </data>
+  <data name="Välj importtyp (Voucher, Budget, Inköpspris, Prisuppdatering)." xml:space="preserve">
+    <value>Välj importtyp (Voucher, Budget, Inköpspris, Prisuppdatering).</value>
+  </data>
+  <data name="Ladda upp .xls/.xlsx/.xlsm/.csv, bekräfta importtyp och starta." xml:space="preserve">
+    <value>Ladda upp .xls/.xlsx/.xlsm/.csv, bekräfta importtyp och starta.</value>
+  </data>
+  <data name="Resultatet sparas i staging med rådata (RawJson) för spårbarhet." xml:space="preserve">
+    <value>Resultatet sparas i staging med rådata (RawJson) för spårbarhet.</value>
+  </data>
+  <data name="Tip: vid fel, kontrollera rubriker och datatyp (datum/belopp) i filen." xml:space="preserve">
+    <value>Tip: vid fel, kontrollera rubriker och datatyp (datum/belopp) i filen.</value>
+  </data>
+  <data name="ZeeU Intelligence" xml:space="preserve">
+    <value>ZeeU Intelligence</value>
+  </data>
+  <data name="Använd snabbknapparna för mallfrågor (saldo, senaste ordrar/fakturor)." xml:space="preserve">
+    <value>Använd snabbknapparna för mallfrågor (saldo, senaste ordrar/fakturor).</value>
+  </data>
+  <data name="Chatten svarar med SQL-baserad data och mockade exempel där det saknas koppling." xml:space="preserve">
+    <value>Chatten svarar med SQL-baserad data och mockade exempel där det saknas koppling.</value>
+  </data>
+  <data name="Tokenräknare visar kvarvarande frågor per dag." xml:space="preserve">
+    <value>Tokenräknare visar kvarvarande frågor per dag.</value>
+  </data>
+  <data name="Behöver du fler frågor? Kontakta supporten så ökar vi din kvot." xml:space="preserve">
+    <value>Behöver du fler frågor? Kontakta supporten så ökar vi din kvot.</value>
+  </data>
+  <data name="Se samlade uppgifter/notifieringar (approvals, faktura/ordervarningar) på ett ställe." xml:space="preserve">
+    <value>Se samlade uppgifter/notifieringar (approvals, faktura/ordervarningar) på ett ställe.</value>
+  </data>
+  <data name="Pausa eller markera klart när åtgärd är tagen; lägg interna kommentarer för spårbarhet." xml:space="preserve">
+    <value>Pausa eller markera klart när åtgärd är tagen; lägg interna kommentarer för spårbarhet.</value>
+  </data>
+  <data name="Påminnelser och eskaleringar styrs av dina inställningar – säg till supporten om de behöver justeras." xml:space="preserve">
+    <value>Påminnelser och eskaleringar styrs av dina inställningar – säg till supporten om de behöver justeras.</value>
+  </data>
+  <data name="Tips: skicka ärende-ID eller länk till kortet om du rapporterar ett Action Center-problem." xml:space="preserve">
+    <value>Tips: skicka ärende-ID eller länk till kortet om du rapporterar ett Action Center-problem.</value>
+  </data>
+  <data name="Fakturor &amp; Order – vanliga frågor" xml:space="preserve">
+    <value>Fakturor &amp; Order – vanliga frågor</value>
+  </data>
+  <data name="Fakturor: filtrera på obetalda/betalda, se status och skicka påminnelse/inkasso." xml:space="preserve">
+    <value>Fakturor: filtrera på obetalda/betalda, se status och skicka påminnelse/inkasso.</value>
+  </data>
+  <data name="Orders: sortera, sök på kund/datum/order nr; visa detaljer med orderrader." xml:space="preserve">
+    <value>Orders: sortera, sök på kund/datum/order nr; visa detaljer med orderrader.</value>
+  </data>
+  <data name="Data hämtas per bolag utifrån din inloggning och Jeeves-koppling." xml:space="preserve">
+    <value>Data hämtas per bolag utifrån din inloggning och Jeeves-koppling.</value>
+  </data>
+  <data name="Saknar du data? Säkerställ att ditt konto är kopplat till rätt företag i Jeeves." xml:space="preserve">
+    <value>Saknar du data? Säkerställ att ditt konto är kopplat till rätt företag i Jeeves.</value>
+  </data>
+</root>

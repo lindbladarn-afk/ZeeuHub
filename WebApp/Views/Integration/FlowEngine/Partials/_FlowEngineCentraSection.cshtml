@@ -1,0 +1,166 @@
+@model WebApp.Models.Integration.FlowEngineModuleViewModel
+@{
+    var centraEntityId = !string.IsNullOrWhiteSpace(Model.Forms.SendOrder.OrderId)
+        ? Model.Forms.SendOrder.OrderId
+        : !string.IsNullOrWhiteSpace(Model.Forms.SendReturn.ReturnId)
+            ? Model.Forms.SendReturn.ReturnId
+            : Model.Forms.CreateShipment.OrderId;
+    var schedulerPreviewRuns = Enumerable.Range(1, 5)
+        .Select(offset => DateTimeOffset.Now.Date.AddDays(offset).AddHours(7).ToString("ddd d MMM HH:mm"))
+        .ToArray();
+    var selectedCentraJob = Model.CentraHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 flowengine-surface-card flowengine-centra-console" id="flowengine-section-centra">
+            <div class="card-body">
+                <div class="flowengine-centra-console-header">
+                    <div>
+                        <div class="dashboard-card-title mb-2">Centra</div>
+                    </div>
+                </div>
+
+                <div class="flowengine-centra-console-grid">
+                    <form method="post" class="flowengine-centra-console-panel">
+                        @Html.AntiForgeryToken()
+                        <div class="flowengine-centra-console-title">Batchkörningar</div>
+                        <label class="form-label text-muted small">Datum (UTC)</label>
+                        <div class="flowengine-centra-console-field-row flowengine-centra-console-field-row--scheduler">
+                            <input name="DateUtc" type="date" value="@Model.Forms.CheckOrders.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            <partial name="FlowEngine/Partials/_FlowEngineSchedulerPopover"
+                                     model='new WebApp.Models.Integration.FlowEngineSchedulerPopoverViewModel
+                                     {
+                                         ToggleKey = "centra-scheduler",
+                                         InfoRows = new[]
+                                         {
+                                             ("Operations", "Send Returns"),
+                                             ("Frequency", "Daily at 07:00"),
+                                             ("Source date", "Previous UTC day"),
+                                             ("Time zone", "Europe/Stockholm")
+                                         },
+                                         NextRuns = schedulerPreviewRuns
+                                     }' />
+                        </div>
+                        <input type="hidden" name="DryRun" value="false" />
+                        <input type="hidden" name="SkipJeevesCheck" value="false" />
+                        <div class="flowengine-centra-console-actions">
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunCheckOrders", "Integration")" class="btn btn-portal btn-portal-outline">Check Orders</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunSendOrders", "Integration")" class="btn btn-portal btn-portal-outline">Send Orders</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunSendReturns", "Integration")" class="btn btn-portal btn-portal-outline">Send Returns</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunCreateShipments", "Integration")" class="btn btn-portal btn-portal-outline">Create Shipments</button>
+                        </div>
+                    </form>
+
+                    <form method="post" class="flowengine-centra-console-panel">
+                        @Html.AntiForgeryToken()
+                        <div class="flowengine-centra-console-title">Order eller retur</div>
+                        <label class="form-label text-muted small">Order eller Return ID</label>
+                        <input id="flowengine-centra-entity-id" value="@centraEntityId" class="form-control mb-3" placeholder="e.g. 17177077 eller 14176" oninput="document.getElementById('flowengine-centra-order-id').value=this.value;document.getElementById('flowengine-centra-return-id').value=this.value;" />
+                        <input id="flowengine-centra-order-id" type="hidden" name="OrderId" value="@centraEntityId" />
+                        <input id="flowengine-centra-return-id" type="hidden" name="ReturnId" value="@centraEntityId" />
+                        <input type="hidden" name="DryRun" value="false" />
+                        <input type="hidden" name="SkipJeevesCheck" value="false" />
+                        <div class="flowengine-centra-console-actions">
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunSendOrder", "Integration")" class="btn btn-portal btn-portal-outline">Send Order</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunSendReturn", "Integration")" class="btn btn-portal btn-portal-outline">Send Return</button>
+                            <button type="submit" formaction="@Url.Action("FlowEngineRunCreateShipment", "Integration")" class="btn btn-portal btn-portal-outline">Create Shipment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <details class="flowengine-centra-advanced">
+                    <summary>Avancerade Centra-flöden</summary>
+                    <div class="flowengine-centra-advanced-grid">
+                        <form method="post" asp-action="FlowEngineRunCreateShipmentsPending" class="flowengine-centra-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Create shipments pending</div>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CreateShipmentsPending.Limit" class="form-control mb-3" placeholder="Limit" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kör pending</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunCentraFetchOrder" class="flowengine-centra-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch order</div>
+                            <input name="OrderId" value="@Model.Forms.CentraFetchOrder.OrderId" class="form-control mb-3" placeholder="Order ID" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Hämta order</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunCentraFetchReturn" class="flowengine-centra-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch return</div>
+                            <input name="ReturnId" value="@Model.Forms.CentraFetchReturn.ReturnId" class="form-control mb-3" placeholder="Return ID" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Hämta retur</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunCentraFetchOrders" class="flowengine-centra-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch orders</div>
+                            <div class="flowengine-centra-range-grid">
+                                <input name="DateUtc" type="date" value="@Model.Forms.CentraFetchOrders.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="SinceUtc" type="date" value="@Model.Forms.CentraFetchOrders.SinceUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="UntilUtc" type="date" value="@Model.Forms.CentraFetchOrders.UntilUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            </div>
+                            <div class="flowengine-centra-console-options mt-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" @(Model.Forms.CentraFetchOrders.UseLatestDay ? "checked" : null) />
+                                    <span class="form-check-label small">Latest day</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ForceRange" value="true" @(Model.Forms.CentraFetchOrders.ForceRange ? "checked" : null) />
+                                    <span class="form-check-label small">Force range</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100 mt-3">Hämta orders</button>
+                        </form>
+
+                        <form method="post" asp-action="FlowEngineRunCentraFetchReturns" class="flowengine-centra-advanced-card">
+                            @Html.AntiForgeryToken()
+                            <div class="fw-semibold mb-2">Fetch returns</div>
+                            <div class="flowengine-centra-range-grid">
+                                <input name="DateUtc" type="date" value="@Model.Forms.CentraFetchReturns.DateUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="SinceUtc" type="date" value="@Model.Forms.CentraFetchReturns.SinceUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                                <input name="UntilUtc" type="date" value="@Model.Forms.CentraFetchReturns.UntilUtc" class="form-control flowengine-date-input" data-fe-datepicker="true" />
+                            </div>
+                            <div class="flowengine-centra-console-options mt-3">
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" @(Model.Forms.CentraFetchReturns.UseLatestDay ? "checked" : null) />
+                                    <span class="form-check-label small">Latest day</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ForceRange" value="true" @(Model.Forms.CentraFetchReturns.ForceRange ? "checked" : null) />
+                                    <span class="form-check-label small">Force range</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100 mt-3">Hämta returns</button>
+                        </form>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                 model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                 {
+                     CardId = "flowengine-centra-history",
+                     Title = "Execution History",
+                     Subtitle = "Centra-körningar i den här portalmiljön.",
+                     EmptyMessage = "Inga Centra-jobb har körts i den här portalmiljön än.",
+                     SelectedJobAction = "FlowEngineCentra",
+                     Fragment = "flowengine-centra-history",
+                     ShowSystemColumn = false,
+                     EnableFilters = false,
+                     ShowDetail = true,
+                     Jobs = Model.CentraHistory.Jobs,
+                     SelectedJob = selectedCentraJob,
+                     CurrentPage = Model.CentraHistory.CurrentPage,
+                     TotalPages = Model.CentraHistory.TotalPages,
+                     TotalCount = Model.CentraHistory.TotalCount,
+                     PageSize = Model.CentraHistory.PageSize
+                 }' />
+    </div>
+</div>

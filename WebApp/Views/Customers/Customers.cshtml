@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Entities.Customers.ICustomerViewModel>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+	ViewData["Title"] = @localizer["PageHeader"];
+	var companyId = @ViewData["CompanyId"];
+}
+
+<!-- BEGIN page-header -->
+<h1 class="page-header">@localizer["PageHeader"] <small>@localizer["PageSubHeader"]</small></h1>
+@await Html.PartialAsync("_Alert")
+<!-- END page-header -->
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>    
+<script type="text/javascript">
+	$(function () {
+		$("#txtCustomer").autocomplete({
+			source: function (request, response) {
+				var myData = { "searchString": request.term };
+				$.ajax({
+					url: '/Customers/AutoCompleteCustomers/',
+					data: JSON.stringify(myData),
+					dataType: "json",
+					type: "POST",
+					contentType: "application/json; charset=utf-8",
+					success: function (data) {
+						response($.map(data, function (item) {
+							return item;
+						}))
+					},
+					error: function (response) {
+						alert(response.responseText);
+					},
+					failure: function (response) {
+						alert(response.responseText);
+					}
+				});
+			},
+			select: function (e, i) {
+				$("#hfCustomer").val(i.item.val);
+			},
+			minLength: 1
+		}).focus(function () {
+			$(this).autocomplete("search");
+		});
+	});
+
+</script>
+@using (Html.BeginForm("Customers", "Customers", FormMethod.Post))
+{
+	<input type="text" class="form-control" id="txtCustomer" name="CustomerName" />
+	<input type="hidden" id="hfCustomer" name="CustomerNumber" />
+	<input type="submit" class="form-control" id="btnSubmit" value="submit">
+}
+
+
+<div class="row">
+	<div class="col-xl-12">
+		<!-- BEGIN panel -->
+		<div class="panel panel-inverse" data-sortable-id="table-basic-2">
+			<!-- BEGIN panel-body -->
+			<div class="panel-body">
+				<!-- BEGIN table-responsive -->
+				<div class="table-responsive">
+					<table class="table table-hover mb-0 text-inverse">
+						<thead>
+							<tr>
+								<th>@localizer["Header_CustomerNumber"]</th>
+								<th>@localizer["Header_CompanyName"]</th>
+								<th>@localizer["Header_OrganizationNumber"]</th>
+								<th>@localizer["Header_Co"]</th>
+								<th>@localizer["Header_Street"]</th>
+								<th>@localizer["Header_ZipCode"]</th>
+								<th>@localizer["Header_City"]</th>
+								<th>@localizer["Header_Country"]</th>
+								<th>@localizer["Header_NetTurnoverThisYear"]</th>
+								<th>@localizer["Header_NetTurnoverLastYear"]</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if	(Model is null || Model.Count() == 0)
+							{
+								<tr><td colspan="12">@sharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+							}
+							else
+							{
+								@foreach (var customer in Model)
+								{
+									<tr>
+										<td style="text-align:start"><a href="~/Customers/CustomerDetails/@companyId/@customer.CustomerNumber">@customer.CustomerNumber</a></td>
+										<td>@customer.CompanyName</td>
+										<td>@customer.OrganizationNumber</td>
+										<td>@customer.Co</td>
+										<td>@customer.Street</td>
+										<td>@customer.ZipCode</td>
+										<td>@customer.City</td>
+										<td>@customer.Country</td>
+										<td>@customer.NetTurnoverThisYear?.ToString("0.00")</td>
+										<td>@customer.NetTurnoverLastYear?.ToString("0.00")</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+				<!-- END table-responsive -->
+			</div>
+			<!-- END panel-body -->
+		</div>
+	</div>
+</div>

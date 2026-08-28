@@ -1,0 +1,118 @@
+@* Renders the document signing status snapshot for the information-driven dashboard layout. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.DocumentSigningCardViewModel ?? new();
+    var recentSignings = card.RecentSignings.Take(3).ToList();
+    var latestSigning = recentSignings.OrderByDescending(x => x.CreatedAtUtc).FirstOrDefault();
+
+    string StatusLabel(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => "Signerad",
+        "completed" => "Slutförd",
+        "waitinginternal" => "Väntar internt",
+        "sent" => "Skickad",
+        "preparing" => "Förbereds",
+        "rejected" => "Nekad",
+        "cancelled" => "Avbruten",
+        "timedout" => "Tidsgräns nådd",
+        "failed" => "Misslyckad",
+        _ => string.IsNullOrWhiteSpace(status) ? "-" : status
+    };
+
+    string StatusTone(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" or "completed" => "bg-success-subtle text-success",
+        "waitinginternal" or "sent" or "preparing" => "bg-warning-subtle text-warning",
+        "rejected" or "cancelled" or "timedout" or "failed" => "bg-danger-subtle text-danger",
+        _ => "bg-secondary-subtle text-secondary"
+    };
+}
+
+<div class="card kpi-card p-2 dashboard-info-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+            <h5 class="dashboard-card-title m-0">Dokumentsignering</h5>
+            <div class="dashboard-card-subtitle">Aktiva och nyligen uppdaterade signeringsärenden</div>
+        </div>
+        <a asp-controller="Integration" asp-action="DocumentSigning" class="btn btn-portal btn-portal-outline btn-sm dashboard-card-action-btn flex-shrink-0">
+            Öppna
+        </a>
+    </div>
+
+    @if (!card.IsConfigured)
+    {
+        <div class="dashboard-empty-state">
+            <div class="dashboard-empty-icon">
+                <i class="fa fa-file-signature"></i>
+            </div>
+            <div class="dashboard-empty-title">Dokumentsignering är inte aktiverat</div>
+            <div class="dashboard-empty-subtitle">@card.StatusMessage</div>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-info-summary-grid dashboard-info-summary-grid--2">
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Aktiva</div>
+                <div class="dashboard-info-summary-value">@card.ActiveCount</div>
+                <div class="dashboard-info-summary-meta">pågående ärenden</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Signerade</div>
+                <div class="dashboard-info-summary-value">@card.SignedCount</div>
+                <div class="dashboard-info-summary-meta">slutförda flöden</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Behöver åtgärd</div>
+                <div class="dashboard-info-summary-value">@card.NeedsAttentionCount</div>
+                <div class="dashboard-info-summary-meta">kräver uppföljning</div>
+            </div>
+            <div class="dashboard-info-summary-card">
+                <div class="dashboard-info-summary-label">Totalt</div>
+                <div class="dashboard-info-summary-value">@card.TotalSignings</div>
+                <div class="dashboard-info-summary-meta">ärenden i översikten</div>
+            </div>
+        </div>
+
+        <div class="dashboard-info-status-strip dashboard-info-status-strip--success">
+            <span class="dashboard-info-status-strip__label">Senaste ärende</span>
+            <span class="dashboard-info-status-strip__value">
+                @(latestSigning?.DocumentTitle ?? "Inga signeringar ännu")
+            </span>
+            <span class="dashboard-info-status-strip__meta">
+                @(latestSigning is not null
+                    ? $"{StatusLabel(latestSigning.PortalStatus)} · {latestSigning.CreatedAtUtc:yyyy-MM-dd HH:mm}"
+                    : "Visa senaste signering när ett ärende har skapats")
+            </span>
+        </div>
+
+        @if (recentSignings.Count > 0)
+        {
+            <div class="dashboard-info-list list-group list-group-flush bg-transparent">
+                @foreach (var signing in recentSignings)
+                {
+                    <div class="list-group-item bg-transparent border-0 px-0 py-2">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate">@signing.DocumentTitle</div>
+                                <div class="small dashboard-info-muted">Order #@signing.OrderNo</div>
+                            </div>
+                            <span class="badge rounded-pill @StatusTone(signing.PortalStatus)">
+                                @StatusLabel(signing.PortalStatus)
+                            </span>
+                        </div>
+                        <div class="small dashboard-info-muted mt-1">
+                            @signing.SignerName · @signing.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture)
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="small dashboard-info-muted">Inga signeringar att visa ännu.</div>
+        }
+    }
+</div>

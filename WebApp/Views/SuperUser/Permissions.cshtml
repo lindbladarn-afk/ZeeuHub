@@ -1,0 +1,178 @@
+@* Company-scoped permission editor for one SuperUser-managed account. *@
+@using WebApp.ViewModels.SuperUser
+@model UserPermissionsViewModel
+@{
+    ViewData["Title"] = "Användarbehörigheter";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        .permissions-page .permissions-back-link {
+            margin-bottom: 0.25rem;
+        }
+
+        .permissions-page .permissions-toggle-card,
+        .permissions-page .permissions-group-card {
+            background: var(--hub-page-surface);
+            border: 1px solid var(--hub-page-border-strong);
+            box-shadow: var(--hub-page-shadow);
+            color: var(--hub-page-text);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .permissions-page .permissions-toggle-card {
+            margin-top: 1rem;
+        }
+
+        .permissions-page .permissions-toggle-copy {
+            color: var(--hub-page-muted);
+        }
+
+        .permissions-page .permissions-group-header {
+            background: var(--hub-page-surface-muted);
+            border-bottom: 1px solid var(--hub-page-border);
+            color: var(--hub-page-heading);
+        }
+
+        .permissions-page .permissions-group-title {
+            color: var(--hub-page-heading);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .permissions-page .permissions-group-meta {
+            color: var(--hub-page-muted);
+        }
+
+        .permissions-page .permissions-item {
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+        }
+
+        .permissions-page .permissions-item + .permissions-item {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--hub-page-border);
+        }
+
+        .permissions-page .permissions-item .form-check-input {
+            margin-top: 0.2rem;
+            flex: 0 0 auto;
+        }
+
+        .permissions-page .permissions-item-title {
+            color: var(--hub-page-heading);
+            font-weight: 700;
+        }
+
+        .permissions-page .permissions-item-description {
+            color: var(--hub-page-muted);
+        }
+
+        @@media (max-width: 991.98px) {
+            .permissions-page .module-page-header {
+                flex-direction: column;
+            }
+
+            .permissions-page .permissions-back-link {
+                align-self: flex-start;
+            }
+        }
+    </style>
+}
+
+<div class="dashboard-readable module-page control-panel-page permissions-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Användarbehörigheter</div>
+            <h1 class="module-page-title">@Model.UserDisplayName</h1>
+            <div class="module-page-subtitle">@Model.Email</div>
+            <div class="module-page-meta">Endast funktioner som bolaget har tillgång till kan tilldelas.</div>
+        </div>
+
+        <a asp-action="Users" class="btn btn-portal btn-portal-outline permissions-back-link">Tillbaka till användare</a>
+    </div>
+
+    <form asp-action="Permissions" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="UserId" />
+
+        <div class="card permissions-toggle-card mb-3">
+            <div class="card-body">
+                <div class="form-check form-switch mb-1">
+                    <input asp-for="InheritCompanyPermissions" class="form-check-input" />
+                    <label asp-for="InheritCompanyPermissions" class="form-check-label fw-semibold">Ärv alla bolagets behörigheter</label>
+                </div>
+                <div class="permissions-toggle-copy small">Stäng av arv för att välja exakt vad användaren får se.</div>
+            </div>
+        </div>
+
+        @if (Model.Groups.Count == 0)
+        {
+            <div class="alert alert-info">Bolaget har inga tilldelningsbara modulbehörigheter.</div>
+        }
+        else
+        {
+            for (var groupIndex = 0; groupIndex < Model.Groups.Count; groupIndex++)
+            {
+                <section class="card permissions-group-card mb-3">
+                    <div class="card-header permissions-group-header py-3">
+                        <div class="permissions-group-title">@Model.Groups[groupIndex].Name</div>
+                        <div class="permissions-group-meta small">@Model.Groups[groupIndex].Items.Count tilldelningsbara behörigheter</div>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="Groups[@groupIndex].ModuleId" value="@Model.Groups[groupIndex].ModuleId" />
+
+                        @for (var itemIndex = 0; itemIndex < Model.Groups[groupIndex].Items.Count; itemIndex++)
+                        {
+                            <div class="permissions-item">
+                                <input type="hidden" name="Groups[@groupIndex].Items[@itemIndex].ModuleId" value="@Model.Groups[groupIndex].Items[itemIndex].ModuleId" />
+                                <input type="hidden" name="Groups[@groupIndex].Items[@itemIndex].SubModuleId" value="@Model.Groups[groupIndex].Items[itemIndex].SubModuleId" />
+
+                                <input class="form-check-input permission-choice" type="checkbox"
+                                       name="Groups[@groupIndex].Items[@itemIndex].Selected"
+                                       id="permission-@groupIndex-@itemIndex"
+                                       value="true"
+                                       @(Model.Groups[groupIndex].Items[itemIndex].Selected ? "checked" : null) />
+                                <input type="hidden" name="Groups[@groupIndex].Items[@itemIndex].Selected" value="false" />
+
+                                <label class="form-check-label" for="permission-@groupIndex-@itemIndex">
+                                    <span class="d-block permissions-item-title">@Model.Groups[groupIndex].Items[itemIndex].Name</span>
+                                    @if (!string.IsNullOrWhiteSpace(Model.Groups[groupIndex].Items[itemIndex].Description))
+                                    {
+                                        <span class="d-block permissions-item-description small">@Model.Groups[groupIndex].Items[itemIndex].Description</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        }
+
+        <button type="submit" class="btn btn-portal">Spara</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const inherit = document.getElementById('InheritCompanyPermissions');
+            const choices = document.querySelectorAll('.permission-choice');
+            if (!inherit || !choices.length) {
+                return;
+            }
+
+            const sync = () => choices.forEach(choice => {
+                choice.disabled = inherit.checked;
+            });
+
+            inherit.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
+}

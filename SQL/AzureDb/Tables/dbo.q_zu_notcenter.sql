@@ -1,0 +1,36 @@
+IF OBJECT_ID('dbo.q_zu_notcenter', 'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[q_zu_notcenter](
+        [q_zu_notcenter_nr] [int] NOT NULL,
+        [perssign] [nvarchar](30) NULL,
+        [regdat] [datetime] NULL,
+        [rowcreatedby] [nvarchar](30) NULL,
+        [rowcreateddt] [datetime] NULL,
+        [rowupdatedby] [nvarchar](30) NULL,
+        [rowupdateddt] [datetime] NULL,
+        [foretagkod] [smallint] NOT NULL,
+        [q_zu_notcenter_beskrivning] [nvarchar](255) NULL,
+        [q_zu_notcenter_typ] [nvarchar](35) NULL,
+        [q_zu_notcenter_prio] [nvarchar](35) NULL,
+        [q_zu_notcenter_varntext] [nvarchar](255) NULL,
+        [q_zu_notcenter_kommentar] [nvarchar](255) NULL,
+        [q_zu_notcenter_mailadress1] [nvarchar](255) NULL,
+        [q_zu_notcenter_mailadress2] [nvarchar](255) NULL,
+        [q_zu_notcenter_schema] [nvarchar](35) NULL,
+        [q_zu_notcenter_in_use] [char](1) NULL,
+        [q_zu_notcenter_antvarning] [int] NULL,
+        [q_zu_notcenter_execdat] [datetime] NULL,
+        [q_zu_notcenter_varndat] [datetime] NULL,
+        [q_zu_notcenter_select2] [nvarchar](max) NULL,
+        [q_zu_notcenter_sysl] [nvarchar](50) NULL,
+        [q_zu_notcenter_startdat] [datetime] NULL,
+        [q_zu_notcenter_schedule] [nvarchar](30) NULL,
+        [q_zu_notcenter_antal_eskalera] [smallint] NULL,
+        [q_zu_notcenter_email_eskalera] [nvarchar](255) NULL,
+        [q_zu_notcenter_bcc] [nvarchar](255) NULL,
+        [q_zu_notcenter_cc] [nvarchar](255) NULL,
+        [q_zu_notcenter_dyn_adress] [char](1) NULL,
+        [q_zu_notcenter_language] [nvarchar](50) NULL,
+        CONSTRAINT [PK_q_zu_notcenter] PRIMARY KEY CLUSTERED ([q_zu_notcenter_nr] ASC, [foretagkod] ASC)
+    );
+END

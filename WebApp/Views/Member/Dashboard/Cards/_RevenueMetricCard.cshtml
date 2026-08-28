@@ -1,0 +1,43 @@
+@* Renders one independently movable revenue widget. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var revenue = Model.Data as WebApp.Models.Dashboard.RevenueDataModel ?? new();
+    var culture = CultureInfo.CurrentCulture;
+    var revenueJson = JsonSerializer.Serialize(revenue, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+}
+
+@if (Model.Id is WebApp.Models.Dashboard.DashboardCardIds.Revenue or WebApp.Models.Dashboard.DashboardCardIds.RevenueSummary)
+{
+    <div class="card kpi-card h-100"><div class="card-body">
+        <div class="dashboard-card-head"><div class="dashboard-card-title">Omsättning – senaste 12 månader</div></div>
+        <div class="dashboard-card-subtitle">Rullande 12 månader</div>
+        <div class="kpi-value">@((revenue.Kpi.AnnualRunRateMsek * 1_000_000m).ToString("N0", culture)) kr</div>
+        <div class="small text-muted mt-1">Jämförelse saknas för valt bolag</div>
+        <canvas id="chartKpiRevenue" class="mini-chart"></canvas>
+    </div></div>
+}
+else if (Model.Id == WebApp.Models.Dashboard.DashboardCardIds.AverageOrderValue)
+{
+    <div class="card kpi-card h-100"><div class="card-body">
+        <div class="dashboard-card-head"><div class="dashboard-card-title">Snittordervärde – senaste 30 dagar</div></div>
+        <div class="dashboard-card-subtitle">Senaste 30 dagar</div>
+        <div class="kpi-value">@revenue.Kpi.AverageOrderValue.ToString("N0", culture) kr</div>
+        <div class="small text-muted mt-1">Baserat på @revenue.Kpi.OrdersCountPeriod ordrar</div>
+        <canvas id="chartKpiAov" class="mini-chart"></canvas>
+    </div></div>
+}
+else if (Model.Id == WebApp.Models.Dashboard.DashboardCardIds.RevenueTrend)
+{
+    <script id="dashboardRevenueData" type="application/json">@Html.Raw(revenueJson)</script>
+    @await Component.InvokeAsync("RevenueChart", revenue)
+}
+else if (Model.Id == WebApp.Models.Dashboard.DashboardCardIds.TopSellers)
+{
+    <div class="card kpi-card h-100 p-3 top-sellers-card">
+        <h5 class="dashboard-card-title">Toppsäljande produkter – separat lista</h5>
+        @await Component.InvokeAsync("TopSellers", revenue)
+    </div>
+}

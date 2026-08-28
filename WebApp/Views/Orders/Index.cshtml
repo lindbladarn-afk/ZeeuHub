@@ -1,0 +1,277 @@
+@model WebApp.Models.Orders.OrdersListViewModel
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // Orders page aligned with the shared module-page presentation used across portal modules.
+    // Sorting and period state are kept explicit in the generated URLs to avoid hidden client-side state.
+    ViewData["Title"] = sharedLocalizer["Module_Orders"];
+    ViewData["OrdersSection"] = "list";
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    string NextDir(string column) => Model.CurrentSort == column && Model.CurrentDir == "asc" ? "desc" : "asc";
+    string Arrow(string column) => Model.CurrentSort == column ? (Model.CurrentDir == "asc" ? "↑" : "↓") : "↕";
+    string? from = Model.FromDate?.ToString("yyyy-MM-dd");
+    string? to = Model.ToDate?.ToString("yyyy-MM-dd");
+    var selectedYear = Model.SelectedYear?.ToString();
+    string SortUrl(string column) => Url.Action("Index", new
+    {
+        sort = column,
+        dir = NextDir(column),
+        search = Model.Search,
+        from,
+        to,
+        payment = Model.PaymentFilter,
+        page = Model.Page,
+        year = selectedYear
+    }) ?? "#";
+    string PageUrl(int page) => Url.Action("Index", new
+    {
+        sort = Model.CurrentSort,
+        dir = Model.CurrentDir,
+        search = Model.Search,
+        from,
+        to,
+        payment = Model.PaymentFilter,
+        page,
+        year = selectedYear
+    }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        .orders-table .table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .orders-table .table tbody tr:last-child { border-bottom: none; }
+        body:not(.theme-dark) .orders-table .table tbody tr { border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .orders-filter-form {
+            align-items: end;
+        }
+        .orders-filter-form .orders-filter-search {
+            max-width: 280px;
+        }
+        .orders-filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.1rem;
+        }
+        .orders-filter-actions .btn {
+            min-width: 96px;
+        }
+        .orders-filter-actions .btn-portal {
+            width: auto !important;
+        }
+        @@media (max-width: 991.98px) {
+            .orders-filter-form .orders-filter-search {
+                max-width: none;
+            }
+            .orders-filter-actions {
+                justify-content: stretch;
+            }
+            .orders-filter-actions .btn {
+                flex: 1 1 0;
+            }
+        }
+    </style>
+}
+
+<div class="dashboard-readable module-page orders-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Module_Orders"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Orders_ListTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["Orders_ListSubtitle"]</div>
+            @if (Model.UsesDefaultPeriod)
+            {
+                <div class="module-page-meta">@sharedLocalizer["Orders_DefaultPeriodMessage"]</div>
+            }
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_OrdersTabs")
+
+    <div class="row g-3 mb-2 orders-kpi">
+        <div class="col-lg-4 col-md-4">
+            <div class="module-kpi-surface module-kpi-surface--compact">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_PaidAmountPeriod"]</div>
+                <div class="metric-value">@Model.PaidAmountTotal.ToString("N0", culture) SEK</div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <div class="module-kpi-surface module-kpi-surface--compact">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_UnpaidAmountPeriod"]</div>
+                <div class="metric-value">@Model.UnpaidAmountTotal.ToString("N0", culture) SEK</div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <div class="module-kpi-surface module-kpi-surface--compact">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_TotalAmountPeriod"]</div>
+                <div class="metric-value">@Model.GrandAmountTotal.ToString("N0", culture) SEK</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-2 mb-2 filter-card module-filter-card orders-table">
+        <div class="card-body">
+            @* Year and payment filters are safe to auto-submit; free text and dates remain explicit to avoid surprise reloads. *@
+            <form id="orders-filter-form" class="row g-2 mb-2 orders-filter-form" method="get">
+                <div class="col-lg-3 col-md-6 orders-filter-search">
+                    <input type="text" class="form-control module-date-input" name="search" placeholder="@sharedLocalizer["Orders_SearchPlaceholder"]" value="@Model.Search" autocomplete="off" />
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <input type="date" class="form-control module-date-input flowengine-date-input" data-fe-datepicker="true" name="from" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <input type="date" class="form-control module-date-input flowengine-date-input" data-fe-datepicker="true" name="to" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <div class="module-select-caret">
+                        <select class="form-control js-auto-submit" name="year">
+                            <option value="">@sharedLocalizer["Orders_CurrentYear"]</option>
+                            @foreach (var yearOption in Model.AvailableYears)
+                            {
+                                <option value="@yearOption" selected="@(Model.SelectedYear == yearOption ? "selected" : null)">@yearOption</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <select class="form-control js-auto-submit" name="payment">
+                        <option value="all" selected="@(Model.PaymentFilter == "all" ? "selected" : null)">@sharedLocalizer["Orders_AllPaymentStatuses"]</option>
+                        <option value="paid" selected="@(Model.PaymentFilter == "paid" ? "selected" : null)">@sharedLocalizer["Orders_PaidPlural"]</option>
+                        <option value="unpaid" selected="@(Model.PaymentFilter == "unpaid" ? "selected" : null)">@sharedLocalizer["Orders_UnpaidPlural"]</option>
+                    </select>
+                </div>
+                <div class="col-lg-12 col-md-12">
+                    <div class="orders-filter-actions">
+                    <button type="submit" class="btn btn-portal btn-portal-outline">@sharedLocalizer["Search"]</button>
+                    <a href="@Url.Action("Index")" class="btn btn-portal btn-portal-outline">@sharedLocalizer["Filter_Clear"]</a>
+                    </div>
+                </div>
+            </form>
+            <div class="table-card module-table-shell module-table">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>@sharedLocalizer["OrderNumber"]</th>
+                                <th>
+                                    <a class="module-sort-link d-inline-flex align-items-center gap-1" href="@SortUrl("date")">
+                                        <span>@sharedLocalizer["Orders_OrderDate"]</span><span class="module-sort-arrow">@Arrow("date")</span>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a class="module-sort-link d-inline-flex align-items-center gap-1" href="@SortUrl("customer")">
+                                        <span>@sharedLocalizer["Customer"]</span><span class="module-sort-arrow">@Arrow("customer")</span>
+                                    </a>
+                                </th>
+                                <th>@sharedLocalizer["Orders_SalesPerson"]</th>
+                                <th>@sharedLocalizer["Orders_PromisedDelivery"]</th>
+                                <th>@sharedLocalizer["Status"]</th>
+                                <th class="text-end">
+                                    <a class="module-sort-link d-inline-flex align-items-center gap-1 justify-content-end" href="@SortUrl("amount")">
+                                        <span>@sharedLocalizer["Orders_AmountInclVat"]</span><span class="module-sort-arrow">@Arrow("amount")</span>
+                                    </a>
+                                </th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model.Orders)
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-white">@(!string.IsNullOrWhiteSpace(o.OrderNoAlfa) ? o.OrderNoAlfa : $"#{o.OrderNo}")</td>
+                                    <td class="text-white">@o.OrderDate?.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <div class="fw-semibold text-white">@(!string.IsNullOrWhiteSpace(o.CustomerName) ? o.CustomerName : o.CustomerNo)</div>
+                                        <div class="module-page-meta small">@o.CustomerNo</div>
+                                    </td>
+                                    <td class="text-white">@o.SalesPerson</td>
+                                    <td class="text-white">@o.PromisedDate?.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <span class="badge bg-secondary">@o.StatusCode</span>
+                                            <span class="badge @(o.IsClosed ? "bg-success" : "bg-warning text-dark")">
+                                                @(o.IsClosed ? sharedLocalizer["Paid"] : sharedLocalizer["Orders_Unpaid"])
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-end fw-semibold text-white">@o.AmountInclVat.ToString("N0", culture) @o.Currency</td>
+                                    <td class="text-end">
+                                        <a asp-action="Detail" asp-route-id="@o.OrderNo" class="btn btn-portal btn-portal-outline btn-sm">@sharedLocalizer["Orders_ViewOrder"]</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+                    <div class="module-page-meta small">@sharedLocalizer["Orders_PageSummary", Model.Page, Model.TotalPages, Model.TotalCount]</div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page <= 1 ? "disabled" : null)" href="@(Model.Page <= 1 ? "#" : PageUrl(Model.Page - 1))">@sharedLocalizer["Previous"]</a>
+                        <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : null)" href="@(Model.Page >= Model.TotalPages ? "#" : PageUrl(Model.Page + 1))">@sharedLocalizer["Next"]</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("orders-filter-form");
+            if (!form) {
+                return;
+            }
+
+            const initOrderDatepickers = () => {
+                if (!window.jQuery || !window.jQuery.fn || typeof window.jQuery.fn.datepicker !== "function") {
+                    return;
+                }
+
+                window.jQuery(form)
+                    .find('input[data-fe-datepicker="true"]')
+                    .each(function () {
+                        const input = this;
+                        const $input = window.jQuery(input);
+
+                        if ($input.hasClass("hasDatepicker")) {
+                            return;
+                        }
+
+                        const currentValue = input.value;
+                        input.setAttribute("type", "text");
+                        input.setAttribute("autocomplete", "off");
+                        input.setAttribute("placeholder", "YYYY-MM-DD");
+
+                        $input.datepicker({
+                            dateFormat: "yy-mm-dd",
+                            showOtherMonths: true,
+                            selectOtherMonths: true,
+                            showButtonPanel: true,
+                            beforeShow: function () {
+                                window.setTimeout(() => {
+                                    window.jQuery("#ui-datepicker-div").addClass("flowengine-datepicker");
+                                }, 0);
+                            }
+                        });
+
+                        if (currentValue) {
+                            $input.datepicker("setDate", currentValue);
+                        }
+                    });
+            };
+
+            initOrderDatepickers();
+
+            const autoSubmitElements = form.querySelectorAll(".js-auto-submit");
+
+            autoSubmitElements.forEach((element) => {
+                element.addEventListener("change", () => form.requestSubmit());
+            });
+        })();
+    </script>
+}

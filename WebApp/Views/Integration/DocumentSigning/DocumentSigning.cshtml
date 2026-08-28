@@ -1,0 +1,711 @@
+@model WebApp.Models.Integration.DocumentSigningIntegrationViewModel
+@using WebApp.ViewModels.Shared
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> sharedLocalizer
+@{
+    ViewData["Title"] = sharedLocalizer["Module_DocumentSigning"].Value;
+    var latestSigning = Model.Signings.FirstOrDefault();
+
+    static string GetPortalStatusClass(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => "document-signing-status document-signing-status--signed",
+        "completed" => "document-signing-status document-signing-status--completed",
+        "waitinginternal" => "document-signing-status document-signing-status--completed",
+        "sent" => "document-signing-status document-signing-status--sent",
+        "preparing" => "document-signing-status document-signing-status--preparing",
+        "rejected" => "document-signing-status document-signing-status--rejected",
+        "cancelled" => "document-signing-status document-signing-status--cancelled",
+        "timedout" => "document-signing-status document-signing-status--timedout",
+        "failed" => "document-signing-status document-signing-status--failed",
+        _ => "document-signing-status"
+    };
+
+    string GetPortalStatusLabel(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => sharedLocalizer["DocumentSigning_Status_Signed"].Value,
+        "completed" => sharedLocalizer["DocumentSigning_Status_Completed"].Value,
+        "waitinginternal" => sharedLocalizer["DocumentSigning_Status_WaitingInternal"].Value,
+        "sent" => sharedLocalizer["DocumentSigning_Status_Sent"].Value,
+        "preparing" => sharedLocalizer["DocumentSigning_Status_Preparing"].Value,
+        "rejected" => sharedLocalizer["DocumentSigning_Status_Rejected"].Value,
+        "cancelled" => sharedLocalizer["DocumentSigning_Status_Cancelled"].Value,
+        "timedout" => sharedLocalizer["DocumentSigning_Status_TimedOut"].Value,
+        "failed" => sharedLocalizer["DocumentSigning_Status_Failed"].Value,
+        _ => string.IsNullOrWhiteSpace(status) ? "-" : status
+    };
+
+    static string GetProviderStatusClass(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => "document-signing-provider-status document-signing-provider-status--signed",
+        "pending" => "document-signing-provider-status document-signing-provider-status--pending",
+        "draft" => "document-signing-provider-status document-signing-provider-status--draft",
+        "declined" => "document-signing-provider-status document-signing-provider-status--declined",
+        "overdue" => "document-signing-provider-status document-signing-provider-status--overdue",
+        _ => "document-signing-provider-status"
+    };
+
+    string GetProviderStatusLabel(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => sharedLocalizer["DocumentSigning_Status_Signed"].Value,
+        "pending" => sharedLocalizer["DocumentSigning_Status_Sent"].Value,
+        "draft" => sharedLocalizer["DocumentSigning_Status_Preparing"].Value,
+        "declined" => sharedLocalizer["DocumentSigning_Status_Rejected"].Value,
+        "overdue" => sharedLocalizer["DocumentSigning_Status_TimedOut"].Value,
+        _ => string.IsNullOrWhiteSpace(status) ? "-" : status
+    };
+    var signingVersion = string.Join("|", Model.Signings
+        .OrderByDescending(x => x.CreatedAtUtc)
+        .Take(20)
+        .Select(x => $"{x.Id:N}:{x.PortalStatus}:{x.ProviderStatus}:{x.SignedAndSealed}:{(x.LastSyncedAtUtc.HasValue ? x.LastSyncedAtUtc.Value.ToUniversalTime().Ticks : x.CreatedAtUtc.ToUniversalTime().Ticks)}"));
+    var initialSnapshotVersion = string.Join("||", new[]
+    {
+        $"count:{Model.Signings.Count}",
+        $"selected:{Model.SelectedSigning?.Id.ToString("N") ?? "none"}:{Model.SelectedSigning?.PortalStatus ?? "-"}:{Model.SelectedSigning?.ProviderStatus ?? "-"}:{Model.SelectedSigning?.SignedAndSealed.ToString() ?? "-"}",
+        $"signings:{signingVersion}"
+    });
+    var currentPageUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page integration-page document-signing-page"
+     data-document-signing-page
+     data-document-signing-order-no="@(Model.SelectedOrderNo?.ToString() ?? string.Empty)"
+     data-document-signing-selected-id="@(Model.SelectedSigningId?.ToString() ?? string.Empty)"
+     data-document-signing-snapshot-url="@Url.Action("DocumentSigningStatusSnapshot", "Integration", new { orderNo = Model.SelectedOrderNo, selectedSigningId = Model.SelectedSigningId })"
+     data-document-signing-refresh-url="@currentPageUrl"
+     data-document-signing-refresh-target-id="document-signing-live-panels"
+     data-document-signing-initial-version="@initialSnapshotVersion"
+     data-document-signing-live="@(Model.IsConfigured && Model.Signings.Count > 0 ? "true" : "false")">
+    @await Html.PartialAsync("_Alert")
+
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Module_Integration"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Module_DocumentSigning"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["DocumentSigning_Subtitle"]</div>
+            <div class="module-page-meta">@sharedLocalizer["DocumentSigning_Meta"]</div>
+        </div>
+        <div class="document-signing-header-actions">
+            @if (Model.IsConfigured)
+            {
+                <form asp-action="DocumentSigningPing" method="post" class="document-signing-toggle-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderNo" value="@Model.SelectedOrderNo" />
+                    <input type="hidden" name="selectedSigningId" value="@Model.SelectedSigningId" />
+                    <button type="submit" class="btn btn-sm btn-portal btn-portal-outline">
+                        <i class="fa fa-plug me-1"></i> Testa Oneflow
+                    </button>
+                </form>
+            }
+            <a asp-controller="Member" asp-action="Index" class="btn btn-sm btn-portal btn-portal-outline">
+                <i class="fa fa-arrow-left me-1"></i> @sharedLocalizer["BackToDashboard"]
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.IsConfigured)
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = sharedLocalizer["DocumentSigning_NotConfiguredTitle"].Value,
+            Message = sharedLocalizer["DocumentSigning_NotConfiguredMessage"].Value,
+            Tone = "warning",
+            IconClass = "fa fa-exclamation-triangle"
+        })
+    }
+
+    <div class="card kpi-card mb-3">
+            <div class="card-body">
+                <details>
+                    <summary class="dashboard-card-title" style="cursor:pointer;">Avancerat: Oneflow-hjälp</summary>
+                    <div class="module-page-meta mt-2 mb-3">Lista workspaces och templates direkt från Oneflow för att hitta rätt ID:n till lokal konfiguration.</div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.OneflowLookupError))
+                    {
+                        <div class="alert alert-warning py-2 mb-3">@Model.OneflowLookupError</div>
+                    }
+
+                    <div class="d-flex flex-wrap gap-2 align-items-end mb-3">
+                        <form asp-action="DocumentSigning" method="get" class="d-flex">
+                            <input type="hidden" name="orderNo" value="@Model.SelectedOrderNo" />
+                            <input type="hidden" name="selectedSigningId" value="@Model.SelectedSigningId" />
+                            <input type="hidden" name="loadOneflowWorkspaces" value="true" />
+                            <button type="submit" class="btn btn-sm btn-portal btn-portal-outline">
+                                <i class="fa fa-folder-open me-1"></i> Lista workspaces
+                            </button>
+                        </form>
+                    </div>
+
+                    @if (Model.OneflowWorkspaces.Count > 0)
+                    {
+                        <div class="mb-3">
+                            <div class="document-signing-section-title">Workspaces</div>
+                            <div class="document-signing-detail-grid">
+                                @foreach (var workspace in Model.OneflowWorkspaces)
+                                {
+                                    <div class="document-signing-detail-card">
+                                        <div class="document-signing-demo-label">@workspace.Name</div>
+                                        <div class="document-signing-demo-value">Workspace ID: @workspace.Id</div>
+                                        <form asp-action="DocumentSigning" method="get" class="mt-2">
+                                            <input type="hidden" name="orderNo" value="@Model.SelectedOrderNo" />
+                                            <input type="hidden" name="selectedSigningId" value="@Model.SelectedSigningId" />
+                                            <input type="hidden" name="loadOneflowTemplatesWorkspaceId" value="@workspace.Id" />
+                                            <button type="submit" class="btn btn-sm btn-portal btn-portal-outline">
+                                                <i class="fa fa-clone me-1"></i> Visa templates
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.LookupWorkspaceId.HasValue)
+                    {
+                        <div>
+                            <div class="document-signing-section-title">Templates för workspace @Model.LookupWorkspaceId</div>
+                            @if (Model.OneflowTemplates.Count == 0 && string.IsNullOrWhiteSpace(Model.OneflowLookupError))
+                            {
+                                <div class="module-page-meta">Inga templates hittades för vald workspace.</div>
+                            }
+                            else if (Model.OneflowTemplates.Count > 0)
+                            {
+                                <div class="document-signing-detail-grid">
+                                    @foreach (var template in Model.OneflowTemplates)
+                                    {
+                                        <div class="document-signing-detail-card">
+                                            <div class="document-signing-demo-label">@template.Name</div>
+                                            <div class="document-signing-demo-value">Template ID: @template.Id</div>
+                                            <div class="module-page-meta mt-1">Workspaces: @string.Join(", ", template.WorkspaceIds)</div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </details>
+            </div>
+    </div>
+
+    <div class="card kpi-card mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+                <div>
+                    <div class="dashboard-card-title mb-2">Skapa ny signering</div>
+                    <div class="module-page-meta">Ladda upp PDF-filen som ska signeras, ange mottagare och skicka.</div>
+                </div>
+                @if (Model.SelectedOrderNo.HasValue && Model.OrderExists)
+                {
+                    <div class="text-end">
+                        <div class="document-signing-status">Kopplad order: #@Model.SelectedOrderNo</div>
+                        <div class="module-page-meta">@(string.IsNullOrWhiteSpace(Model.SelectedOrderCustomerName) ? "-" : Model.SelectedOrderCustomerName)</div>
+                    </div>
+                }
+            </div>
+
+                    <form asp-action="DocumentSigningSend" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-2">
+                            <div class="col-lg-6">
+                                <label asp-for="DocumentSigningForm.DocumentTitle" class="form-label">@sharedLocalizer["DocumentSigning_DocumentTitle"]</label>
+                                <input asp-for="DocumentSigningForm.DocumentTitle" class="form-control" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label asp-for="DocumentSigningForm.SignerFirstName" class="form-label">@sharedLocalizer["DocumentSigning_SignerFirstName"]</label>
+                                <input asp-for="DocumentSigningForm.SignerFirstName" class="form-control" />
+                            </div>
+                            <div class="col-lg-3">
+                                <label asp-for="DocumentSigningForm.SignerLastName" class="form-label">@sharedLocalizer["DocumentSigning_SignerLastName"]</label>
+                                <input asp-for="DocumentSigningForm.SignerLastName" class="form-control" />
+                            </div>
+                            <div class="col-lg-6">
+                                <label asp-for="DocumentSigningForm.SignerEmail" class="form-label">@sharedLocalizer["DocumentSigning_SignerEmail"]</label>
+                                <input asp-for="DocumentSigningForm.SignerEmail" class="form-control" />
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">@sharedLocalizer["DocumentSigning_QuotePdf"]</label>
+                                <div class="document-signing-file-picker" data-file-picker>
+                                    <input type="text"
+                                           class="form-control document-signing-file-display"
+                                           value="@sharedLocalizer["DocumentSigning_NoFileSelected"]"
+                                           readonly
+                                           data-file-display />
+                                    <button type="button"
+                                            class="btn btn-portal btn-portal-outline btn-sm document-signing-file-trigger"
+                                            data-file-trigger>
+                                        @sharedLocalizer["ChooseFile"]
+                                    </button>
+                                    <input type="file"
+                                           name="mainFile"
+                                           class="d-none document-signing-file-input"
+                                           accept=".pdf,application/pdf"
+                                           data-file-input />
+                                </div>
+                                <div class="form-text">PDF-filen som blir själva signeringsdokumentet i Oneflow.</div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">@sharedLocalizer["DocumentSigning_AttachmentsPdf"] (valfritt)</label>
+                                <div class="document-signing-file-picker" data-file-picker>
+                                    <input type="text"
+                                           class="form-control document-signing-file-display"
+                                           value="@sharedLocalizer["DocumentSigning_NoFileSelected"]"
+                                           readonly
+                                           data-file-display />
+                                    <button type="button"
+                                            class="btn btn-portal btn-portal-outline btn-sm document-signing-file-trigger"
+                                            data-file-trigger>
+                                        @sharedLocalizer["ChooseFiles"]
+                                    </button>
+                                    <input type="file"
+                                           name="attachments"
+                                           class="d-none document-signing-file-input"
+                                           accept=".pdf,application/pdf"
+                                           multiple
+                                           data-file-input />
+                                </div>
+                                <div class="form-text">Extra PDF:er som skickas som bilagor till ärendet.</div>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="DocumentSigningForm.InvitationMessage" class="form-label">@sharedLocalizer["DocumentSigning_MessageToSigner"]</label>
+                                <textarea asp-for="DocumentSigningForm.InvitationMessage" class="form-control document-signing-message-input" rows="5"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <details>
+                                    <summary class="module-page-meta" style="cursor:pointer;">Valfria uppgifter</summary>
+                                    <div class="row g-2 mt-0">
+                                        <div class="col-lg-6">
+                                            <label asp-for="DocumentSigningForm.SignerMobile" class="form-label">@sharedLocalizer["DocumentSigning_SignerMobile"]</label>
+                                            <input asp-for="DocumentSigningForm.SignerMobile" class="form-control" />
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label asp-for="DocumentSigningForm.RelatedOrderNo" class="form-label">Orderreferens (valfritt)</label>
+                                            <input asp-for="DocumentSigningForm.RelatedOrderNo"
+                                                   class="form-control"
+                                                   inputmode="numeric"
+                                                   pattern="[0-9]*"
+                                                   placeholder="@sharedLocalizer["DocumentSigning_OrderNumberPlaceholder"]" />
+                                            <div class="form-text">Använd bara om signeringen ska kopplas till en order i portalen.</div>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-portal btn-sm" @(Model.IsConfigured ? null : "disabled")>
+                                @(Model.IsConfigured ? sharedLocalizer["DocumentSigning_SendForSigning"].Value : sharedLocalizer["DocumentSigning_SendForSigningDemoLocked"].Value)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+    <div id="document-signing-live-panels">
+        @if (Model.SelectedSigning is not null)
+        {
+            <div class="card kpi-card mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+                        <div>
+                            <div class="dashboard-card-title">Valt signeringsärende</div>
+                            <div class="module-page-subtitle">@Model.SelectedSigning.DocumentTitle</div>
+                            <div class="module-page-meta">
+                                @(Model.SelectedSigning.OrderNo > 0
+                                    ? $"Order #{Model.SelectedSigning.OrderNo}, signerare {Model.SelectedSigning.SignerName}"
+                                    : $"Signerare {Model.SelectedSigning.SignerName}")
+                            </div>
+                        </div>
+                        <div class="document-signing-detail-statuses">
+                            <span class="@GetPortalStatusClass(Model.SelectedSigning.PortalStatus)">@GetPortalStatusLabel(Model.SelectedSigning.PortalStatus)</span>
+                            <span class="@GetProviderStatusClass(Model.SelectedSigning.ProviderStatus)">@GetProviderStatusLabel(Model.SelectedSigning.ProviderStatus)</span>
+                        </div>
+                    </div>
+
+                    <div class="document-signing-detail-grid mb-3">
+                        <div class="document-signing-detail-card">
+                            <div class="document-signing-demo-label">Dokument-ID</div>
+                            <div class="document-signing-demo-value">@Model.SelectedSigning.DocumentId</div>
+                        </div>
+                        <div class="document-signing-detail-card">
+                            <div class="document-signing-demo-label">Skapad</div>
+                            <div class="document-signing-demo-value">@Model.SelectedSigning.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                        </div>
+                        <div class="document-signing-detail-card">
+                            <div class="document-signing-demo-label">Senaste synk</div>
+                            <div class="document-signing-demo-value">@(Model.SelectedSigning.LastSyncedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</div>
+                        </div>
+                    </div>
+
+                    <div class="document-signing-files">
+                        <div class="document-signing-section-title">Dokument i ärendet</div>
+                        <div class="document-signing-section-meta mb-2">Visar sammanfattning av valt signeringsärende.</div>
+                    </div>
+
+                    <div class="alert alert-danger py-2 mt-3 d-none"
+                         role="alert"
+                         data-document-signing-launch-feedback></div>
+
+                    <div class="d-flex align-items-center flex-wrap gap-2 mt-3">
+                        @if (Model.IsConfigured && !Model.SelectedSigning.IsTerminal)
+                        {
+                            <form method="post"
+                                  action="@Url.Content($"~/api/signing/{Model.SelectedSigning.Id}/launch")"
+                                  data-document-signing-launch-form
+                                  data-skip-page-loader="true">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="btn btn-portal btn-sm"
+                                        data-document-signing-launch-button>
+                                        Öppna signering
+                                </button>
+                            </form>
+                        }
+                        <a asp-action="DocumentSigning"
+                           asp-route-orderNo="@Model.SelectedOrderNo"
+                           class="btn btn-portal btn-portal-outline btn-sm">Rensa val</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="card kpi-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <div class="document-signing-section-title">Signeringsärenden</div>
+                        <div class="document-signing-section-meta">
+                            @(Model.SelectedOrderNo.HasValue && Model.OrderExists
+                                ? $"Visar ärenden för order #{Model.SelectedOrderNo}"
+                                : "Visar de senaste ärendena i aktivt bolag")
+                        </div>
+                    </div>
+                    @if (latestSigning != null)
+                    {
+                        <div class="document-signing-section-meta">
+                            Senaste status:
+                            <span class="@GetPortalStatusClass(latestSigning.PortalStatus)">@GetPortalStatusLabel(latestSigning.PortalStatus)</span>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Signings.Count == 0)
+                {
+                    <div class="module-state module-state--warning" role="status">
+                        <div class="module-state-icon" aria-hidden="true">
+                            <i class="fa fa-folder-open"></i>
+                        </div>
+                        <div class="module-state-content">
+                            <div class="module-state-title">Inga signeringsärenden ännu</div>
+                            <div class="module-state-message">När ett signeringsärende har skapats visas status, signatör och senaste synk här.</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Skapad</th>
+                                    <th>Referens</th>
+                                    <th>Titel</th>
+                                    <th>Signerare</th>
+                                    <th>Status</th>
+                                    <th>Leverantör</th>
+                                    <th>Bilagor</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var signing in Model.Signings)
+                            {
+                                <tr class="@(Model.SelectedSigningId == signing.Id ? "document-signing-row-selected" : null)">
+                                    <td>@signing.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (signing.OrderNo > 0)
+                                        {
+                                            <a asp-controller="Orders" asp-action="Detail" asp-route-id="@signing.OrderNo">#@signing.OrderNo</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="document-signing-table-meta">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="document-signing-table-title">@signing.DocumentTitle</div>
+                                        <div class="document-signing-table-meta">Dokument-ID: @signing.DocumentId</div>
+                                    </td>
+                                    <td>
+                                        <div class="document-signing-table-title">@signing.SignerName</div>
+                                        <div class="document-signing-table-meta">@signing.SignerEmail</div>
+                                    </td>
+                                    <td>
+                                        <span class="@GetPortalStatusClass(signing.PortalStatus)">@GetPortalStatusLabel(signing.PortalStatus)</span>
+                                    </td>
+                                    <td>
+                                        <span class="@GetProviderStatusClass(signing.ProviderStatus)">@GetProviderStatusLabel(signing.ProviderStatus)</span>
+                                    </td>
+                                    <td>@signing.AttachmentCount</td>
+                                    <td class="text-end">
+                                        <div class="document-signing-row-actions">
+                                            <a asp-action="DocumentSigning"
+                                               asp-route-orderNo="@Model.SelectedOrderNo"
+                                               asp-route-selectedSigningId="@signing.Id"
+                                               class="btn btn-portal btn-portal-outline btn-sm">Visa detaljer</a>
+                                            @if (!signing.IsTerminal && Model.IsConfigured)
+                                            {
+                                                <form method="post"
+                                                      action="@Url.Content($"~/api/signing/{signing.Id}/launch")"
+                                                      data-document-signing-launch-form
+                                                      data-skip-page-loader="true">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                            class="btn btn-portal btn-portal-outline btn-sm"
+                                                            data-document-signing-launch-button>
+                                                        Öppna signering
+                                                    </button>
+                                                </form>
+                                                <form asp-action="DocumentSigningSync" asp-route-signingId="@signing.Id" asp-route-orderNo="@Model.SelectedOrderNo" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-portal btn-portal-outline btn-sm">Synka status</button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('[data-file-picker]').forEach((picker) => {
+        const fileInput = picker.querySelector('[data-file-input]');
+        const fileDisplay = picker.querySelector('[data-file-display]');
+        const fileTrigger = picker.querySelector('[data-file-trigger]');
+
+        if (!fileInput || !fileDisplay || !fileTrigger) {
+            return;
+        }
+
+        fileTrigger.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => {
+            const files = Array.from(fileInput.files || []);
+            if (files.length === 0) {
+                fileDisplay.value = 'Ingen fil har valts';
+                return;
+            }
+
+            fileDisplay.value = files.length === 1
+                ? files[0].name
+                : `${files.length} filer valda`;
+        });
+    });
+
+    (function initDocumentSigningLaunch() {
+        const root = document.querySelector('[data-document-signing-page]');
+        if (!root) {
+            return;
+        }
+
+        const setFeedback = (message) => {
+            const feedback = document.querySelector('[data-document-signing-launch-feedback]');
+            if (!feedback) {
+                if (message) {
+                    window.alert(message);
+                }
+                return;
+            }
+
+            if (!message) {
+                feedback.classList.add('d-none');
+                feedback.textContent = '';
+                return;
+            }
+
+            feedback.textContent = message;
+            feedback.classList.remove('d-none');
+        };
+
+        document.addEventListener('submit', async (event) => {
+            const form = event.target.closest('[data-document-signing-launch-form]');
+            if (!form) {
+                return;
+            }
+
+            event.preventDefault();
+            setFeedback('');
+
+            const button = form.querySelector('[data-document-signing-launch-button]');
+            const tokenField = form.querySelector('input[name="__RequestVerificationToken"]');
+            const action = form.getAttribute('action');
+            if (!action || !tokenField) {
+                setFeedback('Kunde inte starta signeringen. Sidan saknar nödvändiga värden.');
+                return;
+            }
+
+            if (button) {
+                button.disabled = true;
+            }
+
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': tokenField.value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const payload = await response.json().catch(() => null);
+                if (!response.ok || !payload || typeof payload.url !== 'string' || payload.url.length === 0) {
+                    throw new Error(payload && typeof payload.message === 'string'
+                        ? payload.message
+                        : 'Kunde inte skapa access link för signeraren.');
+                }
+
+                const openedWindow = window.open(payload.url, '_blank', 'noopener');
+                if (!openedWindow) {
+                    window.location.assign(payload.url);
+                }
+            } catch (error) {
+                setFeedback(error instanceof Error ? error.message : 'Kunde inte öppna signeringen just nu.');
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                }
+            }
+        });
+    })();
+
+    (function initDocumentSigningLiveRefresh() {
+        const root = document.querySelector('[data-document-signing-page]');
+        if (!root || root.dataset.documentSigningLive !== 'true') {
+            return;
+        }
+
+        const snapshotUrl = root.dataset.documentSigningSnapshotUrl;
+        const refreshUrl = root.dataset.documentSigningRefreshUrl;
+        const refreshTargetId = root.dataset.documentSigningRefreshTargetId;
+        if (!snapshotUrl) {
+            return;
+        }
+
+        let currentVersion = root.dataset.documentSigningInitialVersion || null;
+        let pollHandle = null;
+        let inFlight = false;
+        let pendingRefresh = false;
+        let pendingVersion = null;
+
+        const shouldPauseReload = () => {
+            const active = document.activeElement;
+            if (!active) {
+                return false;
+            }
+
+            const tagName = (active.tagName || '').toUpperCase();
+            return tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+        };
+
+        const refreshPanels = async () => {
+            if (!refreshUrl || !refreshTargetId) {
+                window.location.reload();
+                return false;
+            }
+
+            try {
+                const response = await fetch(`${refreshUrl}${refreshUrl.includes('?') ? '&' : '?'}_ts=${Date.now()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Refresh failed');
+                }
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const nextTarget = doc.getElementById(refreshTargetId);
+                const currentTarget = document.getElementById(refreshTargetId);
+
+                if (!nextTarget || !currentTarget) {
+                    window.location.reload();
+                    return false;
+                }
+
+                currentTarget.replaceWith(nextTarget);
+                return true;
+            } catch {
+                window.location.reload();
+                return false;
+            }
+        };
+
+        const fetchSnapshot = async () => {
+            if (inFlight || document.hidden) {
+                return;
+            }
+
+            inFlight = true;
+            try {
+                const response = await fetch(`${snapshotUrl}${snapshotUrl.includes('?') ? '&' : '?'}_ts=${Date.now()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                if (!data || typeof data.version !== 'string') {
+                    return;
+                }
+
+                if (currentVersion !== data.version) {
+                    if (shouldPauseReload()) {
+                        pendingRefresh = true;
+                        pendingVersion = data.version;
+                        return;
+                    }
+
+                    await refreshPanels();
+                    currentVersion = data.version;
+                }
+            } catch {
+                // Ignore transient polling failures and keep the current page usable.
+            } finally {
+                inFlight = false;
+            }
+        };
+
+        fetchSnapshot();
+        pollHandle = window.setInterval(fetchSnapshot, 15000);
+        document.addEventListener('focusout', async () => {
+            if (pendingRefresh && !shouldPauseReload()) {
+                pendingRefresh = false;
+                await refreshPanels();
+                currentVersion = pendingVersion || currentVersion;
+                pendingVersion = null;
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (pollHandle) {
+                window.clearInterval(pollHandle);
+            }
+        });
+    })();
+</script>

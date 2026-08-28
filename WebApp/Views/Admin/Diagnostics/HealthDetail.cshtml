@@ -1,0 +1,59 @@
+@model WebApp.ViewModels.Admin.AdminHealthDetailViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    // Connection health detail follows the shared admin/module shell so diagnostics pages stay aligned with telemetry and the other admin monitoring views.
+    ViewData["Title"] = Localizer["Anslutningar"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page admin-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Admin"]</div>
+            <h1 class="module-page-title">@Localizer["Anslutningar"]</h1>
+            <div class="module-page-subtitle">@Localizer["Verifiera Jeeves-kopplingar per bolag och miljö i en samlad driftvy."]</div>
+            <div class="module-page-meta">@Localizer["Statusen visar om anslutningen svarar och vilket felmeddelande som i så fall kom tillbaka."]</div>
+        </div>
+        <a asp-action="AdminOverview" class="btn btn-sm btn-outline-secondary rounded-pill">@Localizer["Tillbaka"]</a>
+    </div>
+
+    <div class="card kpi-card p-3">
+        <div class="admin-section-title mb-3">@Localizer["Bolagsanslutningar"]</div>
+        <div class="module-table-shell">
+            <div class="table-responsive module-table admin-table">
+                @* Health rows remain dense and utilitarian because this page is primarily an operations surface. *@
+                <table class="table table-sm mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Bolag"]</th>
+                            <th>@Localizer["Connection"]</th>
+                            <th>@Localizer["Database"]</th>
+                            <th>@Localizer["Aktiv"]</th>
+                            <th>@Localizer["Status"]</th>
+                            <th>@Localizer["Meddelande"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model.Items.OrderBy(x => x.CompanyName).ThenByDescending(x => x.IsActive))
+                    {
+                        var badgeClass = item.IsHealthy ? "bg-success" : "bg-danger";
+                        <tr>
+                            <td>@item.CompanyName</td>
+                            <td>@item.ConnectionName</td>
+                            <td>@item.DatabaseName</td>
+                            <td>@(item.IsActive ? Localizer["Ja"] : Localizer["Nej"])</td>
+                            <td><span class="badge @badgeClass">@(item.IsHealthy ? "OK" : "Fel")</span></td>
+                            <td class="admin-row-meta">@item.Message</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,163 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@model WebApp.ViewModels.WebApproval.PurchaseApprovalListViewModel
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+	// Purchase approval list follows the shared module-page shell used by invoices and orders.
+	// Status selection is server-side so handled decisions can be loaded as history.
+	ViewData["Title"] = localizer["PageHeader"];
+	var companyId = ViewData["CompanyId"];
+	var orders = Model?.Orders ?? Array.Empty<Entities.ViewModels.WebApproval.WebApprovalPurchaseOrderVM>();
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<style>
+		.webapproval-page .module-filter-card .input-group-text {
+			border-color: rgba(148, 163, 184, 0.24);
+			background: linear-gradient(180deg, rgba(57, 67, 84, 0.82) 0%, rgba(40, 50, 66, 0.92) 100%);
+			color: #cbd5e1;
+		}
+
+		.webapproval-page .webapproval-purchase-table th.webapproval-col-order,
+		.webapproval-page .webapproval-purchase-table td.webapproval-col-order,
+		.webapproval-page .webapproval-purchase-table th.webapproval-col-supplier-number,
+		.webapproval-page .webapproval-purchase-table td.webapproval-col-supplier-number,
+		.webapproval-page .webapproval-purchase-table th.webapproval-col-currency,
+		.webapproval-page .webapproval-purchase-table td.webapproval-col-currency,
+		.webapproval-page .webapproval-purchase-table th.webapproval-col-status,
+		.webapproval-page .webapproval-purchase-table td.webapproval-col-status {
+			white-space: nowrap;
+		}
+
+		.webapproval-page .webapproval-purchase-table td.webapproval-col-status .badge {
+			white-space: nowrap;
+		}
+
+		body:not(.theme-dark) .webapproval-page .module-filter-card .input-group-text {
+			background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+			border-color: rgba(148, 163, 184, 0.34);
+			color: #475569;
+		}
+
+		@@media (max-width: 1440px) {
+			.webapproval-page .webapproval-purchase-table {
+				font-size: 0.96rem;
+			}
+
+			.webapproval-page .webapproval-purchase-table thead th {
+				font-size: 0.74rem;
+				letter-spacing: 0.03em;
+			}
+
+			.webapproval-page .webapproval-purchase-table th,
+			.webapproval-page .webapproval-purchase-table td {
+				padding-left: 0.65rem;
+				padding-right: 0.65rem;
+			}
+		}
+	</style>
+}
+
+<div class="dashboard-readable module-page webapproval-page">
+	<div class="module-page-header">
+		<div>
+			<div class="dashboard-card-title">Web Approval</div>
+			<h1 class="module-page-title">@localizer["PageHeader"]</h1>
+			<div class="module-page-subtitle">@localizer["PageSubHeader"]</div>
+			<div class="module-page-meta">Följ upp inköpsorder som väntar på beslut och växla snabbt mellan godkända, avvisade och öppna ärenden.</div>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	<div class="card kpi-card p-3 module-table-shell">
+		@* Search stays client-side, while status changes load the matching Jeeves result set. *@
+		<div class="row g-3 pb-4">
+			<div class="col-12 col-lg-8">
+				<div class="input-group module-filter-card">
+					<span class="input-group-text"><i class="fas fa-search"></i></span>
+					<input type="text" class="form-control" id="searchOrders" onkeyup="filterBySearchString()" placeholder="@sharedLocalizer["SearchBoxPlaceholder"]" />
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<form method="get" asp-action="PurchaseApproval" class="module-status-filters">
+					<button class="btn btn-default @(Model?.ShowsActive != false ? "active" : "")" type="submit">@sharedLocalizer["Status_NotApproved"]</button>
+					<button class="btn btn-default @(Model?.ShowsApproved == true ? "active" : "")" type="submit" name="status" value="1">@sharedLocalizer["Status_Approved"]</button>
+					<button class="btn btn-default @(Model?.ShowsRejected == true ? "active" : "")" type="submit" name="status" value="2">@sharedLocalizer["Status_Rejected"]</button>
+					<button class="btn btn-default" type="submit">@sharedLocalizer["Filter_Clear"]</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="table-responsive module-table">
+			<table class="table table-hover mb-0 webapproval-purchase-table" id="ordersTable">
+				<thead>
+					<tr>
+						<th class="webapproval-col-order">@localizer["Header_OrderNumber"]</th>
+						<th>@localizer["Header_Purchaser"]</th>
+						<th>@localizer["Header_Approver"]</th>
+						<th class="webapproval-col-supplier-number">@localizer["Header_SupplierNumber"]</th>
+						<th>@localizer["Header_SupplierName"]</th>
+						<th>@localizer["Header_OrderRegisteredDate"]</th>
+						<th>@localizer["Header_OrderEstimatedDeliveryDate"]</th>
+						<th class="webapproval-col-currency">@localizer["Header_Currency"]</th>
+						<th class="text-end">@localizer["Header_OrderValue"]</th>
+						<th class="text-end">@localizer["Header_OrderValueLocal"]</th>
+						<th class="webapproval-col-status">@localizer["Header_Status"]</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (!orders.Any())
+					{
+						<tr><td colspan="11">@sharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+					}
+					else
+					{
+						foreach (var order in orders)
+						{
+							<tr onclick="location.href='@Url.Action("PurchaseApprovalDetails", "WebApproval", new { companyId, id = order.Id })'" onmouseover="style.cursor='pointer'">
+								<td class="webapproval-col-order">@order.OrderNumber</td>
+								<td>@order.Purchaser</td>
+								<td>@order.AttestantName</td>
+								<td class="webapproval-col-supplier-number">@order.SupplierNumber</td>
+								<td>@order.SupplierName</td>
+								<td>@order.OrderRegisteredDate.ToShortDateString()</td>
+								<td>@order.OrderEstimatedDeliveryDate.ToShortDateString()</td>
+								<td class="text-center webapproval-col-currency">@order.Currency</td>
+								<td class="text-end">@order.OrderValue.ToString("0.00")</td>
+								<td class="text-end">@order.OrderValueLocal.ToString("0.00")</td>
+								<td class="webapproval-col-status">
+									@if (order.ApprovalStatus == 0 || order.ApprovalStatus == 3)
+									{
+										<span class="badge bg-silver-700">@sharedLocalizer["Status_NotApproved"]</span>
+									}
+									@if (order.ApprovalStatus == 1)
+									{
+										<span class="badge bg-green">@sharedLocalizer["Status_Approved"]</span>
+									}
+									@if (order.ApprovalStatus == 2)
+									{
+										<span class="badge bg-danger">@sharedLocalizer["Status_Rejected"]</span>
+									}
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script>
+	var localizedData = {
+		'statusNotApproved': '@sharedLocalizer["Status_NotApproved"]',
+		'statusApproved': '@sharedLocalizer["Status_Approved"]',
+		'statusRejected': '@sharedLocalizer["Status_Rejected"]'
+	};
+</script>
+<script src="~/js/webapproval.filters.js" asp-append-version="true"></script>

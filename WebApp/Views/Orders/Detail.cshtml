@@ -1,0 +1,150 @@
+@model WebApp.Models.Orders.OrderDetailsViewModel
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // Order detail reuses the same module-page shell and card hierarchy as the orders list
+    // so summary cards, typography and table density stay aligned across the module.
+    if (Model?.Header == null)
+    {
+        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+        {
+            Title = "Ingen order hittades",
+            Message = sharedLocalizer["Orders_NoOrderMessage"],
+            Tone = "warning",
+            IconClass = "fa fa-box-open",
+            ActionText = sharedLocalizer["Orders_BackToList"],
+            ActionUrl = Url.Action("Index", "Orders")
+        })
+        return;
+    }
+    ViewData["Title"] = $"{sharedLocalizer["Module_Orders"]} #{Model.Header.OrderNo}";
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    var h = Model.Header;
+    string StatusBadge(string status, bool closed) =>
+        closed ? "bg-success" :
+        status?.ToLower() switch
+        {
+            "risk" => "bg-warning text-dark",
+            "delay" => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page invoices-page orders-detail">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Module_Orders"]</div>
+            <h1 class="module-page-title">#@h.OrderNo</h1>
+            <div class="module-page-subtitle">
+                Kund: @(!string.IsNullOrWhiteSpace(h.CustomerName) ? $"{h.CustomerName} ({h.CustomerNo})" : h.CustomerNo)
+                @(!string.IsNullOrWhiteSpace(h.Description) ? ("· " + h.Description) : "")
+            </div>
+            <div class="module-page-meta">@sharedLocalizer["Orders_SalesPerson"]: @(!string.IsNullOrWhiteSpace(h.SalesPerson) ? h.SalesPerson : "-")</div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <a asp-action="Index" class="btn btn-portal btn-portal-outline btn-sm">@sharedLocalizer["Orders_BackToList"]</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3 kpi-list">
+        <div class="col-lg-4 col-md-6">
+            <div class="card kpi-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-card-title">@sharedLocalizer["Date"]</div>
+                    <ul class="module-detail-list">
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_OrderDate"]:</span> @h.OrderDate?.ToString("yyyy-MM-dd")</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_PromisedDelivery"]:</span> @h.PromisedDate?.ToString("yyyy-MM-dd")</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_PlannedDelivery"]:</span> @h.PlannedDelivery?.ToString("yyyy-MM-dd")</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_ActualDelivery"]:</span> @h.ActualDelivery?.ToString("yyyy-MM-dd")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card kpi-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-card-title">@sharedLocalizer["Orders_Amounts"]</div>
+                    <ul class="module-detail-list">
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_AmountExclVat"]:</span> @h.AmountExclVat.ToString("N0", culture) @h.Currency</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_AmountInclVat"]:</span> @h.AmountInclVat.ToString("N0", culture) @h.Currency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12">
+            <div class="card kpi-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-card-title mb-1">Status</div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="badge bg-secondary">@h.StatusCode</span>
+                        <span class="badge @(h.IsClosed ? "bg-success" : "bg-warning text-dark")">
+                            @(h.IsClosed ? sharedLocalizer["Paid"] : sharedLocalizer["Orders_Unpaid"])
+                        </span>
+                    </div>
+                    <ul class="module-detail-list">
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_StatusCode"]:</span> @h.StatusCode</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_OrderType"]:</span> @h.OrderType</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Orders_Closed"]:</span> @(h.IsClosed ? sharedLocalizer["Yes"] : sharedLocalizer["No"])</li>
+                        <li><span class="fw-semibold">@sharedLocalizer["Company"]:</span> @h.CompanyCode</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div>
+                    <div class="dashboard-card-title">@sharedLocalizer["Orders_OrderLines"]</div>
+                    <div class="module-page-meta">@sharedLocalizer["Orders_OrderLinesSubtitle"]</div>
+                </div>
+            </div>
+            @* Line table keeps the shared module-table shell so typography and spacing match list views. *@
+            <div class="table-card module-table-shell module-table">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@sharedLocalizer["Orders_Line"]</th>
+                            <th>@sharedLocalizer["Orders_Article"]</th>
+                            <th>@sharedLocalizer["Description"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_Quantity"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_DeliveredShort"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_Remaining"]</th>
+                            <th>@sharedLocalizer["Orders_Unit"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_NetPrice"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_LineAmount"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_DiscountPercent"]</th>
+                            <th class="text-end">@sharedLocalizer["Orders_DiscountValue"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.Lines)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@l.LineNo</td>
+                                <td>@l.ArticleNo</td>
+                                <td>@l.ArticleDescription</td>
+                                <td class="text-end">@l.OrderedQty.ToString("N2", culture)</td>
+                                <td class="text-end">@l.DeliveredQty.ToString("N2", culture)</td>
+                                <td class="text-end">@l.RestQty.ToString("N2", culture)</td>
+                                <td>@l.Unit</td>
+                                <td class="text-end">@l.NetPrice.ToString("N2", culture)</td>
+                                <td class="text-end">@l.LineAmountInclVat.ToString("N0", culture) @l.Currency</td>
+                                <td class="text-end">@l.DiscountPercent.ToString("N2", culture)</td>
+                                <td class="text-end">@l.DiscountValue.ToString("N0", culture)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

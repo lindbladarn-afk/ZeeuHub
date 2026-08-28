@@ -1,0 +1,85 @@
+@model WebApp.ViewModels.DocumentSigning.DocumentSigningPublicResultViewModel
+@{
+    ViewData["Title"] = "Dokumentsignering";
+
+    static string GetPortalStatusLabel(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => "Signerad",
+        "completed" => "Avslutad",
+        "waitinginternal" => "Signerad av mottagare",
+        "sent" => "Skickad",
+        "preparing" => "Förbereds",
+        "rejected" => "Avvisad",
+        "cancelled" => "Avbruten",
+        "timedout" => "Tidsgräns passerad",
+        "failed" => "Misslyckad",
+        _ => string.IsNullOrWhiteSpace(status) ? "-" : status
+    };
+
+    static string GetProviderStatusLabel(string status) => (status ?? string.Empty).ToLowerInvariant() switch
+    {
+        "signed" => "Signerad",
+        "pending" => "Skickad",
+        "draft" => "Förbereds",
+        "declined" => "Avvisad",
+        "overdue" => "Tidsgräns passerad",
+        _ => string.IsNullOrWhiteSpace(status) ? "-" : status
+    };
+
+    var returnUrl = ViewData["ReturnUrl"] as string;
+    var returnText = ViewData["ReturnText"] as string ?? "Tillbaka";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page integration-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Dokumentsignering</div>
+            <h1 class="module-page-title">Signeringsstatus</h1>
+            <div class="module-page-subtitle">@Model.DocumentTitle</div>
+            <div class="module-page-meta">Signerare: @Model.SignerName</div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            <div class="document-signing-header-actions">
+                <a href="@returnUrl" class="btn btn-sm btn-portal btn-portal-outline">@returnText</a>
+            </div>
+        }
+    </div>
+
+    <div class="card kpi-card mb-3">
+        <div class="card-body">
+            <div class="document-signing-detail-statuses">
+                <span class="document-signing-status document-signing-status--@(Model.PortalStatus?.ToLowerInvariant())">@GetPortalStatusLabel(Model.PortalStatus)</span>
+                <span class="document-signing-provider-status document-signing-provider-status--@(Model.ProviderStatus?.ToLowerInvariant())">@GetProviderStatusLabel(Model.ProviderStatus)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card">
+        <div class="card-body">
+            <div class="document-signing-section-title mb-2">Statusöversikt</div>
+            <div class="document-signing-detail-grid">
+                <div class="document-signing-detail-card">
+                    <div class="document-signing-demo-label">Dokument</div>
+                    <div class="document-signing-demo-value">@Model.MainFileName</div>
+                </div>
+                <div class="document-signing-detail-card">
+                    <div class="document-signing-demo-label">Skapad</div>
+                    <div class="document-signing-demo-value">@Model.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                </div>
+                <div class="document-signing-detail-card">
+                    <div class="document-signing-demo-label">Färdig</div>
+                    <div class="document-signing-demo-value">@(Model.CompletedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</div>
+                </div>
+                <div class="document-signing-detail-card">
+                    <div class="document-signing-demo-label">Signerat och förseglat</div>
+                    <div class="document-signing-demo-value">@(Model.SignedAndSealed ? "Ja" : "Nej")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

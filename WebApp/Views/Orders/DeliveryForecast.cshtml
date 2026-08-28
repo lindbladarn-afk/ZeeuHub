@@ -1,0 +1,260 @@
+@model WebApp.Models.Orders.OrderDeliveryForecastViewModel
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    ViewData["Title"] = sharedLocalizer["Orders_ForecastTitle"];
+    ViewData["OrdersSection"] = "forecast";
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+    var maxCount = Model.Timeline.Count > 0 ? Model.Timeline.Max(x => x.OrderCount) : 1;
+    var visibleFrom = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var visibleTo = Model.TotalCount == 0 ? 0 : Math.Min(Model.TotalCount, Model.Page * Model.PageSize);
+    string RangeUrl(int months) => Url.Action("DeliveryForecast", new { months, page = 1, customer = Model.CustomerFilter }) ?? "#";
+    string RangeClass(int months) => Model.MonthsAhead == months ? "btn active" : "btn";
+    string PageUrl(int page) => Url.Action("DeliveryForecast", new { months = Model.MonthsAhead, page, customer = Model.CustomerFilter }) ?? "#";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page orders-page order-forecast-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Module_Orders"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Orders_ForecastTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["Orders_ForecastSubtitle"]</div>
+            <div class="module-page-meta">@sharedLocalizer["Orders_ForecastMeta"]</div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_OrdersTabs")
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <div class="module-page-meta">@sharedLocalizer["Orders_PlanningHorizon"]</div>
+        <div class="module-tab-toggle order-forecast-range-toggle">
+            @foreach (var months in Model.AvailableMonthRanges)
+            {
+                <a class="@RangeClass(months)" href="@RangeUrl(months)">@sharedLocalizer["Orders_MonthRange", months]</a>
+            }
+        </div>
+    </div>
+
+        <div class="card kpi-card p-2 mb-2 module-filter-card">
+        <form method="get" class="row g-2 align-items-end">
+            <input type="hidden" name="months" value="@Model.MonthsAhead" />
+            <div class="col-lg-5 col-md-8">
+                <label class="form-label module-page-meta mb-1">@sharedLocalizer["Customer"]</label>
+                <select class="form-select module-date-input" name="customer">
+                    <option value="">@sharedLocalizer["Orders_AllCustomers"]</option>
+                    @foreach (var customer in Model.CustomerOptions)
+                    {
+                        if (Model.CustomerFilter == customer.CustomerNo)
+                        {
+                            <option value="@customer.CustomerNo" selected="selected">@customer.DisplayName</option>
+                        }
+                        else
+                        {
+                            <option value="@customer.CustomerNo">@customer.DisplayName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-portal">@sharedLocalizer["Filter"]</button>
+            </div>
+            <div class="col-auto">
+                <a class="btn btn-portal btn-portal-outline" href="@Url.Action("DeliveryForecast", new { months = Model.MonthsAhead })">@sharedLocalizer["Filter_Clear"]</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-2">
+        <div class="col-xl-3 col-md-6">
+            <div class="module-kpi-surface module-kpi-surface--compact order-forecast-kpi h-100">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_UpcomingOrders"]</div>
+                <div class="metric-value">@Model.FutureOrderCount.ToString("N0", culture) st</div>
+                <div class="module-page-meta small order-forecast-kpi-meta order-forecast-kpi-meta--placeholder">@sharedLocalizer["Orders_OrderCountLabel", 0]</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="module-kpi-surface module-kpi-surface--compact order-forecast-kpi h-100">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_OrderValue"]</div>
+                <div class="metric-value">@Model.FutureAmountTotal.ToString("N0", culture) SEK</div>
+                <div class="module-page-meta small order-forecast-kpi-meta order-forecast-kpi-meta--placeholder">@sharedLocalizer["Orders_OrderCountLabel", 0]</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="module-kpi-surface module-kpi-surface--compact order-forecast-kpi h-100">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_NextDelivery"]</div>
+                <div class="metric-value">@(Model.EarliestDeliveryDate?.ToString("yyyy-MM-dd") ?? "-")</div>
+                <div class="module-page-meta small order-forecast-kpi-meta order-forecast-kpi-meta--placeholder">@sharedLocalizer["Orders_OrderCountLabel", 0]</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="module-kpi-surface module-kpi-surface--compact order-forecast-kpi h-100">
+                <div class="module-kpi-label">@sharedLocalizer["Orders_TopMonth"]</div>
+                <div class="metric-value">@Model.TopMonthLabel</div>
+                <div class="module-page-meta small order-forecast-kpi-meta">@sharedLocalizer["Orders_OrderCountLabel", Model.TopMonthOrderCount.ToString("N0", culture)]</div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.FutureOrderCount == 0)
+    {
+        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+        {
+            Title = sharedLocalizer["Orders_NoUpcomingOrdersTitle"],
+            Message = sharedLocalizer["Orders_NoUpcomingOrdersMessage"],
+            Tone = "info",
+            IconClass = "fa fa-calendar-check-o"
+        })
+    }
+    else
+    {
+        <div class="card kpi-card module-table-shell mb-2 order-forecast-visual-card">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                    <div>
+                        <div class="dashboard-card-title">@sharedLocalizer["Orders_ForwardDeliveryPlan"]</div>
+                        <div class="module-page-subtitle mb-0">@sharedLocalizer["Orders_ForwardDeliveryPlanSubtitle"]</div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div class="module-page-meta">@sharedLocalizer["Orders_LastDelivery"]: @(Model.LatestDeliveryDate?.ToString("yyyy-MM-dd") ?? "-")</div>
+                        <div class="module-tab-toggle order-forecast-view-toggle" role="tablist" aria-label="@sharedLocalizer["Orders_DeliveryPlanViewAria"]">
+                            <button type="button" class="btn active" data-forecast-view="chart">@sharedLocalizer["Orders_Bars"]</button>
+                            <button type="button" class="btn" data-forecast-view="table">@sharedLocalizer["Orders_Table"]</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-forecast-pane order-forecast-pane--chart" data-forecast-pane="chart">
+                    <div class="order-forecast-chart" style="grid-template-columns: repeat(@Math.Max(1, Model.Timeline.Count), minmax(0, 1fr));">
+                        @foreach (var bucket in Model.Timeline)
+                        {
+                            var heightPercent = Math.Max(12m, maxCount <= 0 ? 0m : Math.Round((bucket.OrderCount / (decimal)maxCount) * 100m, 0));
+                            <div class="order-forecast-point" title="@sharedLocalizer["Orders_ForecastPointTitle", bucket.PeriodStart.ToString("yyyy-MM"), bucket.OrderCount, bucket.AmountTotal.ToString("N0", culture)]">
+                                <div class="order-forecast-bar-wrap">
+                                    <div class="order-forecast-bar" style="height:@heightPercent%;"></div>
+                                </div>
+                                <div class="order-forecast-count">@bucket.OrderCount</div>
+                                <div class="order-forecast-label">@bucket.Label</div>
+                                <div class="order-forecast-amount">@bucket.AmountTotal.ToString("N0", culture) kr</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="order-forecast-pane order-forecast-pane--table d-none" data-forecast-pane="table">
+                    <div class="table-responsive module-table">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>@sharedLocalizer["Orders_Month"]</th>
+                                    <th>@sharedLocalizer["Orders_Quantity"]</th>
+                                    <th class="text-end">@sharedLocalizer["Orders_Value"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var bucket in Model.Timeline)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@bucket.PeriodStart.ToString("MMMM yyyy", culture)</td>
+                                    <td>@bucket.OrderCount.ToString("N0", culture)</td>
+                                    <td class="text-end fw-semibold">@bucket.AmountTotal.ToString("N0", culture) kr</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card kpi-card module-table-shell">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                    <div>
+                        <div class="dashboard-card-title">@sharedLocalizer["Orders_UpcomingOrderTitle"]</div>
+                        <div class="module-page-subtitle mb-0">@sharedLocalizer["Orders_UpcomingOrderSubtitle"]</div>
+                    </div>
+                    <div class="module-page-meta">@sharedLocalizer["Orders_ShowingRange", visibleFrom, visibleTo, Model.TotalCount]</div>
+                </div>
+
+                <div class="table-responsive module-table">
+                    <table class="table align-middle mb-0 table-hover">
+                        <thead>
+                            <tr>
+                                <th>@sharedLocalizer["OrderNumber"]</th>
+                                <th>@sharedLocalizer["Customer"]</th>
+                                <th>@sharedLocalizer["Orders_SalesPerson"]</th>
+                                <th>@sharedLocalizer["Orders_PromisedDelivery"]</th>
+                                <th>@sharedLocalizer["Orders_PlannedDelivery"]</th>
+                                <th class="text-end">@sharedLocalizer["Amount"]</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var order in Model.UpcomingOrders)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@(!string.IsNullOrWhiteSpace(order.OrderNoAlfa) ? order.OrderNoAlfa : $"#{order.OrderNo}")</td>
+                                <td>
+                                    <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(order.CustomerName) ? order.CustomerName : order.CustomerNo)</div>
+                                    <div class="module-page-meta small">@order.CustomerNo</div>
+                                </td>
+                                <td>@order.SalesPerson</td>
+                                <td>@(order.PromisedDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                <td>@(order.PlannedDelivery?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                <td class="text-end fw-semibold">@order.AmountInclVat.ToString("N0", culture) @order.Currency</td>
+                                <td class="text-end">
+                                    <a asp-action="Detail" asp-route-id="@order.OrderNo" class="btn btn-portal btn-portal-outline btn-sm">@sharedLocalizer["Orders_ViewOrder"]</a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+                        <div class="module-page-meta small">@sharedLocalizer["Orders_PageOf", Model.Page, Model.TotalPages]</div>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page <= 1 ? "disabled" : null)" href="@(Model.Page <= 1 ? "#" : PageUrl(Model.Page - 1))">@sharedLocalizer["Previous"]</a>
+                            <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : null)" href="@(Model.Page >= Model.TotalPages ? "#" : PageUrl(Model.Page + 1))">@sharedLocalizer["Next"]</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const toggle = document.querySelector(".order-forecast-view-toggle");
+            if (!toggle) {
+                return;
+            }
+
+            const buttons = Array.from(toggle.querySelectorAll("[data-forecast-view]"));
+            const panes = Array.from(document.querySelectorAll("[data-forecast-pane]"));
+
+            function activate(view) {
+                buttons.forEach((button) => {
+                    button.classList.toggle("active", button.getAttribute("data-forecast-view") === view);
+                });
+
+                panes.forEach((pane) => {
+                    pane.classList.toggle("d-none", pane.getAttribute("data-forecast-pane") !== view);
+                });
+            }
+
+            buttons.forEach((button) => {
+                button.addEventListener("click", () => activate(button.getAttribute("data-forecast-view")));
+            });
+        })();
+    </script>
+}

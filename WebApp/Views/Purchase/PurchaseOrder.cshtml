@@ -1,0 +1,1811 @@
+﻿@using Entities.Purchase
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@model Entities.Purchase.IPurchaseOrderVM
+
+@inject IViewLocalizer Localizer
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+
+@{
+	// Purchase order detail mirrors the shared module-page pattern with summary cards above the main row shell.
+	// The row form stays intact because add-to-stock submission depends on the full bound row payload.
+	var isAcknowledgementDemo = ViewBag.PurchaseAcknowledgementDemo as bool? ?? false;
+	ViewData["Title"] = isAcknowledgementDemo ? "Ordererkännande" : Localizer["PageHeader"];
+	var purchaseSubmitAction = isAcknowledgementDemo ? "OrderAcknowledgement" : "PurchaseOrder";
+	string registeredDate = Model?.RegisteredDate?.ToShortDateString() ?? "-";
+	string deliveryDate = Model?.DeliveryDate?.ToShortDateString() ?? "-";
+	var orderRows = Model?.OrderRows ?? new List<PurchaseOrderRowVM>();
+	var hasPendingRows = orderRows.Any(x => x.IsRecieved != true);
+
+	string GetDemoRowClass(PurchaseOrderRowVM row)
+	{
+		if (!isAcknowledgementDemo)
+		{
+			return string.Empty;
+		}
+
+		if (!row.ConfirmedDeliveryDate.HasValue)
+		{
+			return "purchase-ack-row--pending";
+		}
+
+		return row.DeliveryDate.HasValue && row.ConfirmedDeliveryDate.Value.Date == row.DeliveryDate.Value.Date
+			? "purchase-ack-row--confirmed"
+			: "purchase-ack-row--review";
+	}
+
+	string GetDemoStatusLabel(PurchaseOrderRowVM row)
+	{
+		if (!isAcknowledgementDemo)
+		{
+			return string.Empty;
+		}
+
+		if (!row.ConfirmedDeliveryDate.HasValue)
+		{
+			return "Väntar";
+		}
+
+		return row.DeliveryDate.HasValue && row.ConfirmedDeliveryDate.Value.Date == row.DeliveryDate.Value.Date
+			? "Bekräftad"
+			: "Avvikelse";
+	}
+
+	string ToDateInputValue(DateTime? value)
+		=> value.HasValue ? value.Value.ToString("yyyy-MM-dd") : string.Empty;
+}
+
+	@section Styles {
+		<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+		<style>
+		.purchase-order-page .purchase-order-top-card {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 14px;
+			background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(23, 31, 45, 0.96) 100%);
+			min-height: 100%;
+		}
+
+		.purchase-order-page .purchase-order-details-shell {
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 16px;
+			background: rgba(15, 23, 42, 0.24);
+			box-shadow: 0 16px 36px rgba(2, 6, 23, 0.18);
+			color: #e2e8f0;
+		}
+
+		.purchase-order-page .purchase-order-top-card small,
+		.purchase-order-page .purchase-order-details-shell small {
+			color: #94a3b8;
+		}
+
+		.purchase-order-page .purchase-order-top-card address,
+		.purchase-order-page .purchase-order-details-shell address {
+			color: #e2e8f0;
+		}
+
+		.purchase-order-page .table-invoice {
+			--bs-table-bg: transparent;
+			--bs-table-accent-bg: transparent;
+			--bs-table-hover-bg: rgba(56, 189, 248, 0.05);
+			--bs-table-color: #e2e8f0;
+			margin-bottom: 0;
+		}
+
+		.purchase-order-page .table-invoice thead th {
+			color: #f8fafc;
+			font-weight: 800;
+			border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+			background: rgba(15, 23, 42, 0.16);
+			vertical-align: middle;
+			white-space: nowrap;
+		}
+
+		.purchase-order-page .table-invoice tbody td {
+			color: #dbe4ef;
+			border-color: rgba(148, 163, 184, 0.16);
+			vertical-align: middle;
+		}
+
+		.purchase-order-page .table-invoice .form-check-input {
+			background-color: rgba(15, 23, 42, 0.88);
+			border-color: rgba(148, 163, 184, 0.55);
+			box-shadow: none;
+		}
+
+		.purchase-order-page .table-invoice .form-check-input:checked {
+			background-color: #20a4f3;
+			border-color: #4fc3ff;
+		}
+
+		.purchase-order-page .purchase-ack-demo-shell {
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 16px;
+			background: rgba(15, 23, 42, 0.26);
+			box-shadow: 0 16px 36px rgba(2, 6, 23, 0.18);
+			color: #e2e8f0;
+		}
+
+		.purchase-order-page .purchase-ack-demo-header {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 0.8rem;
+			flex-wrap: wrap;
+			margin-bottom: 0.65rem;
+		}
+
+		.purchase-order-page .purchase-ack-demo-eyebrow {
+			color: #94a3b8;
+			font-size: 0.68rem;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.purchase-order-page .purchase-ack-demo-title {
+			color: #f8fafc;
+			font-size: 0.94rem;
+			font-weight: 800;
+			margin-top: 0.1rem;
+		}
+
+		.purchase-order-page .purchase-ack-demo-subtitle {
+			color: #cbd5e1;
+			font-size: 0.8rem;
+			margin-top: 0.12rem;
+			max-width: 58rem;
+		}
+
+		.purchase-order-page .purchase-ack-demo-legend {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 0.28rem;
+			margin: 0.4rem 0 0;
+			flex: 1 1 100%;
+			width: 100%;
+		}
+
+		.purchase-order-page .purchase-ack-demo-legend-item {
+			display: flex;
+			align-items: center;
+			gap: 0.34rem;
+			padding: 0.34rem 0.48rem;
+			border-radius: 0.85rem;
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			background: rgba(30, 41, 59, 0.56);
+			color: #e2e8f0;
+			font-size: 0.69rem;
+			font-weight: 600;
+			white-space: nowrap;
+			min-width: 0;
+			overflow: hidden;
+		}
+
+		.purchase-order-page .purchase-ack-demo-swatch {
+			width: 0.66rem;
+			height: 0.66rem;
+			border-radius: 0.25rem;
+			flex: 0 0 auto;
+		}
+
+		.purchase-order-page .purchase-ack-demo-legend-item i {
+			font-size: 0.7rem;
+		}
+
+		.purchase-order-page .purchase-ack-demo-swatch--pending {
+			background: #f59e0b;
+		}
+
+		.purchase-order-page .purchase-ack-demo-swatch--confirmed {
+			background: #22c55e;
+		}
+
+		.purchase-order-page .purchase-ack-demo-swatch--review {
+			background: #ef4444;
+		}
+
+		.purchase-order-page .table-purchase-ack {
+			--bs-table-bg: transparent;
+			--bs-table-accent-bg: transparent;
+			--bs-table-hover-bg: rgba(56, 189, 248, 0.05);
+			--bs-table-color: #e2e8f0;
+			margin-bottom: 0;
+		}
+
+		.purchase-order-page .table-purchase-ack thead th {
+			color: #f8fafc;
+			font-weight: 800;
+			border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+			background: rgba(15, 23, 42, 0.16);
+			vertical-align: middle;
+			white-space: nowrap;
+		}
+
+		.purchase-order-page .table-purchase-ack tbody td {
+			color: #dbe4ef;
+			border-color: rgba(255, 255, 255, 0.1);
+			vertical-align: middle;
+		}
+
+		.purchase-order-page .purchase-ack-row--confirmed td {
+			background: transparent;
+		}
+
+		.purchase-order-page .purchase-ack-row--pending td {
+			background: transparent;
+		}
+
+		.purchase-order-page .purchase-ack-row--review td {
+			background: transparent;
+		}
+
+		.purchase-order-page .table-purchase-ack tbody tr:not(:last-child) td {
+			border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+		}
+
+		.purchase-order-page .purchase-ack-date {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 1.9rem;
+			padding: 0.22rem 0.55rem;
+			border-radius: 999px;
+			border: 1px solid transparent;
+			font-weight: 800;
+			white-space: nowrap;
+		}
+
+		.purchase-order-page .purchase-ack-date--confirmed {
+			background: rgba(34, 197, 94, 0.22);
+			border-color: rgba(74, 222, 128, 0.36);
+			color: #dcfce7;
+		}
+
+		.purchase-order-page .purchase-ack-date--pending {
+			background: rgba(245, 158, 11, 0.22);
+			border-color: rgba(251, 191, 36, 0.36);
+			color: #fef3c7;
+		}
+
+		.purchase-order-page .purchase-ack-date--review {
+			background: rgba(239, 68, 68, 0.22);
+			border-color: rgba(248, 113, 113, 0.36);
+			color: #fecaca;
+		}
+
+		.purchase-order-page .purchase-ack-status {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 1.55rem;
+			padding: 0.12rem 0.38rem;
+			border-radius: 999px;
+			border: 1px solid transparent;
+			font-size: 0.68rem;
+			font-weight: 800;
+			white-space: nowrap;
+		}
+
+		.purchase-order-page .purchase-ack-status--confirmed {
+			background: rgba(34, 197, 94, 0.2);
+			border-color: rgba(74, 222, 128, 0.34);
+			color: #dcfce7;
+		}
+
+		.purchase-order-page .purchase-ack-status--pending {
+			background: rgba(245, 158, 11, 0.2);
+			border-color: rgba(251, 191, 36, 0.34);
+			color: #fef3c7;
+		}
+
+		.purchase-order-page .purchase-ack-status--review {
+			background: rgba(239, 68, 68, 0.2);
+			border-color: rgba(248, 113, 113, 0.34);
+			color: #fecaca;
+		}
+
+		.purchase-order-page .purchase-ack-select-cell {
+			width: 2.75rem;
+		}
+
+		.purchase-order-page .purchase-ack-select {
+			margin-top: 0.15rem;
+		}
+
+		.purchase-order-page .purchase-ack-status-block {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.28rem;
+			min-width: 0;
+			width: 100%;
+		}
+
+		.purchase-order-page .purchase-ack-row--selected td {
+			background: rgba(32, 164, 243, 0.06);
+		}
+
+		.purchase-order-page .purchase-ack-row--selected .form-check-input {
+			border-color: rgba(79, 195, 255, 0.66);
+			box-shadow: 0 0 0 0.15rem rgba(32, 164, 243, 0.1);
+		}
+
+		.purchase-order-page .purchase-ack-row-metric {
+			display: flex;
+			flex-direction: column;
+			gap: 0.35rem;
+		}
+
+		.purchase-order-page .purchase-ack-row-metric-value {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			font-weight: 700;
+			white-space: nowrap;
+		}
+
+		.purchase-order-page .purchase-ack-date-input.flowengine-date-input.form-control {
+			width: clamp(10rem, 100%, 11rem);
+			min-width: 10rem;
+			max-width: 11rem;
+			box-sizing: border-box;
+			min-height: 2.55rem;
+			padding-left: 2.35rem !important;
+			padding-right: 2.55rem !important;
+			border-radius: 0.88rem;
+			border: 1px solid rgba(148, 163, 184, 0.24);
+			background: linear-gradient(180deg, rgba(39, 49, 65, 0.72) 0%, rgba(30, 41, 59, 0.82) 100%);
+			background-image:
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Crect x='2.25' y='3.25' width='11.5' height='10.5' rx='2.25' stroke='%239fb9ff' stroke-width='1.5'/%3E%3Cpath d='M5 1.75V4.25M11 1.75V4.25M2.5 6.25H13.5' stroke='%239fb9ff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"),
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3.25 5.25L7 9L10.75 5.25' stroke='%23dbe7ff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+			background-repeat: no-repeat, no-repeat;
+			background-position: left 0.82rem center, right 0.82rem center;
+			background-size: 1rem 1rem, 0.9rem 0.9rem;
+			color: #f8fafc;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+			cursor: pointer;
+			-webkit-appearance: none;
+			appearance: none;
+		}
+
+		.purchase-order-page .purchase-ack-date-input.flowengine-date-input.form-control::-webkit-calendar-picker-indicator {
+			opacity: 0;
+			display: none;
+		}
+
+		.purchase-order-page .purchase-ack-date-input.flowengine-date-input.form-control:focus {
+			border-color: rgba(148, 163, 184, 0.34);
+			box-shadow: 0 0 0 0.12rem rgba(148, 163, 184, 0.08);
+		}
+
+		.purchase-order-page .purchase-ack-date-input--confirmed {
+			border-color: rgba(74, 222, 128, 0.42);
+			box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.14);
+		}
+
+		.purchase-order-page .purchase-ack-date-input--pending {
+			border-color: rgba(251, 191, 36, 0.42);
+			box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.14);
+		}
+
+		.purchase-order-page .purchase-ack-date-input--review {
+			border-color: rgba(248, 113, 113, 0.42);
+			box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.14);
+		}
+
+		.purchase-ack-modal .modal-content {
+			background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.98));
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 18px;
+			color: #e2e8f0;
+			box-shadow: 0 24px 64px rgba(2, 6, 23, 0.45);
+			overflow: hidden;
+		}
+
+		.purchase-ack-modal .modal-header,
+		.purchase-ack-modal .modal-footer {
+			border-color: rgba(148, 163, 184, 0.16);
+		}
+
+		.purchase-ack-modal .modal-header {
+			padding: 1rem 1.25rem;
+			background: rgba(15, 23, 42, 0.18);
+		}
+
+		.purchase-ack-modal .modal-body {
+			padding: 1.15rem 1.25rem 1rem;
+		}
+
+		.purchase-ack-modal .modal-footer {
+			padding: 0.9rem 1.25rem 1.1rem;
+			background: rgba(15, 23, 42, 0.08);
+		}
+
+		.purchase-ack-modal .form-control {
+			background: rgba(15, 23, 42, 0.42);
+			border-color: rgba(148, 163, 184, 0.2);
+			color: #e2e8f0;
+		}
+
+		.purchase-ack-modal .form-control:focus {
+			border-color: rgba(79, 195, 255, 0.65);
+			box-shadow: 0 0 0 0.18rem rgba(32, 164, 243, 0.14);
+		}
+
+		.purchase-ack-modal .purchase-ack-modal-label {
+			color: #94a3b8;
+			font-size: 0.78rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+
+		.purchase-ack-modal .modal-title {
+			color: #f8fafc;
+			font-weight: 800;
+		}
+
+		.purchase-ack-modal .modal-body {
+			color: #e2e8f0;
+		}
+
+		.purchase-ack-modal .modal-footer .btn-portal,
+		.purchase-ack-modal .modal-footer .btn-portal-outline {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 0;
+			height: 2.05rem;
+			line-height: 1;
+			padding: 0 0.68rem;
+			font-size: 0.72rem;
+			min-width: 6.5rem;
+			box-sizing: border-box;
+		}
+
+		.purchase-ack-modal .btn-close {
+			filter: invert(1) grayscale(1);
+			opacity: 0.85;
+		}
+
+		.purchase-order-page .purchase-ack-note {
+			margin-top: 1rem;
+			padding: 0.85rem 1rem;
+			border-radius: 0.9rem;
+			border: 1px dashed rgba(148, 163, 184, 0.24);
+			background: rgba(30, 41, 59, 0.32);
+			color: #cbd5e1;
+			font-size: 0.92rem;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-demo-shell {
+			border-color: rgba(148, 163, 184, 0.24);
+			background: rgba(255, 255, 255, 0.88);
+			color: #1e293b;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-demo-eyebrow {
+			color: #64748b;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-demo-title {
+			color: #0f172a;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-demo-subtitle,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-note {
+			color: #334155;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-demo-legend-item {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border-color: rgba(148, 163, 184, 0.34);
+			color: #0f172a;
+			box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-purchase-ack {
+			--bs-table-color: #1e293b;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-purchase-ack thead th {
+			color: #0f172a;
+			background: rgba(226, 232, 240, 0.48);
+			border-bottom-color: rgba(100, 116, 139, 0.35);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-purchase-ack tbody td {
+			color: #334155;
+			border-color: rgba(148, 163, 184, 0.18);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-row--confirmed td {
+			background: transparent;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-row--pending td {
+			background: transparent;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-row--review td {
+			background: transparent;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-purchase-ack tbody tr:not(:last-child) td {
+			border-bottom: 1px solid rgba(148, 163, 184, 0.26);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-date--confirmed {
+			color: #166534;
+			background: #dcfce7;
+			border-color: rgba(74, 222, 128, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-date--pending {
+			color: #92400e;
+			background: #fef3c7;
+			border-color: rgba(251, 191, 36, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-date--review {
+			color: #991b1b;
+			background: #fee2e2;
+			border-color: rgba(248, 113, 113, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-status--confirmed {
+			color: #166534;
+			background: #dcfce7;
+			border-color: rgba(74, 222, 128, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-status--pending {
+			color: #92400e;
+			background: #fef3c7;
+			border-color: rgba(251, 191, 36, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-status--review {
+			color: #991b1b;
+			background: #fee2e2;
+			border-color: rgba(248, 113, 113, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-row--selected td {
+			background: rgba(32, 164, 243, 0.05);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice .form-check-input,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-select {
+			background-color: #ffffff;
+			border-color: rgba(148, 163, 184, 0.46);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+			accent-color: #3f618a;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice .form-check-input:hover,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-select:hover {
+			border-color: rgba(63, 97, 138, 0.62);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice .form-check-input:focus,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-select:focus {
+			border-color: rgba(63, 97, 138, 0.72);
+			box-shadow: 0 0 0 3px rgba(63, 97, 138, 0.12);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice .form-check-input:checked,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-select:checked {
+			background-color: #3f618a;
+			border-color: #3f618a;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice .form-check-input:disabled,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-select:disabled {
+			background-color: #e2e8f0;
+			border-color: rgba(148, 163, 184, 0.3);
+			box-shadow: none;
+			opacity: 0.9;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn {
+			background: linear-gradient(180deg, #4c6f97 0%, #3f618a 100%);
+			border-color: rgba(63, 97, 138, 0.55);
+			color: #ffffff;
+			-webkit-text-fill-color: #ffffff;
+			box-shadow: 0 8px 18px rgba(63, 97, 138, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn:hover,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn:focus {
+			background: linear-gradient(180deg, #587ba3 0%, #4b6f99 100%);
+			border-color: rgba(63, 97, 138, 0.68);
+			color: #ffffff;
+			-webkit-text-fill-color: #ffffff;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn:disabled,
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn.disabled {
+			background: #e2e8f0;
+			border-color: rgba(148, 163, 184, 0.3);
+			color: #94a3b8;
+			-webkit-text-fill-color: #94a3b8;
+			box-shadow: none;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-note {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border-color: rgba(148, 163, 184, 0.28);
+			color: #334155;
+			box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-footer-note {
+			color: #334155;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-selected-count {
+			color: #64748b;
+		}
+
+		@@media (max-width: 1400px) {
+			.purchase-order-page .module-page-header {
+				margin-bottom: 1rem;
+			}
+
+			.purchase-order-page .module-page-title {
+				font-size: 2rem;
+			}
+
+			.purchase-order-page .module-page-subtitle {
+				font-size: 0.88rem;
+				margin-top: 0.2rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card .card-body {
+				padding: 0.78rem 0.9rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card-label {
+				font-size: 0.72rem;
+				margin-bottom: 0.45rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card-value {
+				font-size: 0.9rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card .purchase-order-number {
+				font-size: 0.98rem;
+			}
+
+			.purchase-order-page .purchase-order-details-shell .card-body {
+				padding: 0.85rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-header {
+				margin-bottom: 0.8rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-title {
+				font-size: 1.02rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-subtitle {
+				font-size: 0.84rem;
+				margin-top: 0.15rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-legend {
+				gap: 0.35rem;
+				margin-top: 0.6rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-legend-item {
+				padding: 0.38rem 0.5rem;
+				font-size: 0.72rem;
+				gap: 0.38rem;
+			}
+
+			.purchase-order-page .table-purchase-ack thead th {
+				padding-top: 0.65rem;
+				padding-bottom: 0.65rem;
+				font-size: 0.9rem;
+			}
+
+			.purchase-order-page .table-purchase-ack tbody td {
+				padding-top: 0.68rem;
+				padding-bottom: 0.68rem;
+				font-size: 0.92rem;
+			}
+
+			.purchase-order-page .purchase-ack-date {
+				min-height: 1.7rem;
+				padding: 0.16rem 0.45rem;
+				font-size: 0.82rem;
+			}
+
+			.purchase-order-page .purchase-ack-status {
+				min-height: 1.42rem;
+				padding: 0.1rem 0.34rem;
+				font-size: 0.62rem;
+			}
+
+			.purchase-order-page .purchase-ack-row-metric-value {
+				gap: 0.28rem;
+			}
+
+			.purchase-order-page .purchase-ack-select {
+				margin-top: 0.1rem;
+			}
+
+			.purchase-order-page .purchase-ack-action-btn {
+				padding: 0.18rem 0.42rem;
+				font-size: 0.58rem;
+			}
+
+			.purchase-order-page .purchase-ack-submit-btn {
+				padding: 0.2rem 0.52rem;
+				font-size: 0.72rem;
+			}
+
+			.purchase-order-page .purchase-order-actions {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				width: 100%;
+			}
+
+			.purchase-order-page .purchase-order-submit-group {
+				margin-left: auto;
+			}
+
+			.purchase-order-page .purchase-order-footer {
+				margin-top: 0.75rem;
+			}
+
+			.purchase-order-page .purchase-order-summary small {
+				font-size: 0.68rem;
+			}
+
+			.purchase-order-page .purchase-order-summary span {
+				font-size: 0.95rem;
+			}
+
+			.purchase-order-page .purchase-ack-footer {
+				margin-top: 0.75rem;
+			}
+
+			.purchase-order-page .purchase-ack-footer-note {
+				font-size: 0.84rem;
+			}
+
+			.purchase-order-page .purchase-ack-selected-count {
+				font-size: 0.76rem;
+			}
+
+			.purchase-order-page .purchase-ack-footer-meta {
+				gap: 0.45rem;
+			}
+
+			.purchase-order-page .module-page-header .btn-portal-outline {
+				min-height: 2.1rem;
+				padding: 0.24rem 0.7rem;
+				font-size: 0.72rem;
+			}
+
+			.purchase-ack-modal .modal-footer .btn-portal,
+			.purchase-ack-modal .modal-footer .btn-portal-outline {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 0;
+				height: 1.85rem;
+				line-height: 1;
+				padding: 0 0.6rem;
+				font-size: 0.66rem;
+				border-radius: 0.85rem;
+				min-width: 6rem;
+				box-sizing: border-box;
+			}
+		}
+
+		@@media (min-width: 1280px) and (max-height: 900px) {
+			.purchase-order-page .module-page-header {
+				margin-bottom: 0.55rem;
+			}
+
+			.purchase-order-page .module-page-title {
+				font-size: 1.62rem;
+			}
+
+			.purchase-order-page .module-page-subtitle {
+				font-size: 0.78rem;
+				margin-top: 0.12rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card .card-body {
+				padding: 0.62rem 0.78rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card-label {
+				font-size: 0.68rem;
+				margin-bottom: 0.35rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card-value {
+				font-size: 0.84rem;
+			}
+
+			.purchase-order-page .purchase-order-top-card .purchase-order-number {
+				font-size: 0.9rem;
+			}
+
+			.purchase-order-page .purchase-order-details-shell .card-body {
+				padding: 0.72rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-header {
+				margin-bottom: 0.65rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-title {
+				font-size: 0.94rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-subtitle {
+				font-size: 0.8rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-legend {
+				margin-top: 0.45rem;
+				gap: 0.28rem;
+			}
+
+			.purchase-order-page .purchase-ack-demo-legend-item {
+				padding: 0.32rem 0.45rem;
+				font-size: 0.67rem;
+				gap: 0.32rem;
+			}
+
+			.purchase-order-page .table-purchase-ack thead th {
+				padding-top: 0.52rem;
+				padding-bottom: 0.52rem;
+				font-size: 0.82rem;
+			}
+
+			.purchase-order-page .table-purchase-ack tbody td {
+				padding-top: 0.55rem;
+				padding-bottom: 0.55rem;
+				font-size: 0.84rem;
+			}
+
+			.purchase-order-page .purchase-ack-date {
+				min-height: 1.52rem;
+				padding: 0.1rem 0.36rem;
+				font-size: 0.76rem;
+			}
+
+			.purchase-order-page .purchase-ack-status {
+				min-height: 1.42rem;
+				padding: 0.12rem 0.36rem;
+				font-size: 0.62rem;
+			}
+
+			.purchase-order-page .purchase-ack-action-btn {
+				min-height: 2rem;
+				padding: 0.2rem 0.5rem;
+				font-size: 0.62rem;
+			}
+
+			.purchase-order-page .purchase-ack-footer {
+				margin-top: 0.6rem;
+			}
+
+			.purchase-order-page .purchase-ack-footer-note {
+				font-size: 0.8rem;
+			}
+
+			.purchase-order-page .purchase-ack-selected-count {
+				font-size: 0.72rem;
+			}
+
+			.purchase-order-page .purchase-ack-submit-btn {
+				min-height: 2rem;
+				padding: 0.18rem 0.56rem;
+				font-size: 0.68rem;
+			}
+
+			.purchase-order-page .module-page-header .btn-portal-outline {
+				min-height: 1.95rem;
+				padding: 0.18rem 0.56rem;
+				font-size: 0.68rem;
+			}
+
+			.purchase-ack-modal .modal-footer .btn-portal,
+			.purchase-ack-modal .modal-footer .btn-portal-outline {
+				height: 1.72rem;
+				padding: 0 0.52rem;
+				font-size: 0.62rem;
+				min-width: 5.4rem;
+			}
+		}
+
+		@@media (min-width: 1600px) {
+			.purchase-order-page .table-purchase-ack {
+				table-layout: fixed;
+				width: 100%;
+			}
+
+			.purchase-order-page .table-purchase-ack thead th,
+			.purchase-order-page .table-purchase-ack tbody td {
+				padding-left: 0.34rem;
+				padding-right: 0.34rem;
+			}
+
+			.purchase-order-page .purchase-ack-select-cell {
+				width: 1.8rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(2),
+			.purchase-order-page .table-purchase-ack td:nth-child(2) {
+				width: 4.4rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(3),
+			.purchase-order-page .table-purchase-ack td:nth-child(3) {
+				width: 7rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(4),
+			.purchase-order-page .table-purchase-ack td:nth-child(4) {
+				width: 4.7rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(5),
+			.purchase-order-page .table-purchase-ack td:nth-child(5) {
+				width: 4.7rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(6),
+			.purchase-order-page .table-purchase-ack td:nth-child(6) {
+				width: 6.8rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(7),
+			.purchase-order-page .table-purchase-ack td:nth-child(7) {
+				width: 9.2rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(8),
+			.purchase-order-page .table-purchase-ack td:nth-child(8) {
+				width: 12.8rem;
+			}
+
+			.purchase-order-page .table-purchase-ack th:nth-child(9),
+			.purchase-order-page .table-purchase-ack td:nth-child(9) {
+				width: 6.6rem;
+			}
+
+			.purchase-order-page .purchase-ack-date {
+				min-height: 1.95rem;
+				padding: 0.24rem 0.58rem;
+				font-size: 0.84rem;
+			}
+
+			.purchase-order-page .purchase-ack-status-block {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				justify-content: flex-start;
+				gap: 0.22rem;
+				min-width: 0;
+				width: 100%;
+			}
+
+			.purchase-order-page .purchase-ack-status {
+				min-height: 1.72rem;
+				padding: 0.14rem 0.42rem;
+				font-size: 0.72rem;
+			}
+
+			.purchase-order-page .purchase-ack-action-btn {
+				min-height: 1.72rem;
+				padding: 0.18rem 0.58rem;
+				font-size: 0.72rem;
+			}
+
+			.purchase-order-page .purchase-ack-submit-btn {
+				min-height: 2.08rem;
+				padding: 0.22rem 0.6rem;
+				font-size: 0.72rem;
+			}
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-ack-date-input.flowengine-date-input.form-control {
+			width: clamp(10rem, 100%, 11rem);
+			min-width: 10rem;
+			max-width: 11rem;
+			box-sizing: border-box;
+			background: #ffffff;
+			background-image:
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Crect x='2.25' y='3.25' width='11.5' height='10.5' rx='2.25' stroke='%239fb9ff' stroke-width='1.5'/%3E%3Cpath d='M5 1.75V4.25M11 1.75V4.25M2.5 6.25H13.5' stroke='%239fb9ff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"),
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3.25 5.25L7 9L10.75 5.25' stroke='%23334155' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+			background-repeat: no-repeat, no-repeat;
+			background-position: left 0.82rem center, right 0.82rem center;
+			background-size: 1rem 1rem, 0.9rem 0.9rem;
+			color: #0f172a;
+			border-color: rgba(148, 163, 184, 0.24);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		}
+
+			body:not(.theme-dark) .purchase-order-page .purchase-ack-action-btn {
+				background: linear-gradient(180deg, #4c6f97 0%, #3f618a 100%);
+				border-color: rgba(63, 97, 138, 0.55);
+				color: #ffffff;
+				-webkit-text-fill-color: #ffffff;
+				box-shadow: 0 8px 18px rgba(63, 97, 138, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+			}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-content {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border-color: rgba(148, 163, 184, 0.24);
+			border-radius: 18px;
+			color: #0f172a;
+			box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-header,
+		body:not(.theme-dark) .purchase-ack-modal .modal-footer {
+			border-color: rgba(148, 163, 184, 0.2);
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-header {
+			background: rgba(248, 250, 252, 0.96);
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-footer {
+			background: rgba(248, 250, 252, 0.9);
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .form-control {
+			background: #ffffff;
+			color: #0f172a;
+			border-color: rgba(148, 163, 184, 0.35);
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .purchase-ack-modal-label {
+			color: #64748b;
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-title {
+			color: #0f172a;
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-body {
+			color: #0f172a;
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .btn-close {
+			filter: none;
+			opacity: 0.65;
+		}
+
+		body:not(.theme-dark) .purchase-ack-modal .modal-footer .btn-outline-light {
+			border-radius: 0.95rem;
+			padding: 0.45rem 0.95rem;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-order-details-shell {
+			border-color: rgba(148, 163, 184, 0.24);
+			background: rgba(255, 255, 255, 0.86);
+			color: #1e293b;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-order-top-card address,
+		body:not(.theme-dark) .purchase-order-page .purchase-order-details-shell address {
+			color: #0f172a;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-order-top-card,
+		body:not(.theme-dark) .purchase-order-page .purchase-order-details-shell {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border-color: rgba(148, 163, 184, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice {
+			--bs-table-color: #1e293b;
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice thead th {
+			color: #0f172a;
+			background: rgba(226, 232, 240, 0.48);
+			border-bottom-color: rgba(100, 116, 139, 0.35);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .table-invoice tbody td {
+			color: #334155;
+			border-color: rgba(148, 163, 184, 0.2);
+		}
+
+		body:not(.theme-dark) .purchase-order-page .purchase-order-number {
+			color: #0f172a !important;
+			text-shadow: none;
+		}
+
+		@@media (max-width: 992px) {
+			.purchase-order-page .purchase-order-top-card {
+				margin-bottom: 0;
+			}
+		}
+	</style>
+}
+
+<div class="dashboard-readable module-page purchase-order-page">
+	<div class="module-page-header">
+		<div>
+			<div class="dashboard-card-title">Inköp</div>
+			<h1 class="module-page-title">@(isAcknowledgementDemo ? "Ordererkännande" : Localizer["PageHeader"])</h1>
+			<div class="module-page-subtitle">@(isAcknowledgementDemo ? "Leverantörens kvittens på leveransdatum" : Localizer["PageSubHeader"])</div>
+		</div>
+		<div class="d-flex gap-2">
+			<a class="btn btn-portal btn-portal-outline" asp-action="PurchaseOrders">Till inköpsorder</a>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	<div class="row g-3 mb-2 kpi-list">
+		<div class="col-lg-4 col-md-6">
+			<div class="card kpi-card h-100 purchase-order-top-card">
+				<div class="card-body">
+					<div class="purchase-order-top-card-label">@Localizer["Header_From"]</div>
+					<div class="purchase-order-top-card-value mb-2">@Model?.SupplierName</div>
+					<div class="small text-muted">@Model?.Co</div>
+					<div class="small text-muted">@Model?.Street</div>
+					<div class="small text-muted">@Model?.ZipCode @Model?.City</div>
+					<div class="small text-muted mt-2">@Model?.Currency</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-6">
+			<div class="card kpi-card h-100 purchase-order-top-card">
+				<div class="card-body">
+					<div class="purchase-order-top-card-label">@Localizer["Header_To"]</div>
+					<div class="purchase-order-top-card-value mb-2">@Model?.DeliveryCompany</div>
+					<div class="small text-muted">@Model?.DeliveryCo</div>
+					<div class="small text-muted">@Model?.DeliveryStreet</div>
+					<div class="small text-muted">@Model?.DeliveryZip @Model?.DeliveryCity</div>
+					<div class="small text-muted mt-2">@Model?.DeliveryCountry</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-12">
+			<div class="card kpi-card h-100 purchase-order-top-card">
+				<div class="card-body text-end">
+					<div class="purchase-order-top-card-label">@Localizer["Header_OrderDetails"]</div>
+					<div class="purchase-order-top-card-value purchase-order-number mb-2">@Localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+					<div class="small text-muted">@Localizer["Header_OrderType"] @Model?.PurchaseOrderType</div>
+					<div class="small text-muted">@Localizer["Header_RegistrationDate"] @registeredDate</div>
+					<div class="small text-muted">@Localizer["Header_DeliveryDate"] @deliveryDate</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<form asp-controller="Purchase" asp-action="@purchaseSubmitAction">
+		@Html.AntiForgeryToken()
+		<div class="d-none">
+			<input type="hidden" asp-for="SupplierNumber" />
+			<input type="hidden" asp-for="SupplierName" />
+			<input type="hidden" asp-for="OrganizationNumber" />
+			<input type="hidden" asp-for="OrderNumber" />
+			<input type="hidden" asp-for="OrderStatusId" />
+			<input type="hidden" asp-for="Co" />
+			<input type="hidden" asp-for="Street" />
+			<input type="hidden" asp-for="ZipCode" />
+			<input type="hidden" asp-for="City" />
+			<input type="hidden" asp-for="Country" />
+			<input type="hidden" asp-for="CustomerNumberAtSupplier" />
+			<input type="hidden" asp-for="IsBlocked" />
+			<input type="hidden" asp-for="Currency" />
+			<input type="hidden" asp-for="OrderValue" />
+			<input type="hidden" asp-for="RegisteredDate" />
+			<input type="hidden" asp-for="DeliveryDate" />
+			<input type="hidden" asp-for="DeliveryCompany" />
+			<input type="hidden" asp-for="DeliveryCo" />
+			<input type="hidden" asp-for="DeliveryStreet" />
+			<input type="hidden" asp-for="DeliveryZip" />
+			<input type="hidden" asp-for="DeliveryCity" />
+			<input type="hidden" asp-for="DeliveryCountry" />
+			<input type="hidden" asp-for="PurchaseOrderTypeId" />
+			<input type="hidden" asp-for="PurchaseOrderType" />
+			<input type="hidden" asp-for="Message" />
+			<input type="hidden" asp-for="ContactNumber" />
+		</div>
+
+		<div class="card kpi-card purchase-order-details-shell">
+			<div class="card-body">
+				@if (isAcknowledgementDemo)
+				{
+					<div class="purchase-ack-demo-header">
+						<div>
+							<div class="purchase-ack-demo-eyebrow">Ordererkännande</div>
+							<div class="purchase-ack-demo-title">Leverantörens kvittens på leveransdatum</div>
+						</div>
+						<div class="purchase-ack-demo-legend">
+							<div class="purchase-ack-demo-legend-item" title="Väntar på svar" aria-label="Väntar på svar"><span class="purchase-ack-demo-swatch purchase-ack-demo-swatch--pending"></span><i class="fa fa-clock me-1"></i>Väntar</div>
+							<div class="purchase-ack-demo-legend-item" title="Bekräftad enligt beställning" aria-label="Bekräftad enligt beställning"><span class="purchase-ack-demo-swatch purchase-ack-demo-swatch--confirmed"></span><i class="fa fa-check-circle me-1"></i>Bekräftad</div>
+							<div class="purchase-ack-demo-legend-item" title="Avvikelse som måste godkännas" aria-label="Avvikelse som måste godkännas"><span class="purchase-ack-demo-swatch purchase-ack-demo-swatch--review"></span><i class="fa fa-exclamation-triangle me-1"></i>Avvikelse</div>
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-invoice table-purchase-ack" id="articleRows">
+							<thead>
+								<tr>
+									<th class="purchase-ack-select-cell"></th>
+									<th>@Localizer["RowHeader_ArticleNumber"]</th>
+									<th>@Localizer["RowHeader_ArticleDescription"]</th>
+									<th>@Localizer["RowHeader_Quantity"]</th>
+									<th>@Localizer["RowHeader_Price"]</th>
+									<th>Ber lev datum</th>
+									<th>Bekräftat lev datum</th>
+									<th>Status</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (!orderRows.Any())
+								{
+									<tr><td colspan="9">@SharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+								}
+								else
+								{
+									for (int i = 0; i < orderRows.Count; i++)
+									{
+										var row = orderRows[i];
+										var rowClass = GetDemoRowClass(row);
+										var statusClass = row.ConfirmedDeliveryDate.HasValue
+											? (row.DeliveryDate.HasValue && row.ConfirmedDeliveryDate.Value.Date == row.DeliveryDate.Value.Date ? "purchase-ack-status purchase-ack-status--confirmed" : "purchase-ack-status purchase-ack-status--review")
+											: "purchase-ack-status purchase-ack-status--pending";
+										var dateInputClass = row.ConfirmedDeliveryDate.HasValue
+											? (row.DeliveryDate.HasValue && row.ConfirmedDeliveryDate.Value.Date == row.DeliveryDate.Value.Date ? "purchase-ack-date-input--confirmed" : "purchase-ack-date-input--review")
+											: "purchase-ack-date-input--pending";
+										<tr class="@rowClass purchase-ack-row"
+											data-ack-row
+											data-ack-expected="@ToDateInputValue(row.DeliveryDate)"
+											data-ack-confirmed="@ToDateInputValue(row.ConfirmedDeliveryDate)"
+											data-order-number="@Model?.OrderNumber"
+											data-supplier-name="@Model?.SupplierName"
+											data-article-number="@row.ArticleNumber"
+											data-article-description="@row.ArticleDescription"
+											data-expected-delivery="@ToDateInputValue(row.DeliveryDate)"
+											data-confirmed-delivery="@ToDateInputValue(row.ConfirmedDeliveryDate)">
+											<td class="purchase-ack-select-cell">
+												<input type="hidden" asp-for="@Model.OrderRows[i].RowNumber" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].ArticleNumber" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].ArticleDescription" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].Quantity" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].RecievedQuantity" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].DeliveryDate" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].ConfirmedDeliveryDate" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].Unit" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].Price" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].Discount" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].Account" />
+												<input type="hidden" asp-for="@Model.OrderRows[i].CostCenter" />
+												<input type="checkbox"
+													   asp-for="@Model.OrderRows[i].AddToStock"
+													   class="form-check-input purchase-ack-select"
+													   data-ack-select
+													   aria-label="Markera rad för Jeeves" />
+											</td>
+											<td>@row.ArticleNumber</td>
+											<td>@row.ArticleDescription</td>
+											<td>
+												<div class="purchase-ack-row-metric">
+													<div class="purchase-ack-row-metric-value">
+														<i class="fa fa-check-circle text-success"></i>
+														@row.Quantity.ToString("0.00")
+													</div>
+												</div>
+											</td>
+											<td>
+												<div class="purchase-ack-row-metric">
+													<div class="purchase-ack-row-metric-value">
+														<i class="fa fa-check-circle text-success"></i>
+														@row.Price.ToString("0.00")
+													</div>
+												</div>
+											</td>
+											<td>
+												<span class="purchase-ack-date">@row.DeliveryDate?.ToString("yyyy-MM-dd")</span>
+											</td>
+											<td>
+												<input type="date" class="form-control flowengine-date-input purchase-ack-date-input @dateInputClass" value="@ToDateInputValue(row.ConfirmedDeliveryDate)" data-ack-date-input data-fe-datepicker="true" />
+											</td>
+											<td>
+												<div class="purchase-ack-status-block">
+													<span class="@statusClass" data-ack-status>
+														@if (row.ConfirmedDeliveryDate.HasValue && row.DeliveryDate.HasValue && row.ConfirmedDeliveryDate.Value.Date == row.DeliveryDate.Value.Date)
+														{
+															<i class="fa fa-check-circle me-1"></i>
+														}
+														else if (row.ConfirmedDeliveryDate.HasValue)
+														{
+															<i class="fa fa-exclamation-triangle me-1"></i>
+														}
+														else
+														{
+															<i class="fa fa-clock me-1"></i>
+														}
+														@GetDemoStatusLabel(row)
+													</span>
+												</div>
+											</td>
+											<td class="purchase-ack-action-cell">
+												<button type="button" class="btn btn-portal btn-portal-outline btn-sm purchase-ack-action-btn d-none" data-ack-sendback-btn>
+													<i class="fa fa-paper-plane me-1"></i>Skicka tillbaka
+												</button>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+					<div class="purchase-ack-note">
+						Markera en eller flera rader med checkboxen till vänster och justera leveransdatumet där det behövs. Gulmarkerade rader kan skickas tillbaka som mail, och valda rader skickas vidare till Jeeves med knappen nedan.
+					</div>
+					<div class="purchase-ack-footer">
+						<div class="purchase-ack-footer-note">
+							Leveransdatum, antal och pris visas direkt i raden så att du ser vad som skickas vidare.
+						</div>
+						<div class="purchase-ack-footer-meta">
+							<span class="purchase-ack-selected-count" data-ack-selected-count>0 rader markerade</span>
+							<button type="submit" class="btn btn-portal purchase-ack-submit-btn" data-ack-submit-btn disabled>
+								<i class="fa fa-paper-plane me-1"></i>Skicka till Jeeves
+							</button>
+						</div>
+					</div>
+				}
+				else
+				{
+					<div class="table-responsive">
+						<table class="table table-invoice" id="articleRows">
+							<thead>
+								<tr>
+									<th>@Localizer["RowHeader_ArticleNumber"]</th>
+									<th>@Localizer["RowHeader_ArticleDescription"]</th>
+									<th>@Localizer["RowHeader_Quantity"]</th>
+									<th>@Localizer["RowHeader_RecievedQuantity"]</th>
+									<th>@Localizer["RowHeader_Unit"]</th>
+									<th>@Localizer["RowHeader_Price"]</th>
+									<th>@Localizer["RowHeader_Discount"]</th>
+									<th>@Localizer["RowHeader_RowTotal"]</th>
+									<th>@Localizer["RowHeader_Account"]</th>
+									<th>@Localizer["RowHeader_CostCenter"]</th>
+									<th class="text-end">@Localizer["RowHeader_AddToStock"]</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (!orderRows.Any())
+								{
+									<tr><td colspan="12">@SharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+								}
+								else
+								{
+									for (int i = 0; i < orderRows.Count; i++)
+									{
+										<tr>
+											<td style="width:6%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].RowNumber" readonly />
+												<input type="hidden" asp-for="@Model.OrderRows[i].ArticleNumber" readonly />
+												@orderRows[i].ArticleNumber
+											</td>
+											<td style="width:20%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].ArticleDescription" readonly />
+												@orderRows[i].ArticleDescription
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].Quantity" readonly />
+												@orderRows[i].Quantity.ToString("0.00")
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].RecievedQuantity" readonly />
+												@orderRows[i].RecievedQuantity.ToString("0.00")
+											</td>
+											<td style="width:4%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].Unit" readonly />
+												@orderRows[i].Unit
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].Price" readonly />
+												@orderRows[i].Price.ToString("0.00")
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].Discount" readonly />
+												@orderRows[i].Discount.ToString("0.00")
+											</td>
+											<td style="width:5%">
+												@{
+													var price = orderRows[i].Quantity * (orderRows[i].Price * (1 - (orderRows[i].Discount / 100)));
+												}
+												@price.ToString("0.00")
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].Account" readonly />
+												@orderRows[i].Account
+											</td>
+											<td style="width:5%">
+												<input type="hidden" asp-for="@Model.OrderRows[i].CostCenter" readonly />
+												@orderRows[i].CostCenter
+											</td>
+											<td class="text-end" style="width:5%">
+												@if (orderRows[i].IsRecieved == false)
+												{
+													<input type="checkbox" asp-for="@Model.OrderRows[i].AddToStock" class="form-check-input" />
+												}
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+					<div class="purchase-order-footer">
+						<div class="purchase-order-actions">
+							<div class="purchase-order-summary">
+								<small>@Localizer["Header_SalesValue"] (@Html.DisplayFor(u => u.Currency))</small>
+								<span class="fw-bold">@Model?.OrderValue.ToString("0.00")</span>
+							</div>
+							<div class="purchase-order-submit-group">
+								@if (hasPendingRows)
+								{
+									<input type="submit" class="btn btn-portal btn-sm" id="btnSubmit" value="@Localizer["Submit"]">
+								}
+								else
+								{
+									<input type="submit" class="btn btn-portal btn-sm disabled" id="btnSubmit" value="@Localizer["Submit"]">
+								}
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</form>
+</div>
+
+@if (isAcknowledgementDemo)
+{
+	<div class="modal fade purchase-ack-modal" id="purchaseAckMailModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<div>
+						<div class="purchase-ack-modal-label">Mailutkast</div>
+						<h5 class="modal-title mb-0">Skicka tillbaka avvikande rad till leverantören</h5>
+					</div>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row g-3 mb-3">
+						<div class="col-md-4">
+							<div class="purchase-ack-modal-label mb-1">Till</div>
+							<div class="fw-semibold" data-ack-modal-to></div>
+						</div>
+						<div class="col-md-4">
+							<div class="purchase-ack-modal-label mb-1">Ämne</div>
+							<div class="fw-semibold" data-ack-modal-subject></div>
+						</div>
+						<div class="col-md-4">
+							<div class="purchase-ack-modal-label mb-1">Rad</div>
+							<div class="fw-semibold" data-ack-modal-row></div>
+						</div>
+					</div>
+					<div class="mb-3">
+						<label class="purchase-ack-modal-label mb-1" for="purchaseAckMailBody">Meddelande</label>
+						<textarea id="purchaseAckMailBody" class="form-control" rows="8" readonly data-ack-modal-body></textarea>
+					</div>
+					<div class="small text-muted">
+						Det här är bara ett demo-utkast. Ingen riktig e-post skickas i det här läget.
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-portal btn-portal-outline" data-bs-dismiss="modal">Stäng</button>
+					<button type="button" class="btn btn-portal" data-ack-modal-copy>
+						<i class="fa fa-copy me-1"></i>Kopiera utkast
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+<script>
+	(function () {
+		const demoEnabled = @((isAcknowledgementDemo).ToString().ToLowerInvariant());
+		if (!demoEnabled) {
+			return;
+		}
+
+		function initAcknowledgementDatepickers(scope = document) {
+			if (!window.jQuery || !window.jQuery.fn || typeof window.jQuery.fn.datepicker !== 'function') {
+				return;
+			}
+
+			window.jQuery(scope)
+				.find('input[data-fe-datepicker="true"]')
+				.each(function () {
+					const input = this;
+					const $input = window.jQuery(input);
+
+					if ($input.hasClass('hasDatepicker')) {
+						return;
+					}
+
+					const currentValue = input.value;
+					input.setAttribute('type', 'text');
+					input.setAttribute('autocomplete', 'off');
+					input.setAttribute('placeholder', 'YYYY-MM-DD');
+
+					$input.datepicker({
+						dateFormat: 'yy-mm-dd',
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						showButtonPanel: true,
+						beforeShow: function () {
+							window.setTimeout(() => {
+								window.jQuery('#ui-datepicker-div').addClass('flowengine-datepicker');
+							}, 0);
+						},
+						onSelect: function () {
+							input.dispatchEvent(new Event('change', { bubbles: true }));
+						}
+					});
+
+					if (currentValue) {
+						$input.datepicker('setDate', currentValue);
+					}
+				});
+		}
+
+		initAcknowledgementDatepickers();
+
+		const rows = Array.from(document.querySelectorAll('[data-ack-row]'));
+		const submitButton = document.querySelector('[data-ack-submit-btn]');
+		const selectedCount = document.querySelector('[data-ack-selected-count]');
+		const states = {
+			pending: {
+				icon: 'fa-clock',
+				label: 'Väntar',
+				rowClass: 'purchase-ack-row--pending',
+				statusClass: 'purchase-ack-status--pending',
+				dateClass: 'purchase-ack-date--pending'
+			},
+			confirmed: {
+				icon: 'fa-check-circle',
+				label: 'Bekräftad',
+				rowClass: 'purchase-ack-row--confirmed',
+				statusClass: 'purchase-ack-status--confirmed',
+				dateClass: 'purchase-ack-date--confirmed'
+			},
+			review: {
+				icon: 'fa-exclamation-triangle',
+				label: 'Avvikelse',
+				rowClass: 'purchase-ack-row--review',
+				statusClass: 'purchase-ack-status--review',
+				dateClass: 'purchase-ack-date--review'
+			}
+		};
+
+		let modal = null;
+		let modalTo = null;
+		let modalSubject = null;
+		let modalRow = null;
+		let modalBody = null;
+		let copyButton = null;
+		let currentMessage = '';
+
+		const modalElement = document.getElementById('purchaseAckMailModal');
+		if (modalElement) {
+			modalTo = modalElement.querySelector('[data-ack-modal-to]');
+			modalSubject = modalElement.querySelector('[data-ack-modal-subject]');
+			modalRow = modalElement.querySelector('[data-ack-modal-row]');
+			modalBody = modalElement.querySelector('[data-ack-modal-body]');
+			copyButton = modalElement.querySelector('[data-ack-modal-copy]');
+			if (window.bootstrap) {
+				modal = new bootstrap.Modal(modalElement);
+			}
+		}
+
+		function buildMailBody(row) {
+			return [
+				'Hej,',
+				'',
+				`Vi behöver att ni bekräftar eller korrigerar leveransdatum för order ${row.orderNumber}.`,
+				'',
+				`Artikel: ${row.articleNumber} - ${row.articleDescription}`,
+				`Önskat leveransdatum: ${row.expectedDelivery || '-'}`,
+				`Bekräftat leveransdatum: ${row.confirmedDelivery || '-'}`,
+				'',
+				'Avvikelsen är markerad i ordererkännandet. Vänligen återkom med uppdaterat leveransdatum.',
+				'',
+				'Hälsningar',
+				'Inköp'
+			].join('\n');
+		}
+
+		function applyState(rowElement, mode) {
+			rowElement.classList.remove(states.pending.rowClass, states.confirmed.rowClass, states.review.rowClass);
+			rowElement.classList.add(states[mode].rowClass);
+
+			const status = rowElement.querySelector('[data-ack-status]');
+			if (status) {
+				status.classList.remove(states.pending.statusClass, states.confirmed.statusClass, states.review.statusClass);
+				status.classList.add(states[mode].statusClass);
+				status.innerHTML = `<i class="fa ${states[mode].icon} me-1"></i>${states[mode].label}`;
+			}
+
+			const input = rowElement.querySelector('[data-ack-date-input]');
+			if (input) {
+				input.classList.remove(states.pending.dateClass, states.confirmed.dateClass, states.review.dateClass);
+				input.classList.add(states[mode].dateClass);
+			}
+
+			const action = rowElement.querySelector('[data-ack-sendback-btn]');
+			if (action) {
+				action.classList.toggle('d-none', mode !== 'review');
+			}
+		}
+
+		function updateSelectionState() {
+			const selectedRows = rows.filter((rowElement) => {
+				const select = rowElement.querySelector('[data-ack-select]');
+				return Boolean(select && select.checked);
+			});
+
+			if (selectedCount) {
+				selectedCount.textContent = `${selectedRows.length} rader markerade`;
+			}
+
+			if (submitButton) {
+				submitButton.disabled = selectedRows.length === 0;
+			}
+
+			rows.forEach((rowElement) => {
+				const select = rowElement.querySelector('[data-ack-select]');
+				rowElement.classList.toggle('purchase-ack-row--selected', Boolean(select && select.checked));
+			});
+		}
+
+		function openMailModal() {
+			if (modal) {
+				modal.show();
+				return;
+			}
+
+			if (!modalElement) {
+				return;
+			}
+
+			modalElement.classList.add('show');
+			modalElement.style.display = 'block';
+			modalElement.setAttribute('aria-hidden', 'false');
+			document.body.classList.add('modal-open');
+		}
+
+		function closeMailModal() {
+			if (modal) {
+				modal.hide();
+				return;
+			}
+
+			if (!modalElement) {
+				return;
+			}
+
+			modalElement.classList.remove('show');
+			modalElement.style.display = 'none';
+			modalElement.setAttribute('aria-hidden', 'true');
+			document.body.classList.remove('modal-open');
+		}
+
+		rows.forEach((rowElement) => {
+			const expected = rowElement.dataset.expectedDelivery || '';
+			const input = rowElement.querySelector('[data-ack-date-input]');
+			const action = rowElement.querySelector('[data-ack-sendback-btn]');
+			const select = rowElement.querySelector('[data-ack-select]');
+
+			function refresh() {
+				const confirmed = input ? input.value : '';
+				let mode = 'pending';
+
+				if (confirmed) {
+					mode = confirmed === expected ? 'confirmed' : 'review';
+				}
+
+				rowElement.dataset.confirmedDelivery = confirmed;
+				applyState(rowElement, mode);
+			}
+
+			if (input) {
+				input.addEventListener('change', refresh);
+				input.addEventListener('blur', refresh);
+			}
+
+			if (select) {
+				select.addEventListener('change', updateSelectionState);
+			}
+
+			if (action) {
+				action.addEventListener('click', () => {
+					const row = {
+						orderNumber: rowElement.dataset.orderNumber || '',
+						supplierName: rowElement.dataset.supplierName || '',
+						articleNumber: rowElement.dataset.articleNumber || '',
+						articleDescription: rowElement.dataset.articleDescription || '',
+						expectedDelivery: rowElement.dataset.expectedDelivery || '',
+						confirmedDelivery: rowElement.dataset.confirmedDelivery || ''
+					};
+
+					const to = `${row.supplierName || 'Leverantör'} <order@leverantor.se>`;
+					const subject = `Ordererkännande - order ${row.orderNumber}`;
+					currentMessage = buildMailBody(row);
+
+					if (modalTo) {
+						modalTo.textContent = to;
+					}
+					if (modalSubject) {
+						modalSubject.textContent = subject;
+					}
+					if (modalRow) {
+						modalRow.textContent = `${row.articleNumber} - ${row.articleDescription}`;
+					}
+					if (modalBody) {
+						modalBody.value = currentMessage;
+					}
+
+					openMailModal();
+				});
+			}
+
+			rowElement.addEventListener('click', (event) => {
+				if (!select || event.target.closest('input, button, a, label, textarea, select')) {
+					return;
+				}
+
+				select.checked = !select.checked;
+				select.dispatchEvent(new Event('change', { bubbles: true }));
+			});
+
+			refresh();
+		});
+
+		updateSelectionState();
+
+		if (modalElement) {
+			modalElement.querySelectorAll('[data-bs-dismiss="modal"]').forEach((closeButton) => {
+				closeButton.addEventListener('click', closeMailModal);
+			});
+		}
+
+		if (copyButton) {
+			copyButton.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText(currentMessage || (modalBody ? modalBody.value : ''));
+					copyButton.innerHTML = '<i class="fa fa-check me-1"></i>Kopierat';
+				} catch {
+					copyButton.innerHTML = '<i class="fa fa-exclamation-triangle me-1"></i>Kunde inte kopiera';
+				}
+
+				window.setTimeout(() => {
+					copyButton.innerHTML = '<i class="fa fa-copy me-1"></i>Kopiera utkast';
+				}, 1400);
+			});
+		}
+	})();
+</script>
+<script type="text/javascript" src="~/js/purchaseorders.filters.js"></script>

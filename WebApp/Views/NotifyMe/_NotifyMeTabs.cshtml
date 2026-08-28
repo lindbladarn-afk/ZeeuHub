@@ -1,0 +1,18 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // Shared NotifyMe tab strip reused across overview, library, editor and statistics pages.
+    // It relies on the shared module-tab-toggle styles from dashboard.css instead of local button overrides.
+    var active = (ViewData["NotifyMeSection"]?.ToString() ?? "overview").ToLowerInvariant();
+
+    string TabClass(string key) => active == key
+        ? "btn active"
+        : "btn";
+}
+
+<div class="module-tab-toggle mb-3 notifyme-tabs">
+    <a class="@TabClass("overview")" asp-controller="NotifyMe" asp-action="NotifyMe">@sharedLocalizer["NotifyMe_OverviewTitle"]</a>
+    <a class="@TabClass("library")" asp-controller="NotifyMe" asp-action="Library">@sharedLocalizer["NotifyMe_Templates"]</a>
+    <a class="@TabClass("editor")" asp-controller="NotifyMe" asp-action="Editor">@sharedLocalizer["SubModule_NotifyMe_CreateNew"]</a>
+    <a class="@TabClass("statistics")" asp-controller="NotifyMe" asp-action="Statistics">@sharedLocalizer["NotifyMe_Statistics"]</a>
+</div>

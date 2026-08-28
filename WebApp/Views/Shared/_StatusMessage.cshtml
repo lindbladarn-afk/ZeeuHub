@@ -1,0 +1,15 @@
+﻿@model string
+
+@{
+    // Canonical shared status message partial for success/error notices that still rely on Bootstrap alert dismissal.
+    // Area-specific status partials delegate hit so auth/admin can reuse one rendering path without changing UX.
+}
+
+@if (!String.IsNullOrEmpty(Model))
+{
+    var statusMessageClass = Model.StartsWith("Error", StringComparison.OrdinalIgnoreCase) ? "danger" : "success";
+    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @Model
+    </div>
+}

@@ -1,0 +1,48 @@
+﻿@using Entities.Application
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.Models.Identity
+@using WebApp.Services
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    var sessionUser = HttpContextAccessor.HttpContext?.Session.Get<UserSession>("UserObject");
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="navbar-item navbar-user dropdown">
+		<a href="#" class="navbar-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+			<span>
+				<span class="d-none d-md-inline"> @sharedLocalizer["Hello"] @(sessionUser?.FirstName ?? User.Identity?.Name)!</span>
+				<b class="caret"></b>
+			</span>
+		</a>
+		<div class="dropdown-menu dropdown-menu-end me-1">
+			<a href="~/Identity/Account/Manage/Index" class="dropdown-item">@sharedLocalizer["LoginPartial_EditProfile"]</a>
+			@*<a href="javascript:;" class="dropdown-item"><span class="badge bg-danger float-end rounded-pill">2</span> Inbox</a>
+			<a href="javascript:;" class="dropdown-item">Calendar</a>
+			<a href="javascript:;" class="dropdown-item">Setting</a>*@
+			<div class="dropdown-divider"></div>
+			<form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+				<button type="submit" class="dropdown-item nav-link btn btn-link">@sharedLocalizer["Logout"]</button>
+			</form>
+		</div>
+	</div>
+}
+else
+{
+@*    <div class="navbar-item">
+		<a class="navbar-link icon" asp-area="Identity" asp-page="/Account/Register">
+			<i class="fas fa-user-plus"></i>
+		</a>
+    </div>*@
+    <div class="navbar-item">
+		<a class="navbar-link icon" asp-area="Identity" asp-page="/Account/Login">
+			<i class="fas fa-sign-in-alt"></i>
+		</a>
+    </div>
+}

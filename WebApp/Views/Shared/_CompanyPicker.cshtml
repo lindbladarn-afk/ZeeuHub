@@ -1,0 +1,282 @@
+﻿@using Entities.Application
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Models.Identity
+@using WebApp.Services;
+@using WebApp.Services.Application
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject LoggerService.ILoggerManager _loggerManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor
+@inject IJeevesCompanyAccessService JeevesCompanyAccessService
+
+@{
+	var userObject = _httpContextAccessor.HttpContext?.Session.Get<UserSession>("UserObject");
+    var companies = (await JeevesCompanyAccessService.GetCompaniesAsync(userObject))
+        .OrderByDescending(x => x.CompanyCode == userObject?.JeevesActiveCompany)
+        .ThenBy(x => x.Name)
+        .ToList();
+    var activeCompany = companies.FirstOrDefault(x => x.CompanyCode == userObject?.JeevesActiveCompany) ?? companies.FirstOrDefault();
+}
+
+<style>
+    .company-switcher {
+        min-width: 0;
+        width: 240px;
+    }
+
+    .company-switcher-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: .28rem;
+        width: 100%;
+        max-width: none;
+        padding: .08rem 0 .02rem;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        transition: color .15s ease, opacity .15s ease;
+    }
+
+    .company-switcher-trigger:hover,
+    .company-switcher-trigger:focus {
+        background: transparent;
+        color: #ffffff;
+        opacity: .92;
+        text-decoration: none;
+    }
+
+    .company-switcher-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        line-height: .98;
+    }
+
+    .company-switcher-label {
+        font-size: .64rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.72);
+        font-weight: 700;
+        margin-bottom: .08rem;
+    }
+
+    .company-switcher-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: .38rem;
+        min-width: 0;
+    }
+
+    .company-switcher-name {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #f4f7fb;
+        font-weight: 600;
+        font-size: .98rem;
+    }
+
+    .company-switcher-trigger .caret {
+        margin-top: 0;
+        margin-bottom: 0;
+        align-self: center;
+    }
+
+    .company-switcher-menu {
+        width: 100%;
+        min-width: 100%;
+        margin-top: 0 !important;
+        padding: 0;
+        border-radius: 0 0 .9rem .9rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-top: 0;
+        background: rgba(16, 24, 39, 0.72);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        overflow: hidden;
+    }
+
+    .company-switcher-menu.dropdown-menu[data-bs-popper] {
+        top: calc(100% - 2px);
+        left: auto;
+        right: 0;
+    }
+
+    .company-switcher-item,
+    .company-switcher-item-active {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 52px auto;
+        align-items: center;
+        gap: .75rem;
+        padding: .7rem .8rem;
+        border-radius: 0;
+        color: #eef3fb;
+    }
+
+    .company-switcher-item:hover,
+    .company-switcher-item:focus {
+        background: rgba(255,255,255,0.06);
+        color: #ffffff;
+    }
+
+    .company-switcher-item-active {
+        background: rgba(62, 145, 255, 0.12);
+    }
+
+    .company-switcher-item-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .company-switcher-code {
+        flex-shrink: 0;
+        display: inline-flex;
+        justify-content: center;
+        padding: .18rem .45rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.07);
+        color: rgba(255,255,255,0.8);
+        font-size: .75rem;
+        font-weight: 700;
+    }
+
+    .company-switcher-badge {
+        flex-shrink: 0;
+        padding: .18rem .45rem;
+        border-radius: 999px;
+        background: rgba(0, 184, 148, 0.18);
+        color: #74f0d3;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .company-switcher-static .company-switcher-trigger {
+        cursor: default;
+    }
+
+    body:not(.theme-dark) .company-switcher-trigger:hover,
+    body:not(.theme-dark) .company-switcher-trigger:focus {
+        color: #0f172a;
+        opacity: 1;
+    }
+
+    body:not(.theme-dark) .company-switcher-label {
+        color: rgba(15, 23, 42, 0.62);
+    }
+
+    body:not(.theme-dark) .company-switcher-name {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .company-switcher-menu {
+        background: rgba(255, 255, 255, 0.82);
+        border-color: rgba(15, 23, 42, 0.12);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    body:not(.theme-dark) .company-switcher-item,
+    body:not(.theme-dark) .company-switcher-item-active {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .company-switcher-item:hover,
+    body:not(.theme-dark) .company-switcher-item:focus {
+        background: rgba(13, 110, 253, 0.08);
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .company-switcher-item-active {
+        background: rgba(13, 110, 253, 0.12);
+    }
+
+    body:not(.theme-dark) .company-switcher-code {
+        background: rgba(15, 23, 42, 0.08);
+        color: rgba(15, 23, 42, 0.78);
+    }
+
+    body:not(.theme-dark) .company-switcher-badge {
+        background: rgba(22, 163, 74, 0.12);
+        color: #15803d;
+    }
+
+    @@media (max-width: 991.98px) {
+        .company-switcher-trigger {
+            width: 100%;
+        }
+
+        .company-switcher-name {
+            max-width: 130px;
+        }
+
+        .company-switcher {
+            width: 210px;
+        }
+    }
+</style>
+
+
+@if	(userObject is not null && SignInManager.IsSignedIn(User))
+{
+    if (companies.Count > 1)
+    {
+        <div class="navbar-item navbar-user dropdown company-switcher">
+		    <a href="#" class="navbar-link dropdown-toggle company-switcher-trigger" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="company-switcher-meta">
+                    <span class="company-switcher-label">Aktivt bolag</span>
+                    <span class="company-switcher-summary">
+                        <span class="company-switcher-name">@activeCompany?.Name</span>
+                    </span>
+                </span>
+                <b class="caret ms-auto"></b>
+		    </a>
+			<div class="dropdown-menu dropdown-menu-end me-1 company-switcher-menu">
+				@foreach (var company in companies)
+				{
+                    if (company.CompanyCode == userObject.JeevesActiveCompany)
+                    {
+                        <div class="company-switcher-item-active">
+                            <span class="company-switcher-item-name">@company.Name</span>
+                            <span class="company-switcher-code">@company.CompanyCode</span>
+                            <span class="company-switcher-badge">Aktiv</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-controller="Base"
+                              asp-action="ChangeActiveCompany"
+                              method="post"
+                              class="m-0">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="activeCompany" value="@company.CompanyCode" />
+                            <input type="hidden" name="actionName" value="@ViewContext.RouteData.Values["action"]?.ToString()" />
+                            <input type="hidden" name="controllerName" value="@ViewContext.RouteData.Values["controller"]?.ToString()" />
+                            <button type="submit" class="dropdown-item company-switcher-item w-100 text-start border-0 bg-transparent">
+                                <span class="company-switcher-item-name">@company.Name</span>
+                                <span class="company-switcher-code">@company.CompanyCode</span>
+                                <span></span>
+                            </button>
+                        </form>
+                    }
+				}
+			</div>
+	    </div>
+    }
+    else if (activeCompany is not null)
+    {
+        <div class="navbar-item company-switcher company-switcher-static">
+            <div class="navbar-link company-switcher-trigger">
+                <span class="company-switcher-meta">
+                    <span class="company-switcher-label">Bolag</span>
+                    <span class="company-switcher-summary">
+                        <span class="company-switcher-name">@activeCompany.Name</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    }
+}

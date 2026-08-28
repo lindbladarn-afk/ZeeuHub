@@ -1,0 +1,103 @@
+@model WebApp.Models.ControlPanel.FeatureAccessViewModel
+@using WebApp.ViewModels.Shared
+@{
+    // Feature Access is one of the few live Control Panel tools, so it should follow the same
+    // module-page and table conventions as the rest of the portal instead of carrying custom layout CSS.
+    ViewData["Title"] = "Control Panel - Feature Access";
+    var items = Model?.Items?.ToList() ?? new List<WebApp.Models.ControlPanel.FeatureAccessItem>();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page control-panel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Control Panel</div>
+            <h1 class="module-page-title">Feature Access</h1>
+            <div class="module-page-subtitle">Styr funktioner per bolag. Valen sparas i session per användare och används direkt i den aktuella portalvyn.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-portal btn-sm" type="submit" form="feature-access-form">Spara</button>
+        </div>
+    </div>
+
+    <form asp-action="FeatureAccess" method="post" id="feature-access-form">
+        @Html.AntiForgeryToken()
+        <div class="card kpi-card control-panel-card">
+            <div class="card-body">
+                @if (TempData["FeatureAccessSaved"] != null)
+                {
+                    @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                    {
+                        Title = "Feature access uppdaterad",
+                        Message = "Ändringarna är sparade för den aktuella sessionen.",
+                        Tone = "success",
+                        IconClass = "fa fa-check-circle",
+                        Compact = true
+                    })
+                }
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <div class="dashboard-card-title">Bolagsöversikt</div>
+                        <div class="module-page-meta">Data hämtas från användarens Jeeves-bolag i den aktuella sessionen.</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table module-feature-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Bolag</th>
+                                <th class="text-center">Invoices</th>
+                                <th class="text-center">Orders</th>
+                                <th class="text-center">ZeeU Intelligence</th>
+                                <th class="text-center">Excel Import</th>
+                                <th class="text-center">Dashboard</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (items.Any())
+                            {
+                                for (var i = 0; i < items.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" name="Items[@i].CompanyCode" value="@items[i].CompanyCode" />
+                                            <input type="hidden" name="Items[@i].CompanyName" value="@items[i].CompanyName" />
+                                            <div class="control-panel-company-title">@items[i].CompanyName</div>
+                                            <div class="control-panel-company-meta mb-0">Kod: @items[i].CompanyCode</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <input class="form-check-input module-feature-checkbox" type="checkbox" name="Items[@i].InvoicesEnabled" value="true" @(items[i].InvoicesEnabled ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <input class="form-check-input module-feature-checkbox" type="checkbox" name="Items[@i].OrdersEnabled" value="true" @(items[i].OrdersEnabled ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <input class="form-check-input module-feature-checkbox" type="checkbox" name="Items[@i].AiEnabled" value="true" @(items[i].AiEnabled ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <input class="form-check-input module-feature-checkbox" type="checkbox" name="Items[@i].ExcelImportEnabled" value="true" @(items[i].ExcelImportEnabled ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <input class="form-check-input module-feature-checkbox" type="checkbox" name="Items[@i].DashboardEnabled" value="true" @(items[i].DashboardEnabled ? "checked" : "") />
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center control-panel-empty-state">Inga bolag tillgängliga i sessionen.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

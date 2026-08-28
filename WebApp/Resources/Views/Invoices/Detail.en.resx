@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Faktura" xml:space="preserve">
+    <value>Invoice</value>
+  </data>
+  <data name="Kund:" xml:space="preserve">
+    <value>Customer:</value>
+  </data>
+  <data name="Tillbaka till fakturalista" xml:space="preserve">
+    <value>Back to invoices</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Skicka betalpåminnelse" xml:space="preserve">
+    <value>Send payment reminder</value>
+  </data>
+  <data name="Skicka till inkasso" xml:space="preserve">
+    <value>Send to collection</value>
+  </data>
+  <data name="Belopp:" xml:space="preserve">
+    <value>Amount:</value>
+  </data>
+  <data name="Fakturadatum:" xml:space="preserve">
+    <value>Invoice date:</value>
+  </data>
+  <data name="Säljare:" xml:space="preserve">
+    <value>Salesperson:</value>
+  </data>
+  <data name="Förfaller om:" xml:space="preserve">
+    <value>Due in:</value>
+  </data>
+  <data name="{0} dagar" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Betaldatum:" xml:space="preserve">
+    <value>Paid date:</value>
+  </data>
+  <data name="Snabbåtgärder" xml:space="preserve">
+    <value>Quick actions</value>
+  </data>
+  <data name="Visa alla obetalda" xml:space="preserve">
+    <value>Show all unpaid</value>
+  </data>
+  <data name="Visa betalda" xml:space="preserve">
+    <value>Show paid</value>
+  </data>
+  <data name="Obetald" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="Betald" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Förfallen" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="Förfaller snart" xml:space="preserve">
+    <value>Due soon</value>
+  </data>
+</root>

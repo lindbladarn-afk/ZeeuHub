@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>SQL</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{07953cd0-4802-48d1-acf8-a3332645fef2}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>SQL</RootNamespace>
+    <AssemblyName>SQL</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="JeevesDb" />
+    <Folder Include="AzureDb" />
+    <Folder Include="JeevesDb\StoredProcedures" />
+    <Folder Include="AzureDb\StoredProcedures" />
+    <Folder Include="JeevesDb\StoredProcedures\CTT" />
+    <Folder Include="JeevesDb\Tables" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="AzureDb\StoredProcedures\spr_Application.sql" />
+    <Build Include="AzureDb\StoredProcedures\spr_GetCompanyPermissions.sql" />
+    <Build Include="AzureDb\StoredProcedures\spr_GetModules.sql" />
+    <Build Include="AzureDb\StoredProcedures\spr_ModulesAndSubModules.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_WebApprovalSales.sql" />
+    <Build Include="AzureDb\StoredProcedures\spr_Admin.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_WebApprovalPurchase.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_User.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_Customer.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_Purchase.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_ZeeuDashboard.sql" />
+    <Build Include="JeevesDb\StoredProcedures\CTT\q_zu_CustomerPortal_ZeeuDashboard.sql" />
+    <Build Include="JeevesDb\Tables\q_zu_CustomerPortal_ZeeuDashboard_prv_extension.sql" />
+    <Build Include="AzureDb\StoredProcedures\spr_Company.sql" />
+    <Build Include="JeevesDb\StoredProcedures\q_zu_CustomerPortal_WebApprovalPriceList.sql" />
+  </ItemGroup>
+</Project>

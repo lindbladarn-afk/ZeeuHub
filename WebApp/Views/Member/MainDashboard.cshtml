@@ -1,0 +1,108 @@
+@* Renders the dashboard shell and passes the shared dashboard context down to the header and cards. *@
+@model WebApp.Models.Dashboard.MemberDashboardPageViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var visibleWidgetIds = Model.Cards.Select(card => card.Id).ToHashSet(StringComparer.Ordinal);
+}
+
+@* ✅ Anti-forgery token för fetch *@
+<form id="__af" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/dashboard/revenue-card.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/action-center-card.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/dashboard-layout.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}
+
+<div class="dashboard-readable member-dashboard">
+    @await Html.PartialAsync("Dashboard/_DashboardHeader", Model)
+
+    <div class="dashboard-layout-actions mb-3">
+        <button type="button" class="btn btn-portal btn-sm" data-dashboard-edit-toggle aria-expanded="false" aria-controls="dashboard-layout-panel">
+            <i class="fa fa-sliders me-1"></i> Anpassa startsida
+        </button>
+        <button type="button" class="btn btn-portal btn-portal-outline btn-sm" data-dashboard-reset>
+            Återställ standard
+        </button>
+        <span class="dashboard-layout-status" data-dashboard-layout-status aria-live="polite"></span>
+    </div>
+
+    <section id="dashboard-layout-panel" class="dashboard-layout-panel" hidden aria-label="Välj block till startsidan">
+        <div class="dashboard-layout-panel__header">
+            <div>
+                <h2 class="dashboard-layout-panel__title">Välj block</h2>
+                <p class="dashboard-layout-panel__subtitle">Välj den information du behöver och placera sedan blocken direkt på startsidan.</p>
+            </div>
+            <strong class="dashboard-layout-panel__count" data-dashboard-selected-count>@visibleWidgetIds.Count av 8 valda</strong>
+        </div>
+        <div class="dashboard-layout-browser">
+            <label class="dashboard-layout-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <span class="visually-hidden">Sök block</span>
+                <input type="search" class="form-control form-control-sm" placeholder="Sök block…" data-dashboard-search autocomplete="off" />
+            </label>
+            <div class="dashboard-layout-filters" role="group" aria-label="Filtrera block">
+                <button type="button" class="dashboard-layout-filter is-active" data-dashboard-category-filter="all" aria-pressed="true">Alla</button>
+                <button type="button" class="dashboard-layout-filter" data-dashboard-category-filter="overview" aria-pressed="false">Översikt</button>
+                <button type="button" class="dashboard-layout-filter" data-dashboard-category-filter="finance" aria-pressed="false">Ekonomi</button>
+                <button type="button" class="dashboard-layout-filter" data-dashboard-category-filter="sales" aria-pressed="false">Försäljning</button>
+                <button type="button" class="dashboard-layout-filter" data-dashboard-category-filter="orders" aria-pressed="false">Order &amp; inköp</button>
+                <button type="button" class="dashboard-layout-filter" data-dashboard-category-filter="operations" aria-pressed="false">Drift &amp; integration</button>
+            </div>
+        </div>
+        <div class="dashboard-layout-catalog">
+            @foreach (var card in Model.AvailableCards)
+            {
+                var isVisible = visibleWidgetIds.Contains(card.Id);
+                <button type="button"
+                        class="dashboard-layout-catalog__item"
+                        data-dashboard-toggle="@card.Id"
+                        data-dashboard-category="@card.Category"
+                        data-dashboard-search-text="@($"{card.Title} {card.Description}".ToLowerInvariant())"
+                        data-dashboard-default-size="@card.DefaultSize.ToString().ToLowerInvariant()"
+                        data-dashboard-supported-sizes="@string.Join(",", card.SupportedSizes.Select(size => size.ToString().ToLowerInvariant()))"
+                        data-dashboard-card-title="@card.Title"
+                        data-dashboard-card-description="@card.Description"
+                        aria-pressed="@isVisible.ToString().ToLowerInvariant()">
+                    <span class="dashboard-layout-catalog__head">
+                        <span class="dashboard-layout-catalog__title">@card.Title</span>
+                        <span class="dashboard-layout-catalog__size">@(card.DefaultSize switch { WebApp.Models.Dashboard.DashboardWidgetSize.Full => "Full bredd", WebApp.Models.Dashboard.DashboardWidgetSize.Wide => "Bred", _ => "Liten" })</span>
+                    </span>
+                    <span class="dashboard-layout-catalog__description">@card.Description</span>
+                    <span class="dashboard-layout-catalog__action"><i class="fa @(isVisible ? "fa-check" : "fa-plus")" aria-hidden="true"></i> @(isVisible ? "Tillagd · ta bort" : "Lägg till")</span>
+                </button>
+            }
+        </div>
+        <p class="dashboard-layout-empty" data-dashboard-catalog-empty hidden>Inga block matchar din sökning.</p>
+    </section>
+
+    @await Html.PartialAsync("Dashboard/_DashboardGrid", Model.Cards)
+
+    <div class="dashboard-edit-savebar" data-dashboard-savebar aria-hidden="true">
+        <div class="dashboard-edit-savebar__history" aria-label="Ändringshistorik">
+            <button type="button" class="btn btn-portal btn-portal-outline dashboard-edit-savebar__history-button" data-dashboard-undo disabled aria-label="Ångra senaste ändringen" title="Ångra senaste ändringen">
+                <i class="fa fa-undo" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-portal btn-portal-outline dashboard-edit-savebar__history-button" data-dashboard-redo disabled aria-label="Gör om senaste ändringen" title="Gör om senaste ändringen">
+                <i class="fa fa-repeat" aria-hidden="true"></i>
+            </button>
+        </div>
+        <span class="dashboard-edit-savebar__status">Ändringarna sparas när du är klar</span>
+        <button type="button" class="btn btn-portal btn-portal-outline dashboard-edit-savebar__cancel" data-dashboard-cancel>Avbryt</button>
+        <button type="button" class="btn btn-portal dashboard-edit-savebar__button" data-dashboard-save>
+            <i class="fa fa-check me-1" aria-hidden="true"></i> Klar
+        </button>
+    </div>
+    <div class="dashboard-layout-toast" data-dashboard-toast role="status" aria-live="polite" hidden></div>
+    <span class="visually-hidden" data-dashboard-editor-announcement aria-live="polite"></span>
+</div>

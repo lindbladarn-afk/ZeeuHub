@@ -1,0 +1,109 @@
+﻿@page
+@model IndexModel
+
+@using Microsoft.Extensions.Localization
+@using WebApp
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+
+@{
+    ViewData["Title"] = "Profil";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+<form id="profile-form" method="post" enctype="multipart/form-data">
+    <div class="row g-3">
+        <div class="col-xl-7">
+            <div class="card account-manage-card h-100">
+                <div class="card-body p-4">
+                    <div class="dashboard-card-title">Profil</div>
+                    <div class="account-manage-card-title mb-1">Redigera dina uppgifter</div>
+                    <p class="module-page-meta mb-4">Uppdatera kontaktuppgifter och personinformation i samma gränssnitt som resten av hubben.</p>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input asp-for="Username" class="form-control" disabled />
+                                <label asp-for="Username" class="form-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Input.FirstName" class="form-control" />
+                                <label asp-for="Input.FirstName" class="form-label"></label>
+                                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Input.LastName" class="form-control" />
+                                <label asp-for="Input.LastName" class="form-label"></label>
+                                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Input.PhoneNumber" class="form-control" />
+                                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Input.PersSign" class="form-control" />
+                                <label asp-for="Input.PersSign" class="form-label"></label>
+                                <span asp-validation-for="Input.PersSign" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button id="update-profile-button" type="submit" class="btn btn-portal">Spara profil</button>
+                        <a asp-page="./ChangePassword" class="btn btn-portal btn-portal-outline">Ändra lösenord</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            <div class="card account-manage-card h-100">
+                <div class="card-body p-4">
+                    <div class="dashboard-card-title">Profilbild</div>
+                    <div class="account-manage-card-title mb-1">Byt bild</div>
+                    <p class="module-page-meta mb-4">Ladda upp en ny profilbild för ditt konto.</p>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.ProfilePicture" class="w-100 mb-2"></label>
+                        @if (Model.Input.ProfilePicture != null)
+                        {
+                            <img id="profilePicture"
+                                 class="w-100 mb-3 rounded-4 border"
+                                 style="max-width:350px;height:350px;object-fit:cover;border-color:rgba(148,163,184,0.22) !important;"
+                                 src="data:image/*;base64,@(Convert.ToBase64String(Model.Input.ProfilePicture))">
+                        }
+                        else
+                        {
+                            <img id="profilePicture"
+                                 class="w-100 mb-3 rounded-4 border"
+                                 style="max-width:350px;height:350px;object-fit:cover;border-color:rgba(148,163,184,0.22) !important;"
+                                 src="">
+                        }
+                        <input type="file"
+                               accept=".png,.jpg,.jpeg,.gif,.tif"
+                               asp-for="Input.ProfilePicture"
+                               class="form-control"
+                               onchange="document.getElementById('profilePicture').src = window.URL.createObjectURL(this.files[0])" />
+                        <span asp-validation-for="Input.ProfilePicture" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,59 @@
+@{
+    // Control Panel overview is kept on the shared module-page shell so admin-adjacent tools
+    // follow the same hierarchy, spacing and CTA language as the operational modules.
+    ViewData["Title"] = "Control Panel";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page control-panel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Control Panel</div>
+            <h1 class="module-page-title">Åtkomst och styrning</h1>
+            <div class="module-page-subtitle">Intern arbetsyta för ZeeU AB där vi styr funktioner, bolagsaccess och framtida auditspår.</div>
+            <div class="module-page-meta">Använd korten nedan för att öppna respektive verktyg.</div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-xl-4 col-md-6">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column">
+                    <div class="dashboard-card-title">Feature Access</div>
+                    <div class="control-panel-card-title mb-2">Styr moduler per bolag</div>
+                    <div class="control-panel-card-copy mb-2">Slå av eller på fakturor, orders, AI, Excelimport och dashboard per bolag i den aktuella sessionen.</div>
+                    <div class="mt-auto">
+                        <a class="btn btn-portal" asp-action="FeatureAccess">Öppna</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column">
+                    <div class="dashboard-card-title">User ↔ Company Access</div>
+                    <div class="control-panel-card-title mb-2">Förbered portal-override</div>
+                    <div class="control-panel-card-copy mb-2">Visa och styr vilka bolag en användare ska få åtkomst till utöver standardlistan från Jeeves.</div>
+                    <div class="mt-auto">
+                        <a class="btn btn-portal" asp-action="UserCompanyAccess">Öppna</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column">
+                    <div class="dashboard-card-title">Audit & Historik</div>
+                    <div class="control-panel-card-title mb-2">Spårbarhet kommer här</div>
+                    <div class="control-panel-card-copy mb-2">Kommande vy för att följa ändringar av access och feature-flaggor per användare och bolag.</div>
+                    <div class="mt-auto">
+                        <a class="btn btn-portal btn-portal-outline" asp-action="AuditLog">Öppna vy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

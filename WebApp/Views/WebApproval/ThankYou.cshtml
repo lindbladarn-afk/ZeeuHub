@@ -1,0 +1,126 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using WebApp.Models.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+	// Final confirmation page for Web Approval responses.
+	// It intentionally hides the normal portal chrome and uses a small focused shell instead of the legacy error page styling.
+	ViewData["Title"] = "Tack för ditt svar";
+	ViewData["AppHeaderNone"] = "true";
+	ViewData["AppSidebarNone"] = "true";
+	ViewData["AppClass"] = "app-without-header app-without-sidebar";
+	ViewData["AppContentClass"] = "p-0";
+	ViewData["AppBodyClass"] = "pace-top";
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<style>
+		.webapproval-thankyou {
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 2rem 1rem;
+			background:
+				radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 30%),
+				radial-gradient(circle at top right, rgba(20,184,166,0.18), transparent 28%),
+				linear-gradient(180deg, rgba(15,23,42,0.96) 0%, rgba(15,23,42,1) 100%);
+		}
+
+		.webapproval-thankyou-card {
+			max-width: 560px;
+			width: 100%;
+			border-radius: 24px;
+			border: 1px solid rgba(255,255,255,0.1);
+			background: rgba(15,23,42,0.72);
+			backdrop-filter: blur(18px);
+			box-shadow: 0 28px 60px rgba(15,23,42,0.35);
+			padding: 2rem;
+			text-align: center;
+		}
+
+		.webapproval-thankyou-icon {
+			width: 72px;
+			height: 72px;
+			border-radius: 20px;
+			margin: 0 auto 1.25rem;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.75rem;
+			background: rgba(34,197,94,0.16);
+			color: #4ade80;
+			border: 1px solid rgba(74,222,128,0.28);
+		}
+
+		.webapproval-thankyou-title {
+			font-size: 2.25rem;
+			font-weight: 900;
+			letter-spacing: -0.04em;
+			color: #f8fafc;
+			margin-bottom: 0.5rem;
+		}
+
+		.webapproval-thankyou-subtitle {
+			font-size: 1rem;
+			line-height: 1.7;
+			color: #cbd5e1;
+			margin-bottom: 1.5rem;
+		}
+
+		.webapproval-thankyou-meta {
+			color: #94a3b8;
+			font-size: 0.95rem;
+			margin-bottom: 1.75rem;
+		}
+
+		body:not(.theme-dark) .webapproval-thankyou {
+			background:
+				radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 32%),
+				radial-gradient(circle at top right, rgba(20,184,166,0.12), transparent 28%),
+				linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+		}
+
+		body:not(.theme-dark) .webapproval-thankyou-card {
+			background: rgba(255,255,255,0.92);
+			border-color: rgba(15,23,42,0.08);
+			box-shadow: 0 24px 52px rgba(148,163,184,0.24);
+		}
+
+		body:not(.theme-dark) .webapproval-thankyou-title {
+			color: #0f172a;
+		}
+
+		body:not(.theme-dark) .webapproval-thankyou-subtitle {
+			color: #334155;
+		}
+
+		body:not(.theme-dark) .webapproval-thankyou-meta {
+			color: #64748b;
+		}
+	</style>
+}
+
+<div class="webapproval-thankyou">
+	<div class="webapproval-thankyou-card">
+		<div class="webapproval-thankyou-icon">
+			<i class="fa fa-check"></i>
+		</div>
+		<div class="webapproval-thankyou-title">Tack för ditt svar</div>
+		<div class="webapproval-thankyou-subtitle">
+			Ditt beslut har registrerats och skickats vidare i Web Approval-flödet.
+		</div>
+		<div class="webapproval-thankyou-meta">
+			Du kan nu stänga sidan eller gå tillbaka om du kom hit via portalen.
+		</div>
+
+		@if (SignInManager.IsSignedIn(User))
+		{
+			<div>
+				<a href="@ViewData["ReturnView"]" class="btn btn-portal btn-primary px-4">Tillbaka</a>
+			</div>
+		}
+	</div>
+</div>

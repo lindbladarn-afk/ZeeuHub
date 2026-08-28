@@ -1,0 +1,65 @@
+@model WebApp.ViewModels.Shared.ModuleResultViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IHtmlLocalizer<SharedResources> sharedLocalizer
+@{
+    // Shared rich result card for import/validation flows where we need dismiss support and structured detail rows.
+    var tone = string.IsNullOrWhiteSpace(Model.Tone) ? "info" : Model.Tone.Trim().ToLowerInvariant();
+    var rootClasses = $"module-result module-result--{tone}" + (Model.Dismissible ? " alert alert-dismissible fade show" : string.Empty);
+}
+
+<div class="card kpi-card mb-3 border-0 shadow-sm module-result-card">
+    <div class="card-body">
+        <div id="@Model.HtmlId"
+             class="@rootClasses"
+             role="alert"
+             data-allow-update="@Model.AllowUpdate.ToString().ToLowerInvariant()">
+            <div class="module-result-header">
+                <div class="module-result-title-wrap">
+                    <span class="module-result-icon" aria-hidden="true">
+                        <i class="@Model.IconClass"></i>
+                    </span>
+                    <div class="module-result-copy">
+                        <div class="module-result-title">@Model.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(Model.Message))
+                        {
+                            <div class="module-result-message">@Model.Message</div>
+                        }
+                    </div>
+                </div>
+                @if (Model.Dismissible)
+                {
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@sharedLocalizer["Close"]"></button>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Note))
+            {
+                <div class="module-result-note">@Model.Note</div>
+            }
+
+            @if (Model.Items.Count > 0)
+            {
+                <ul class="module-result-items mb-0 mt-3">
+                    @foreach (var item in Model.Items)
+                    {
+                        <li class="module-result-item excel-error-item" data-row-no="@item.RowNumber">
+                            <span class="module-result-item-check excel-error-check" aria-hidden="true">✔</span>
+                            <div class="module-result-item-content excel-error-content">
+                                <div>@item.Summary</div>
+                                @if (!string.IsNullOrWhiteSpace(item.Detail))
+                                {
+                                    <div class="module-result-item-detail excel-error-data">
+                                        @if (!string.IsNullOrWhiteSpace(item.DetailLabel))
+                                        {
+                                            <span>@item.DetailLabel:</span>
+                                        }
+                                        @item.Detail
+                                    </div>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+@using WebApp.ViewModels.Shared
+
+@{
+    // Placeholder view for future audit log visibility in Control Panel.
+    // Shared state card keeps unfinished areas consistent with the rest of the portal.
+    ViewData["Title"] = "Control Panel - Audit Log";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page control-panel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Control Panel</div>
+            <h1 class="module-page-title">Audit & Historik</h1>
+            <div class="module-page-subtitle">Kommande spårbarhetsvy för att se vem som ändrade bolagstillgång, feature-flaggor och andra styrningar.</div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+    {
+        Title = "Audit-logg är inte kopplad ännu",
+        Message = "Nästa steg är att koppla mot en loggkälla och göra händelser sökbara och filtrerbara i portalen.",
+        Note = "Målet är att visa vem som ändrade vad och när.",
+        Tone = "info",
+        IconClass = "fa fa-clock-o"
+    })
+</div>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>ZeeU Dashboard</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>real-time business insights</value></data>
+  <data name="LiveData" xml:space="preserve"><value>LIVE DATA</value></data>
+  <data name="UpdatedAt" xml:space="preserve"><value>UPDATED {0}</value></data>
+  <data name="ActiveCompany" xml:space="preserve"><value>Showing data for: {0}</value></data>
+  <data name="StandardPeriod" xml:space="preserve"><value>Default period: rolling 12 months</value></data>
+  <data name="FallbackWarning" xml:space="preserve"><value>No orders were found for the latest 12 months. Showing the latest period with data: {0} to {1}.</value></data>
+</root>

@@ -1,0 +1,34 @@
+# Local Windows development services. Secrets are loaded from an untracked .env file.
+services:
+  jeevesdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: jeevesdb
+    platform: linux/amd64        # viktigt på Apple Silicon
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    ports:
+      - "11433:1433"
+    volumes:
+      - ./JeevesDatabase/DatabaseFiles:/var/opt/mssql/data
+      - ./JeevesDatabase/DatabaseBackup:/usr/databasebackupfile
+
+  webapp:
+    depends_on:
+      - jeevesdb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/webapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_HTTPS_PASSWORD}
+      - CONNECTION_STRING_PORTAL_IDENTITY=Server=jeevesdb;Database=CustomerPortal;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true
+      - CONNECTION_STRING_23B49FAC914541A9AFF9603DA0598490=${ZEEU_CONNECTION_STRING_DEVELOPMENT}
+      - CONNECTION_STRING_6E8B8325029A4A2BB3FC4FD45F653C33=${ZEEU_CONNECTION_STRING_PRODUCTION}
+      - CONNECTION_STRING_B1985E29EB004CC0902768AAE3521FB2=Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true
+    ports:
+      - "8080:80"    # HTTP  -> http://localhost:8080
+      - "8443:443"   # HTTPS -> https://localhost:8443
+    volumes:
+      - ${HOME}/.aspnet/https:/https:ro
+      - ${HOME}/.aspnet/DataProtection-Keys:/keys
+      # - ${HOME}/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro  # valfritt

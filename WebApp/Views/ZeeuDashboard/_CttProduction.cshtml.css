@@ -1,0 +1,48 @@
+﻿body {
+    --header-height: 50px;
+    margin: 0 0 0 0;
+    background-color: white;
+}
+
+table {
+    font-size: 30px;
+    box-shadow: 0 0 10px 15px rgba(0,0,0,0.3);
+}
+
+table tr th {
+    font-weight:bold;
+}
+
+
+.header_container {
+    margin: 0 0 0 0;
+    height:150px;
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    justify-items:center;
+    /*box-shadow: 0 0 10px rgba(0,0,0,0.3);*/
+    justify-content: space-between;
+}
+
+.logo_container {
+    padding: 5px 0 5px 15px;
+    height:4em;
+    width:auto;
+}
+
+.description_container {
+    padding: 0 15px 0 0;
+}
+
+.Header {
+    margin: 0 0 0 0;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+
+.content_container {
+    background-color: #f4f2f2;
+    width:100%;
+}

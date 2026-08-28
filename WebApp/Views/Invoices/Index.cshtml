@@ -1,0 +1,370 @@
+@model WebApp.ViewModels.Invoices.InvoiceListViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+@{
+    // Invoice overview page used as the primary visual reference for portal module pages.
+    // Shared module-page classes from dashboard.css should be preferred over page-local duplicates.
+    ViewData["Title"] = Localizer["Fakturor"];
+    var activeTab = (Model.ActiveTab ?? "unpaid").ToLowerInvariant();
+    var amountCulture = CultureInfo.GetCultureInfo("sv-SE");
+    string FormatAmount(decimal value) => string.Format(amountCulture, "{0:N0} kr", value);
+    string? from = Model.FromDate?.ToString("yyyy-MM-dd");
+    string? to = Model.ToDate?.ToString("yyyy-MM-dd");
+    var selectedYear = Model.SelectedYear?.ToString();
+    string TabUrl(string tabName, int page = 1) => Url.Action("Index", new
+    {
+        tab = tabName,
+        search = Model.Search,
+        from,
+        to,
+        year = selectedYear,
+        page
+    }) ?? "#";
+
+    var overdueInvoices = (Model.OverdueHighlights ?? Array.Empty<WebApp.Models.Invoices.InvoiceItem>())
+        .Where(x => x.IsOverdue)
+        .ToList();
+
+    var mostOverdueInvoice = overdueInvoices
+        .OrderByDescending(x => (DateTime.Today - x.DueDate.Date).Days)
+        .ThenByDescending(x => x.AmountSek)
+        .FirstOrDefault();
+
+    var mostOverdueDays = mostOverdueInvoice == null ? 0 : Math.Max(0, (DateTime.Today - mostOverdueInvoice.DueDate.Date).Days);
+
+    var largestOverdueInvoice = overdueInvoices
+        .OrderByDescending(x => x.AmountSek)
+        .ThenByDescending(x => (DateTime.Today - x.DueDate.Date).Days)
+        .FirstOrDefault();
+
+    var largestOverdueDays = largestOverdueInvoice == null ? 0 : Math.Max(0, (DateTime.Today - largestOverdueInvoice.DueDate.Date).Days);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <style>
+        .invoices-page .table-card table { font-size: 1.03rem; }
+        .invoices-page .badge-overdue { background-color: #ef4444; color: #fff; }
+        .invoices-page .badge-unpaid { background-color: #f97316; color: #0b1220; }
+        .invoices-page .badge-paid { background-color: #22c55e; color: #0b1220; }
+        body.theme-dark .invoices-page input[type="date"] { color-scheme: dark; }
+    </style>
+}
+
+<div class="dashboard-readable module-page invoices-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Fakturor"]</div>
+            <h1 class="module-page-title">@Localizer["Översikt"]</h1>
+            <div class="module-page-subtitle">@Localizer["Betalda och obetalda fakturor, summerade per månad."]</div>
+            @if (Model.UsesDefaultPeriod)
+            {
+                <div class="module-page-meta">@Localizer["Standardvisning: innevarande år för snabbare laddning."]</div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.DataSourceNotice))
+    {
+    <div class="card kpi-card p-2 mb-2">
+            <div class="d-flex align-items-start gap-3">
+                <i class="fa fa-info-circle text-warning mt-1"></i>
+                <div>
+                    <div class="dashboard-card-title">@Localizer["Datakälla"]</div>
+                    <div class="text-white">@Model.DataSourceNotice</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row g-2 mb-2">
+        <div class="col-xl-3 col-md-6">
+            <div class="card kpi-card module-kpi-surface module-kpi-surface--compact h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">@Localizer["Obetalda"]</div>
+                        <div class="metric-value">@FormatAmount(Model.TotalUnpaidSek)</div>
+                        <div class="module-page-meta">@Localizer["{0} st · {1} över förfallodatum", Model.UnpaidCount, Model.OverdueCount]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card kpi-card module-kpi-surface module-kpi-surface--compact h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">@Localizer["Betalda"]</div>
+                        <div class="metric-value">@FormatAmount(Model.TotalPaidSek)</div>
+                        <div class="module-page-meta">@Localizer["{0} st", Model.PaidCount]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card kpi-card module-kpi-surface module-kpi-surface--compact h-100">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div class="flex-grow-1">
+                        <div class="dashboard-card-title">@Localizer["Viktigast att följa upp"]</div>
+                        @if (mostOverdueInvoice != null)
+                        {
+                            <h4 class="mb-1 text-white fw-bold d-flex align-items-center gap-2">
+                                <i class="fa fa-exclamation-triangle text-danger"></i>
+                                @Localizer["Äldsta förfallna fakturan"]
+                            </h4>
+
+                            <div class="mt-2">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                    <span class="badge badge-overdue">@Localizer["Äldst: {0} dgr", mostOverdueDays]</span>
+                                    <span class="fw-semibold text-white">#@mostOverdueInvoice.InvoiceNo</span>
+                                    <span class="module-page-meta">·</span>
+                                    <span class="text-white">@mostOverdueInvoice.Customer</span>
+                                    <span class="module-page-meta">·</span>
+                                    <span class="fw-semibold text-white">@FormatAmount(mostOverdueInvoice.AmountSek)</span>
+                                </div>
+
+                                @if (largestOverdueInvoice != null && largestOverdueInvoice.InvoiceNo != mostOverdueInvoice.InvoiceNo)
+                                {
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <span class="badge badge-unpaid">@Localizer["Störst: {0}", FormatAmount(largestOverdueInvoice.AmountSek)]</span>
+                                        <span class="fw-semibold text-white">#@largestOverdueInvoice.InvoiceNo</span>
+                                        <span class="module-page-meta">·</span>
+                                        <span class="text-white">@largestOverdueInvoice.Customer</span>
+                                        <span class="module-page-meta">·</span>
+                                        <span class="text-white">@Localizer["{0} dgr sen förfallodatum", largestOverdueDays]</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <h4 class="mb-1 text-white fw-bold d-flex align-items-center gap-2">
+                                <i class="fa fa-check-circle text-success"></i>
+                                @Localizer["Inga förfallna fakturor"]
+                            </h4>
+                            <div class="module-page-meta">@Localizer["Bra! Inget att åtgärda här just nu."]</div>
+                        }
+                    </div>
+                    @if (mostOverdueInvoice != null)
+                    {
+                        <div class="text-end d-flex flex-column gap-2">
+                            <a asp-action="Detail" asp-route-id="@mostOverdueInvoice.InvoiceNo" class="btn btn-portal btn-portal-outline btn-sm">
+                                @Localizer["Visa äldsta"]
+                            </a>
+                            @if (largestOverdueInvoice != null && largestOverdueInvoice.InvoiceNo != mostOverdueInvoice.InvoiceNo)
+                            {
+                                <a asp-action="Detail" asp-route-id="@largestOverdueInvoice.InvoiceNo" class="btn btn-portal btn-portal-outline btn-sm">
+                                    @Localizer["Visa största"]
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-2 mb-2 filter-card module-filter-card" id="overdue">
+        <div class="card-body p-0">
+            @* Year selection is the only auto-submit filter; free text and dates remain explicit for predictability. *@
+            <form id="invoices-filter-form" class="row g-2 mb-2" method="get">
+                <div class="col-md-4">
+                    <input type="text" class="form-control module-date-input" name="search" placeholder="@Localizer["Sök faktura, kund eller säljare"]" value="@(Model?.Search ?? string.Empty)" autocomplete="off" />
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control module-date-input flowengine-date-input" data-fe-datepicker="true" name="from" value="@(Model?.FromDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control module-date-input flowengine-date-input" data-fe-datepicker="true" name="to" value="@(Model?.ToDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-2">
+                    <div class="module-select-caret">
+                        <select class="form-control js-auto-submit" name="year">
+                            <option value="">@Localizer["Innevarande år"]</option>
+                            @foreach (var yearOption in Model.AvailableYears)
+                            {
+                                <option value="@yearOption" selected="@(Model.SelectedYear == yearOption ? "selected" : null)">@yearOption</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12 d-flex gap-2">
+                    <input type="hidden" name="tab" value="@activeTab" />
+                    <button type="submit" class="btn btn-primary w-100 btn-portal btn-sm">@Localizer["Sök"]</button>
+                    <a href="@Url.Action("Index")" class="btn btn-portal btn-portal-outline btn-sm">@Localizer["Rensa"]</a>
+                </div>
+            </form>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                    <div class="dashboard-card-title">@Localizer["Fakturor"]</div>
+                    <h4 class="mb-0 text-white">@(activeTab == "paid" ? Localizer["Betalda"] : Localizer["Obetalda"])</h4>
+                    <div class="module-page-meta">@Localizer["Sidorna laddas per tab och period för att hålla sidan snabb."]</div>
+                </div>
+                <div class="module-tab-toggle" role="group">
+                    <a class="btn btn-portal btn-portal-outline btn-sm @(activeTab == "unpaid" ? "active" : string.Empty)" href="@TabUrl("unpaid")">@Localizer["Obetalda"] (@(Model?.UnpaidCount ?? 0))</a>
+                    <a class="btn btn-portal btn-portal-outline btn-sm @(activeTab == "paid" ? "active" : string.Empty)" href="@TabUrl("paid")">@Localizer["Betalda"] (@(Model?.PaidCount ?? 0))</a>
+                </div>
+            </div>
+
+            @if (activeTab == "unpaid")
+            {
+            <div class="table-card module-table-shell module-table module-list-panel active-panel mb-2" data-tab-panel="unpaid">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Faktura"]</th>
+                                <th>@Localizer["Kund"]</th>
+                                <th>@Localizer["Säljare"]</th>
+                                <th>@Localizer["Förfallodatum"]</th>
+                                <th>@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Belopp"]</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!(Model?.UnpaidInvoices?.Any() ?? false))
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-white-50 py-4">
+                                        @(Model?.UsesHistoricalFactSource == true
+                                            ? Localizer["Inga öppna reskontrafakturor kan visas från den här datalagertabellen ännu."]
+                                            : Localizer["Inga obetalda fakturor hittades för valt filter."])
+                                    </td>
+                                </tr>
+                            }
+                            @foreach (var invoice in Model?.UnpaidInvoices ?? Array.Empty<WebApp.Models.Invoices.InvoiceItem>())
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-white">#@invoice.InvoiceNo</td>
+                                    <td class="text-white">@invoice.Customer</td>
+                                    <td class="text-white">@invoice.SalesPerson</td>
+                                    <td class="text-white">@invoice.DueDate.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <span class="badge @(invoice.IsOverdue ? "badge-overdue" : "badge-unpaid")">@invoice.Status</span>
+                                    </td>
+                                    <td class="text-end fw-semibold text-white">@FormatAmount(invoice.AmountSek)</td>
+                                    <td class="text-end">
+                                        <a asp-action="Detail" asp-route-id="@invoice.InvoiceNo" class="btn btn-portal btn-portal-outline btn-sm">@Localizer["Visa faktura"]</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            }
+            else
+            {
+            <div class="table-card module-table-shell module-table module-list-panel active-panel" data-tab-panel="paid">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Faktura"]</th>
+                                <th>@Localizer["Kund"]</th>
+                                <th>@Localizer["Säljare"]</th>
+                                <th>@Localizer["Förfallodatum"]</th>
+                                <th>@Localizer["Betaldatum"]</th>
+                                <th>@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Belopp"]</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!(Model?.PaidInvoices?.Any() ?? false))
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center text-white-50 py-4">@Localizer["Inga betalda fakturor hittades för valt filter."]</td>
+                                </tr>
+                            }
+                            @foreach (var invoice in Model?.PaidInvoices ?? Array.Empty<WebApp.Models.Invoices.InvoiceItem>())
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-white">#@invoice.InvoiceNo</td>
+                                    <td class="text-white">@invoice.Customer</td>
+                                    <td class="text-white">@invoice.SalesPerson</td>
+                                    <td class="text-white">@invoice.DueDate.ToString("yyyy-MM-dd")</td>
+                                    <td class="text-white">@invoice.PaidDate?.ToString("yyyy-MM-dd")</td>
+                                    <td><span class="badge badge-paid">@Localizer["Betald"]</span></td>
+                                    <td class="text-end fw-semibold text-white">@FormatAmount(invoice.AmountSek)</td>
+                                    <td class="text-end">
+                                        <a asp-action="Detail" asp-route-id="@invoice.InvoiceNo" class="btn btn-portal btn-portal-outline btn-sm">@Localizer["Visa faktura"]</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            }
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+                    <div class="module-page-meta">@Localizer["Sida {0} av {1} · {2} fakturor i träffen", Model.Page, Model.TotalPages, Model.TotalCount]</div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page <= 1 ? "disabled" : null)" href="@(Model.Page <= 1 ? "#" : TabUrl(activeTab, Model.Page - 1))">@Localizer["Föregående"]</a>
+                        <a class="btn btn-portal btn-portal-outline btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : null)" href="@(Model.Page >= Model.TotalPages ? "#" : TabUrl(activeTab, Model.Page + 1))">@Localizer["Nästa"]</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("invoices-filter-form");
+            if (!form) {
+                return;
+            }
+
+            const initInvoiceDatepickers = () => {
+                if (!window.jQuery || !window.jQuery.fn || typeof window.jQuery.fn.datepicker !== "function") {
+                    return;
+                }
+
+                window.jQuery(form)
+                    .find('input[data-fe-datepicker="true"]')
+                    .each(function () {
+                        const input = this;
+                        const $input = window.jQuery(input);
+
+                        if ($input.hasClass("hasDatepicker")) {
+                            return;
+                        }
+
+                        const currentValue = input.value;
+                        input.setAttribute("type", "text");
+                        input.setAttribute("autocomplete", "off");
+                        input.setAttribute("placeholder", "YYYY-MM-DD");
+
+                        $input.datepicker({
+                            dateFormat: "yy-mm-dd",
+                            showOtherMonths: true,
+                            selectOtherMonths: true,
+                            showButtonPanel: true,
+                            beforeShow: function () {
+                                window.setTimeout(() => {
+                                    window.jQuery("#ui-datepicker-div").addClass("flowengine-datepicker");
+                                }, 0);
+                            }
+                        });
+
+                        if (currentValue) {
+                            $input.datepicker("setDate", currentValue);
+                        }
+                    });
+            };
+
+            initInvoiceDatepickers();
+
+            const autoSubmitElements = form.querySelectorAll(".js-auto-submit");
+
+            autoSubmitElements.forEach((element) => {
+                element.addEventListener("change", () => form.requestSubmit());
+            });
+        })();
+    </script>
+}

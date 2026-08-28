@@ -1,0 +1,253 @@
+@* Hosts the compact ZeeU Intelligence assistant experience. *@
+@model WebApp.Controllers.AIController.AiViewModel
+@{
+    Layout = null;
+    var savedTheme = Context.Request.Cookies["portal-theme"];
+    var initialThemeClass = string.Equals(savedTheme, "dark", StringComparison.OrdinalIgnoreCase) ? "theme-dark" : string.Empty;
+    ViewData["AiCompactWidget"] = true;
+}
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZeeU Intelligence</title>
+    <link href="~/css/vendor.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/app.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/zeeu.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/hub.shared.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/dashboard.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/ai.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        .pace,
+        .app-loader {
+            display: none !important;
+        }
+
+        .ai-widget-page {
+            height: 100%;
+            padding: 1rem;
+            color: #e2e8f0;
+        }
+
+        .ai-widget-shell {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 1rem 1rem 0.95rem;
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(17, 24, 39, 0.98));
+            box-shadow: 0 20px 44px rgba(2, 6, 23, 0.2);
+        }
+
+        .ai-widget-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.9rem;
+            margin-bottom: 1rem;
+            padding-right: 3.25rem;
+        }
+
+        .ai-widget-datasource {
+            min-width: 0;
+            flex: 1 1 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        .ai-widget-status {
+            flex: 0 0 auto;
+        }
+
+        .ai-widget-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 4;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.16s ease, opacity 0.16s ease;
+        }
+
+        .ai-widget-close::before,
+        .ai-widget-close::after {
+            content: "";
+            position: absolute;
+            width: 1rem;
+            height: 1.5px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: background-color 0.16s ease, width 0.16s ease;
+        }
+
+        .ai-widget-close::before {
+            transform: rotate(45deg);
+        }
+
+        .ai-widget-close::after {
+            transform: rotate(-45deg);
+        }
+
+        .ai-widget-close:hover::before,
+        .ai-widget-close:hover::after,
+        .ai-widget-close:focus-visible::before,
+        .ai-widget-close:focus-visible::after {
+            background: #ffffff;
+            width: 1.05rem;
+        }
+
+        .ai-widget-close:hover,
+        .ai-widget-close:focus-visible {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .ai-widget-shell .ai-ds-dropdown {
+            position: relative;
+        }
+
+        .ai-widget-shell .ai-ds-dropdown__menu {
+            left: 0;
+            right: auto;
+            width: min(320px, calc(100vw - 5rem));
+            max-width: 100%;
+        }
+
+        .ai-widget-shell #ai-assisted-panel {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
+            padding-top: 0.5rem;
+        }
+
+        .ai-widget-shell #ai-chat {
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none;
+            margin-top: 0.2rem;
+            margin-bottom: 1rem !important;
+        }
+
+        .ai-widget-shell #ai-form {
+            margin-top: auto;
+        }
+
+        .ai-widget-shell .ai-status-pill {
+            padding: 0.3rem 0.55rem;
+            font-size: 0.78rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.58);
+        }
+
+        .ai-widget-shell .chat-bubble {
+            max-width: 100%;
+        }
+
+        .ai-widget-shell .ai-input-hint {
+            display: none;
+        }
+
+        .ai-widget-shell .ai-quota-control-row {
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-widget-shell #ai-status {
+            display: none !important;
+        }
+    </style>
+    <script>
+      (function () {
+        const storedTheme = localStorage.getItem('theme') || '@(savedTheme ?? "light")';
+        const applyTheme = () => {
+          const body = document.body;
+          if (storedTheme === 'dark') {
+            document.documentElement.classList.add('theme-dark');
+            body && body.classList.add('theme-dark');
+          } else {
+            document.documentElement.classList.remove('theme-dark');
+            body && body.classList.remove('theme-dark');
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', applyTheme);
+
+        if (storedTheme === 'dark') {
+          document.documentElement.classList.add('theme-dark');
+        } else {
+          document.documentElement.classList.remove('theme-dark');
+        }
+      })();
+    </script>
+</head>
+<body class="ai-widget-page @initialThemeClass">
+    <form id="__af" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div class="dashboard-readable ai-page ai-widget-shell">
+        <button type="button" class="ai-widget-close" aria-label="Stäng ZeeU Intelligence">
+        </button>
+        <div class="ai-widget-topbar">
+            <div class="ai-widget-datasource">
+                @await Html.PartialAsync("Partials/_AiHeader", Model)
+            </div>
+            <div class="ai-widget-status">
+                <span id="ai-widget-status" class="small text-muted d-flex align-items-center gap-2 ai-status-pill">
+                    <span class="ai-dot"></span>
+                    <span id="ai-widget-status-text">Redo</span>
+                </span>
+            </div>
+        </div>
+        @await Html.PartialAsync("Partials/_AiChatPanel", Model)
+    </div>
+
+    @await Html.PartialAsync("Partials/_AiConfigScript", Model)
+    <script src="~/js/vendor.min.js"></script>
+    <script src="~/js/app.min.js?v=20251203"></script>
+    <script src="~/js/ai-query-client.js" asp-append-version="true"></script>
+    <script src="~/js/ai-chart.js" asp-append-version="true"></script>
+    <script src="~/js/ai.js" asp-append-version="true"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        ZeeUAI.init();
+
+        const closeBtn = document.querySelector('.ai-widget-close');
+        const statusText = document.getElementById('ai-status-text');
+        const widgetStatusText = document.getElementById('ai-widget-status-text');
+
+        if (statusText && widgetStatusText) {
+          widgetStatusText.textContent = statusText.textContent || 'Redo';
+          const observer = new MutationObserver(() => {
+            widgetStatusText.textContent = statusText.textContent || 'Redo';
+          });
+          observer.observe(statusText, { childList: true, characterData: true, subtree: true });
+        }
+
+        closeBtn?.addEventListener('click', () => {
+          window.parent?.postMessage({ type: 'zeeu-ai-close' }, window.location.origin);
+        });
+      });
+    </script>
+</body>
+</html>

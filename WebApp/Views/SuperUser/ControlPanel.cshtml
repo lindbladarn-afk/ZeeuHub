@@ -1,0 +1,56 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Control Panel"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page control-panel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Control Panel"]</div>
+            <h1 class="module-page-title">@Localizer["Administrera användare"]</h1>
+            <div class="module-page-subtitle">@Localizer["Intern arbetsyta för superusers där vi hanterar kollegor i det egna bolaget."]</div>
+            <div class="module-page-meta">@Localizer["Den här ytan gäller endast ditt bolag."]</div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md-6 col-xl-4">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">@Localizer["Skapa användare"]</div>
+                        <div class="control-panel-card-copy">@Localizer["Lägg till kollegor i ditt bolag. CompanyId sätts automatiskt."]</div>
+                    </div>
+                    <a asp-action="CreateUser" class="btn btn-portal mt-2 text-white control-panel-overview-cta">@Localizer["Öppna"]</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">@Localizer["Hantera användare"]</div>
+                        <div class="control-panel-card-copy">@Localizer["Se alla användare i ditt bolag."]</div>
+                    </div>
+                    <a asp-action="Users" class="btn btn-portal mt-2 text-white control-panel-overview-cta">@Localizer["Öppna"]</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="card kpi-card h-100 control-panel-card">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="dashboard-card-title">Användarbehörigheter</div>
+                        <div class="control-panel-card-copy">Styr vilka delar av portalen användarna i bolaget får se.</div>
+                    </div>
+                    <a asp-action="Users" class="btn btn-portal mt-2 text-white control-panel-overview-cta">Öppna</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

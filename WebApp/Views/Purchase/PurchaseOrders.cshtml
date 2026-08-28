@@ -1,0 +1,327 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@model IEnumerable<Entities.Purchase.IPurchaseOrderVM>
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+	// Purchase order list aligned with the shared module-page shell.
+	// Client-side status/search filters remain local because this module still filters the rendered table in-browser.
+	ViewData["Title"] = localizer["PageHeader_PurchaseOrder"];
+	var isDemoMode = ViewBag.PurchaseIsDemoMode as bool? ?? false;
+	var canUseDemo = ViewBag.PurchaseCanUseDemo as bool? ?? false;
+
+	string GetStatusClass(int? orderStatusId) => orderStatusId switch
+	{
+		10 => "purchase-status-pill purchase-status-pill--approved",
+		20 => "purchase-status-pill purchase-status-pill--ordered",
+		40 => "purchase-status-pill purchase-status-pill--partial",
+		70 => "purchase-status-pill purchase-status-pill--delivered",
+		90 => "purchase-status-pill purchase-status-pill--cancelled",
+		_ => "purchase-status-pill purchase-status-pill--default"
+	};
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<style>
+		.purchase-orders-page .orders-table {
+			--bs-table-bg: transparent;
+			--bs-table-accent-bg: transparent;
+			--bs-table-hover-bg: transparent;
+		}
+
+		.purchase-orders-page .module-filter-card .input-group-text {
+			border-color: rgba(148, 163, 184, 0.24);
+			background: linear-gradient(180deg, rgba(57, 67, 84, 0.82) 0%, rgba(40, 50, 66, 0.92) 100%);
+			color: #cbd5e1;
+		}
+
+		.purchase-orders-page .module-status-filters {
+			gap: 0.55rem;
+			grid-template-columns: repeat(5, minmax(0, 1fr));
+		}
+
+		.purchase-orders-page .module-status-filters .btn {
+			border-radius: 0.9rem !important;
+			border: 1px solid rgba(148, 163, 184, 0.24);
+			background: linear-gradient(180deg, rgba(60, 70, 85, 0.9) 0%, rgba(44, 54, 69, 0.96) 100%);
+			color: #e2e8f0;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 18px rgba(2, 6, 23, 0.14);
+			font-weight: 700;
+			min-height: 2rem;
+			padding: 0.28rem 0.7rem;
+			font-size: 0.76rem;
+		}
+
+		.purchase-orders-page .module-status-filters .btn:hover,
+		.purchase-orders-page .module-status-filters .btn:focus {
+			border-color: rgba(148, 163, 184, 0.34);
+			background: linear-gradient(180deg, rgba(70, 81, 98, 0.94) 0%, rgba(51, 63, 80, 1) 100%);
+			color: #ffffff;
+		}
+
+		.purchase-orders-page .module-status-filters .btn.active {
+			border-color: rgba(79, 195, 255, 0.72);
+			background: linear-gradient(180deg, #4fc3ff 0%, #20a4f3 100%);
+			color: #ffffff;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 22px rgba(32, 164, 243, 0.24);
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .module-filter-card .input-group-text {
+			background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+			border-color: rgba(148, 163, 184, 0.34);
+			color: #475569;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .module-status-filters .btn {
+			border-color: rgba(74, 98, 129, 0.28);
+			background: linear-gradient(180deg, rgba(88, 113, 141, 0.9) 0%, rgba(69, 91, 116, 0.96) 100%);
+			color: #ffffff;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .module-status-filters .btn:hover,
+		body:not(.theme-dark) .purchase-orders-page .module-status-filters .btn:focus {
+			border-color: rgba(74, 98, 129, 0.42);
+			background: linear-gradient(180deg, rgba(97, 122, 151, 0.94) 0%, rgba(77, 100, 127, 1) 100%);
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .module-status-filters .btn.active {
+			border-color: rgba(32, 164, 243, 0.68);
+			background: linear-gradient(180deg, #4fc3ff 0%, #20a4f3 100%);
+			color: #ffffff;
+		}
+
+		.purchase-orders-page .purchase-status-pill {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 1.95rem;
+			padding: 0.28rem 0.72rem;
+			border-radius: 999px;
+			border: 1px solid transparent;
+			font-size: 0.78rem;
+			font-weight: 800;
+			line-height: 1;
+			letter-spacing: 0.01em;
+			white-space: nowrap;
+		}
+
+		.purchase-orders-page .purchase-status-pill--approved {
+			background: rgba(148, 163, 184, 0.18);
+			border-color: rgba(148, 163, 184, 0.28);
+			color: #e2e8f0;
+		}
+
+		.purchase-orders-page .purchase-status-pill--ordered {
+			background: rgba(59, 130, 246, 0.18);
+			border-color: rgba(96, 165, 250, 0.34);
+			color: #bfdbfe;
+		}
+
+		.purchase-orders-page .purchase-status-pill--partial {
+			background: rgba(244, 114, 182, 0.18);
+			border-color: rgba(244, 114, 182, 0.3);
+			color: #fbcfe8;
+		}
+
+		.purchase-orders-page .purchase-status-pill--delivered {
+			background: rgba(34, 197, 94, 0.2);
+			border-color: rgba(74, 222, 128, 0.34);
+			color: #dcfce7;
+		}
+
+		.purchase-orders-page .purchase-status-pill--cancelled {
+			background: rgba(239, 68, 68, 0.18);
+			border-color: rgba(248, 113, 113, 0.34);
+			color: #fecaca;
+		}
+
+		.purchase-orders-page .purchase-status-pill--default {
+			background: rgba(71, 85, 105, 0.24);
+			border-color: rgba(148, 163, 184, 0.22);
+			color: #e2e8f0;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--approved {
+			background: #eef2f7;
+			border-color: rgba(100, 116, 139, 0.2);
+			color: #475569;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--ordered {
+			background: #dbeafe;
+			border-color: rgba(59, 130, 246, 0.2);
+			color: #1d4ed8;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--partial {
+			background: #fce7f3;
+			border-color: rgba(236, 72, 153, 0.18);
+			color: #be185d;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--delivered {
+			background: #dcfce7;
+			border-color: rgba(34, 197, 94, 0.2);
+			color: #166534;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--cancelled {
+			background: #fee2e2;
+			border-color: rgba(239, 68, 68, 0.18);
+			color: #b91c1c;
+		}
+
+		body:not(.theme-dark) .purchase-orders-page .purchase-status-pill--default {
+			background: #e2e8f0;
+			border-color: rgba(148, 163, 184, 0.24);
+			color: #334155;
+		}
+	</style>
+}
+
+<div class="dashboard-readable module-page purchase-orders-page">
+	<div class="module-page-header">
+		<div>
+			<div class="dashboard-card-title">Inköp</div>
+			<h1 class="module-page-title">@localizer["PageHeader_PurchaseOrder"]</h1>
+			<div class="module-page-subtitle">@localizer["PageHeader_PurchaseOrder_SubTitle"]</div>
+			@if (canUseDemo)
+			{
+				<div class="module-page-meta @(isDemoMode ? "text-warning" : string.Empty)">
+					<i class="fa @(isDemoMode ? "fa-flask" : "fa-circle") me-1"></i>
+					@(isDemoMode ? "Demodata är aktiv" : "Demodata är avstängd")
+				</div>
+			}
+		</div>
+		@if (canUseDemo)
+		{
+			<div class="d-flex align-items-start gap-2">
+				<form asp-action="PurchaseToggleDemoMode" method="post" class="m-0">
+					@Html.AntiForgeryToken()
+					<button type="submit" class="btn btn-portal btn-portal-outline btn-sm">
+						<i class="fa @(isDemoMode ? "fa-toggle-on" : "fa-toggle-off") me-1"></i>
+						@(isDemoMode ? "Demo på" : "Demo av")
+					</button>
+				</form>
+			</div>
+		}
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	<div class="card kpi-card p-3 module-table-shell">
+		@* Search and status filters stay client-side for now because the purchase module still works against the rendered order table. *@
+		<div class="row pb-4">
+			<div class="col-12 col-lg-5 mb-2 mb-lg-0">
+				<div class="input-group module-filter-card">
+					<span class="input-group-text"><i class="fas fa-search"></i></span>
+					<input type="text" class="form-control" id="searchOrders" onkeyup="filterBySearchString()" placeholder="@sharedLocalizer["SearchBoxPlaceholder"]" />
+				</div>
+			</div>
+			<div class="col-12 col-lg-7">
+				<div class="module-status-filters module-status-filters--5">
+					<button type="button" class="btn btn-portal-outline" onclick="filterByPartiallyDelivered()" id="btnPartiallyDelivered">@sharedLocalizer["Status_PartiallyDelivered"]</button>
+					<button type="button" class="btn btn-portal-outline" onclick="filterByDelivered()" id="btnDelivered">@sharedLocalizer["Status_Delivered"]</button>
+					<button type="button" class="btn btn-portal-outline" onclick="filterByCancelled()" id="btnCancelled">@sharedLocalizer["Status_Cancelled"]</button>
+					<button type="button" class="btn btn-portal-outline" onclick="filterByApproved()" id="btnApproved">@sharedLocalizer["Status_Approved"]</button>
+					<button type="button" class="btn btn-portal-outline" onclick="filterClear()" id="btnClear">@sharedLocalizer["Filter_Clear"]</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="table-responsive module-table">
+			<table class="table table-hover module-hover-table mb-0 orders-table" id="ordersTable">
+				<thead>
+					<tr>
+						<th>@localizer["Header_PurchaseOrderNumber"]</th>
+						<th>@localizer["Header_Supplier"]</th>
+						<th>@localizer["Header_RegistrationDate"]</th>
+						<th>@localizer["Header_RequestedDeliveryDate"]</th>
+						<th>@localizer["Header_Currency"]</th>
+						<th>@localizer["Header_PurchaseValue"]</th>
+						<th>@localizer["Header_Status"]</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model is null || !Model.Any())
+					{
+						<tr><td colspan="12">@sharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+					}
+					else
+					{
+						@foreach (var order in Model)
+						{
+							<tr onclick="location.href = '@Url.Action("PurchaseOrder","Purchase", new { orderNumber = order.OrderNumber })'" onmouseover="style.cursor='pointer'">
+								<td>@order.OrderNumber</td>
+								<td>@order.SupplierName</td>
+								@if (order.RegisteredDate.HasValue)
+								{
+									var registeredDate = (DateTime)order.RegisteredDate;
+									<td style="text-align:start">@registeredDate.ToShortDateString()</td>
+								}
+								else
+								{
+									<td style="text-align:start">-</td>
+								}
+								@if (order.DeliveryDate.HasValue)
+								{
+									var deliveryDate = (DateTime)order.DeliveryDate;
+									if (deliveryDate < DateTime.Now && order.OrderStatusId < 70)
+									{
+										<td style="text-align:start; color: red">@deliveryDate.ToShortDateString()</td>
+									}
+									else
+									{
+										<td style="text-align:start">@deliveryDate.ToShortDateString()</td>
+									}
+								}
+								else
+								{
+									<td style="text-align:start">-</td>
+								}
+								<td style="text-align:center">@order.Currency</td>
+								<td class="text-right">@order.OrderValue.ToString("0.00")</td>
+								<td>
+									@if (order.OrderStatusId == 10)
+									{
+										<span class="@GetStatusClass(order.OrderStatusId)">@localizer["Status_Approved"]</span>
+									}
+									@if (order.OrderStatusId == 20)
+									{
+										<span class="@GetStatusClass(order.OrderStatusId)">@localizer["Status_Ordered"]</span>
+									}
+									@if (order.OrderStatusId == 40)
+									{
+										<span class="@GetStatusClass(order.OrderStatusId)">@localizer["Status_PartiallyDelivered"]</span>
+									}
+									@if (order.OrderStatusId == 70)
+									{
+										<span class="@GetStatusClass(order.OrderStatusId)">@localizer["Status_Delivered"]</span>
+									}
+									@if (order.OrderStatusId == 90)
+									{
+										<span class="@GetStatusClass(order.OrderStatusId)">@localizer["Status_Cancelled"]</span>
+									}
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script>
+	var localizedData = {
+		'statusApproved': '@localizer["Status_Approved"]',
+		'statusOrdered': '@localizer["Status_Ordered"]',
+		'statusPartiallyDelivered': '@localizer["Status_PartiallyDelivered"]',
+		'statusDelivered': '@localizer["Status_Delivered"]',
+		'statusCancelled': '@localizer["Status_Cancelled"]'
+	};
+</script>
+<script type="text/javascript" src="~/js/purchaseorders.filters.js"></script>

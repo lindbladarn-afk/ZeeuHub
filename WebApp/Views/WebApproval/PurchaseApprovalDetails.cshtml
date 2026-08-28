@@ -1,0 +1,409 @@
+﻿@model Entities.ViewModels.WebApproval.WebApprovalPurchaseOrderVM
+
+@using Entities.Application
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.Services
+@using Microsoft.AspNetCore.Http
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+  ViewData["Title"] = localizer["PageName"];
+  var currentUser = HttpContextAccessor.HttpContext.Session.Get<UserSession>("UserObject");
+  var orderRows = (Model?.OrderRows ?? Enumerable.Empty<Entities.ViewModels.WebApproval.WebApprovalPurchaseOrderRowVM>()).ToList();
+  var approvalHandled = Model?.ApprovalStatus == 1 || Model?.ApprovalStatus == 2;
+  var approvalStatusLabel = Model?.ApprovalStatus == 1
+    ? sharedLocalizer["Status_Approved"]
+    : Model?.ApprovalStatus == 2
+      ? sharedLocalizer["Status_Rejected"]
+      : sharedLocalizer["Status_NotApproved"];
+}
+
+@section Scripts{
+	<script>
+		function printDiv(divName) {
+			var printContents = document.getElementById(divName).innerHTML;
+			var originalContents = document.body.innerHTML;
+
+			document.body.innerHTML = printContents;
+
+			window.print();
+
+			document.body.innerHTML = originalContents;
+		}
+	</script>
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<style>
+		.webapproval-detail-page .approval-shell {
+			border-radius: 18px;
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			overflow: hidden;
+		}
+
+		.webapproval-detail-page .approval-shell .card {
+			border: 1px solid rgba(148, 163, 184, 0.14);
+			border-radius: 14px;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-meta-label {
+			font-size: 0.72rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: rgba(148, 163, 184, 0.88);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-meta-value {
+			font-size: 1.02rem;
+			font-weight: 600;
+			color: #e5e7eb;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-meta-note {
+			font-size: 0.92rem;
+			color: rgba(226, 232, 240, 0.75);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-table thead th {
+			font-size: 0.74rem;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+			border-top: 0;
+			border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+			color: rgba(203, 213, 225, 0.88);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-table tbody td {
+			border-top: 1px solid rgba(148, 163, 184, 0.12);
+			vertical-align: middle;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-table.table-hover {
+			--bs-table-bg: transparent;
+			--bs-table-accent-bg: transparent;
+			--bs-table-hover-bg: transparent;
+			--bs-table-hover-color: inherit;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-table.table-hover > tbody > tr:hover > * {
+			color: inherit !important;
+			background-color: transparent !important;
+			--bs-table-accent-bg: transparent;
+			box-shadow: inset 0 1px 0 rgba(96, 165, 250, 0.36), inset 0 -1px 0 rgba(96, 165, 250, 0.36);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-table .row-number {
+			font-size: 0.82rem;
+			font-weight: 700;
+			color: rgba(148, 163, 184, 0.95);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-row-article {
+			font-weight: 600;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-row-subtitle {
+			font-size: 0.86rem;
+			color: rgba(226, 232, 240, 0.8);
+		}
+
+		.webapproval-detail-page .approval-shell .approval-total-card {
+			min-height: 100%;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-total-amount {
+			font-size: 1.9rem;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-message {
+			min-height: 3rem;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+		}
+
+		.webapproval-detail-page .approval-shell .approval-actions .btn {
+			min-width: 9rem;
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell {
+			border-color: rgba(15, 23, 42, 0.08);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .card {
+			border-color: rgba(15, 23, 42, 0.08);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-meta-label {
+			color: rgba(71, 85, 105, 0.82);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-meta-value,
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-row-subtitle {
+			color: #334155;
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-table thead th {
+			color: #64748b;
+			border-bottom-color: rgba(148, 163, 184, 0.28);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-table tbody td {
+			border-top-color: rgba(148, 163, 184, 0.16);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-table.table-hover > tbody > tr:hover > * {
+			box-shadow: inset 0 1px 0 rgba(56, 189, 248, 0.24), inset 0 -1px 0 rgba(56, 189, 248, 0.24);
+		}
+
+		body:not(.theme-dark) .webapproval-detail-page .approval-shell .approval-row-number {
+			color: #64748b;
+		}
+
+		@@media (max-width: 991.98px) {
+			.webapproval-detail-page .approval-shell .approval-actions .btn {
+				width: 100%;
+			}
+		}
+	</style>
+}
+
+
+<div class="dashboard-readable module-page webapproval-detail-page">
+	<div class="module-page-header hidden-print">
+		<div>
+			<div class="dashboard-card-title">WEB APPROVAL</div>
+			<h1 class="module-page-title">@localizer["PageName"]</h1>
+			<div class="module-page-subtitle">@localizer["PageSubHeader"]</div>
+			<div class="module-page-meta">@Model?.SupplierName · @localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+		</div>
+		<div class="d-flex gap-2 flex-wrap justify-content-end">
+			<a asp-action="PurchaseApproval" class="btn btn-portal btn-portal-outline btn-sm">Till attestlista</a>
+			<a href="javascript:;" onclick="printDiv('approval-print-area')" class="btn btn-portal btn-portal-outline btn-sm"><i class="fa fa-print me-1"></i>Print</a>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	@using (Html.BeginForm())
+	{
+		@Html.AntiForgeryToken()
+		@Html.HiddenFor(u => u.Id)
+		<input type="hidden" asp-for="SupplierName" />
+		<input type="hidden" asp-for="SupplierNumber" />
+		<input type="hidden" asp-for="Purchaser" />
+		<input type="hidden" asp-for="AttestantPersSign" />
+		<input type="hidden" asp-for="AttestantName" />
+		<input type="hidden" asp-for="IsActive" />
+		<input type="hidden" asp-for="OrderNumber" />
+		<input type="hidden" asp-for="OrderRegisteredDate" />
+		<input type="hidden" asp-for="OrderEstimatedDeliveryDate" />
+		<input type="hidden" asp-for="Currency" />
+		<input type="hidden" asp-for="OrderValueLocal" />
+		<input type="hidden" asp-for="OrderValue" />
+		<input type="hidden" asp-for="EditExternal" />
+		<input type="hidden" asp-for="ApprovalStatus" />
+		<input type="hidden" asp-for="ApprovedBy" />
+		<input type="hidden" asp-for="ApprovedDate" />
+
+		<div id="approval-print-area" class="approval-shell card kpi-card p-3 p-lg-4">
+			<div class="row g-3 mb-3">
+				<div class="col-12 col-xl-4">
+					<div class="card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_From"]</div>
+							<div class="approval-meta-value mt-1">@Model?.SupplierName</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_SupplierNumber"] @Model?.SupplierNumber</div>
+							<div class="approval-meta-note">@localizer["Header_OrderNumber"] @Model?.OrderNumber</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-xl-4">
+					<div class="card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_To"]</div>
+							<div class="approval-meta-value mt-1">@currentUser?.CompanyName</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_Purchaser"] @Model?.Purchaser</div>
+							<div class="approval-meta-note">@localizer["Header_Approver"] @Model?.AttestantName</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-xl-4">
+					<div class="card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_OrderDetails"]</div>
+							<div class="approval-meta-value mt-1">@approvalStatusLabel</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_RegistrationDate"] @Model?.OrderRegisteredDate.ToString("yyyy-MM-dd")</div>
+							<div class="approval-meta-note">@localizer["Header_DeliveryDate"] @Model?.OrderEstimatedDeliveryDate.ToString("yyyy-MM-dd")</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+						<div>
+							<div class="dashboard-card-title">@localizer["PageName"]</div>
+							<div class="text-muted">Orderraderna visar vad som ingår i attestunderlaget.</div>
+						</div>
+						@if (Model?.ApprovalStatus == 1)
+						{
+							<span class="badge bg-green">@sharedLocalizer["Status_Approved"]</span>
+						}
+						else if (Model?.ApprovalStatus == 2)
+						{
+							<span class="badge bg-danger">@sharedLocalizer["Status_Rejected"]</span>
+						}
+						else
+						{
+							<span class="badge bg-silver-700">@sharedLocalizer["Status_NotApproved"]</span>
+						}
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-hover align-middle mb-0 approval-table">
+							<thead>
+								<tr>
+									<th class="text-center" style="width: 8%">@localizer["Header_Row"]</th>
+									<th>@localizer["Header_Article"]</th>
+									<th class="text-end" style="width: 10%">@localizer["Header_Quantity"]</th>
+									<th class="text-end" style="width: 14%">@localizer["Header_Price"]</th>
+									<th class="text-end" style="width: 14%">@localizer["Header_DeliveryDay"]</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (!orderRows.Any())
+								{
+									<tr>
+										<td colspan="5" class="text-muted py-4">@sharedLocalizer["Error_FailedToFindAnyRows"]</td>
+									</tr>
+								}
+								else
+								{
+								@for (int i = 0; i < orderRows.Count; i++)
+									{
+										<tr>
+											<td class="text-center row-number">
+												@orderRows[i].OrderRowNumber
+												<input type="hidden" asp-for="OrderRows[i].OrderRowNumber" />
+											</td>
+											<td>
+												<div class="approval-row-article">@orderRows[i].ArticleNumber</div>
+												<div class="approval-row-subtitle">@orderRows[i].ArticleDescription</div>
+												<input type="hidden" asp-for="OrderRows[i].ArticleNumber" />
+												<input type="hidden" asp-for="OrderRows[i].ArticleDescription" />
+											</td>
+											<td class="text-end">
+												@orderRows[i].Quantity.ToString("N2")
+												<input type="hidden" asp-for="OrderRows[i].Quantity" />
+											</td>
+											<td class="text-end">
+												@orderRows[i].Price.ToString("N2")
+												<input type="hidden" asp-for="OrderRows[i].Price" />
+											</td>
+											<td class="text-end">
+												@orderRows[i].DeliveryDate.ToString("yyyy-MM-dd")
+												<input type="hidden" asp-for="OrderRows[i].DeliveryDate" />
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="row g-3 mb-3">
+				<div class="col-12 col-lg-5">
+					<div class="card approval-total-card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">@localizer["Header_OrderValue"] (@Model?.Currency)</div>
+							<div class="approval-total-amount mt-2">@Model?.OrderValueLocal.ToString("N2")</div>
+							<div class="approval-meta-note mt-2">@localizer["Header_OrderValueLocal"] @Model?.OrderValue.ToString("N2")</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-lg-7">
+					<div class="card h-100">
+						<div class="card-body">
+							<div class="approval-meta-label">Beslutsunderlag</div>
+							<div class="approval-meta-value mt-1">@localizer["Approve_Question"]</div>
+							<div class="approval-meta-note mt-2">
+								@if (!string.IsNullOrWhiteSpace(Model?.EditExternal))
+								{
+									@Html.DisplayFor(u => u.EditExternal)
+								}
+								else
+								{
+									@("Lämna ett kort meddelande om du vill förtydliga beslutet.")
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card">
+				<div class="card-body">
+					@if (approvalHandled)
+					{
+						<div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+							<div>
+								<div class="dashboard-card-title mb-1">@localizer["Approve_IsHandled"]</div>
+								<div class="text-muted">
+									@if (!string.IsNullOrWhiteSpace(Model?.ApprovedBy))
+									{
+										<span>@Model?.ApprovedBy</span>
+									}
+									@if (Model?.ApprovedDate is not null)
+									{
+										<span> · @Model?.ApprovedDate?.ToString("yyyy-MM-dd")</span>
+									}
+								</div>
+							</div>
+							<span class="badge @(Model?.ApprovalStatus == 1 ? "bg-green" : "bg-danger")">@approvalStatusLabel</span>
+						</div>
+					}
+					else
+					{
+						<div class="d-flex flex-column gap-3">
+							<div>
+								<div class="dashboard-card-title mb-1">@localizer["Approve_Question"]</div>
+								<div class="text-muted">@localizer["Approve_Message"]</div>
+							</div>
+
+							<div>
+								<label asp-for="Message" class="form-label mb-1">@localizer["Approve_Message"]</label>
+								@Html.TextBoxFor(u => u.Message, new { @class = "form-control approval-message", placeholder = "Skriv ett meddelande till nästa steg..." })
+							</div>
+
+							<div class="approval-actions">
+								<button name="action" type="submit" class="btn btn-portal" value="1">
+									<i class="fa fa-check me-1"></i>@sharedLocalizer["Approve"]
+								</button>
+								<button name="action" type="submit" class="btn btn-portal-danger-outline" value="2">
+									<i class="fa fa-times me-1"></i>@sharedLocalizer["Reject"]
+								</button>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+</div>

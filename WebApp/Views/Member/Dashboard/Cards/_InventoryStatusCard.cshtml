@@ -1,0 +1,101 @@
+@* Renders the inventory signal snapshot for the information-driven dashboard layout. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.InventoryStatusCardViewModel ?? new();
+    var signals = card.Signals.ToList();
+    var topSignals = signals.Take(3).ToList();
+    var nearestSignal = signals
+        .OrderBy(x => x.DueAt ?? DateTime.MaxValue)
+        .ThenByDescending(x => x.Priority)
+        .FirstOrDefault();
+
+    string PriorityTone(WebApp.Models.ActionCenter.ActionCenterPriority priority) => priority switch
+    {
+        WebApp.Models.ActionCenter.ActionCenterPriority.High => "bg-danger-subtle text-danger",
+        WebApp.Models.ActionCenter.ActionCenterPriority.Medium => "bg-warning-subtle text-warning",
+        WebApp.Models.ActionCenter.ActionCenterPriority.Low => "bg-primary-subtle text-primary",
+        _ => "bg-secondary-subtle text-secondary"
+    };
+}
+
+<div class="card kpi-card p-2 dashboard-info-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+            <h5 class="dashboard-card-title m-0">Lagerstatus</h5>
+            <div class="dashboard-card-subtitle">Signalbaserad överblick av lagerrelaterade varningar</div>
+        </div>
+        <a asp-controller="NotifyMe" asp-action="NotifyMe" class="btn btn-portal btn-portal-outline btn-sm dashboard-card-action-btn flex-shrink-0">
+            Öppna
+        </a>
+    </div>
+
+    <div class="dashboard-info-summary-grid dashboard-info-summary-grid--2">
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Signaler</div>
+            <div class="dashboard-info-summary-value">@card.TotalSignals</div>
+            <div class="dashboard-info-summary-meta">lagerrelaterade träffar</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Hög prio</div>
+            <div class="dashboard-info-summary-value">@card.HighPriorityCount</div>
+            <div class="dashboard-info-summary-meta">kräver snabb koll</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Varningar</div>
+            <div class="dashboard-info-summary-value">@card.WarningCount</div>
+            <div class="dashboard-info-summary-meta">medium och hög prioritet</div>
+        </div>
+        <div class="dashboard-info-summary-card">
+            <div class="dashboard-info-summary-label">Källa</div>
+            <div class="dashboard-info-summary-value">Action Center</div>
+            <div class="dashboard-info-summary-meta">lagerrelaterade insikter</div>
+        </div>
+    </div>
+
+    <div class="dashboard-info-status-strip dashboard-info-status-strip--warning">
+        <span class="dashboard-info-status-strip__label">Närmaste signal</span>
+        <span class="dashboard-info-status-strip__value">
+            @(nearestSignal?.Title ?? "Inga lagerrelaterade signaler")
+        </span>
+        <span class="dashboard-info-status-strip__meta">
+            @(nearestSignal is not null
+                ? $"{nearestSignal.Priority} · {(nearestSignal.DueAt?.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture) ?? "-")}"
+                : "Det finns inget att prioritera just nu")
+        </span>
+    </div>
+
+    @if (topSignals.Count > 0)
+    {
+        <div class="dashboard-info-list list-group list-group-flush bg-transparent">
+            @foreach (var signal in topSignals)
+            {
+                <div class="list-group-item bg-transparent border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-truncate">@signal.Title</div>
+                            <div class="small dashboard-info-muted text-truncate">@signal.Description</div>
+                        </div>
+                        <span class="badge rounded-pill @PriorityTone(signal.Priority)">
+                            @signal.Priority
+                        </span>
+                    </div>
+                    <div class="small dashboard-info-muted mt-1">
+                        @signal.Category · @(signal.DueAt?.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture) ?? "-")
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-empty-state">
+            <div class="dashboard-empty-icon">
+                <i class="fa fa-boxes-stacked"></i>
+            </div>
+            <div class="dashboard-empty-title">Ingen lagerstatus att visa</div>
+            <div class="dashboard-empty-subtitle">@(!string.IsNullOrWhiteSpace(card.StatusMessage) ? card.StatusMessage : "Visa den här vyn när det finns lagerrelaterade signaler i Action Center eller NotifyMe.")</div>
+        </div>
+    }
+</div>

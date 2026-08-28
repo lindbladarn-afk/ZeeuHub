@@ -1,0 +1,79 @@
+@model WebApp.ViewModels.Admin.AiQuotaRevenueOverviewVm
+@{
+    // Compact AI revenue overview used on the admin AI quota page.
+    // Reuses shared admin card primitives so finance KPIs and top-company list align with the rest of the admin module.
+    var companies = Model.Companies.ToList();
+    var totalBillable = Math.Max(0.0001m, Model.TotalBillableSekCurrentPeriod);
+}
+
+<div class="card kpi-card p-3 admin-ai-revenue-card">
+    <div class="admin-kpi-label">AI kvotstyrning</div>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+        <h3 class="admin-section-title mb-0">Intäkter AI-betalläge</h3>
+        <div class="admin-row-meta">Aktuell period</div>
+    </div>
+
+    <div class="admin-ai-revenue-kpi-grid mb-3">
+        <div class="admin-ai-revenue-kpi">
+            <div class="admin-ai-revenue-kpi-label">Debiterbart belopp (period)</div>
+            <div class="admin-ai-revenue-kpi-value">@Model.TotalBillableSekCurrentPeriod.ToString("N2") kr</div>
+        </div>
+        <div class="admin-ai-revenue-kpi">
+            <div class="admin-ai-revenue-kpi-label">Bruttovinst (period)</div>
+            <div class="admin-ai-revenue-kpi-value">@Model.ServiceMarginSekCurrentPeriod.ToString("N2") kr</div>
+        </div>
+        <div class="admin-ai-revenue-kpi">
+            <div class="admin-ai-revenue-kpi-label">Bolag i betalläge</div>
+            <div class="admin-ai-revenue-kpi-value">@Model.PaidModeCompaniesCount</div>
+        </div>
+        <div class="admin-ai-revenue-kpi">
+            <div class="admin-ai-revenue-kpi-label">Bolag pausade</div>
+            <div class="admin-ai-revenue-kpi-value">@Model.BlockedModeCompaniesCount</div>
+        </div>
+        <div class="admin-ai-revenue-kpi">
+            <div class="admin-ai-revenue-kpi-label">Debiterbara extra tokens</div>
+            <div class="admin-ai-revenue-kpi-value">@Model.TotalPaidExtraTokensCurrentPeriod</div>
+        </div>
+    </div>
+
+    <div class="admin-ai-revenue-shell">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="admin-ai-revenue-note">Topplista per bolag (debiterbart)</div>
+            <div class="admin-ai-revenue-note">Aktuell period</div>
+        </div>
+
+        @if (companies.Any())
+        {
+            @* Topplistan hålls tabellbaserad så ekonomi/admin snabbt kan jämföra bolag, andel och debiterbart belopp. *@
+            <div class="table-responsive">
+                <table class="admin-ai-revenue-table">
+                    <thead>
+                        <tr>
+                            <th class="admin-ai-revenue-rank">#</th>
+                            <th>Bolag</th>
+                            <th class="text-end">Debiterbart belopp</th>
+                            <th class="admin-ai-revenue-share">Andel av total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < companies.Count; i++)
+                        {
+                            var company = companies[i];
+                            var share = Math.Clamp((company.BillableSekCurrentPeriod / totalBillable) * 100m, 0m, 100m);
+                            <tr>
+                                <td class="admin-ai-revenue-rank">@(i + 1)</td>
+                                <td class="text-truncate" title="@company.CompanyName">@company.CompanyName</td>
+                                <td class="text-end admin-metric-support-value">@company.BillableSekCurrentPeriod.ToString("N2") kr</td>
+                                <td class="admin-ai-revenue-share">@share.ToString("N1")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="admin-empty-copy">Ingen debiterbar intäkt ännu i aktuell period.</div>
+        }
+    </div>
+</div>

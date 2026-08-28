@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Administrera bolag" xml:space="preserve">
+    <value>Manage company</value>
+  </data>
+  <data name="Grundläggande information" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Anslutningssträngar" xml:space="preserve">
+    <value>Connection strings</value>
+  </data>
+  <data name="Åtkomst" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Namn" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Konfiguration hanteras server-side. Här visas miljö och maskerad connection string." xml:space="preserve">
+    <value>Configuration is handled server-side. Environment and masked connection string are shown here.</value>
+  </data>
+  <data name="Miljö" xml:space="preserve">
+    <value>Environment</value>
+  </data>
+  <data name="Modulåtkomst" xml:space="preserve">
+    <value>Module access</value>
+  </data>
+  <data name="Toggla submoduler för detta bolag" xml:space="preserve">
+    <value>Toggle submodules for this company</value>
+  </data>
+  <data name="Spara" xml:space="preserve">
+    <value>Save</value>
+  </data>
+</root>

@@ -1,0 +1,130 @@
+# Lokal compose-override för Windows-utveckling.
+services:
+  jeevesdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: jeevesdb
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env before starting Docker Compose.}
+    ports:
+      - "11433:1433"
+    volumes:
+      - ./JeevesDatabase/DatabaseFiles:/var/opt/mssql/data
+      - ./JeevesDatabase/DatabaseBackup:/usr/databasebackupfile
+  
+  webapp:
+    depends_on:
+      - jeevesdb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/webapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_HTTPS_PASSWORD}
+      - DP_KEYS_PATH=/keys
+
+      - CONNECTION_STRING_PORTAL_IDENTITY=${PORTAL_IDENTITY_CONNECTION_STRING:-Server=jeevesdb;Database=CustomerPortal;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+
+      - CONNECTION_STRING_23B49FAC914541A9AFF9603DA0598490=${ZEEU_CONNECTION_STRING_DEVELOPMENT}
+      - CONNECTION_STRING_6E8B8325029A4A2BB3FC4FD45F653C33=${ZEEU_CONNECTION_STRING_PRODUCTION}
+      - CONNECTION_STRING_B1985E29EB004CC0902768AAE3521FB2=Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true
+      - CONNECTION_STRING_51A1CBA5858A4276AC5FD247A0461E41=${ZEEU_CONNECTION_STRING_LOCALDEVELOPMENT:-Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+      - CONNECTION_STRING_JEEVES=${ZEEU_CONNECTION_STRING_LOCALDEVELOPMENT:-Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+      - CONNECTION_STRING_3E2A3D0156E34A4BB50379A0DFF7A3C5=Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+
+      - FEATURE_INVOICES_USE_MOCK=false
+      - SEED_MENU=${SEED_MENU:-true}
+
+      - Akeneo__BaseUrl=${AKENEO_BASE_URL}
+      - Akeneo__ClientId=${AKENEO_CLIENT_ID}
+      - Akeneo__ClientSecret=${AKENEO_CLIENT_SECRET}
+      - Akeneo__Username=${AKENEO_USERNAME}
+      - Akeneo__Password=${AKENEO_PASSWORD}
+      - Akeneo__PageSize=${AKENEO_PAGE_SIZE:-100}
+      - Akeneo__Enabled=${AKENEO_ENABLED:-false}
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ${USERPROFILE}/.aspnet/DataProtection-Keys:/keys
+  
+  webapp-dev:
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile.dev
+    container_name: webapp-dev
+    depends_on:
+      - jeevesdb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTPS_PORT=
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=
+      - URLS=http://0.0.0.0:8080
+      - DP_KEYS_PATH=/keys
+
+      - CONNECTION_STRING_PORTAL_IDENTITY=${PORTAL_IDENTITY_CONNECTION_STRING:-Server=jeevesdb;Database=CustomerPortal;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+      - CONNECTION_STRING_23B49FAC914541A9AFF9603DA0598490=${ZEEU_CONNECTION_STRING_DEVELOPMENT}
+      - CONNECTION_STRING_6E8B8325029A4A2BB3FC4FD45F653C33=${ZEEU_CONNECTION_STRING_PRODUCTION}
+      - CONNECTION_STRING_B1985E29EB004CC0902768AAE3521FB2=Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true
+      - CONNECTION_STRING_51A1CBA5858A4276AC5FD247A0461E41=${ZEEU_CONNECTION_STRING_LOCALDEVELOPMENT:-Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+      - CONNECTION_STRING_JEEVES=${ZEEU_CONNECTION_STRING_LOCALDEVELOPMENT:-Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+      - CONNECTION_STRING_3E2A3D0156E34A4BB50379A0DFF7A3C5=Server=jeevesdb;Database=Jeeves6;User=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true}
+
+      - DOTNET_WATCH_SUPPRESS_EMOJIS=1
+      - Ai__DataSources__0__Key=tenant
+      - Ai__DataSources__0__Name=Jeeves6 (tenant)
+      - Ai__DataSources__0__IsTenantConnection=true
+      - Ai__DataSources__0__IsDefault=false
+
+      - OpenAI__Endpoint=${OPENAI_ENDPOINT}
+      - OpenAI__ApiKey=${OPENAI_API_KEY}
+      - OpenAI__Deployment=${OPENAI_DEPLOYMENT:-gpt-4.1}
+      - OpenAI__ApiVersion=${OPENAI_API_VERSION:-2024-10-21}
+
+      - FEATURE_INVOICES_USE_MOCK=false
+      - SEED_MENU=${SEED_MENU:-true}
+
+      - Integration__Companies__0__CompanyId=${INTEGRATION_COMPANY_ID}
+      - Integration__Companies__0__JeevesCompanyCode=${INTEGRATION_JEEVES_COMPANY_CODE}
+      - Integration__Companies__0__Enabled=true
+      - Integration__Companies__0__Sources__0__Source=Jeeves
+      - Integration__Companies__0__Sources__0__BaseUrl=${INTEGRATION_JEEVES_BASE_URL}
+      - Integration__Companies__0__Sources__0__Token=${INTEGRATION_JEEVES_TOKEN}
+      - Integration__Companies__0__Sources__0__Enabled=${INTEGRATION_JEEVES_ENABLED:-false}
+      - Integration__Companies__0__Sources__0__AuthUrl=${INTEGRATION_JEEVES_AUTH_URL}
+      - Integration__Companies__0__Sources__0__AppId=${INTEGRATION_JEEVES_APP_ID}
+      - Integration__Companies__0__Sources__0__AppSecret=${INTEGRATION_JEEVES_APP_SECRET}
+
+      - Integration__Companies__0__Sources__1__Source=Centra
+      - Integration__Companies__0__Sources__1__BaseUrl=${INTEGRATION_CENTRA_BASE_URL}
+      - Integration__Companies__0__Sources__1__Token=${INTEGRATION_CENTRA_TOKEN}
+      - Integration__Companies__0__Sources__1__Enabled=${INTEGRATION_CENTRA_ENABLED:-false}
+
+      - Integration__Companies__0__Sources__2__Source=Ongoing
+      - Integration__Companies__0__Sources__2__BaseUrl=${INTEGRATION_ONGOING_BASE_URL}
+      - Integration__Companies__0__Sources__2__Username=${INTEGRATION_ONGOING_USERNAME}
+      - Integration__Companies__0__Sources__2__Password=${INTEGRATION_ONGOING_PASSWORD}
+      - Integration__Companies__0__Sources__2__GoodsOwnerId=${INTEGRATION_ONGOING_GOODS_OWNER_ID}
+      - Integration__Companies__0__Sources__2__Enabled=${INTEGRATION_ONGOING_ENABLED:-false}
+
+      - Akeneo__BaseUrl=${AKENEO_BASE_URL}
+      - Akeneo__ClientId=${AKENEO_CLIENT_ID}
+      - Akeneo__ClientSecret=${AKENEO_CLIENT_SECRET}
+      - Akeneo__Username=${AKENEO_USERNAME}
+      - Akeneo__Password=${AKENEO_PASSWORD}
+      - Akeneo__PageSize=${AKENEO_PAGE_SIZE:-100}
+      - Akeneo__Enabled=${AKENEO_ENABLED:-false}
+    ports:
+      - "5080:8080"
+    volumes:
+      - .:/src
+      - ${USERPROFILE}/.aspnet/DataProtection-Keys:/keys
+    working_dir: /src
+    command: >
+      sh -lc "dotnet restore WebApp/WebApp.csproj --disable-parallel &&
+      dotnet watch --project WebApp/WebApp.csproj run
+      --no-restore
+      --no-launch-profile
+      --urls=http://0.0.0.0:8080"

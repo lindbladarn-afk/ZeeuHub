@@ -1,0 +1,228 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@model Entities.Dto.WebApprovalPriceListDto;
+
+@inject IViewLocalizer localizer
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    // Price list approval detail keeps the row-level approve/reject controls intact.
+    // Only the outer page shell is modernized so the Web Approval module reads consistently across list and detail views.
+    ViewData["Title"] = @localizer["PageHeader"];
+    var priceRows = Model?.Rows?.ToList() ?? new();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/webapproval.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page webapproval-detail-page webapproval-module">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Web Approval</div>
+            <h1 class="module-page-title">@localizer["PageHeader"]</h1>
+            <div class="module-page-subtitle">@localizer["PageSubHeader"]</div>
+            <div class="module-page-meta">@Model?.PriceListDescription · @localizer["Header_PriceListNumber"] @Model?.PriceListId</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="PriceListApproval" class="btn btn-portal btn-portal-outline btn-sm">Till attestlista</a>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Alert")
+
+<form asp-controller="WebApproval" asp-action="ApprovePriceList">
+	<div class="approval-shell card kpi-card p-3 p-lg-4">
+		<input type="hidden" asp-for="@Model.CompanyCode" readonly />
+		<input type="hidden" asp-for="@Model.PriceListId" readonly />
+		<input type="hidden" asp-for="@Model.PriceListDescription" readonly />
+		<input type="hidden" asp-for="@Model.Currency" readonly />
+		<input type="hidden" asp-for="@Model.ValidFrom" readonly />
+		<input type="hidden" asp-for="@Model.ValidTo" readonly />
+
+		<div class="row g-3 mb-3">
+			<div class="col-12 col-xl-6">
+				<div class="card kpi-card h-100">
+					<div class="card-body">
+						<div class="approval-meta-label">@localizer["Header_PriceList"]</div>
+						<div class="approval-meta-value mt-1">@localizer["Header_PriceListNumber"] @Model?.PriceListId</div>
+						<div class="approval-meta-note mt-2">@Html.DisplayFor(model => model.PriceListDescription)</div>
+						<div class="approval-meta-note">@Html.DisplayFor(model => model.Currency)</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-xl-6">
+				<div class="card kpi-card h-100">
+					<div class="card-body">
+						<div class="approval-meta-label">@localizer["Header_PriceListDetails"]</div>
+						<div class="approval-meta-value mt-1">@localizer["Header_PriceListValidFrom"] @Model?.ValidFrom?.ToString("d")</div>
+						<div class="approval-meta-note mt-2">@localizer["Header_PriceListValidTo"] @Model?.ValidTo?.ToString("d")</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="card kpi-card mb-3">
+			<div class="card-body">
+				<div class="dashboard-card-title mb-2">@localizer["PageHeader"]</div>
+				<div class="table-responsive">
+					<table class="table table-hover align-middle approval-table" id="articleRows">
+						<thead>
+							<tr>
+								<th>@localizer["RowHeader_ArticleNumber"]</th>
+								<th>@localizer["RowHeader_ArticleDescription"]</th>
+								<th>@localizer["RowHeader_LowLimit"]</th>
+								<th>@localizer["RowHeader_UnitOfMeasure"]</th>
+								<th class="text-end">@localizer["RowHeader_OldPrice"]</th>
+								<th class="text-end">@localizer["RowHeader_NewPrice"]</th>
+								<th class="text-end">@localizer["RowHeader_Discount"]</th>
+								<th>@localizer["RowHeader_PriceValidFrom"]</th>
+								<th>@localizer["RowHeader_RowMessage"]</th>
+								<th class="text-end">@localizer["RowHeader_Action"]</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (priceRows.Count == 0)
+							{
+								<tr><td colspan="10" class="text-muted py-4">@localizer["Error_FailedToFindAnyRows"]</td></tr>
+							}
+							else
+							{
+								for (int i = 0; i < priceRows.Count; i++)
+								{
+									<tr>
+										<input type="hidden" asp-for="@Model.Rows[i].Id" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].ForetagKod" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].ApprovalStatus" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].PriceListId" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].UnitOfMeasure" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].AttestantPersSign" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].ApprovedBy" readonly />
+										<input type="hidden" asp-for="@Model.Rows[i].ApprovedDate" readonly />
+										<td style="width:6%">
+											@Model.Rows[i].ArticleNumber
+										</td>
+										<td style="width:20%">
+											<div class="approval-row-article">@Model.Rows[i].ArticleDescription</div>
+											<input type="hidden" asp-for="@Model.Rows[i].ArticleNumber" readonly />
+											<input type="hidden" asp-for="@Model.Rows[i].ArticleDescription" readonly />
+										</td>
+										<td class="text-end" style="width:6%">
+											@Model.Rows[i].LowLimit.ToString()
+											<input type="hidden" asp-for="@Model.Rows[i].LowLimit" readonly />
+										</td>
+										<td style="width:6%">
+											@Model.Rows[i].UnitOfMeasure
+										</td>
+										<td class="text-end" style="width:6%">
+											@Model.Rows[i].Price?.ToString("#,##0.00")
+											<input type="hidden" asp-for="@Model.Rows[i].Price" readonly />
+										</td>
+										<td class="text-end" style="width:6%">
+											@Model.Rows[i].NewPrice?.ToString("#,##0.00")
+											<input type="hidden" asp-for="@Model.Rows[i].NewPrice" readonly />
+										</td>
+										<td class="text-end" style="width:6%">
+											@Model.Rows[i].Discount1?.ToString("#,##0.00")
+											<input type="hidden" asp-for="@Model.Rows[i].Discount" readonly />
+										</td>
+										<td style="width:10%">
+											@Model.Rows[i].NewPriceDate?.ToString("d")
+											<input type="hidden" asp-for="@Model.Rows[i].NewPriceDate" readonly />
+										</td>
+										<td style="width:20%">
+											@if (Model.Rows[i].ApprovalStatus == 3 || Model.Rows[i].ApprovalStatus == 0)
+											{
+												<input type="text" class="form-control form-control-sm" asp-for="@Model.Rows[i].Message" />
+											}
+										</td>
+										<td style="width:15%" class="text-end" data-id="@Model.Rows[i].Id">
+											@if (Model.Rows[i].ApprovalStatus == 3 || Model.Rows[i].ApprovalStatus == 0)
+											{
+												<div class="form-check form-check-inline">
+													<input class="form-check-input approve" type="checkbox" asp-for="@Model.Rows[i].IsApproved" />
+													<label class="form-check-label">@localizer["Approve"]</label>
+												</div>
+												<div class="form-check form-check-inline">
+													<input class="form-check-input reject" type="checkbox" asp-for="@Model.Rows[i].IsRejected" />
+													<label class="form-check-label">@localizer["Reject"]</label>
+												</div>
+											}
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="card kpi-card">
+			<div class="card-body">
+				<div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+					<div>
+						<div class="dashboard-card-title mb-1">@localizer["Approve_Question"]</div>
+						<div class="text-muted">@localizer["Approve_Message"]</div>
+					</div>
+					<div class="d-flex flex-wrap align-items-center gap-3">
+						@if (priceRows.Any(x => x.ApprovalStatus == 3))
+						{
+							<div class="form-check">
+								<input class="form-check-input approve" type="checkbox" id="checkAllApprove" />
+								<label class="form-check-label" for="checkAllApprove">@localizer["ApproveAll"]</label>
+							</div>
+						}
+						@if (priceRows.Any(x => x.ApprovalStatus == 3))
+						{
+							<input type="submit" class="btn btn-portal" id="btnSubmit" value="@localizer["Submit"]">
+						}
+						else
+						{
+							<input type="submit" class="btn btn-portal" id="btnSubmit" value="@localizer["Submit"]" disabled="disabled">
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	document.addEventListener('DOMContentLoaded', function () {
+		var approveCheckboxes = document.querySelectorAll('.approve');
+		var rejectCheckboxes = document.querySelectorAll('.reject');
+		var checkAllApprove = document.getElementById('checkAllApprove');
+
+		approveCheckboxes.forEach(function (approveCheckbox) {
+			approveCheckbox.addEventListener('change', function () {
+				if (this.checked) {
+					this.closest('td').querySelector('.reject').checked = false;
+				}
+			});
+		});
+
+		rejectCheckboxes.forEach(function (rejectCheckbox) {
+			rejectCheckbox.addEventListener('change', function () {
+				if (this.checked) {
+					this.closest('td').querySelector('.approve').checked = false;
+				}
+			});
+		});
+
+		if (checkAllApprove) {
+			checkAllApprove.addEventListener('change', function () {
+				var isChecked = this.checked;
+				approveCheckboxes.forEach(function (approveCheckbox) {
+					approveCheckbox.checked = checkAllApprove.checked;
+					if (isChecked) {
+						approveCheckbox.closest('td').querySelector('.reject').checked = false;
+					}
+				});
+			});
+		}
+	});
+</script>
+</div>

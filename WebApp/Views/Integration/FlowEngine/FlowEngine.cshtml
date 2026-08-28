@@ -1,0 +1,2296 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@model WebApp.Models.Integration.FlowEngineModuleViewModel
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+@{
+    var activeSection = WebApp.Models.Integration.FlowEngineSectionKeys.Normalize(Model.ActiveSection);
+    var isDashboard = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Dashboard;
+    var isJeeves = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves;
+    var isCentra = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Centra;
+    var isShopify = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Shopify;
+    var isAkeneo = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo;
+    var isJobs = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Jobs;
+    var isConfig = activeSection == WebApp.Models.Integration.FlowEngineSectionKeys.Config;
+    var pageTitle = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => "Jeeves",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => "Centra",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => "Shopify",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => "Akeneo",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jobs => "Jobbhistorik",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Config => "Konfiguration",
+        _ => "Dashboard"
+    };
+    ViewData["Title"] = pageTitle;
+    var pageSubtitle = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => "Jeeves-lasningar, import order och artikelkontroller inne i portalens FlowEngine.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => "Centra-lasningar, batcher, returer och shipment-floden som nu kor native i portalen.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => "Shopify fetch, validate, send och fulfillment samlat under samma FlowEngine-arbetsyta.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => "Akeneo-export och Akeneo till Shopify-floden samlat i portalens integrationsyta.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jobs => "Senaste korningar, output och jobbdetaljer for portalens FlowEngine.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Config => "Validering av runtime och integrationskonfiguration for portalens native FlowEngine.",
+        _ => Model.Subtitle
+    };
+    var pageSummary = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => "Detta ar Jeeves-delen av FlowEngine och visar bara de operationer som hor hit.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => "Detta ar Centra-delen av FlowEngine och visar bara Centra-relaterade floden.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => "Detta ar Shopify-delen av FlowEngine och visar bara Shopify-relaterade floden.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => "Detta ar Akeneo-delen av FlowEngine och visar bara Akeneo-relaterade floden.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jobs => "Jobbhistoriken ligger kvar i samma modul men visas som egen driftvy.",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Config => "Konfiguration och preflight visas separat sa driftkontroller inte blandas med operativa floden.",
+        _ => Model.Summary
+    };
+    var selectedJobAction = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => "FlowEngineJeeves",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => "FlowEngineCentra",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => "FlowEngineShopify",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => "FlowEngineAkeneo",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jobs => "FlowEngineJobs",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Config => "FlowEngineConfig",
+        _ => "FlowEngine"
+    };
+    var historyTotalCount = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => Model.JeevesHistory.TotalCount,
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => Model.CentraHistory.TotalCount,
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => Model.ShopifyHistory.TotalCount,
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => Model.AkeneoHistory.TotalCount,
+        _ => Model.DashboardHistory.TotalCount
+    };
+    var latestJobLocal = Model.RecentJobs.FirstOrDefault()?.CreatedAtUtc.ToLocalTime();
+    var headerMeta = latestJobLocal.HasValue
+        ? $"Updated {latestJobLocal.Value:dd MMM yyyy HH:mm:ss} • {Math.Max(historyTotalCount, 1)} jobb i historik"
+        : string.Empty;
+    var defaultGlobalTestMode = true;
+    var defaultGlobalDryRun = isCentra
+        ? Model.Forms.SendOrders.DryRun
+        : isShopify
+            ? Model.Forms.ShopifySendOrders.DryRun || Model.Forms.CompleteOrders.DryRun || Model.Forms.CompleteOrder.DryRun
+            : isJeeves
+                ? Model.Forms.ImportOrder.DryRun
+                : false;
+    var defaultGlobalSkipJeevesCheck = isCentra
+        ? Model.Forms.SendOrders.SkipJeevesCheck
+        : isShopify
+            ? Model.Forms.ShopifySendOrders.SkipJeevesCheck
+            : false;
+    var defaultGlobalUseLimit = true;
+    var defaultGlobalLimit = Model.Forms.CheckOrders.Limit
+        ?? Model.Forms.SendOrders.Limit
+        ?? Model.Forms.CreateShipments.Limit
+        ?? Model.Forms.ShopifySendOrders.Limit
+        ?? Model.Forms.CompleteOrders.Limit
+        ?? Model.Forms.ShopifyGetProducts.Limit
+        ?? Model.Forms.AkeneoAllProducts.Limit
+        ?? 10;
+    var selectedCentraJob = Model.CentraHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+    var selectedShopifyJob = Model.ShopifyHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+    var selectedJeevesJob = Model.JeevesHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+    var selectedAkeneoJob = Model.AkeneoHistory.Jobs.FirstOrDefault(job => Model.SelectedJob?.Id == job.Id);
+    var workbenchSettings = Model.WorkbenchSettings ?? new WebApp.Models.Integration.FlowEngineWorkbenchSettingsState();
+    var hasActiveJobs = Model.RecentJobs.Any(job => job.Status == WebApp.Models.Integration.FlowEngineJobStatus.Queued || job.Status == WebApp.Models.Integration.FlowEngineJobStatus.Running)
+        || Model.SelectedJob?.Status is WebApp.Models.Integration.FlowEngineJobStatus.Queued or WebApp.Models.Integration.FlowEngineJobStatus.Running;
+    var historyCardId = activeSection switch
+    {
+        WebApp.Models.Integration.FlowEngineSectionKeys.Jeeves => "flowengine-jeeves-history",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Centra => "flowengine-centra-history",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Shopify => "flowengine-shopify-history",
+        WebApp.Models.Integration.FlowEngineSectionKeys.Akeneo => "flowengine-akeneo-history",
+        _ => "flowengine-dashboard-history"
+    };
+    var currentPageUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var initialSnapshotVersionParts = new List<string>
+    {
+        activeSection,
+        $"active:{Model.RecentJobs.Count(job => job.Status == WebApp.Models.Integration.FlowEngineJobStatus.Queued || job.Status == WebApp.Models.Integration.FlowEngineJobStatus.Running)}"
+    };
+
+    if (Model.SelectedJob is not null)
+    {
+        initialSnapshotVersionParts.Add(
+            $"selected:{Model.SelectedJob.Id:N}:{Model.SelectedJob.Status}:{Model.SelectedJob.CreatedAtUtc.UtcTicks}:{Model.SelectedJob.StartedAtUtc?.UtcTicks}:{Model.SelectedJob.FinishedAtUtc?.UtcTicks}:{Model.SelectedJob.ErrorMessage}");
+    }
+
+    foreach (var job in Model.RecentJobs.Take(8))
+    {
+        initialSnapshotVersionParts.Add(
+            $"{job.Id:N}:{job.Status}:{job.CreatedAtUtc.UtcTicks}:{job.StartedAtUtc?.UtcTicks}:{job.FinishedAtUtc?.UtcTicks}:{job.ErrorMessage}");
+    }
+
+    var initialSnapshotVersion = string.Join("|", initialSnapshotVersionParts);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page flowengine-page flowengine-page--@activeSection"
+     id="flowengine-section-dashboard"
+     data-flowengine-page="true"
+     data-flowengine-section="@activeSection"
+     data-flowengine-selected-job-id="@(Model.SelectedJob?.Id.ToString("N") ?? string.Empty)"
+     data-flowengine-live-url="@Url.Action(nameof(WebApp.Controllers.IntegrationController.FlowEngineStatusSnapshot), "Integration", new { section = activeSection, selectedJobId = Model.SelectedJob?.Id })"
+     data-flowengine-refresh-url="@currentPageUrl"
+     data-flowengine-history-card-id="@historyCardId"
+     data-flowengine-initial-version="@initialSnapshotVersion"
+     data-flowengine-has-active-jobs="@(hasActiveJobs ? "true" : "false")">
+    @await Html.PartialAsync("_Alert")
+    <div id="flowengine-modal-host"></div>
+    <div hidden aria-hidden="true" data-fe-workbench-token>
+        @Html.AntiForgeryToken()
+    </div>
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Integration</div>
+        </div>
+        <a asp-controller="Member" asp-action="Index" class="btn btn-sm btn-portal btn-portal-outline">
+            <i class="fa fa-arrow-left me-1"></i> Till dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 flowengine-surface-card flowengine-workbench-header-card mb-4">
+        <div class="card-body flowengine-workbench-header">
+            <div class="flowengine-workbench-copy">
+                <h1 class="flowengine-workbench-title">@pageTitle</h1>
+                <div class="flowengine-workbench-pills"
+                     data-fe-health-pills
+                     data-fe-health-section="@activeSection"
+                     data-fe-health-dashboard="@(isDashboard.ToString().ToLowerInvariant())">
+                    <span class="flowengine-health-pill flowengine-health-pill--loading" data-fe-health-loading>Checking status...</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(headerMeta))
+                {
+                    <div class="flowengine-workbench-meta">@headerMeta</div>
+                }
+            </div>
+
+            <div class="flowengine-workbench-tools">
+                <div class="flowengine-workbench-date">@DateTimeOffset.Now.ToString("dddd, d MMM yyyy • HH:mm")</div>
+                <div class="flowengine-workbench-actions">
+                    <span class="flowengine-chip flowengine-chip--warning" data-fe-indicator="test" hidden>
+                        <span class="flowengine-chip-dot"></span>
+                        TEST
+                    </span>
+                    <span class="flowengine-chip flowengine-chip--muted" data-fe-indicator="dryrun" hidden>
+                        <span class="flowengine-chip-dot"></span>
+                        DRY RUN
+                    </span>
+                    <span class="flowengine-chip flowengine-chip--limit" data-fe-indicator="limit" hidden>
+                        <span>LIMIT</span>
+                        <span data-fe-indicator-value="limit">@defaultGlobalLimit</span>
+                    </span>
+
+                    <div class="flowengine-popover-anchor">
+                        <button type="button" class="flowengine-chip flowengine-chip--button" data-fe-toggle="global-flags">
+                            <span class="flowengine-chip-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.28c.149.05.296.107.44.17l1.15-.7a1.125 1.125 0 0 1 1.353.135l1.833 1.833c.39.39.444.997.136 1.353l-.7 1.15c.063.144.12.291.17.44l1.28.213c.542.09.94.56.94 1.11v2.593c0 .55-.398 1.02-.94 1.11l-1.28.213a5.97 5.97 0 0 1-.17.44l.7 1.15c.308.506.254 1.113-.136 1.503l-1.833 1.833a1.125 1.125 0 0 1-1.353.135l-1.15-.7a5.97 5.97 0 0 1-.44.17l-.213 1.28a1.125 1.125 0 0 1-1.11.94h-2.593a1.125 1.125 0 0 1-1.11-.94l-.213-1.28a5.97 5.97 0 0 1-.44-.17l-1.15.7a1.125 1.125 0 0 1-1.353-.135L3.69 18.31a1.125 1.125 0 0 1-.135-1.353l.7-1.15a5.97 5.97 0 0 1-.17-.44l-1.28-.213a1.125 1.125 0 0 1-.94-1.11v-2.593c0-.55.398-1.02.94-1.11l1.28-.213c.05-.149.107-.296.17-.44l-.7-1.15a1.125 1.125 0 0 1 .135-1.353L5.523 4.535a1.125 1.125 0 0 1 1.353-.135l1.15.7c.144-.063.291-.12.44-.17l.213-1.28Z" />
+                                    <path d="M12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z" />
+                                </svg>
+                            </span>
+                            <span>Global Flags</span>
+                            <span class="flowengine-chip-count" data-fe-flag-count hidden></span>
+                        </button>
+
+                        <div class="flowengine-popover flowengine-flags-popover" data-fe-popover="global-flags" hidden>
+                            <div class="flowengine-popover-title">Global Flags</div>
+                            <label class="flowengine-toggle-row">
+                                <span>Test mode</span>
+                                <span class="flowengine-switch">
+                                    <input type="checkbox" data-fe-flag="testMode" />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <label class="flowengine-toggle-row">
+                                <span>Dry run</span>
+                                <span class="flowengine-switch">
+                                    <input type="checkbox" data-fe-flag="dryRun" />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <label class="flowengine-toggle-row">
+                                <span>Debug HTTP</span>
+                                <span class="flowengine-switch">
+                                    <input type="checkbox" data-fe-flag="debugHttp" />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <label class="flowengine-toggle-row">
+                                <span>Skip Jeeves check</span>
+                                <span class="flowengine-switch">
+                                    <input type="checkbox" data-fe-flag="skipJeevesCheck" />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <label class="flowengine-toggle-row">
+                                <span>Use limit</span>
+                                <span class="flowengine-switch">
+                                    <input type="checkbox" data-fe-flag="useLimit" />
+                                    <span class="flowengine-switch-slider"></span>
+                                </span>
+                            </label>
+                            <div class="flowengine-limit-row">
+                                <div class="flowengine-limit-meta">
+                                    <span>Limit: <span data-fe-limit-label>@defaultGlobalLimit</span></span>
+                                    <span>1-500</span>
+                                </div>
+                                <input type="range" min="1" max="500" value="@defaultGlobalLimit" data-fe-limit-slider />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isDashboard)
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                         model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                         {
+                             CardId = "flowengine-dashboard-history",
+                             Title = "Execution History",
+                             Subtitle = "All systems (session only)",
+                             EmptyMessage = "Inga FlowEngine-jobb har körts i den här portalmiljön än.",
+                             SelectedJobAction = selectedJobAction,
+                             Fragment = "flowengine-dashboard-history",
+                             ShowSystemColumn = true,
+                             EnableFilters = true,
+                             ShowDetail = true,
+                             Jobs = Model.DashboardHistory.Jobs,
+                             SelectedJob = Model.SelectedJob,
+                             CurrentPage = Model.DashboardHistory.CurrentPage,
+                             TotalPages = Model.DashboardHistory.TotalPages,
+                             TotalCount = Model.DashboardHistory.TotalCount,
+                             PageSize = Model.DashboardHistory.PageSize,
+                             Filters = Model.DashboardHistory.Filters,
+                             AvailableSystems = Model.DashboardHistory.AvailableSystems,
+                             AvailableOperations = Model.DashboardHistory.AvailableOperations,
+                             AvailableStatuses = Model.DashboardHistory.AvailableStatuses
+                         }' />
+            </div>
+        </div>
+    }
+
+    @if (Model.CanRunReadOperations)
+    {
+        @if (isCentra)
+        {
+            <partial name="FlowEngine/Partials/_FlowEngineCentraSection" model="Model" />
+        }
+
+        @if (isShopify)
+        {
+            <partial name="FlowEngine/Partials/_FlowEngineShopifySection" model="Model" />
+        }
+
+        @if (isAkeneo)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 flowengine-surface-card flowengine-akeneo-console" id="flowengine-section-akeneo">
+                        <div class="card-body">
+                            <div class="flowengine-akeneo-console-header">
+                                <div>
+                                    <div class="dashboard-card-title mb-2">Akeneo</div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <form method="post" class="flowengine-akeneo-card">
+                                    @Html.AntiForgeryToken()
+                                    <div class="flowengine-akeneo-console-title">Export products to Jeeves</div>
+                                    <div class="module-page-meta mb-3">Export Akeneo products for Jeeves import</div>
+                                    <label class="form-label text-muted small">SKU:er</label>
+                                    <input name="Skus" value="@Model.Forms.AkeneoProducts.Skus" class="form-control mb-3" placeholder="Comma or space separated" />
+                                    <div class="flowengine-akeneo-console-actions">
+                                        <button type="submit" formaction="@Url.Action("FlowEngineRunAkeneoProducts", "Integration")" class="btn btn-portal btn-portal-outline">@sharedLocalizer["FlowEngine_GetProducts"]</button>
+                                        <button type="submit" formaction="@Url.Action("FlowEngineRunAkeneoAllProducts", "Integration")" class="btn btn-portal btn-portal-outline">@sharedLocalizer["FlowEngine_GetAllProducts"]</button>
+                                    </div>
+                                </form>
+
+                                <div class="flowengine-akeneo-card">
+                                    <div class="flowengine-akeneo-console-grid">
+                                        <form method="post" class="flowengine-akeneo-console-panel">
+                                            @Html.AntiForgeryToken()
+                                            <div class="flowengine-akeneo-console-title">@sharedLocalizer["FlowEngine_SendToShopify"]</div>
+                                            <div class="module-page-meta mb-3">Dry-run policy diff only (no Shopify writes)</div>
+                                            <label class="form-label text-muted small">SKU (optional)</label>
+                                            <input name="Sku" value="@Model.Forms.AkeneoSendToShopify.Sku" class="form-control mb-3" placeholder="e.g. 16679" />
+                                            <div class="flowengine-akeneo-console-actions">
+                                                <button type="submit" formaction="@Url.Action("FlowEngineRunAkeneoSendToShopify", "Integration")" class="btn btn-portal btn-portal-outline">@sharedLocalizer["FlowEngine_SendToShopify"]</button>
+                                            </div>
+                                            <div class="module-page-meta small mt-3">Enable the global Dry run flag to run this operation.</div>
+                                        </form>
+
+                                        <div class="flowengine-akeneo-console-panel">
+                                            <form method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="flowengine-akeneo-console-title">@sharedLocalizer["FlowEngine_SendToCentra"]</div>
+                                                <div class="module-page-meta mb-3">Dry-run XML handoff for the Centra flow</div>
+                                                <label class="form-label text-muted small">SKU (optional)</label>
+                                                <input name="Sku" value="@Model.Forms.AkeneoSendToCentra.Sku" class="form-control mb-3" placeholder="e.g. 16679" />
+                                                <div class="flowengine-akeneo-console-actions">
+                                                    <button type="submit" formaction="@Url.Action("FlowEngineRunAkeneoSendToCentra", "Integration")" class="btn btn-portal btn-portal-outline">@sharedLocalizer["FlowEngine_SendToCentra"]</button>
+                                                </div>
+                                                <div class="module-page-meta small mt-3">Runs as dry run and stores the generated Centra handoff XML in job history.</div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                             model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                             {
+                                 CardId = "flowengine-akeneo-history",
+                                 Title = "Execution History",
+                                 Subtitle = "Akeneo-körningar i den här portalmiljön.",
+                                 EmptyMessage = "Inga Akeneo-jobb har körts i den här portalmiljön än.",
+                                 SelectedJobAction = selectedJobAction,
+                                 Fragment = "flowengine-akeneo-history",
+                                 ShowSystemColumn = false,
+                                 EnableFilters = false,
+                                 ShowDetail = true,
+                                 Jobs = Model.AkeneoHistory.Jobs,
+                                 SelectedJob = selectedAkeneoJob,
+                                 CurrentPage = Model.AkeneoHistory.CurrentPage,
+                                 TotalPages = Model.AkeneoHistory.TotalPages,
+                                 TotalCount = Model.AkeneoHistory.TotalCount,
+                                 PageSize = Model.AkeneoHistory.PageSize
+                             }' />
+                </div>
+            </div>
+        }
+
+        @if (isJeeves)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 flowengine-surface-card flowengine-jeeves-console" id="flowengine-section-jeeves">
+                        <div class="card-body">
+                            <div class="flowengine-jeeves-import-console">
+                                <form method="post" asp-action="FlowEngineRunImportOrder" enctype="multipart/form-data">
+                                    @Html.AntiForgeryToken()
+                                    @{
+                                        var importLineRows = (Model.Forms.ImportOrder.Lines ?? string.Empty)
+                                            .Replace("\r", string.Empty, StringComparison.Ordinal)
+                                            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(line =>
+                                            {
+                                                var parts = line.Split(new[] { ';', '\t' }, StringSplitOptions.None);
+                                                return new
+                                                {
+                                                    Article = parts.ElementAtOrDefault(0)?.Trim() ?? string.Empty,
+                                                    Quantity = parts.ElementAtOrDefault(1)?.Trim() ?? string.Empty,
+                                                    Price = parts.ElementAtOrDefault(2)?.Trim() ?? string.Empty
+                                                };
+                                            })
+                                            .ToList();
+                                        const int importSheetRowCount = 15;
+                                        const int importSheetVisibleRowCount = 5;
+                                        var importSheetLineCount = importLineRows.Count(row => !string.IsNullOrWhiteSpace(row.Article));
+                                        decimal importSheetQuantityTotal = 0;
+                                        foreach (var importRow in importLineRows)
+                                        {
+                                            if (string.IsNullOrWhiteSpace(importRow.Quantity))
+                                            {
+                                                continue;
+                                            }
+
+                                            var normalizedQuantity = importRow.Quantity.Replace(',', '.');
+                                            if (decimal.TryParse(normalizedQuantity, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var parsedQuantity))
+                                            {
+                                                importSheetQuantityTotal += parsedQuantity;
+                                            }
+                                        }
+                                        var articleNumbersForStatus = string.Join(Environment.NewLine, importLineRows
+                                            .Select(row => row.Article)
+                                            .Where(article => !string.IsNullOrWhiteSpace(article)));
+                                        var importArtStatusLookup = Model.ImportArtStatusRows
+                                            .Where(row => !string.IsNullOrWhiteSpace(row.ArticleNumber))
+                                            .GroupBy(row => row.ArticleNumber.Trim(), StringComparer.OrdinalIgnoreCase)
+                                            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+                                        var importArtStatusMatchedCount = importLineRows
+                                            .Select(row => row.Article?.Trim())
+                                            .Where(article => !string.IsNullOrWhiteSpace(article))
+                                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                                            .Count(article => importArtStatusLookup.ContainsKey(article!));
+                                        var importArtStatusImportableCount = importArtStatusLookup.Values.Count(row => row.Importable);
+                                        var importArtStatusBlockedCount = importArtStatusLookup.Values.Count(row => !row.Importable);
+                                        var showImportDocumentReview =
+                                            !string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.FileName)
+                                            || !string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.ErrorMessage)
+                                            || Model.ImportDocumentReview?.Source is not null
+                                            || (Model.ImportDocumentReview?.Lines?.Count ?? 0) > 0;
+                                    }
+                                    <div class="flowengine-jeeves-console-title">@sharedLocalizer["FlowEngine_Jeeves_ImportOrder"]</div>
+                                    <textarea name="Lines" class="d-none" data-fe-import-lines>@Model.Forms.ImportOrder.Lines</textarea>
+                                    <input type="hidden" name="ArticleNumbers" value="@articleNumbersForStatus" data-fe-art-status-input />
+                                    <input type="file" name="ImportDocument" accept=".pdf,.doc,.docx,.xlsx,.csv,.tsv" class="d-none" data-fe-import-document-input />
+
+                                    <div class="flowengine-jeeves-import-grid">
+                                        <div>
+                                            <label class="form-label text-muted small">@sharedLocalizer["FlowEngine_Jeeves_CompanyId"]</label>
+                                            <select class="form-select" disabled>
+                                                <option>@(string.IsNullOrWhiteSpace(Model.RuntimeCompanyName) ? sharedLocalizer["FlowEngine_Jeeves_CompanyNotLoaded"] : $"{Model.RuntimeCompanyName} ({Model.RuntimeCompanyCode ?? 0})")</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="form-label text-muted small">@sharedLocalizer["FlowEngine_Jeeves_CustomerNumber"]</label>
+                                            <input name="CustomerNumber" value="@Model.Forms.ImportOrder.CustomerNumber" class="form-control" placeholder="@sharedLocalizer["FlowEngine_Jeeves_CustomerNumber_Placeholder"]" />
+                                        </div>
+                                        <div>
+                                            <label class="form-label text-muted small">@sharedLocalizer["FlowEngine_Jeeves_OrderType"]</label>
+                                            <input name="OrderType" type="number" min="1" value="@Model.Forms.ImportOrder.OrderType" class="form-control" />
+                                        </div>
+                                        <div>
+                                            <label class="form-label text-muted small">@sharedLocalizer["FlowEngine_Jeeves_DeliveryAddress"]</label>
+                                            @if (Model.ImportDeliveryAddressOptions.Count > 0)
+                                            {
+                                                <select name="DeliveryPlaceCode" class="form-select">
+                                                    <option value="">@sharedLocalizer["FlowEngine_Jeeves_SelectDeliveryAddress"]</option>
+                                                    @foreach (var option in Model.ImportDeliveryAddressOptions)
+                                                    {
+                                                        <option value="@option.Code" selected="@(string.Equals(option.Code, Model.Forms.ImportOrder.DeliveryPlaceCode, StringComparison.Ordinal) ? "selected" : null)">@option.Label</option>
+                                                    }
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select class="form-select" disabled>
+                                                    <option>@sharedLocalizer["FlowEngine_Jeeves_NoDeliveryAddressesLoaded"]</option>
+                                                </select>
+                                                <input type="hidden" name="DeliveryPlaceCode" value="@Model.Forms.ImportOrder.DeliveryPlaceCode" />
+                                            }
+                                        </div>
+                                        <div>
+                                            <label class="form-label text-muted small">@sharedLocalizer["FlowEngine_Jeeves_CustomerReference"]</label>
+                                            <input name="CustomerReference" value="@Model.Forms.ImportOrder.CustomerReference" class="form-control" placeholder="@sharedLocalizer["FlowEngine_Jeeves_CustomerReference_Placeholder"]" />
+                                        </div>
+                                        <div class="flowengine-jeeves-import-address-action">
+                                            <label class="form-label text-muted small">&nbsp;</label>
+                                            <button type="submit"
+                                                    formaction="@Url.Action("FlowEngineLoadDeliveryAddresses", "Integration")"
+                                                    class="btn btn-portal btn-portal-outline w-100">
+                                                @sharedLocalizer["FlowEngine_GetDeliveryAddress"]
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flowengine-jeeves-import-sheet">
+                                        <div class="flowengine-jeeves-import-sheet-header">
+                                            <div class="flowengine-jeeves-import-sheet-heading">
+                                                <span class="flowengine-jeeves-import-sheet-title">@sharedLocalizer["FlowEngine_Jeeves_OrderLines"]</span>
+                                                <span class="flowengine-jeeves-import-sheet-count">
+                                                    @sharedLocalizer["FlowEngine_Jeeves_RowsLabel"]: <span data-fe-sheet-row-count>@importSheetVisibleRowCount</span>
+                                                </span>
+                                            </div>
+                                            <label class="flowengine-jeeves-price-toggle" for="flowengine-jeeves-price-toggle">
+                                                <span>@sharedLocalizer["FlowEngine_Jeeves_AddPriceColumn"]</span>
+                                                <span class="flowengine-switch flowengine-switch--sm">
+                                                    <input id="flowengine-jeeves-price-toggle" type="checkbox" data-fe-price-toggle @(importLineRows.Any(row => !string.IsNullOrWhiteSpace(row.Price)) ? "checked" : null) />
+                                                    <span class="flowengine-switch-slider"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <div class="module-page-meta small flowengine-jeeves-import-sheet-help">@sharedLocalizer["FlowEngine_Jeeves_OrderLines_Help"]</div>
+
+                                        <div class="flowengine-jeeves-sheet-grid">
+                                            <div class="flowengine-jeeves-sheet-row flowengine-jeeves-sheet-row--header">
+                                                <div class="flowengine-jeeves-sheet-index">#</div>
+                                                <div>@sharedLocalizer["FlowEngine_Jeeves_ArticleOrEan"]</div>
+                                                <div>@sharedLocalizer["FlowEngine_Jeeves_Quantity"]</div>
+                                                <div>@sharedLocalizer["FlowEngine_Jeeves_ArtName"]</div>
+                                                <div>@sharedLocalizer["FlowEngine_Jeeves_ArtStatus"]</div>
+                                                <div class="flowengine-jeeves-sheet-price-column" data-fe-price-column-header>@sharedLocalizer["FlowEngine_Jeeves_Price"]</div>
+                                            </div>
+                                            @for (var index = 0; index < importSheetRowCount; index++)
+                                            {
+                                                var row = index < importLineRows.Count ? importLineRows[index] : null;
+                                                var rowArticleNumber = row?.Article?.Trim() ?? string.Empty;
+                                                var rowStatus = !string.IsNullOrWhiteSpace(rowArticleNumber) && importArtStatusLookup.TryGetValue(rowArticleNumber, out var matchedArtStatus)
+                                                    ? matchedArtStatus
+                                                    : null;
+                                                <div class="flowengine-jeeves-sheet-row" data-fe-sheet-row>
+                                                    <div class="flowengine-jeeves-sheet-index">@(index + 1)</div>
+                                                    <div>
+                                                        <input type="text"
+                                                               class="form-control flowengine-jeeves-sheet-input"
+                                                               value="@(row?.Article ?? string.Empty)"
+                                                               data-fe-sheet-field="article" />
+                                                    </div>
+                                                    <div>
+                                                        <input type="text"
+                                                               class="form-control flowengine-jeeves-sheet-input"
+                                                               value="@(row?.Quantity ?? string.Empty)"
+                                                               data-fe-sheet-field="quantity" />
+                                                    </div>
+                                                    <div>
+                                                        <input type="text"
+                                                               class="form-control flowengine-jeeves-sheet-input flowengine-jeeves-sheet-input--readonly"
+                                                               value="@(rowStatus?.Name ?? string.Empty)"
+                                                               readonly
+                                                               tabindex="-1"
+                                                               data-fe-sheet-field="art-name" />
+                                                    </div>
+                                                    <div>
+                                                        <input type="text"
+                                                               class="form-control flowengine-jeeves-sheet-input flowengine-jeeves-sheet-input--readonly"
+                                                               value="@(rowStatus?.StatusDescription ?? string.Empty)"
+                                                               readonly
+                                                               tabindex="-1"
+                                                               data-fe-sheet-field="art-status" />
+                                                    </div>
+                                                    <div class="flowengine-jeeves-sheet-price-column" data-fe-price-column-cell>
+                                                        <input type="text"
+                                                               class="form-control flowengine-jeeves-sheet-input"
+                                                               value="@(row?.Price ?? string.Empty)"
+                                                               data-fe-sheet-field="price" />
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="flowengine-jeeves-sheet-row flowengine-jeeves-sheet-row--footer">
+                                                <div class="flowengine-jeeves-sheet-index">Σ</div>
+                                                <div class="flowengine-jeeves-sheet-footer-label">@sharedLocalizer["FlowEngine_Jeeves_OrderLineCount"]: <span data-fe-sheet-line-count>@importSheetLineCount</span></div>
+                                                <div class="flowengine-jeeves-sheet-footer-value">@importSheetQuantityTotal.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)</div>
+                                                <div></div>
+                                                <div></div>
+                                                <div class="flowengine-jeeves-sheet-price-column" data-fe-price-column-cell></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flowengine-jeeves-import-toolbar">
+                                        <div class="flowengine-jeeves-console-actions">
+                                            <button type="button"
+                                                    class="btn btn-portal btn-portal-outline"
+                                                    data-fe-upload-order>
+                                                @sharedLocalizer["FlowEngine_UploadOrder"]
+                                            </button>
+                                            <button type="button" class="btn btn-portal btn-portal-outline" data-fe-clear-import-lines>
+                                                @sharedLocalizer["FlowEngine_ClearSheet"]
+                                            </button>
+                                        </div>
+                                        <div class="flowengine-jeeves-console-actions">
+                                            <button type="submit"
+                                                    formaction="@Url.Action("FlowEngineRunArtStatus", "Integration")"
+                                                    class="btn btn-portal btn-portal-outline">
+                                                @sharedLocalizer["FlowEngine_CheckArtStatus"]
+                                            </button>
+                                            <button type="submit" class="btn btn-portal btn-portal-outline">
+                                                @sharedLocalizer["FlowEngine_ImportOrder"]
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="submit"
+                                            formaction="@Url.Action("FlowEngineExtractImportDocument", "Integration")"
+                                            class="d-none"
+                                            tabindex="-1"
+                                            aria-hidden="true"
+                                            data-fe-extract-submit>
+                                        @sharedLocalizer["FlowEngine_ExtractPdf"]
+                                    </button>
+
+                                    <div class="module-page-meta small mt-3">@sharedLocalizer["FlowEngine_Jeeves_UploadHint"]</div>
+
+                                    @if (Model.ImportArtStatusRows.Count > 0)
+                                    {
+                                        <div class="flowengine-history-warning flowengine-history-warning--detail mt-3">
+                                            <i class="fa fa-circle-info"></i>
+                                            <span>Artikelstatus kontrollerad för @importArtStatusMatchedCount artikelnummer. OK: @importArtStatusImportableCount · Kräver åtgärd: @importArtStatusBlockedCount</span>
+                                        </div>
+                                    }
+
+                                    @if (showImportDocumentReview)
+                                    {
+                                        <div class="flowengine-review-surface mt-4">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                                <div class="dashboard-card-title mb-0">@sharedLocalizer["FlowEngine_Jeeves_DocumentReview"]</div>
+                                                @if (Model.ImportDocumentReview?.Source is not null)
+                                                {
+                                                    <span class="flowengine-readiness-pill flowengine-readiness-pill--progress">@Model.ImportDocumentReview.Source.Label</span>
+                                                }
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.FileName))
+                                            {
+                                                <div class="module-page-meta small mb-2">@sharedLocalizer["FlowEngine_Jeeves_File"]: @Model.ImportDocumentReview.FileName</div>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.ErrorMessage))
+                                            {
+                                                <div class="alert alert-danger py-2 px-3 mb-2">@Model.ImportDocumentReview.ErrorMessage</div>
+                                            }
+                                            @if (Model.ImportDocumentReview?.Source is not null)
+                                            {
+                                                <div class="module-page-meta small mb-3">@Model.ImportDocumentReview.Source.Detail</div>
+                                            }
+                                            @if (Model.ImportDocumentReview?.Lines?.Count > 0)
+                                            {
+                                                <div class="table-responsive flowengine-review-table-wrap">
+                                                    <table class="table table-sm mb-3 flowengine-review-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>@sharedLocalizer["FlowEngine_Jeeves_ArticleOrEan"]</th>
+                                                                <th>@sharedLocalizer["FlowEngine_Jeeves_Quantity"]</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (var index = 0; index < Model.ImportDocumentReview.Lines.Count; index++)
+                                                            {
+                                                                var line = Model.ImportDocumentReview.Lines[index];
+                                                                <tr>
+                                                                    <td>@(index + 1)</td>
+                                                                    <td>@line.ArticleNumber</td>
+                                                                    <td>@line.Quantity</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <button type="submit"
+                                                        formaction="@Url.Action("FlowEngineApplyImportDocument", "Integration")"
+                                                        class="btn btn-portal btn-portal-outline">
+                                                    @sharedLocalizer["FlowEngine_ApplyExtractedRows"]
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                             model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                             {
+                                 CardId = "flowengine-jeeves-history-active",
+                                 Title = "Execution History",
+                                 Subtitle = "Jeeves-körningar i den här portalmiljön.",
+                                 EmptyMessage = "Inga Jeeves-jobb har körts i den här portalmiljön än.",
+                                 SelectedJobAction = selectedJobAction,
+                                 Fragment = "flowengine-jeeves-history-active",
+                                 ShowSystemColumn = false,
+                                 EnableFilters = false,
+                                 ShowDetail = true,
+                                 Jobs = Model.JeevesHistory.Jobs,
+                                 SelectedJob = selectedJeevesJob,
+                                 CurrentPage = Model.JeevesHistory.CurrentPage,
+                                 TotalPages = Model.JeevesHistory.TotalPages,
+                                 TotalCount = Model.JeevesHistory.TotalCount,
+                                 PageSize = Model.JeevesHistory.PageSize
+                             }' />
+                </div>
+            </div>
+        }
+
+        @if (isDashboard)
+        {
+        <div class="row g-3 mb-4 flowengine-section-row flowengine-section-row--config flowengine-section-row--centra flowengine-section-row--jeeves">
+            <div class="col-lg-3 flowengine-section-target flowengine-section-card flowengine-section-card--config" id="flowengine-section-config">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">FlowEngine config validate</div>
+                        <div class="module-page-meta mb-3">Kontrollerar aktivt bolags native FlowEngine-config for Jeeves, Centra, Shopify och Akeneo och listar alla saknade falt i samma jobb.</div>
+                        <form method="post" asp-action="FlowEngineRunConfigValidate">
+                            @Html.AntiForgeryToken()
+                            <div class="module-page-meta small mb-3">Ingen input behovs. Resultatet visar valid/invalid och detaljer per integrationskalla.</div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-target flowengine-section-card flowengine-section-card--centra" id="flowengine-section-centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra check orders</div>
+                        <div class="module-page-meta mb-3">Kontrollerar en UTC-dag mot Jeeves och klassificerar found, missing, deleted och error.</div>
+                        <form method="post" asp-action="FlowEngineRunCheckOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.CheckOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CheckOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra create shipments</div>
+                        <div class="module-page-meta mb-3">Första native shipment-batchen. Gör Jeeves preflight, line planning och store-specifika Centra-steg för en UTC-dag.</div>
+                        <form method="post" asp-action="FlowEngineRunCreateShipments">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.CreateShipments.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CreateShipments.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra send order</div>
+                        <div class="module-page-meta mb-3">Enskild orderkörning som återanvänder samma validering, mapping och Jeeves-idempotens som batchspåret.</div>
+                        <form method="post" asp-action="FlowEngineRunSendOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order ID</label>
+                            <input name="OrderId" value="@Model.Forms.SendOrder.OrderId" class="form-control mb-3" placeholder="Ex. 1234567" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <input type="hidden" name="SkipJeevesCheck" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra send orders</div>
+                        <div class="module-page-meta mb-3">Forsta native batch-skrivflodet. Kor samma eligibility- och Jeeves-idempotensregler som originalet for en UTC-dag.</div>
+                        <form method="post" asp-action="FlowEngineRunSendOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.SendOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.SendOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <input type="hidden" name="SkipJeevesCheck" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-target flowengine-section-card flowengine-section-card--jeeves" id="flowengine-section-jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Get delivery address</div>
+                        <div class="module-page-meta mb-3">Hamta kundens leveransadresser direkt i portalen.</div>
+                        <form method="post" asp-action="FlowEngineRunCustomerAddresses">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Kundnummer</label>
+                            <input name="CustomerNumber" value="@Model.Forms.CustomerAddresses.CustomerNumber" class="form-control mb-3" placeholder="Ex. 100012" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Jeeves get orders</div>
+                        <div class="module-page-meta mb-3">Hamta orderdata via c_extordernr eller c_ordernr direkt i modulen.</div>
+                        <form method="post" asp-action="FlowEngineRunGetOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">c_foretagkod</label>
+                            <input name="CompanyCode" type="number" min="1" value="@Model.Forms.GetOrders.CompanyCode" class="form-control mb-3" placeholder="1 eller 5" />
+                            <label class="form-label text-muted small">Lookup-falt</label>
+                            <select name="LookupField" class="form-select mb-3">
+                                <option value="c_extordernr" selected="@(Model.Forms.GetOrders.LookupField != "c_ordernr" ? "selected" : null)">c_extordernr</option>
+                                <option value="c_ordernr" selected="@(Model.Forms.GetOrders.LookupField == "c_ordernr" ? "selected" : null)">c_ordernr</option>
+                            </select>
+                            <label class="form-label text-muted small">Lookup-varde</label>
+                            <input name="LookupValue" value="@Model.Forms.GetOrders.LookupValue" class="form-control mb-3" placeholder="Ex. 123456 eller EXT-123456" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4 flowengine-section-row flowengine-section-row--jeeves flowengine-section-row--centra flowengine-section-row--akeneo flowengine-section-row--shopify">
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Get product</div>
+                        <div class="module-page-meta mb-3">Slår upp en artikel och visar Jeeves-svaret i jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunProduct">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Artikelnummer / EAN</label>
+                            <input name="ArticleNumber" value="@Model.Forms.Product.ArticleNumber" class="form-control mb-3" placeholder="Ex. 12345" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Get art status</div>
+                        <div class="module-page-meta mb-3">Batchkontrollera flera artikelnummer. Separera med radbrytning, komma eller mellanslag.</div>
+                        <form method="post" asp-action="FlowEngineRunArtStatus">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Artikelnummer</label>
+                            <textarea name="ArticleNumbers" class="form-control flowengine-textarea mb-3" placeholder="12345&#10;67890">@Model.Forms.ArtStatus.ArticleNumbers</textarea>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Jeeves order exists</div>
+                        <div class="module-page-meta mb-3">Snabb kontroll om ett externt order-id redan finns i Jeeves.</div>
+                        <form method="post" asp-action="FlowEngineRunOrderExists">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order-id</label>
+                            <input name="OrderId" value="@Model.Forms.OrderExists.OrderId" class="form-control mb-3" placeholder="Ex. 123456" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra create shipments pending</div>
+                        <div class="module-page-meta mb-3">Pending-batch utan datumfilter. Hämtar CONFIRMED/PROCESSING, gör Jeeves-gate och kör samma shipment-workflow som datumbatchen.</div>
+                        <form method="post" asp-action="FlowEngineRunCreateShipmentsPending">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CreateShipmentsPending.Limit" class="form-control mb-3" placeholder="Tomt = alla pending" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra create shipment</div>
+                        <div class="module-page-meta mb-3">Enskild shipment-körning för ett Order ID. Kör samma Jeeves-gate, line planning och store-specifika workflow som batcharna.</div>
+                        <form method="post" asp-action="FlowEngineRunCreateShipment">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order ID</label>
+                            <input name="OrderId" value="@Model.Forms.CreateShipment.OrderId" class="form-control mb-3" placeholder="Ex. 1234567" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra send return</div>
+                        <div class="module-page-meta mb-3">Enskild returkörning som återanvänder samma validering, mapping och duplicate-handling som returbatchen.</div>
+                        <form method="post" asp-action="FlowEngineRunSendReturn">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Return ID</label>
+                            <input name="ReturnId" value="@Model.Forms.SendReturn.ReturnId" class="form-control mb-3" placeholder="Ex. 1234567" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra send returns</div>
+                        <div class="module-page-meta mb-3">Forsta native returbatchen. Validerar COMPLETED-returer och mappar negativa returrader samt avgiftsrader mot Jeeves.</div>
+                        <form method="post" asp-action="FlowEngineRunSendReturns">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.SendReturns.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.SendReturns.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra fetch order</div>
+                        <div class="module-page-meta mb-3">Hamtar en specifik Centra-order som raw GraphQL payload direkt i jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunCentraFetchOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order ID</label>
+                            <input name="OrderId" value="@Model.Forms.CentraFetchOrder.OrderId" class="form-control mb-3" placeholder="Ex. 1234567" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra fetch orders</div>
+                        <div class="module-page-meta mb-3">Datumstyrd eller ranged fetch av Centra-order med per-dag-output i samma jobbmodell.</div>
+                        <form method="post" asp-action="FlowEngineRunCentraFetchOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.CentraFetchOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.CentraFetchOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.CentraFetchOrders.UntilUtc" class="form-control mb-3" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineCentraFetchOrdersLatestDay" @(Model.Forms.CentraFetchOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCentraFetchOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineCentraFetchOrdersForceRange" @(Model.Forms.CentraFetchOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCentraFetchOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra fetch return</div>
+                        <div class="module-page-meta mb-3">Hamtar en specifik Centra-retur som raw GraphQL payload direkt i jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunCentraFetchReturn">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Return ID</label>
+                            <input name="ReturnId" value="@Model.Forms.CentraFetchReturn.ReturnId" class="form-control mb-3" placeholder="Ex. 1234567" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--centra">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Centra fetch returns</div>
+                        <div class="module-page-meta mb-3">Datumstyrd eller ranged fetch av Centra-returer med per-dag-output i samma jobbmodell.</div>
+                        <form method="post" asp-action="FlowEngineRunCentraFetchReturns">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.CentraFetchReturns.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.CentraFetchReturns.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.CentraFetchReturns.UntilUtc" class="form-control mb-3" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineCentraFetchReturnsLatestDay" @(Model.Forms.CentraFetchReturns.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCentraFetchReturnsLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineCentraFetchReturnsForceRange" @(Model.Forms.CentraFetchReturns.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCentraFetchReturnsForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-target flowengine-section-card flowengine-section-card--akeneo" id="flowengine-section-akeneo">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Akeneo export</div>
+                        <div class="module-page-meta mb-3">Exporterar valda SKU:er till samma XML-format som portalens befintliga Akeneo-export, men inne i FlowEngine-modulen.</div>
+                        <form method="post" asp-action="FlowEngineRunAkeneoProducts">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">SKU:er</label>
+                            <textarea name="Skus" rows="5" class="form-control mb-3" placeholder="SKU123, SKU456 eller en per rad">@Model.Forms.AkeneoProducts.Skus</textarea>
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.AkeneoProducts.Limit" class="form-control mb-3" placeholder="Tomt = 100" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--akeneo">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Akeneo all products</div>
+                        <div class="module-page-meta mb-3">Korar full Akeneo-export till XML via portalens egen Akeneo-klient och sparar resultatet i jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunAkeneoAllProducts">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.AkeneoAllProducts.Limit" class="form-control mb-3" placeholder="Tomt = 100" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--akeneo">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Akeneo send to Shopify</div>
+                        <div class="module-page-meta mb-3">Dry run-paritet med original-FlowEngine. Hamtar Akeneo-produkter, bygger onskat Shopify-utkast, slar upp aktuell Shopify-produkt via SKU och visar diff i jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunAkeneoSendToShopify">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">SKU (valfri)</label>
+                            <input name="Sku" value="@Model.Forms.AkeneoSendToShopify.Sku" class="form-control mb-3" placeholder="Tomt = hamta upp till limit fran Akeneo" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.AkeneoSendToShopify.Limit" class="form-control mb-3" placeholder="Tomt = 100" />
+                            <div class="module-page-meta small mb-3">Kors alltid som dry run i den har parityfasen.</div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-target flowengine-section-card flowengine-section-card--shopify" id="flowengine-section-shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify scopes-check</div>
+                        <div class="module-page-meta mb-3">Verifierar vilka Shopify-scope-kategorier som faktiskt ar korbara innan vi borjar med fetch, validate, send och complete.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyScopesCheck">
+                            @Html.AntiForgeryToken()
+                            <div class="module-page-meta small mb-3">Ingen input behovs. Resultatet visar granted scopes och kategoristatus.</div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify get-products</div>
+                        <div class="module-page-meta mb-3">Laser Shopify-produkter med fri query, updated-since och limit direkt i FlowEngine-jobbhistoriken.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyGetProducts">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Query</label>
+                            <input name="Query" value="@Model.Forms.ShopifyGetProducts.Query" class="form-control mb-3" placeholder="Ex. tag:sent-to-jeeves eller vendor:Holdit" />
+                            <label class="form-label text-muted small">Updated since</label>
+                            <input name="UpdatedSince" value="@Model.Forms.ShopifyGetProducts.UpdatedSince" class="form-control mb-3" placeholder="YYYY-MM-DD eller ISO-8601" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifyGetProducts.Limit" class="form-control mb-3" placeholder="Tomt = 100" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify fetch order</div>
+                        <div class="module-page-meta mb-3">Hamtar en full Shopify-order med kund, adresser och rader direkt i modulen.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyFetchOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order-id</label>
+                            <input name="OrderId" value="@Model.Forms.ShopifyFetchOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123456789 eller 123456789" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify fetch orders</div>
+                        <div class="module-page-meta mb-3">Datumstyrd eller ranged fetch av Shopify-order med samma 7-dagarsguard som originalet.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyFetchOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.ShopifyFetchOrders.UntilUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifyFetchOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineShopifyFetchOrdersLatestDay" @(Model.Forms.ShopifyFetchOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyFetchOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineShopifyFetchOrdersForceRange" @(Model.Forms.ShopifyFetchOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyFetchOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify validate order</div>
+                        <div class="module-page-meta mb-3">Korar originalets ordervalidering mot en enskild Shopify-order innan send eller complete.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyValidateOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order-id</label>
+                            <input name="OrderId" value="@Model.Forms.ShopifyValidateOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123456789 eller 123456789" />
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify validate orders</div>
+                        <div class="module-page-meta mb-3">Batchvalidering for en dag, latest-day eller ett UTC-intervall med typed decisions per order.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyValidateOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.ShopifyValidateOrders.UntilUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifyValidateOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineShopifyValidateOrdersLatestDay" @(Model.Forms.ShopifyValidateOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyValidateOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineShopifyValidateOrdersForceRange" @(Model.Forms.ShopifyValidateOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyValidateOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify check orders</div>
+                        <div class="module-page-meta mb-3">Jamfor Shopify-order mot Jeeves via externt ordernummer och markerar found, missing eller error.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifyCheckOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.ShopifyCheckOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.ShopifyCheckOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.ShopifyCheckOrders.UntilUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifyCheckOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineShopifyCheckOrdersLatestDay" @(Model.Forms.ShopifyCheckOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyCheckOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineShopifyCheckOrdersForceRange" @(Model.Forms.ShopifyCheckOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifyCheckOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify send order</div>
+                        <div class="module-page-meta mb-3">Validerar en enskild Shopify-order, mappar till Jeeves och kan dry-runas eller skickas skarpt.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifySendOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order-id</label>
+                            <input name="OrderId" value="@Model.Forms.ShopifySendOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123456789 eller 123456789" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="DryRun" value="true" id="FlowEngineShopifySendOrderDryRun" @(Model.Forms.ShopifySendOrder.DryRun ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrderDryRun">Dry run</label>
+                            </div>
+                            <input type="hidden" name="SkipJeevesCheck" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="SkipJeevesCheck" value="true" id="FlowEngineShopifySendOrderSkipJeeves" @(Model.Forms.ShopifySendOrder.SkipJeevesCheck ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrderSkipJeeves">Skip Jeeves check</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify send orders</div>
+                        <div class="module-page-meta mb-3">Batchsanding av Shopify-order for en dag, latest-day eller ett UTC-intervall med same exists-check som originalet.</div>
+                        <form method="post" asp-action="FlowEngineRunShopifySendOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.ShopifySendOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.ShopifySendOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.ShopifySendOrders.UntilUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.ShopifySendOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineShopifySendOrdersLatestDay" @(Model.Forms.ShopifySendOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineShopifySendOrdersForceRange" @(Model.Forms.ShopifySendOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <input type="hidden" name="DryRun" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="DryRun" value="true" id="FlowEngineShopifySendOrdersDryRun" @(Model.Forms.ShopifySendOrders.DryRun ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrdersDryRun">Dry run</label>
+                            </div>
+                            <input type="hidden" name="SkipJeevesCheck" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="SkipJeevesCheck" value="true" id="FlowEngineShopifySendOrdersSkipJeeves" @(Model.Forms.ShopifySendOrders.SkipJeevesCheck ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineShopifySendOrdersSkipJeeves">Skip Jeeves check</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify complete order</div>
+                        <div class="module-page-meta mb-3">Enskild Shopify-order via gid eller numeriskt order-id. Kor samma fulfillment-gate som batcherna men pa en specifik order.</div>
+                        <form method="post" asp-action="FlowEngineRunCompleteOrder">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Order-id</label>
+                            <input name="OrderId" value="@Model.Forms.CompleteOrder.OrderId" class="form-control mb-3" placeholder="gid://shopify/Order/123456789 eller 123456789" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="DryRun" value="true" id="FlowEngineCompleteOrderDryRun" @(Model.Forms.CompleteOrder.DryRun ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrderDryRun">Dry run</label>
+                            </div>
+                            <input type="hidden" name="CloseOrder" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="CloseOrder" value="true" id="FlowEngineCompleteOrderClose" @(Model.Forms.CompleteOrder.CloseOrder ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrderClose">Close order</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify complete orders</div>
+                        <div class="module-page-meta mb-3">Datumstyrd Shopify-batch som kan koras for en dag, latest-day eller ett UTC-intervall. Hamtar ordrar, verifierar Jeeves-status och skapar fulfillment med samma gate som pending-korningen.</div>
+                        <form method="post" asp-action="FlowEngineRunCompleteOrders">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Datum (UTC)</label>
+                            <input name="DateUtc" type="date" value="@Model.Forms.CompleteOrders.DateUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Since (UTC)</label>
+                            <input name="SinceUtc" type="date" value="@Model.Forms.CompleteOrders.SinceUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Until (UTC)</label>
+                            <input name="UntilUtc" type="date" value="@Model.Forms.CompleteOrders.UntilUtc" class="form-control mb-3" />
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CompleteOrders.Limit" class="form-control mb-3" placeholder="Tomt = alla" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="DryRun" value="true" id="FlowEngineCompleteOrdersDryRun" @(Model.Forms.CompleteOrders.DryRun ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersDryRun">Dry run</label>
+                            </div>
+                            <input type="hidden" name="UseLatestDay" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="UseLatestDay" value="true" id="FlowEngineCompleteOrdersLatestDay" @(Model.Forms.CompleteOrders.UseLatestDay ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersLatestDay">Latest day</label>
+                            </div>
+                            <input type="hidden" name="CloseOrder" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="CloseOrder" value="true" id="FlowEngineCompleteOrdersClose" @(Model.Forms.CompleteOrders.CloseOrder ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersClose">Close order</label>
+                            </div>
+                            <input type="hidden" name="ForceRange" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="ForceRange" value="true" id="FlowEngineCompleteOrdersForceRange" @(Model.Forms.CompleteOrders.ForceRange ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersForceRange">Force range &gt; 7 dagar</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 flowengine-section-card flowengine-section-card--shopify">
+                <div class="card shadow-sm border-0 flowengine-form-card h-100">
+                    <div class="card-body">
+                        <div class="dashboard-card-title mb-2">Shopify complete orders pending</div>
+                        <div class="module-page-meta mb-3">Pending-batch som letar Shopify-order skickade till Jeeves men inte markerade som Shipped, verifierar Jeeves-status och skapar fulfillment.</div>
+                        <form method="post" asp-action="FlowEngineRunCompleteOrdersPending">
+                            @Html.AntiForgeryToken()
+                            <label class="form-label text-muted small">Limit</label>
+                            <input name="Limit" type="number" min="1" value="@Model.Forms.CompleteOrdersPending.Limit" class="form-control mb-3" placeholder="Tomt = alla pending" />
+                            <input type="hidden" name="DryRun" value="false" />
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="DryRun" value="true" id="FlowEngineCompleteOrdersPendingDryRun" @(Model.Forms.CompleteOrdersPending.DryRun ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersPendingDryRun">Dry run</label>
+                            </div>
+                            <input type="hidden" name="CloseOrder" value="false" />
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="CloseOrder" value="true" id="FlowEngineCompleteOrdersPendingClose" @(Model.Forms.CompleteOrdersPending.CloseOrder ? "checked" : null) />
+                                <label class="form-check-label small" for="FlowEngineCompleteOrdersPendingClose">Close order</label>
+                            </div>
+                            <button type="submit" class="btn btn-portal btn-portal-outline w-100">Kor operation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 flowengine-section-card flowengine-section-card--jeeves">
+                <div class="card shadow-sm border-0 flowengine-form-card flowengine-import-order-card">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                            <div>
+                                <div class="dashboard-card-title mb-1">Import order</div>
+                                <div class="module-page-meta">Forsta native skrivflodet i portalen. Den har versionen validerar, normaliserar och kan antingen koras som dry run eller skicka ordern direkt till Jeeves.</div>
+                            </div>
+                            <span class="flowengine-readiness-pill flowengine-readiness-pill--progress">Foundation</span>
+                        </div>
+                        <form method="post" asp-action="FlowEngineRunImportOrder" enctype="multipart/form-data" class="flowengine-import-order-form">
+                            @Html.AntiForgeryToken()
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small">Kundnummer</label>
+                                    <div class="d-flex gap-2">
+                                        <input name="CustomerNumber" value="@Model.Forms.ImportOrder.CustomerNumber" class="form-control" placeholder="Ex. 100012" />
+                                        <button type="submit"
+                                                formaction="@Url.Action("FlowEngineLoadDeliveryAddresses", "Integration")"
+                                                class="btn btn-portal btn-portal-outline flex-shrink-0">
+                                            Hamta adresser
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small">Ordertyp</label>
+                                    <input name="OrderType" type="number" min="1" value="@Model.Forms.ImportOrder.OrderType" class="form-control" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small">Externt ordernummer</label>
+                                    <input name="ExternalOrderNumber" value="@Model.Forms.ImportOrder.ExternalOrderNumber" class="form-control" placeholder="Tomt = genereras som IMP-XXXXXXXXX" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted small">Kundreferens</label>
+                                    <input name="CustomerReference" value="@Model.Forms.ImportOrder.CustomerReference" class="form-control" placeholder="Fallbackar till externt ordernummer" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted small">Leveransplatskod</label>
+                                    @if (Model.ImportDeliveryAddressOptions.Count > 0)
+                                    {
+                                        <select name="DeliveryPlaceCode" class="form-select">
+                                            <option value="">Valj leveransadress</option>
+                                            @foreach (var option in Model.ImportDeliveryAddressOptions)
+                                            {
+                                                <option value="@option.Code" selected="@(string.Equals(option.Code, Model.Forms.ImportOrder.DeliveryPlaceCode, StringComparison.Ordinal) ? "selected" : null)">@option.Label</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input name="DeliveryPlaceCode" value="@Model.Forms.ImportOrder.DeliveryPlaceCode" class="form-control" placeholder="Valjs efter adresslookup" />
+                                    }
+                                    <div class="module-page-meta small mt-2">
+                                        @if (Model.ImportDeliveryAddressOptions.Count > 0 && Model.ImportAddressLookupContext is not null)
+                                        {
+                                            <text>@Model.ImportDeliveryAddressOptions.Count adress(er) laddade for kund @Model.ImportAddressLookupContext.CustomerNumber.</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Hamta leveransadresser efter att kundnummer angetts for att valja giltig leveransplatskod.</text>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label text-muted small">Orderrader</label>
+                                    <textarea name="Lines" class="form-control flowengine-textarea flowengine-textarea--large" placeholder="ART123;2;199,00&#10;7330985123450;1&#10;ART456	3	89.50">@Model.Forms.ImportOrder.Lines</textarea>
+                                    <div class="module-page-meta small mt-2">En rad per artikel. Kolumner kan separeras med `;` eller tab. Pris ar valfritt och decimaler med komma fungerar.</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted small">Extrahera PDF-order</label>
+                                    <input type="file" name="ImportDocument" accept=".pdf" class="form-control" />
+                                    <div class="module-page-meta small mt-2">Laddar upp en PDF till den deterministiska parsern. Okanda layouter stoppas uttryckligen i stallet for att gissas.</div>
+                                    <button type="submit"
+                                            formaction="@Url.Action("FlowEngineExtractImportDocument", "Integration")"
+                                            class="btn btn-portal btn-portal-outline w-100 mt-3">
+                                        Extrahera PDF
+                                    </button>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="flowengine-review-surface h-100">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                            <div class="dashboard-card-title mb-0">Dokumentgranskning</div>
+                                            @if (Model.ImportDocumentReview?.Source is not null)
+                                            {
+                                                <span class="flowengine-readiness-pill flowengine-readiness-pill--progress">@Model.ImportDocumentReview.Source.Label</span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.FileName))
+                                        {
+                                            <div class="module-page-meta small mb-2">Fil: @Model.ImportDocumentReview.FileName</div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.ErrorMessage))
+                                        {
+                                            <div class="alert alert-danger py-2 px-3 mb-2">@Model.ImportDocumentReview.ErrorMessage</div>
+                                        }
+                                        @if (Model.ImportDocumentReview?.Source is not null)
+                                        {
+                                            <div class="module-page-meta small mb-3">@Model.ImportDocumentReview.Source.Detail</div>
+                                        }
+                                        @if (Model.ImportDocumentReview?.Lines?.Count > 0)
+                                        {
+                                            <div class="table-responsive flowengine-review-table-wrap">
+                                                <table class="table table-sm mb-3 flowengine-review-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Artikel / EAN</th>
+                                                            <th>Antal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (var index = 0; index < Model.ImportDocumentReview.Lines.Count; index++)
+                                                        {
+                                                            var line = Model.ImportDocumentReview.Lines[index];
+                                                            <tr>
+                                                                <td>@(index + 1)</td>
+                                                                <td>@line.ArticleNumber</td>
+                                                                <td>@line.Quantity</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <button type="submit"
+                                                    formaction="@Url.Action("FlowEngineApplyImportDocument", "Integration")"
+                                                    class="btn btn-portal btn-portal-outline">
+                                                Anvand extraherade rader
+                                            </button>
+                                        }
+                                        else if (string.IsNullOrWhiteSpace(Model.ImportDocumentReview?.ErrorMessage))
+                                        {
+                                            <div class="module-page-meta small">Ingen PDF granskad an. Nar parsern hittar rader visas de har innan de laggs in i importtabellen.</div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <div class="form-check m-0">
+                                        <input class="form-check-input" type="checkbox" value="true" name="DryRun" id="flowengine-import-dryrun" @(Model.Forms.ImportOrder.DryRun ? "checked" : null) />
+                                        <label class="form-check-label small text-muted" for="flowengine-import-dryrun">
+                                            Dry run. Avmarkera for att skicka till Jeeves.
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-portal btn-portal-outline">Kor import order</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <partial name="FlowEngine/Partials/_FlowEngineHistoryPanel"
+                             model='new WebApp.Models.Integration.FlowEngineHistoryPanelViewModel
+                             {
+                                 CardId = "flowengine-jeeves-history",
+                                 Title = "Execution History",
+                                 Subtitle = "Jeeves-körningar i den här portalmiljön.",
+                                 EmptyMessage = "Inga Jeeves-jobb har körts i den här portalmiljön än.",
+                                 SelectedJobAction = selectedJobAction,
+                                 Fragment = "flowengine-jeeves-history",
+                                 ShowSystemColumn = false,
+                                 EnableFilters = false,
+                                 ShowDetail = true,
+                                 Jobs = Model.JeevesHistory.Jobs,
+                                 SelectedJob = selectedJeevesJob,
+                                 CurrentPage = Model.JeevesHistory.CurrentPage,
+                                 TotalPages = Model.JeevesHistory.TotalPages,
+                                 TotalCount = Model.JeevesHistory.TotalCount,
+                                 PageSize = Model.JeevesHistory.PageSize
+                             }' />
+                </div>
+            </div>
+
+        </div>
+        }
+    }
+
+</div>
+
+<script>
+    (function initFlowEngineLiveRefresh() {
+        var root = document.querySelector('[data-flowengine-page="true"]');
+        if (!root) {
+            return;
+        }
+
+        var snapshotUrl = root.getAttribute('data-flowengine-live-url');
+        var refreshUrl = root.getAttribute('data-flowengine-refresh-url');
+        var historyCardId = root.getAttribute('data-flowengine-history-card-id');
+        if (!snapshotUrl) {
+            return;
+        }
+
+        var lastVersion = root.getAttribute('data-flowengine-initial-version') || null;
+        var isPolling = false;
+        var hasActiveJobs = root.getAttribute('data-flowengine-has-active-jobs') === 'true';
+
+        var getDelay = function () {
+            return hasActiveJobs ? 8000 : 25000;
+        };
+
+        var refreshHistoryPanel = function () {
+            if (!refreshUrl || !historyCardId) {
+                window.location.reload();
+                return Promise.resolve(false);
+            }
+
+            return window.fetch(refreshUrl, {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Refresh failed');
+                    }
+
+                    return response.text();
+                })
+                .then(function (html) {
+                    var parser = new window.DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var nextCard = doc.getElementById(historyCardId);
+                    var currentCard = document.getElementById(historyCardId);
+
+                    if (!nextCard || !currentCard) {
+                        window.location.reload();
+                        return false;
+                    }
+
+                    currentCard.replaceWith(nextCard);
+                    return true;
+                })
+                .catch(function () {
+                    window.location.reload();
+                    return false;
+                });
+        };
+
+        var scheduleNext = function () {
+            window.setTimeout(poll, getDelay());
+        };
+
+        var poll = function () {
+            if (isPolling || document.hidden) {
+                scheduleNext();
+                return;
+            }
+
+            isPolling = true;
+
+            window.fetch(snapshotUrl, {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Snapshot failed');
+                    }
+
+                    return response.json();
+                })
+                .then(function (payload) {
+                    if (!payload || typeof payload.version !== 'string') {
+                        return;
+                    }
+
+                    if (payload.version !== lastVersion) {
+                        hasActiveJobs = payload.hasActiveJobs === true;
+                        return refreshHistoryPanel()
+                            .then(function () {
+                                lastVersion = payload.version;
+                            });
+                    }
+
+                    hasActiveJobs = payload.hasActiveJobs === true;
+                })
+                .catch(function () {
+                })
+                .finally(function () {
+                    isPolling = false;
+                    scheduleNext();
+                });
+        };
+
+        scheduleNext();
+    })();
+</script>
+
+@section Scripts {
+    <script>
+        (() => {
+            const page = document.querySelector('.flowengine-page');
+            if (!page) {
+                return;
+            }
+
+            const storageKey = 'zeeu.flowengine.workbench';
+            const saveUrl = '@Url.Action("FlowEngineSaveWorkbenchSettings", "Integration")';
+            const healthStatusUrl = '@Url.Action("FlowEngineHealthStatus", "Integration")';
+            const requestVerificationToken = page.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            const serverDefaults = {
+                testMode: @workbenchSettings.TestMode.ToString().ToLowerInvariant(),
+                dryRun: @workbenchSettings.DryRun.ToString().ToLowerInvariant(),
+                debugHttp: @workbenchSettings.DebugHttp.ToString().ToLowerInvariant(),
+                skipJeevesCheck: @workbenchSettings.SkipJeevesCheck.ToString().ToLowerInvariant(),
+                useLimit: @workbenchSettings.UseLimit.ToString().ToLowerInvariant(),
+                limit: @workbenchSettings.Limit,
+                centraSchedulerEnabled: @workbenchSettings.CentraSchedulerEnabled.ToString().ToLowerInvariant(),
+                shopifySchedulerEnabled: @workbenchSettings.ShopifySchedulerEnabled.ToString().ToLowerInvariant()
+            };
+            const defaults = {
+                ...serverDefaults,
+                testMode: typeof serverDefaults.testMode === 'boolean' ? serverDefaults.testMode : @defaultGlobalTestMode.ToString().ToLowerInvariant(),
+                dryRun: typeof serverDefaults.dryRun === 'boolean' ? serverDefaults.dryRun : @defaultGlobalDryRun.ToString().ToLowerInvariant(),
+                skipJeevesCheck: typeof serverDefaults.skipJeevesCheck === 'boolean' ? serverDefaults.skipJeevesCheck : @defaultGlobalSkipJeevesCheck.ToString().ToLowerInvariant(),
+                useLimit: typeof serverDefaults.useLimit === 'boolean' ? serverDefaults.useLimit : @defaultGlobalUseLimit.ToString().ToLowerInvariant(),
+                limit: Number.isFinite(Number(serverDefaults.limit)) ? Number(serverDefaults.limit) : @defaultGlobalLimit
+            };
+
+            const loadState = () => {
+                try {
+                    const raw = window.localStorage.getItem(storageKey);
+                    if (!raw) {
+                        return { ...defaults };
+                    }
+
+                    const parsed = JSON.parse(raw);
+                    return {
+                        ...defaults,
+                        ...parsed,
+                        limit: Number.isFinite(Number(parsed?.limit)) ? Number(parsed.limit) : defaults.limit
+                    };
+                } catch {
+                    return { ...defaults };
+                }
+            };
+
+            let state = loadState();
+
+            const flagCount = page.querySelector('[data-fe-flag-count]');
+            const testIndicator = page.querySelector('[data-fe-indicator="test"]');
+            const dryRunIndicator = page.querySelector('[data-fe-indicator="dryrun"]');
+            const limitIndicator = page.querySelector('[data-fe-indicator="limit"]');
+            const limitIndicatorValue = page.querySelector('[data-fe-indicator-value="limit"]');
+            const limitLabel = page.querySelector('[data-fe-limit-label]');
+            const limitSlider = page.querySelector('[data-fe-limit-slider]');
+            const schedulerToggles = Array.from(page.querySelectorAll('[data-fe-scheduler-toggle]'));
+            const schedulerLabels = Array.from(page.querySelectorAll('[data-fe-scheduler-label]'));
+            const clearImportLinesButton = page.querySelector('[data-fe-clear-import-lines]');
+            const importLinesField = page.querySelector('[data-fe-import-lines]');
+            const importSheetRows = Array.from(page.querySelectorAll('[data-fe-sheet-row]'));
+            const importSheetRowCount = page.querySelector('[data-fe-sheet-row-count]');
+            const importSheetLineCount = page.querySelector('[data-fe-sheet-line-count]');
+            const artStatusField = page.querySelector('[data-fe-art-status-input]');
+            const priceToggle = page.querySelector('[data-fe-price-toggle]');
+            const priceColumns = Array.from(page.querySelectorAll('[data-fe-price-column-cell], [data-fe-price-column-header]'));
+            const uploadOrderButton = page.querySelector('[data-fe-upload-order]');
+            const importDocumentInput = page.querySelector('[data-fe-import-document-input]');
+            const extractSubmitButton = page.querySelector('[data-fe-extract-submit]');
+            const dashboardHistoryEmpty = page.querySelector('[data-fe-dashboard-history-empty]');
+            const dashboardFilterCount = page.querySelector('[data-fe-dashboard-filter-count]');
+            const dashboardFilterForm = page.querySelector('[data-fe-dashboard-filter-form]');
+            const dashboardFilterSystem = page.querySelector('[data-fe-dashboard-filter-system]');
+            const dashboardFilterOperation = page.querySelector('[data-fe-dashboard-filter-operation]');
+            const dashboardFilterStatus = page.querySelector('[data-fe-dashboard-filter-status]');
+            const dashboardFilterDateStart = page.querySelector('[data-fe-dashboard-filter-date-start]');
+            const dashboardFilterDateEnd = page.querySelector('[data-fe-dashboard-filter-date-end]');
+            const dashboardFilterReset = page.querySelector('[data-fe-dashboard-filter-reset]');
+            const modalHost = page.querySelector('#flowengine-modal-host');
+            const healthPillsHost = page.querySelector('[data-fe-health-pills]');
+            const flagInputs = {
+                testMode: page.querySelector('[data-fe-flag="testMode"]'),
+                dryRun: page.querySelector('[data-fe-flag="dryRun"]'),
+                debugHttp: page.querySelector('[data-fe-flag="debugHttp"]'),
+                skipJeevesCheck: page.querySelector('[data-fe-flag="skipJeevesCheck"]'),
+                useLimit: page.querySelector('[data-fe-flag="useLimit"]')
+            };
+
+            const popovers = Array.from(page.querySelectorAll('[data-fe-popover]'));
+            let saveTimer = null;
+
+            const renderHealthPill = (status) => {
+                const pill = document.createElement('span');
+                pill.className = `flowengine-health-pill ${status.isReady ? 'flowengine-health-pill--ok' : 'flowengine-health-pill--warn'}`;
+                pill.textContent = `${status.label}: ${status.statusText}`;
+                return pill;
+            };
+
+            const renderHealthStatuses = (statuses) => {
+                if (!healthPillsHost) {
+                    return;
+                }
+
+                healthPillsHost.innerHTML = '';
+
+                const isDashboardMode = healthPillsHost.getAttribute('data-fe-health-dashboard') === 'true';
+                if (!Array.isArray(statuses) || statuses.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.className = 'flowengine-health-pill flowengine-health-pill--warn';
+                    empty.textContent = 'Status unavailable';
+                    healthPillsHost.appendChild(empty);
+                    return;
+                }
+
+                const visibleStatuses = isDashboardMode ? statuses : statuses.slice(0, 1);
+                visibleStatuses.forEach((status) => {
+                    healthPillsHost.appendChild(renderHealthPill(status));
+                });
+            };
+
+            const loadHealthStatuses = async () => {
+                if (!healthPillsHost || !healthStatusUrl) {
+                    return;
+                }
+
+                const section = healthPillsHost.getAttribute('data-fe-health-section') || 'dashboard';
+                const url = new URL(healthStatusUrl, window.location.origin);
+                url.searchParams.set('section', section);
+                url.searchParams.set('testMode', state.testMode ? 'true' : 'false');
+
+                try {
+                    const response = await window.fetch(url.toString(), {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        renderHealthStatuses([]);
+                        return;
+                    }
+
+                    const statuses = await response.json();
+                    renderHealthStatuses(statuses);
+                } catch {
+                    renderHealthStatuses([]);
+                }
+            };
+
+            const saveState = () => {
+                window.localStorage.setItem(storageKey, JSON.stringify(state));
+            };
+
+            const persistState = () => {
+                if (!saveUrl || !requestVerificationToken) {
+                    return;
+                }
+
+                if (saveTimer) {
+                    window.clearTimeout(saveTimer);
+                }
+
+                saveTimer = window.setTimeout(() => {
+                    const body = new URLSearchParams();
+                    body.set('__RequestVerificationToken', requestVerificationToken);
+                    body.set('TestMode', state.testMode ? 'true' : 'false');
+                    body.set('DryRun', state.dryRun ? 'true' : 'false');
+                    body.set('DebugHttp', state.debugHttp ? 'true' : 'false');
+                    body.set('SkipJeevesCheck', state.skipJeevesCheck ? 'true' : 'false');
+                    body.set('UseLimit', state.useLimit ? 'true' : 'false');
+                    body.set('Limit', String(state.limit));
+                    body.set('CentraSchedulerEnabled', state.centraSchedulerEnabled ? 'true' : 'false');
+                    body.set('ShopifySchedulerEnabled', state.shopifySchedulerEnabled ? 'true' : 'false');
+
+                    window.fetch(saveUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        },
+                        body: body.toString()
+                    }).catch(() => {
+                        // Keep the workbench usable even if session persistence fails.
+                    });
+                }, 150);
+            };
+
+            const closePopovers = (except) => {
+                popovers.forEach((popover) => {
+                    if (popover === except) {
+                        return;
+                    }
+
+                    popover.hidden = true;
+                });
+            };
+
+            const initFlowEngineDatepickers = () => {
+                if (!window.jQuery || !window.jQuery.fn || typeof window.jQuery.fn.datepicker !== 'function') {
+                    return;
+                }
+
+                window.jQuery(page)
+                    .find('input[data-fe-datepicker="true"]')
+                    .each(function () {
+                        const input = this;
+                        const $input = window.jQuery(input);
+
+                        if ($input.hasClass('hasDatepicker')) {
+                            return;
+                        }
+
+                        const currentValue = input.value;
+                        input.setAttribute('type', 'text');
+                        input.setAttribute('autocomplete', 'off');
+                        input.setAttribute('placeholder', 'YYYY-MM-DD');
+
+                        $input.datepicker({
+                            dateFormat: 'yy-mm-dd',
+                            showOtherMonths: true,
+                            selectOtherMonths: true,
+                            showButtonPanel: true,
+                            beforeShow: function () {
+                                window.setTimeout(() => {
+                                    window.jQuery('#ui-datepicker-div').addClass('flowengine-datepicker');
+                                }, 0);
+                            }
+                        });
+
+                        if (currentValue) {
+                            $input.datepicker('setDate', currentValue);
+                        }
+                    });
+            };
+
+            const activeDashboardFilterCount = () => {
+                let count = 0;
+                if (dashboardFilterSystem && dashboardFilterSystem.value !== 'all') count += 1;
+                if (dashboardFilterOperation && dashboardFilterOperation.value !== 'all') count += 1;
+                if (dashboardFilterStatus && dashboardFilterStatus.value !== 'all') count += 1;
+                if (dashboardFilterDateStart && dashboardFilterDateStart.value) count += 1;
+                if (dashboardFilterDateEnd && dashboardFilterDateEnd.value) count += 1;
+                return count;
+            };
+
+            const renderDashboardFilterCount = () => {
+                if (dashboardFilterCount) {
+                    const count = activeDashboardFilterCount();
+                    dashboardFilterCount.textContent = count > 0 ? String(count) : '';
+                    dashboardFilterCount.hidden = count === 0;
+                }
+            };
+
+            const render = () => {
+                if (testIndicator) {
+                    testIndicator.hidden = !state.testMode;
+                }
+
+                if (dryRunIndicator) {
+                    dryRunIndicator.hidden = !state.dryRun;
+                }
+
+                if (limitIndicator) {
+                    limitIndicator.hidden = !state.useLimit;
+                }
+
+                if (limitIndicatorValue) {
+                    limitIndicatorValue.textContent = String(state.limit);
+                }
+
+                if (limitLabel) {
+                    limitLabel.textContent = String(state.limit);
+                }
+
+                if (limitSlider) {
+                    limitSlider.value = String(state.limit);
+                    limitSlider.disabled = !state.useLimit;
+                }
+
+                const enabledCount = ['testMode', 'dryRun', 'debugHttp', 'skipJeevesCheck', 'useLimit']
+                    .filter((key) => Boolean(state[key]))
+                    .length;
+
+                if (flagCount) {
+                    flagCount.hidden = enabledCount === 0;
+                    flagCount.textContent = enabledCount > 0 ? String(enabledCount) : '';
+                }
+
+                Object.entries(flagInputs).forEach(([key, input]) => {
+                    if (input) {
+                        input.checked = Boolean(state[key]);
+                    }
+                });
+
+                schedulerToggles.forEach((toggle) => {
+                    const key = toggle.getAttribute('data-fe-scheduler-toggle');
+                    if (!key) {
+                        return;
+                    }
+
+                    toggle.checked = Boolean(state[`${key}SchedulerEnabled`]);
+                });
+
+                schedulerLabels.forEach((label) => {
+                    const key = label.getAttribute('data-fe-scheduler-label');
+                    if (!key) {
+                        return;
+                    }
+
+                    label.textContent = state[`${key}SchedulerEnabled`] ? 'On' : 'Off';
+                });
+            };
+
+            const ensureHidden = (form, name, value) => {
+                let input = form.querySelector(`input[name="${name}"][data-fe-injected="true"]`);
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.dataset.feInjected = 'true';
+                    form.appendChild(input);
+                }
+
+                input.value = value;
+            };
+
+            const syncBooleanField = (form, name, value) => {
+                const checkboxes = Array.from(form.querySelectorAll(`input[name="${name}"][type="checkbox"]`));
+                const hiddenFields = Array.from(form.querySelectorAll(`input[name="${name}"][type="hidden"]`));
+
+                if (checkboxes.length > 0) {
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = value;
+                    });
+                }
+
+                if (hiddenFields.length > 0) {
+                    hiddenFields.forEach((input) => {
+                        input.value = value ? 'true' : 'false';
+                    });
+                }
+
+                if (checkboxes.length === 0 && hiddenFields.length === 0) {
+                    ensureHidden(form, name, value ? 'true' : 'false');
+                }
+            };
+
+            const syncLimitField = (form) => {
+                if (!state.useLimit) {
+                    return;
+                }
+
+                const limitInputs = Array.from(form.querySelectorAll('input[name="Limit"]'));
+                if (limitInputs.length > 0) {
+                    limitInputs.forEach((input) => {
+                        input.value = String(state.limit);
+                    });
+                    return;
+                }
+
+                ensureHidden(form, 'Limit', String(state.limit));
+            };
+
+            page.querySelectorAll('form[method="post"]').forEach((form) => {
+                form.addEventListener('submit', () => {
+                    ensureHidden(form, 'FlowEngineGlobalTestMode', state.testMode ? 'true' : 'false');
+                    ensureHidden(form, 'FlowEngineGlobalDryRun', state.dryRun ? 'true' : 'false');
+                    ensureHidden(form, 'FlowEngineGlobalDebugHttp', state.debugHttp ? 'true' : 'false');
+                    ensureHidden(form, 'FlowEngineGlobalSkipJeevesCheck', state.skipJeevesCheck ? 'true' : 'false');
+                    ensureHidden(form, 'FlowEngineGlobalUseLimit', state.useLimit ? 'true' : 'false');
+                    ensureHidden(form, 'FlowEngineGlobalLimit', String(state.limit));
+
+                    syncBooleanField(form, 'DryRun', state.dryRun);
+                    syncBooleanField(form, 'SkipJeevesCheck', state.skipJeevesCheck);
+                    syncLimitField(form);
+                });
+            });
+
+            Object.entries(flagInputs).forEach(([key, input]) => {
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener('change', () => {
+                    state[key] = input.checked;
+                    saveState();
+                    persistState();
+                    render();
+
+                    if (key === 'testMode') {
+                        loadHealthStatuses();
+                    }
+                });
+            });
+
+            if (limitSlider) {
+                limitSlider.addEventListener('input', () => {
+                    state.limit = Number(limitSlider.value);
+                    saveState();
+                    persistState();
+                    render();
+                });
+            }
+
+            schedulerToggles.forEach((toggle) => {
+                toggle.addEventListener('change', () => {
+                    const key = toggle.getAttribute('data-fe-scheduler-toggle');
+                    if (!key) {
+                        return;
+                    }
+
+                    state[`${key}SchedulerEnabled`] = toggle.checked;
+                    saveState();
+                    persistState();
+                    render();
+                });
+            });
+
+            const updatePriceColumn = () => {
+                if (!priceToggle) {
+                    return;
+                }
+
+                priceColumns.forEach((column) => {
+                    column.hidden = !priceToggle.checked;
+                });
+            };
+
+            const syncImportSheet = () => {
+                if (!importLinesField || importSheetRows.length === 0) {
+                    return;
+                }
+
+                const lines = [];
+                const articleNumbers = [];
+
+                importSheetRows.forEach((row) => {
+                    const article = row.querySelector('[data-fe-sheet-field="article"]')?.value?.trim() ?? '';
+                    const quantity = row.querySelector('[data-fe-sheet-field="quantity"]')?.value?.trim() ?? '';
+                    const price = row.querySelector('[data-fe-sheet-field="price"]')?.value?.trim() ?? '';
+
+                    if (!article && !quantity && !price) {
+                        return;
+                    }
+
+                    const parts = [article, quantity];
+                    if (priceToggle?.checked && price) {
+                        parts.push(price);
+                    }
+
+                    lines.push(parts.join(';'));
+
+                    if (article) {
+                        articleNumbers.push(article);
+                    }
+                });
+
+                importLinesField.value = lines.join('\n');
+
+                if (artStatusField) {
+                    artStatusField.value = articleNumbers.join('\n');
+                }
+
+                if (importSheetRowCount) {
+                    importSheetRowCount.textContent = String(Math.min(importSheetRows.length, 5));
+                }
+
+                if (importSheetLineCount) {
+                    importSheetLineCount.textContent = String(articleNumbers.length);
+                }
+            };
+
+            const clearImportSheet = () => {
+                importSheetRows.forEach((row) => {
+                    row.querySelectorAll('[data-fe-sheet-field]').forEach((field) => {
+                        field.value = '';
+                    });
+                });
+
+                syncImportSheet();
+            };
+
+            if (importSheetRows.length > 0) {
+                importSheetRows.forEach((row) => {
+                    row.querySelectorAll('[data-fe-sheet-field="article"], [data-fe-sheet-field="quantity"], [data-fe-sheet-field="price"]').forEach((field) => {
+                        field.addEventListener('input', syncImportSheet);
+                    });
+                });
+
+                syncImportSheet();
+            }
+
+            if (priceToggle) {
+                priceToggle.addEventListener('change', () => {
+                    updatePriceColumn();
+                    syncImportSheet();
+                });
+
+                updatePriceColumn();
+            }
+
+            if (clearImportLinesButton) {
+                clearImportLinesButton.addEventListener('click', () => {
+                    clearImportSheet();
+                });
+            }
+
+            if (uploadOrderButton && importDocumentInput) {
+                uploadOrderButton.addEventListener('click', () => {
+                    importDocumentInput.click();
+                });
+            }
+
+            if (importDocumentInput && extractSubmitButton) {
+                importDocumentInput.addEventListener('change', () => {
+                    if (!importDocumentInput.files || importDocumentInput.files.length === 0) {
+                        return;
+                    }
+
+                    extractSubmitButton.click();
+                });
+            }
+
+            if (dashboardFilterForm) {
+                [dashboardFilterSystem, dashboardFilterOperation, dashboardFilterStatus, dashboardFilterDateStart, dashboardFilterDateEnd]
+                    .filter(Boolean)
+                    .forEach((element) => {
+                        element.addEventListener('change', () => {
+                            renderDashboardFilterCount();
+                            dashboardFilterForm.requestSubmit();
+                        });
+                    });
+
+                if (dashboardFilterReset) {
+                    dashboardFilterReset.addEventListener('click', () => {
+                        if (dashboardFilterCount) {
+                            dashboardFilterCount.textContent = '';
+                            dashboardFilterCount.hidden = true;
+                        }
+                    });
+                }
+
+                renderDashboardFilterCount();
+            }
+
+            page.querySelectorAll('[data-fe-toggle]').forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const key = button.getAttribute('data-fe-toggle');
+                    const popover = page.querySelector(`[data-fe-popover="${key}"]`);
+                    if (!popover) {
+                        return;
+                    }
+
+                    const willOpen = popover.hidden;
+                    closePopovers(willOpen ? popover : null);
+                    popover.hidden = !willOpen;
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (event.target instanceof Element && event.target.closest('.flowengine-popover-anchor')) {
+                    return;
+                }
+
+                closePopovers(null);
+            });
+
+            const openFlowEngineModal = (modalElement) => {
+                if (!modalElement) {
+                    return;
+                }
+
+                if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.modal === 'function') {
+                    window.jQuery(modalElement)
+                        .off('hidden.flowengine')
+                        .on('hidden.flowengine', () => {
+                            if (modalHost) {
+                                modalHost.innerHTML = '';
+                            }
+                        })
+                        .modal('show');
+                    return;
+                }
+
+                if (window.bootstrap && typeof window.bootstrap.Modal === 'function') {
+                    const instance = new window.bootstrap.Modal(modalElement);
+                    modalElement.addEventListener('hidden.bs.modal', () => {
+                        if (modalHost) {
+                            modalHost.innerHTML = '';
+                        }
+                    }, { once: true });
+                    instance.show();
+                }
+            };
+
+            page.addEventListener('click', async (event) => {
+                const link = event.target instanceof Element
+                    ? event.target.closest('.flowengine-history-view-btn')
+                    : null;
+
+                if (!link || !page.contains(link)) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const url = link.getAttribute('href');
+                if (!url || !modalHost) {
+                    return;
+                }
+
+                try {
+                    const response = await window.fetch(url, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        window.location.assign(url);
+                        return;
+                    }
+
+                    const html = await response.text();
+                    modalHost.innerHTML = html;
+                    const modalElement = modalHost.querySelector('.flowengine-job-modal');
+                    openFlowEngineModal(modalElement);
+                } catch {
+                    window.location.assign(url);
+                }
+            });
+
+            initFlowEngineDatepickers();
+            render();
+            loadHealthStatuses();
+        })();
+    </script>
+}

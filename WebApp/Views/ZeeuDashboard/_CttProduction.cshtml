@@ -1,0 +1,74 @@
+@model List<Entities.ZeeuDashboard.ProductionDashboardVM>
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+<div class="module-table-shell">
+    <div class="table-responsive module-table">
+        <table class="table table-hover mb-0 text-inverse production-dashboard-table">
+            <thead>
+                <tr>
+                    <th>Anst.nr</th>
+                    <th>Namn</th>
+                    <th>Kom tid</th>
+                    <th>AONR</th>
+                    <th>OPNR</th>
+                    <th>Prod.Grp</th>
+                    <th>Startat</th>
+                    <th>Kvar</th>
+                    <th>N. AO</th>
+                    <th>N. Prod.Grp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model is null || Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            @sharedLocalizer["Error_FailedToFindAnyRows"]
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        var row = Model[i];
+                        var arrivedTime = row.ArrivedTime;
+                        var operationStarted = row.OperationStarted;
+                        var remainingTime = row.RemainingTime;
+
+                        <tr>
+                            @if (row.Present)
+                            {
+                                <td><span class="badge bg-success">@row.PersSign</span></td>
+                            }
+                            else
+                            {
+                                <td><span class="badge bg-danger">@row.PersSign</span></td>
+                            }
+                            <td>@row.Name</td>
+                            <td>@(arrivedTime.HasValue && row.Present ? arrivedTime.Value.ToShortTimeString() : "-")</td>
+                            <td>@(string.IsNullOrWhiteSpace(row.WorkOrder) ? "-" : row.WorkOrder)</td>
+                            <td>@(string.IsNullOrWhiteSpace(row.OperationNumber) ? "-" : row.OperationNumber)</td>
+                            <td>@(string.IsNullOrWhiteSpace(row.ProductionGroup) ? "-" : row.ProductionGroup)</td>
+                            <td>@(operationStarted.HasValue ? operationStarted.Value.ToShortTimeString() : "-")</td>
+                            @if (remainingTime.HasValue)
+                            {
+                                <td class="@(remainingTime < 0 ? "text-danger" : string.Empty)">
+                                    @Math.Round(remainingTime.Value, 1) h
+                                </td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+                            <td>@(string.IsNullOrWhiteSpace(row.NextWorkOrder) ? "-" : row.NextWorkOrder)</td>
+                            <td>@(string.IsNullOrWhiteSpace(row.NextProductionGroup) ? "-" : row.NextProductionGroup)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

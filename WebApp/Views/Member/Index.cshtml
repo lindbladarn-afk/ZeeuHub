@@ -1,0 +1,31 @@
+﻿@{
+  ViewData["Title"] = "Dashboard";
+  ViewData["AppSidebarSearch"] = null;
+}
+@section Styles {
+	<link href="~/lib/jvectormap-next/jquery-jvectormap.css" rel="stylesheet" />
+	<link href="~/lib/bootstrap-calendar/css/bootstrap_calendar.css" rel="stylesheet" />
+	<link href="~/lib/gritter/css/jquery.gritter.css" rel="stylesheet" />
+	<link href="~/lib/nvd3/build/nv.d3.css" rel="stylesheet" />
+}
+@section Scripts {
+	<script src="~/lib/d3/d3.min.js"></script>
+	<script src="~/lib/nvd3/build/nv.d3.min.js"></script>
+	<script src="~/lib/jvectormap-next/jquery-jvectormap.min.js"></script>
+	<script src="~/lib/jvectormap-next/jquery-jvectormap-world-mill.js"></script>
+	<script src="~/lib/bootstrap-calendar/js/bootstrap_calendar.min.js"></script>
+	<script src="~/lib/gritter/js/jquery.gritter.js"></script>
+	<script src="~/js/demo/dashboard-v2.js"></script>
+}
+
+<!-- END breadcrumb -->
+<!-- BEGIN page-header -->
+<h1 class="page-header">Member dashboard <small>this is the memebers landing page</small></h1>
+<!-- END page-header -->
+
+
+<div id="divPartial">
+	@await Html.PartialAsync("_Sales")
+</div>
+
+

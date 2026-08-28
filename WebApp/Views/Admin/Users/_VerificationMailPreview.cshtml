@@ -1,0 +1,52 @@
+@model WebApp.ViewModels.Admin.VerificationMailPreviewViewModel
+
+@* Preview modal for the verification email so admins can inspect the rendered mail without sending it. *@
+<div class="modal fade admin-form-modal verification-mail-preview-modal" id="verificationMailPreview" tabindex="-1" aria-labelledby="verificationMailPreviewTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title hidden-print" id="verificationMailPreviewTitle">Förhandsgranska verifieringsmail</h2>
+                    <div class="modal-subtitle">Visar den renderade HTML-mallen som används när en användare skapas eller när verifieringsmailet skickas om.</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (!Model.Success)
+                {
+                    <div class="alert alert-danger mb-0">
+                        @Model.ErrorMessage
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-3 align-items-start mb-3">
+                        <div class="verification-mail-preview__meta">
+                            <div class="verification-mail-preview__label">Mottagare</div>
+                            <div class="verification-mail-preview__value">@Model.Recipient</div>
+                        </div>
+                        <div class="verification-mail-preview__meta">
+                            <div class="verification-mail-preview__label">Ämne</div>
+                            <div class="verification-mail-preview__value">@Model.Subject</div>
+                        </div>
+                    </div>
+
+                    <div class="module-inline-status module-inline-status--info mb-3">
+                        @Model.RedirectNotice
+                    </div>
+
+                    <div class="verification-mail-preview__frame-shell">
+                        <iframe class="verification-mail-preview__frame"
+                                title="Förhandsgranskning av verifieringsmail"
+                                srcdoc="@Html.Raw(System.Text.Encodings.Web.HtmlEncoder.Default.Encode(Model.BodyHtml))">
+                        </iframe>
+                    </div>
+                }
+
+                <div class="admin-modal-actions">
+                    <button type="button" class="btn btn-sm btn-outline-light" data-dismiss="modal">Stäng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

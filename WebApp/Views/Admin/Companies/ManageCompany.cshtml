@@ -1,0 +1,358 @@
+﻿@using Entities.ViewModels.Admin
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.ViewModels.Shared
+@model ManageCompanyVM
+@inject IViewLocalizer Localizer
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const setInlineStatus = (element, tone, text) => {
+            if (!element) return;
+            element.textContent = text || '';
+            element.classList.remove(
+                'module-inline-status--muted',
+                'module-inline-status--info',
+                'module-inline-status--success',
+                'module-inline-status--warning',
+                'module-inline-status--danger');
+            element.classList.add('module-inline-status', `module-inline-status--${tone}`);
+        };
+
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.js-test-connection');
+            if (!btn) return;
+            const companyId = btn.getAttribute('data-company-id');
+            const connectionId = btn.getAttribute('data-connection-id');
+            const status = btn.closest('.admin-access-card')?.querySelector('.js-connection-status');
+            if (!companyId || !connectionId || !status) return;
+
+            setInlineStatus(status, 'info', 'Testar...');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/Admin/TestCompanyConnection?companyId=${companyId}&connectionStringId=${connectionId}`, {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data?.success) {
+                    setInlineStatus(status, 'success', 'OK');
+                } else {
+                    setInlineStatus(status, 'danger', data?.message || 'Misslyckades');
+                }
+            } catch (err) {
+                setInlineStatus(status, 'danger', 'Kunde inte testa anslutning');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+}
+
+<div class="dashboard-readable module-page admin-page manage-company-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">@Localizer["Admin"]</div>
+        <h1 class="module-page-title">@Localizer["Administrera bolag"] @Model.Name</h1>
+        <div class="module-page-subtitle">@Localizer["Hantera bolagets grunddata, Jeeves-kopplingar och modulåtkomst från en samlad vy."]</div>
+        <div class="module-page-meta">@Localizer["Använd flikarna för att växla mellan grunddata, anslutningssträngar och modulåtkomst."]</div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+{
+    Title = "Snabbguide för bolaget",
+    Message = "Sätt environment key, testa anslutningen, lägg in Jeeves-bolag och aktivera rätt moduler för att få korrekt meny och data.",
+    Note = "PersSign behövs bara för funktioner som kräver användarspecifik Jeeves-identitet.",
+    Tone = "info",
+    IconClass = "fa fa-info-circle"
+})
+
+<ul class="nav nav-pills admin-tab-toggle mb-2">
+    <li class="nav-item">
+        <a href="#BasicInformation" data-bs-toggle="tab" class="nav-link active">
+            <span class="d-sm-none">@Localizer["Grundläggande information"]</span>
+            <span class="d-sm-block d-none">@Localizer["Grundläggande information"]</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#ConnectionStrings" data-bs-toggle="tab" class="nav-link">
+            <span class="d-sm-none">@Localizer["Anslutningssträngar"]</span>
+            <span class="d-sm-block d-none">@Localizer["Anslutningssträngar"]</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#Access" data-bs-toggle="tab" class="nav-link">
+            <span class="d-sm-none">@Localizer["Åtkomst"]</span>
+            <span class="d-sm-block d-none">@Localizer["Åtkomst"]</span>
+        </a>
+    </li>
+</ul>
+
+
+<form id="profile-form" method="post">
+    <div class="tab-content admin-panel">
+        <div class="tab-pane fade active show" id="BasicInformation">
+            <div class="admin-section-heading">@Localizer["Grundläggande information"]</div>
+            <partial name="_StatusMessage" for="StatusMessage" />
+            <div class="row g-2">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="Id" hidden />
+                <div class="col-md-6">
+                    <label asp-for="Id" class="form-label admin-kpi-label">@Localizer["Id"]</label>
+                    <p class="lead mb-2">@Model.Id.ToString().ToUpper()</p>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label admin-kpi-label">@Localizer["Namn"]</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="admin-access-card mt-3">
+                <div class="admin-section-heading mb-1">AI-datakälla</div>
+                <p class="admin-help-copy mb-3">Profilen styr vilka tabeller och affärsregler Intelligence använder. Anslutningsuppgifter hanteras fortsatt enbart via miljövariabler.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="AiDataProfile" class="form-label admin-kpi-label">Primär AI-profil</label>
+                        <select asp-for="AiDataProfile" class="form-select">
+                            <option value="JeevesDirect">Jeeves direkt – operativ data</option>
+                            <option value="DataWarehouse">Datalager – rapportering och historik</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input asp-for="AiAllowDataSourceSwitching" class="form-check-input" />
+                            <label asp-for="AiAllowDataSourceSwitching" class="form-check-label">Tillåt användaren att välja bland framtida godkända AI-källor</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="AiPrimaryConnectionStringId" class="form-label admin-kpi-label">Primär AI-anslutning</label>
+                        <select asp-for="AiPrimaryConnectionStringId" class="form-select">
+                            <option value="">Välj en AI-godkänd anslutning</option>
+                            @foreach (var connection in Model.ConnectionStrings ?? [])
+                            {
+                                <option value="@connection.Id">@(connection.DatabaseName ?? connection.ConnectionStringTypeName ?? connection.Id.ToString())</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <div class="admin-section-heading mb-1">Jeeves-bolag</div>
+                        <div class="admin-help-copy">Konfigurera vilka ForetagKod detta portalbolag får växla mellan och vilket namn som ska visas i bolagsväljaren.</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="add-jeeves-company">
+                        Lägg till ForetagKod
+                    </button>
+                </div>
+
+                <div class="admin-connection-grid admin-connection-header mb-2">
+                    <div>ForetagKod</div>
+                    <div>Namn i portalen</div>
+                    <div>Sortering</div>
+                    <div>Standard</div>
+                        <div>Aktiv</div>
+                        <div></div>
+                </div>
+
+                <div id="jeeves-company-rows">
+                    @for (int i = 0; i < Model.JeevesCompanies.Count; i++)
+                    {
+                        <div class="admin-connection-grid admin-connection-row">
+                            <input type="hidden" asp-for="@Model.JeevesCompanies[i].Id" />
+                            <input asp-for="@Model.JeevesCompanies[i].CompanyCode" class="form-control" type="number" min="0" />
+                            <input asp-for="@Model.JeevesCompanies[i].DisplayName" class="form-control" />
+                            <input asp-for="@Model.JeevesCompanies[i].SortOrder" class="form-control" type="number" min="0" />
+                            <div class="form-check d-flex justify-content-center">
+                                <input asp-for="@Model.JeevesCompanies[i].IsDefault" class="form-check-input js-default-company" />
+                            </div>
+                            <div class="form-check d-flex justify-content-center">
+                                <input asp-for="@Model.JeevesCompanies[i].IsActive" class="form-check-input" />
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger js-remove-company-row">X</button>
+                        </div>
+                    }
+                </div>
+
+                <span asp-validation-for="DefaultJeevesCompanyCode" class="text-danger"></span>
+                <div class="admin-help-copy mt-2">
+                    Om användaren saknar PersSign bygger portalen bolagsväljaren från den här listan.
+                </div>
+
+                <template id="jeeves-company-template">
+                    <div class="admin-connection-grid admin-connection-row">
+                        <input type="hidden" name="JeevesCompanies[__index__].Id" value="00000000-0000-0000-0000-000000000000" />
+                        <input name="JeevesCompanies[__index__].CompanyCode" class="form-control" type="number" min="0" />
+                        <input name="JeevesCompanies[__index__].DisplayName" class="form-control" />
+                        <input name="JeevesCompanies[__index__].SortOrder" class="form-control" type="number" min="0" value="0" />
+                        <div class="form-check d-flex justify-content-center">
+                            <input name="JeevesCompanies[__index__].IsDefault" class="form-check-input js-default-company" type="checkbox" value="true" />
+                            <input name="JeevesCompanies[__index__].IsDefault" type="hidden" value="false" />
+                        </div>
+                        <div class="form-check d-flex justify-content-center">
+                            <input name="JeevesCompanies[__index__].IsActive" class="form-check-input" type="checkbox" value="true" checked="checked" />
+                            <input name="JeevesCompanies[__index__].IsActive" type="hidden" value="false" />
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger js-remove-company-row">X</button>
+                    </div>
+                </template>
+
+                <script>
+                    (() => {
+                        const container = document.getElementById('jeeves-company-rows');
+                        const template = document.getElementById('jeeves-company-template');
+                        const addBtn = document.getElementById('add-jeeves-company');
+                        if (!container || !template || !addBtn) return;
+
+                        const bindRow = (row) => {
+                            const removeBtn = row.querySelector('.js-remove-company-row');
+                            if (removeBtn) {
+                                removeBtn.addEventListener('click', () => row.remove());
+                            }
+
+                            const defaultCheckbox = row.querySelector('.js-default-company');
+                            if (defaultCheckbox) {
+                                defaultCheckbox.addEventListener('change', () => {
+                                    if (!defaultCheckbox.checked) return;
+                                    container.querySelectorAll('.js-default-company').forEach((other) => {
+                                        if (other !== defaultCheckbox) other.checked = false;
+                                    });
+                                });
+                            }
+                        };
+
+                        container.querySelectorAll('.admin-connection-row').forEach(bindRow);
+
+                        addBtn.addEventListener('click', () => {
+                            const index = container.querySelectorAll('.admin-connection-row').length;
+                            const html = template.innerHTML.replaceAll('__index__', index.toString());
+                            const wrapper = document.createElement('div');
+                            wrapper.innerHTML = html.trim();
+                            const row = wrapper.firstElementChild;
+                            if (!row) return;
+                            container.appendChild(row);
+                            bindRow(row);
+                        });
+                    })();
+                </script>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="ConnectionStrings">
+            <div class="admin-section-heading">@Localizer["Anslutningssträngar"]</div>
+            <p class="text-muted">@Localizer["Konfiguration hanteras server-side. Här visas miljö och maskerad connection string."]</p>
+            @for (int i = 0; i < Model.ConnectionStrings?.Count(); i++)
+            {
+                <input type="hidden" asp-for="@Model.ConnectionStrings[i].Id">
+                <input type="hidden" asp-for="@Model.ConnectionStrings[i].IsActive">
+                <input type="hidden" asp-for="@Model.ConnectionStrings[i].ConnectionStringType!.Id">
+                <input type="hidden" asp-for="@Model.ConnectionStrings[i].ConnectionStringType!.Name">
+                <div class="admin-access-card mb-2">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0">@Localizer["Miljö"]: @Model.ConnectionStrings[i].ConnectionStringType?.Name</h5>
+                            @if (Model.ConnectionStrings[i].IsActive)
+                            {
+                                <i class="fas fa-check text-success ms-2"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times text-danger ms-2"></i>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-info js-test-connection"
+                                    data-company-id="@Model.Id"
+                                    data-connection-id="@Model.ConnectionStrings[i].Id">
+                                @Localizer["Testa anslutning"]
+                            </button>
+                            <span class="module-inline-status module-inline-status--muted js-connection-status"></span>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-1">CONNECTION_STRING_@Model.ConnectionStrings[i].Id.ToString().ToUpper().Replace("-","")</p>
+                    <p class="text-muted mb-0">@Model.ConnectionStrings[i].ConnectionString</p>
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label admin-kpi-label">AI-profil</label>
+                            <select asp-for="@Model.ConnectionStrings[i].AiDataProfile" class="form-select form-select-sm">
+                                <option value="JeevesDirect">Jeeves direkt</option>
+                                <option value="DataWarehouse">Datalager</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input asp-for="@Model.ConnectionStrings[i].IsAiEnabled" class="form-check-input" />
+                                <label asp-for="@Model.ConnectionStrings[i].IsAiEnabled" class="form-check-label">Tillåt den här anslutningen för AI</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="Access">
+            <div class="admin-section-heading d-flex align-items-center justify-content-between">
+                <span>@Localizer["Modulåtkomst"]</span>
+                <span class="admin-help-copy">@Localizer["Toggla submoduler för detta bolag"]</span>
+            </div>
+            @if (Model.AllModules?.Count() > 0)
+            {
+                <div class="row g-2">
+                @for (int i = 0; i < Model.AllModules.Count(); i++)
+                {
+                    <div class="col-12">
+                        <div class="admin-access-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="admin-row-title mb-1">@Model.AllModules[i].Name</div>
+                                    <div class="admin-row-meta mb-2">@Model.AllModules[i].Description</div>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="@Model.AllModules[i].Id" />
+                            <input type="hidden" asp-for="@Model.AllModules[i].Name" />
+                            <input type="hidden" asp-for="@Model.AllModules[i].Description">
+                            <input type="hidden" asp-for="@Model.AllModules[i].MenuSectionText">
+                            @if (Model.AllModules[i].SubModules?.Count() > 0)
+                            {
+                                @for (int j = 0; j < Model.AllModules[i].SubModules?.Count(); j++)
+                                {
+                                    <div class="admin-access-check admin-access-switch-row">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].Id">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].Name">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].ModuleId">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].Description">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].MenuItemText">
+                                        <input type="hidden" asp-for="@Model.AllModules[i].SubModules![j].PermissionId">
+                                        <div class="form-check form-switch admin-access-switch">
+                                            <input asp-for="@Model.AllModules[i].SubModules![j].HasAccess" class="form-check-input" />
+                                        </div>
+                                        <label class="form-check-label admin-company-submodule-label" asp-for="@Model.AllModules[i].SubModules![j].HasAccess">
+                                            <span class="admin-company-submodule-title">@Model.AllModules[i].SubModules![j].Name</span>
+                                            <span class="admin-company-submodule-copy d-block">@Model.AllModules[i].SubModules![j].Description</span>
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+                </div>
+            }
+            <div asp-validation-summary="All" class="text-danger mt-2"></div>
+        </div>
+    </div>
+
+    <button id="update-profile-button" type="submit" class="w-100 btn btn-sm btn-primary mt-2">@Localizer["Spara"]</button>
+</form>
+</div>

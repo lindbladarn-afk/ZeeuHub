@@ -1,0 +1,605 @@
+@model WebApp.Models.Integration.FlowEngineJobSnapshot
+
+@{
+    static string PresentCentraSendOrderStatus(string? status) => status switch
+    {
+        "manual_review_required" => "Kräver manuell hantering i Jeeves",
+        "skipped_existing" => "Finns redan i Jeeves",
+        "skipped_ineligible" => "Ej körbar",
+        "mapped" => "Mappad",
+        "sent" => "Skickad",
+        "failed" => "Misslyckades",
+        _ => status ?? string.Empty
+    };
+
+    var isModalMode = ViewData["FlowEngineModalMode"] as bool? == true;
+    var isAkeneoExport = WebApp.Models.Integration.FlowEngineJobPresentation.IsAkeneoExportJob(Model);
+    var akeneoExportPayload = isAkeneoExport
+        ? WebApp.Models.Integration.FlowEngineJobPresentation.TryParseAkeneoExportPayload(Model)
+        : null;
+    var akeneoSendToCentraPayload = isAkeneoExport
+        ? WebApp.Models.Integration.FlowEngineJobPresentation.TryParseAkeneoSendToCentraPayload(Model)
+        : null;
+    var centraCheckPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseCentraCheckOrdersPayload(Model);
+    var centraCreateShipmentsPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseCentraCreateShipmentsPayload(Model);
+    var centraSendOrderPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseCentraSendOrderPayload(Model);
+    var centraSendOrdersPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseCentraSendOrdersPayload(Model);
+    var centraSendReturnsPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseCentraSendReturnsPayload(Model);
+    var shopifyCheckPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseShopifyCheckOrdersPayload(Model);
+    var shopifyValidatePayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseShopifyValidateOrdersPayload(Model);
+    var shopifySendPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseShopifySendOrdersPayload(Model);
+    var shopifyCompletePayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseShopifyCompleteOrdersPayload(Model);
+    var jeevesImportOrderPayload = WebApp.Models.Integration.FlowEngineJobPresentation.TryParseJeevesImportOrderPayload(Model);
+    var summaryLines = WebApp.Models.Integration.FlowEngineJobPresentation.GetSummaryLines(Model);
+    var detailKey = Model.Id.ToString("N");
+    var xmlPreviewId = $"flowengine-xml-preview-{detailKey}";
+    var rawDetailsId = $"flowengine-raw-details-{detailKey}";
+    var xmlPayload = (object?)akeneoSendToCentraPayload ?? akeneoExportPayload;
+    var xmlPreviewText = string.IsNullOrWhiteSpace(akeneoSendToCentraPayload?.Xml ?? akeneoExportPayload?.Xml)
+        ? "Ingen XML-preview tillgänglig."
+        : akeneoSendToCentraPayload?.Xml ?? akeneoExportPayload!.Xml;
+    var xmlDownloadName = string.IsNullOrWhiteSpace(akeneoSendToCentraPayload?.FileName ?? akeneoExportPayload?.FileName)
+        ? $"akeneo-export-{detailKey}.xml"
+        : akeneoSendToCentraPayload?.FileName ?? akeneoExportPayload!.FileName;
+    var rawDetailsText = Model.Result is null
+        ? string.Empty
+        : string.IsNullOrWhiteSpace(Model.Result.StandardError)
+            ? Model.Result.StandardOutput
+            : $"STDOUT{Environment.NewLine}{Model.Result.StandardOutput}{Environment.NewLine}{Environment.NewLine}STDERR{Environment.NewLine}{Model.Result.StandardError}";
+    var summaryStatusText = WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusLabel(Model.Status);
+    var startedAt = (Model.Result?.StartedAtUtc ?? Model.StartedAtUtc ?? Model.CreatedAtUtc).ToLocalTime();
+    var endedAt = (Model.Result?.FinishedAtUtc ?? Model.FinishedAtUtc)?.ToLocalTime();
+    var durationSeconds = ((endedAt ?? startedAt) - startedAt).TotalSeconds;
+    var exitCode = Model.Result?.ExitCode;
+}
+
+<div class="flowengine-history-detail@(isModalMode ? " flowengine-history-detail--modal" : string.Empty)">
+    @if (!isModalMode)
+    {
+        <div class="flowengine-history-detail-head">
+            <div>
+                <div class="flowengine-detail-label">Valt jobb</div>
+                <div class="flowengine-detail-value">@Model.UiLabel</div>
+            </div>
+            <div class="flowengine-history-detail-badges">
+                <span class="@WebApp.Models.Integration.FlowEngineJobPresentation.GetStorageClass(Model)">
+                    @WebApp.Models.Integration.FlowEngineJobPresentation.GetStorageLabel(Model)
+                </span>
+                <partial name="FlowEngine/Partials/_FlowEngineJobStatusPill" model="Model.Status" />
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.StorageWarning))
+    {
+        <div class="flowengine-history-warning flowengine-history-warning--detail">
+            <i class="fa fa-triangle-exclamation"></i>
+            <span>@Model.StorageWarning</span>
+        </div>
+    }
+
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+            <div class="flowengine-detail-label">Skapat</div>
+            <div class="flowengine-detail-value">@Model.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="flowengine-detail-label">Färdigt</div>
+            <div class="flowengine-detail-value">@(Model.FinishedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "-")</div>
+        </div>
+    </div>
+
+    <div class="flowengine-detail-label">Command</div>
+    <pre class="flowengine-log-block">@string.Join(' ', Model.Arguments)</pre>
+
+    @if (Model.Result is not null)
+    {
+        @if (isModalMode)
+        {
+            <div class="flowengine-job-modal-summary">
+                <div class="flowengine-job-modal-summary-pill @WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusClass(Model.Status)">
+                    <span class="flowengine-job-status-dot" aria-hidden="true"></span>
+                    <span>@summaryStatusText</span>
+                </div>
+                <div class="flowengine-job-modal-summary-meta">
+                    <span>Duration: @durationSeconds.ToString("0.00")s</span>
+                    <span>Started: @startedAt.ToString("dd MMM yyyy HH:mm:ss")</span>
+                    <span>Ended: @(endedAt?.ToString("dd MMM yyyy HH:mm:ss") ?? "-")</span>
+                    <span>Exit: @(exitCode?.ToString() ?? "-")</span>
+                </div>
+            </div>
+        }
+
+        @if (xmlPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @if ((akeneoSendToCentraPayload?.RequestedSkus.Count ?? akeneoExportPayload?.RequestedSkus.Count ?? 0) > 0)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Requested: @(akeneoSendToCentraPayload?.RequestedSkus.Count ?? akeneoExportPayload?.RequestedSkus.Count)</span>
+                }
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Exported: @(akeneoSendToCentraPayload?.Count ?? akeneoExportPayload?.Count)</span>
+                @if (!string.IsNullOrWhiteSpace(akeneoSendToCentraPayload?.FileName ?? akeneoExportPayload?.FileName))
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">@(akeneoSendToCentraPayload?.FileName ?? akeneoExportPayload?.FileName)</span>
+                }
+                @if ((akeneoSendToCentraPayload?.NotFoundSkus.Count ?? akeneoExportPayload?.NotFoundSkus.Count ?? 0) > 0)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Not found: @(akeneoSendToCentraPayload?.NotFoundSkus.Count ?? akeneoExportPayload?.NotFoundSkus.Count)</span>
+                }
+                @if (akeneoSendToCentraPayload?.DryRun == true)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+
+            @if (summaryLines.Count > 0)
+            {
+                <div class="flowengine-detail-label">Run summary</div>
+                <div class="flowengine-history-warning flowengine-history-warning--detail mb-3">
+                    <i class="fa fa-circle-info"></i>
+                    <span>@string.Join(" · ", summaryLines)</span>
+                </div>
+            }
+
+            <details class="mb-3" data-flowengine-scroll-on-open="true">
+                <summary class="flowengine-detail-label mb-2" style="cursor:pointer;">Output file preview</summary>
+                <div class="flowengine-detail-toolbar">
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline btn-sm flowengine-copy-action"
+                            data-flowengine-copy-target="@xmlPreviewId"
+                            data-flowengine-default-label="Copy File"
+                            data-flowengine-success-label="Copied">
+                        Copy File
+                    </button>
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline btn-sm flowengine-icon-action"
+                            title="Ladda ner fil"
+                            aria-label="Ladda ner fil"
+                            data-flowengine-download-target="@xmlPreviewId"
+                            data-flowengine-download-name="@xmlDownloadName">
+                        <i class="fa fa-download"></i>
+                    </button>
+                </div>
+                <pre id="@xmlPreviewId" class="flowengine-log-block">@xmlPreviewText</pre>
+            </details>
+
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty,
+                         StandardError = Model.Result.StandardError,
+                         ShowStandardErrorInfoNote = true
+                     }" />
+        }
+        else if (centraCheckPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Centra: @centraCheckPayload.Counts.Centra</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Found: @centraCheckPayload.Counts.Found</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Missing: @centraCheckPayload.Counts.Missing</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Deleted: @centraCheckPayload.Counts.Deleted</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Errors: @centraCheckPayload.Counts.Error</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Runtime: @centraCheckPayload.RuntimeSeconds.ToString("0.00")s</span>
+            </div>
+
+            @if (summaryLines.Count > 0)
+            {
+                <div class="flowengine-history-warning flowengine-history-warning--detail mb-3">
+                    <i class="fa fa-circle-info"></i>
+                    <span>@string.Join(" · ", summaryLines)</span>
+                </div>
+            }
+
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (centraCreateShipmentsPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Total: @centraCreateShipmentsPayload.Counts.CentraTotal</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Eligible: @centraCreateShipmentsPayload.Counts.Eligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Successful: @centraCreateShipmentsPayload.Counts.Successful</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Skipped: @centraCreateShipmentsPayload.Counts.SkippedIneligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed: @centraCreateShipmentsPayload.Counts.Failed</span>
+                @if (centraCreateShipmentsPayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (centraSendOrderPayload is not null)
+        {
+            var singlePayloadPreview = centraSendOrderPayload.Payload.HasValue
+                ? System.Text.Json.JsonSerializer.Serialize(centraSendOrderPayload.Payload.Value, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })
+                : "Ingen payload-preview tillgänglig.";
+            var singlePayloadDownloadName = $"{centraSendOrderPayload.OrderId}.json";
+
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Order: @centraSendOrderPayload.OrderId</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Status: @PresentCentraSendOrderStatus(centraSendOrderPayload.Result.Status)</span>
+                @if (centraSendOrderPayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+                @if (centraSendOrderPayload.SkipJeevesCheck)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Skip Jeeves check</span>
+                }
+            </div>
+
+            @if (summaryLines.Count > 0)
+            {
+                <div class="flowengine-history-warning flowengine-history-warning--detail mb-3">
+                    <i class="fa fa-circle-info"></i>
+                    <span>@string.Join(" · ", summaryLines)</span>
+                </div>
+            }
+
+            <details class="mb-3" data-flowengine-scroll-on-open="true">
+                <summary class="flowengine-detail-label mb-2" style="cursor:pointer;">Output file preview</summary>
+                <div class="flowengine-detail-toolbar">
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline btn-sm flowengine-copy-action"
+                            data-flowengine-copy-target="@xmlPreviewId"
+                            data-flowengine-default-label="Copy File"
+                            data-flowengine-success-label="Copied">
+                        Copy File
+                    </button>
+                    <button type="button"
+                            class="btn btn-portal btn-portal-outline btn-sm flowengine-icon-action"
+                            title="Ladda ner fil"
+                            aria-label="Ladda ner fil"
+                            data-flowengine-download-target="@xmlPreviewId"
+                            data-flowengine-download-name="@singlePayloadDownloadName">
+                        <i class="fa fa-download"></i>
+                    </button>
+                </div>
+                <pre id="@xmlPreviewId" class="flowengine-log-block">@singlePayloadPreview</pre>
+            </details>
+
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty,
+                         StandardError = Model.Result.StandardError,
+                         ShowEmptyStandardError = true,
+                         ShowStandardErrorInfoNote = true
+                     }" />
+        }
+        else if (centraSendOrdersPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Centra total: @centraSendOrdersPayload.Counts.CentraTotal</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Mapped: @centraSendOrdersPayload.Counts.Mapped</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Existing: @centraSendOrdersPayload.Counts.SkippedExisting</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Ineligible: @centraSendOrdersPayload.Counts.SkippedIneligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Manual review: @centraSendOrdersPayload.Counts.ManualReviewRequired</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed: @centraSendOrdersPayload.Counts.Failed</span>
+                @if (centraSendOrdersPayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (centraSendReturnsPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Centra total: @centraSendReturnsPayload.Counts.CentraTotal</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Mapped: @centraSendReturnsPayload.Counts.Mapped</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Ineligible: @centraSendReturnsPayload.Counts.SkippedIneligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Validation: @centraSendReturnsPayload.Counts.FailedValidation</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">API: @centraSendReturnsPayload.Counts.FailedApi</span>
+                @if (centraSendReturnsPayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (shopifyCheckPayload is not null)
+        {
+            var counts = shopifyCheckPayload.Days.Select(day => day.Counts).DefaultIfEmpty(new WebApp.Models.Integration.FlowEngineShopifyCheckCounts()).ToList();
+            var total = counts.Sum(item => item.Total);
+            var found = counts.Sum(item => item.Found);
+            var missing = counts.Sum(item => item.Missing);
+            var failedValidation = counts.Sum(item => item.FailedValidation);
+            var error = counts.Sum(item => item.Error);
+
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Total: @total</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Found: @found</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Missing: @missing</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed validation: @failedValidation</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Errors: @error</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Days: @shopifyCheckPayload.Days.Count</span>
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (shopifyValidatePayload is not null)
+        {
+            var counts = shopifyValidatePayload.Days.Select(day => day.Counts).DefaultIfEmpty(new WebApp.Models.Integration.FlowEngineShopifyValidationCounts()).ToList();
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Total: @counts.Sum(item => item.Total)</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Eligible: @counts.Sum(item => item.Eligible)</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Skipped: @counts.Sum(item => item.Skipped)</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed: @counts.Sum(item => item.Failed)</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Days: @shopifyValidatePayload.Days.Count</span>
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (shopifySendPayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Total: @shopifySendPayload.Counts.Total</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Mapped: @shopifySendPayload.Counts.Mapped</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Sent: @shopifySendPayload.Counts.Sent</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Existing: @shopifySendPayload.Counts.SkippedExisting</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Ineligible: @shopifySendPayload.Counts.SkippedIneligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed: @shopifySendPayload.Counts.Failed</span>
+                @if (shopifySendPayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (shopifyCompletePayload is not null)
+        {
+            <div class="flowengine-detail-label">Summary</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Total: @shopifyCompletePayload.Counts.Total</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Completed: @shopifyCompletePayload.Counts.Completed</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Ready: @shopifyCompletePayload.Counts.Ready</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Already complete: @shopifyCompletePayload.Counts.SkippedAlreadyComplete</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Ineligible: @shopifyCompletePayload.Counts.SkippedIneligible</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Failed: @shopifyCompletePayload.Counts.Failed</span>
+                @if (shopifyCompletePayload.DryRun)
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--warning">Dry run</span>
+                }
+            </div>
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty
+                     }" />
+        }
+        else if (jeevesImportOrderPayload is not null)
+        {
+            <div class="flowengine-detail-label">Imported order</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Customer: @jeevesImportOrderPayload.CustomerNumber</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">External: @jeevesImportOrderPayload.ExternalOrderNumber</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Order type: @jeevesImportOrderPayload.OrderType</span>
+                <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Lines: @jeevesImportOrderPayload.OrderLines.Count</span>
+                @if (!string.IsNullOrWhiteSpace(jeevesImportOrderPayload.DeliveryPlaceCode))
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--stable">Delivery place: @jeevesImportOrderPayload.DeliveryPlaceCode</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(jeevesImportOrderPayload.PaidAmount))
+                {
+                    <span class="flowengine-job-storage-pill flowengine-job-storage-pill--success">Paid amount: @jeevesImportOrderPayload.PaidAmount</span>
+                }
+            </div>
+
+            @if (summaryLines.Count > 0)
+            {
+                <div class="flowengine-detail-label">Run summary</div>
+                <div class="flowengine-history-warning flowengine-history-warning--detail mb-3">
+                    <i class="fa fa-circle-info"></i>
+                    <span>@string.Join(" · ", summaryLines)</span>
+                </div>
+            }
+
+            <div class="flowengine-detail-label">Imported lines</div>
+            <div class="table-responsive mb-3">
+                <table class="table table-sm mb-0 flowengine-review-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Article</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var index = 0; index < jeevesImportOrderPayload.OrderLines.Count; index++)
+                        {
+                            var line = jeevesImportOrderPayload.OrderLines[index];
+                            <tr>
+                                <td>@(index + 1)</td>
+                                <td>@line.ArticleNumber</td>
+                                <td>@line.Quantity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                <td>@(line.Price?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty,
+                         StandardError = Model.Result.StandardError
+                     }" />
+        }
+        else
+        {
+            <partial name="FlowEngine/Partials/_FlowEngineTechnicalDetails"
+                     model="new WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+                     {
+                         CopyTargetId = rawDetailsId,
+                         RawDetailsText = rawDetailsText,
+                         StandardOutput = Model.Result.StandardOutput ?? string.Empty,
+                         StandardError = Model.Result.StandardError
+                     }" />
+        }
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="flowengine-detail-label">Fel</div>
+        <pre class="flowengine-log-block flowengine-log-block--error">@Model.ErrorMessage</pre>
+    }
+</div>
+
+<script>
+    (() => {
+        if (window.__flowEngineDetailActionsInitialized) {
+            return;
+        }
+
+        window.__flowEngineDetailActionsInitialized = true;
+
+        const copyText = async (text) => {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+
+            const helper = document.createElement('textarea');
+            helper.value = text;
+            helper.setAttribute('readonly', 'readonly');
+            helper.style.position = 'absolute';
+            helper.style.left = '-9999px';
+            document.body.appendChild(helper);
+            helper.select();
+            const succeeded = document.execCommand('copy');
+            document.body.removeChild(helper);
+            return succeeded;
+        };
+
+        document.addEventListener('click', async (event) => {
+            const copyButton = event.target.closest('[data-flowengine-copy-target]');
+            if (copyButton) {
+                const targetId = copyButton.getAttribute('data-flowengine-copy-target');
+                const target = targetId ? document.getElementById(targetId) : null;
+                if (!target) {
+                    return;
+                }
+
+                const defaultLabel = copyButton.getAttribute('data-flowengine-default-label') || copyButton.textContent.trim();
+                const successLabel = copyButton.getAttribute('data-flowengine-success-label') || 'Copied';
+
+                try {
+                    await copyText(target.textContent || '');
+                    copyButton.textContent = successLabel;
+                    window.setTimeout(() => {
+                        copyButton.textContent = defaultLabel;
+                    }, 1400);
+                } catch {
+                    copyButton.textContent = 'Failed';
+                    window.setTimeout(() => {
+                        copyButton.textContent = defaultLabel;
+                    }, 1400);
+                }
+
+                return;
+            }
+
+            const downloadButton = event.target.closest('[data-flowengine-download-target]');
+            if (downloadButton) {
+                const targetId = downloadButton.getAttribute('data-flowengine-download-target');
+                const target = targetId ? document.getElementById(targetId) : null;
+                if (!target) {
+                    return;
+                }
+
+                const fileName = downloadButton.getAttribute('data-flowengine-download-name') || 'flowengine-output.txt';
+                const blob = new Blob([target.textContent || ''], { type: 'application/xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = fileName;
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 0);
+            }
+        });
+
+        document.addEventListener('toggle', (event) => {
+            const details = event.target;
+            if (!(details instanceof HTMLDetailsElement) || !details.open || details.dataset.flowengineScrollOnOpen !== 'true') {
+                return;
+            }
+
+            const modalBody = details.closest('.modal-body');
+            const scrollHost = modalBody instanceof HTMLElement ? modalBody : document.scrollingElement;
+            if (!(scrollHost instanceof HTMLElement)) {
+                return;
+            }
+
+            window.requestAnimationFrame(() => {
+                const detailsRect = details.getBoundingClientRect();
+                const hostRect = scrollHost.getBoundingClientRect();
+                const offsetTop = detailsRect.top - hostRect.top + scrollHost.scrollTop - 12;
+
+                scrollHost.scrollTo({
+                    top: Math.max(offsetTop, 0),
+                    behavior: 'smooth'
+                });
+            });
+        });
+    })();
+</script>

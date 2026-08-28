@@ -1,0 +1,31 @@
+@model WebApp.Models.CustomerActivity.CustomerActivityViewModel
+
+@if (Model.AvailabilityState is not null)
+{
+    @await Html.PartialAsync("_ModuleState", Model.AvailabilityState)
+}
+else if (Model.Items?.Any() == true)
+{
+    <ul class="ca-list">
+        @foreach (var item in Model.Items)
+        {
+            <li class="ca-item">
+                <div class="ca-dot" aria-hidden="true"></div>
+                <div>
+                    <div class="ca-title">@item.CustomerName</div>
+                    <div class="ca-sub">@item.OccurredAt.ToString("HH:mm · yyyy-MM-dd") · @item.Description</div>
+                </div>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div class="dashboard-empty-state">
+        <div class="dashboard-empty-icon">
+            <i class="fas fa-clock-rotate-left"></i>
+        </div>
+        <div class="dashboard-empty-title">Ingen aktivitet hittades</div>
+        <div class="dashboard-empty-subtitle">Senaste kundaktivitet visas här när nya händelser kommer in.</div>
+    </div>
+}

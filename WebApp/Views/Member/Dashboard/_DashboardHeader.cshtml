@@ -1,0 +1,56 @@
+@* Shows the shared dashboard context: active company, default period and fallback state for loaded revenue data. *@
+@model WebApp.Models.Dashboard.MemberDashboardPageViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    string tzId = OperatingSystem.IsWindows() ? "W. Europe Standard Time" : "Europe/Stockholm";
+    var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+    var lastUpdated = ViewData["LastUpdated"] as string ?? TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz).ToString("HH:mm");
+    var detailsCulture = System.Globalization.CultureInfo.CurrentCulture;
+    var hasFallbackPeriod = Model?.RevenueAnalysis?.UsesFallbackPeriod == true
+        && Model.RevenueAnalysis.PeriodStart.HasValue
+        && Model.RevenueAnalysis.PeriodEnd.HasValue;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-2 member-dashboard-header">
+    <div>
+        <h1 class="page-header fw-bold mb-0 text-white">
+            @Localizer["Title"]
+        </h1>
+        @if (Model?.HasDataAccess == false)
+        {
+            <div class="small text-warning fw-bold mt-1"><i class="fa fa-triangle-exclamation fs-8px me-1"></i> Begränsat läge • Ingen datakälla uppsatt</div>
+        }
+        else
+        {
+            <div class="small text-success fw-bold mt-1"><i class="fa fa-circle fs-8px me-1"></i> @Localizer["LiveData"] • @Localizer["UpdatedAt", lastUpdated]</div>
+        }
+        <div class="dashboard-context-meta mt-2">
+            @* Use one shared context row so every dashboard card can rely on the same active company and default period framing. *@
+            <span class="dashboard-context-pill">@Localizer["ActiveCompany", string.IsNullOrWhiteSpace(Model?.ActiveCompanyName) ? "-" : Model.ActiveCompanyName]</span>
+            <span class="dashboard-context-pill">@Localizer["StandardPeriod"]</span>
+        </div>
+        @if (Model?.HasDataAccess == false)
+        {
+            @await Html.PartialAsync(
+                "~/Views/Shared/_ModuleBanner.cshtml",
+                new WebApp.ViewModels.Shared.ModuleBannerViewModel
+                {
+                    Tone = "warning",
+                    Compact = true,
+                    IconClass = "fa fa-lock",
+                    Title = "Datakälla saknas",
+                    Message = Model.DataAccessWarning ?? "Ingen databas är uppsatt för det här bolaget ännu.",
+                    Note = "Du kan fortfarande använda moduler som inte kräver Jeeves-datakälla, till exempel integrationsflöden med rätt access."
+                })
+        }
+        @if (hasFallbackPeriod)
+        {
+            <div class="dashboard-context-warning mt-2">
+                <i class="fa fa-exclamation-triangle me-1"></i>
+                @Localizer["FallbackWarning",
+                    Model!.RevenueAnalysis.PeriodStart!.Value.ToString("yyyy-MM-dd", detailsCulture),
+                    Model.RevenueAnalysis.PeriodEnd!.Value.ToString("yyyy-MM-dd", detailsCulture)]
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,1962 @@
+@model WebApp.ViewModels.Admin.ApprovalChains.ApprovalChainDesignerViewModel
+@using System.Globalization
+@using System.Text.Json
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    // Approval chain designer keeps the portal's Web Approval shell, but presents the chain as a working simulation rather than a static mockup.
+    ViewData["Title"] = Model.PageTitle;
+    var culture = CultureInfo.GetCultureInfo("sv-SE");
+    var selectedOrderType = Model.OrderTypes.FirstOrDefault(x => string.Equals(x.Key, Model.SelectedOrderTypeKey, StringComparison.OrdinalIgnoreCase))
+        ?? Model.OrderTypes.FirstOrDefault()
+        ?? new WebApp.ViewModels.Admin.ApprovalChains.ApprovalChainOrderTypeViewModel();
+    var selectedStepCount = selectedOrderType.Steps.Count;
+    var selectedQuickAmountCount = selectedOrderType.QuickAmounts.Count;
+    var selectedUnlimitedSteps = selectedOrderType.Steps.Count(x => x.Limit is null);
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <style>
+        .approval-chain-page {
+            --hub-page-surface: #1f2937;
+            --hub-page-surface-solid: #1f2937;
+            --hub-page-surface-muted: rgba(15, 23, 42, 0.42);
+            --hub-page-surface-hover: rgba(15, 23, 42, 0.62);
+            --hub-page-border: rgba(148, 163, 184, 0.16);
+            --hub-page-border-strong: rgba(255, 255, 255, 0.1);
+            --hub-page-card-shadow: none;
+            --approval-chain-muted-text: rgba(248, 250, 252, 0.78);
+            --approval-chain-subtle-text: rgba(248, 250, 252, 0.68);
+        }
+
+        .approval-chain-page .approval-hero {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: start;
+            justify-content: space-between;
+        }
+
+        .approval-chain-page .approval-mode-switch {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .approval-chain-page .approval-mode-tab {
+            min-height: 2.55rem;
+            padding: 0.45rem 0.95rem;
+            border-radius: 0.9rem;
+            border: 1px solid var(--hub-toggle-border);
+            background: var(--hub-toggle-bg);
+            color: var(--hub-toggle-text);
+            font-weight: 700;
+            box-shadow: var(--hub-toggle-shadow);
+        }
+
+        .approval-chain-page .approval-mode-tab.is-active {
+            border-color: var(--hub-toggle-active-border);
+            background: var(--hub-toggle-active-bg);
+            color: var(--hub-toggle-active-text);
+            box-shadow: var(--hub-toggle-active-shadow);
+        }
+
+        .approval-chain-page .approval-mode-tab__meta {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            opacity: 0.72;
+            line-height: 1.1;
+        }
+
+        .approval-chain-page .approval-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .approval-chain-page .approval-kpi-card {
+            padding: 0.9rem 0.95rem;
+            border: 1px solid var(--hub-page-border-strong);
+            border-radius: 14px;
+            background: var(--hub-page-surface);
+            box-shadow: var(--hub-page-card-shadow);
+        }
+
+        .approval-chain-page .approval-kpi-label {
+            color: var(--approval-chain-subtle-text);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .approval-chain-page .approval-kpi-value {
+            margin-top: 0.22rem;
+            color: var(--hub-page-heading);
+            font-size: 1.08rem;
+            font-weight: 800;
+        }
+
+        .approval-chain-page .approval-kpi-subtitle {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.84rem;
+            margin-top: 0.1rem;
+        }
+
+        .approval-chain-page .approval-mode-panel {
+            margin-bottom: 1rem;
+        }
+
+        .approval-chain-page .approval-mode-panel.is-hidden {
+            display: none;
+        }
+
+        .approval-chain-page .approval-panel--compact {
+            padding: 1rem 1rem 0.95rem;
+        }
+
+        .approval-chain-page .approval-overview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .approval-chain-page .approval-overview-item {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 0.9rem;
+            border: 1px solid var(--hub-page-border);
+            border-radius: 14px;
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-overview-item__title {
+            color: #f8fafc;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .approval-chain-page .approval-overview-item__meta {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.83rem;
+            line-height: 1.5;
+            margin-top: 0.18rem;
+        }
+
+        .approval-chain-page .approval-overview-item__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.28rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(76, 111, 151, 0.18);
+            color: #dbeafe;
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .approval-chain-page .approval-validation-list,
+        .approval-chain-page .approval-diff-list,
+        .approval-chain-page .approval-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .approval-chain-page .approval-validation-item,
+        .approval-chain-page .approval-diff-item,
+        .approval-chain-page .approval-history-item {
+            padding: 0.78rem 0.85rem;
+            border: 1px solid var(--hub-page-border);
+            border-radius: 14px;
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-validation-item--error {
+            border-color: rgba(248, 113, 113, 0.22);
+            background: rgba(248, 113, 113, 0.08);
+        }
+
+        .approval-chain-page .approval-validation-item--warn {
+            border-color: rgba(251, 191, 36, 0.22);
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .approval-chain-page .approval-validation-item__title,
+        .approval-chain-page .approval-diff-item__title,
+        .approval-chain-page .approval-history-item__title {
+            color: #f8fafc;
+            font-weight: 700;
+        }
+
+        .approval-chain-page .approval-validation-item__meta,
+        .approval-chain-page .approval-diff-item__meta,
+        .approval-chain-page .approval-history-item__meta {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.83rem;
+            line-height: 1.5;
+            margin-top: 0.15rem;
+        }
+
+        .approval-chain-page .approval-diff-item--added {
+            border-color: rgba(34, 197, 94, 0.22);
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        .approval-chain-page .approval-diff-item--changed {
+            border-color: rgba(76, 111, 151, 0.22);
+            background: rgba(76, 111, 151, 0.08);
+        }
+
+        .approval-chain-page .approval-diff-item--removed {
+            border-color: rgba(248, 113, 113, 0.22);
+            background: rgba(248, 113, 113, 0.08);
+        }
+
+        .approval-chain-page .approval-panel {
+            border: 1px solid var(--hub-page-border-strong);
+            border-radius: 16px;
+            background: var(--hub-page-surface);
+            box-shadow: var(--hub-page-card-shadow);
+        }
+
+        .approval-chain-page .approval-panel--soft {
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-panel__header {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .approval-chain-page .approval-panel__title {
+            margin: 0;
+            color: #f8fafc;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .approval-chain-page .approval-panel__meta {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.84rem;
+        }
+
+        .approval-chain-page .approval-type-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .approval-chain-page .approval-type-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-height: 2.6rem;
+            padding: 0.48rem 0.88rem;
+            border: 1px solid var(--hub-toggle-border);
+            border-radius: 12px;
+            background: var(--hub-toggle-bg);
+            color: var(--hub-toggle-text);
+            font-weight: 600;
+            box-shadow: var(--hub-toggle-shadow);
+            transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .approval-chain-page .approval-type-chip:hover {
+            border-color: var(--hub-toggle-hover-border);
+            background: var(--hub-toggle-hover-bg);
+            color: var(--hub-toggle-hover-text);
+        }
+
+        .approval-chain-page .approval-type-chip.is-active {
+            color: var(--hub-toggle-active-text);
+            border-color: var(--hub-toggle-active-border);
+            background: var(--hub-toggle-active-bg);
+            box-shadow: var(--hub-toggle-active-shadow);
+        }
+
+        .approval-chain-page .approval-chip-icon {
+            font-size: 0.9rem;
+        }
+
+        .approval-chain-page .approval-input,
+        .approval-chain-page .approval-select {
+            min-height: 2.6rem;
+            border-radius: 12px;
+            border-color: rgba(148, 163, 184, 0.2);
+            background: linear-gradient(180deg, rgba(37, 46, 63, 0.98), rgba(26, 35, 50, 0.98));
+            color: #e5e7eb;
+        }
+
+        .approval-chain-page .approval-input:focus,
+        .approval-chain-page .approval-select:focus {
+            border-color: rgba(56, 189, 248, 0.48);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+            background: linear-gradient(180deg, rgba(43, 53, 71, 0.99), rgba(30, 40, 56, 0.99));
+        }
+
+        .approval-chain-page .approval-inline-input {
+            max-width: 8.5rem;
+        }
+
+        .approval-chain-page .approval-step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .approval-chain-page .approval-step-row {
+            display: grid;
+            grid-template-columns: 2.4rem minmax(0, 1fr) minmax(9.5rem, 14rem) auto;
+            gap: 0.7rem;
+            align-items: start;
+            padding: 0.72rem 0.78rem;
+            border: 1px solid var(--hub-page-border);
+            border-radius: 14px;
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-step-index {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid currentColor;
+            font-weight: 700;
+        }
+
+        .approval-chain-page .approval-step-copy {
+            min-width: 0;
+            display: grid;
+            grid-column: 2;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.42rem;
+        }
+
+        .approval-chain-page .approval-step-name {
+            color: #f8fafc;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .approval-chain-page .approval-step-subtitle {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.83rem;
+            margin-top: 0.18rem;
+        }
+
+        .approval-chain-page .approval-step-row .form-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.77rem;
+            color: var(--approval-chain-subtle-text);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .approval-chain-page .approval-step-control {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-width: 0;
+            padding-top: 0.05rem;
+        }
+
+        .approval-chain-page .approval-step-control .approval-select,
+        .approval-chain-page .approval-step-control .approval-input {
+            min-height: 3.45rem;
+        }
+
+        .approval-chain-page .approval-step-limit {
+            grid-column: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-width: 0;
+            padding-top: 0.05rem;
+        }
+
+        .approval-chain-page .approval-step-actions {
+            grid-column: 4;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            align-self: start;
+            gap: 0.45rem;
+            padding-top: 1.55rem;
+        }
+
+        .approval-chain-page .approval-step-confirm {
+            min-height: 2.35rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(56, 189, 248, 0.24);
+            background: rgba(56, 189, 248, 0.08);
+            color: #7dd3fc;
+            font-size: 0.84rem;
+            font-weight: 700;
+            line-height: 1;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+
+        .approval-chain-page .approval-step-confirm:hover {
+            background: rgba(56, 189, 248, 0.16);
+            border-color: rgba(56, 189, 248, 0.34);
+            color: #bae6fd;
+            transform: translateY(-1px);
+        }
+
+        .approval-chain-page .approval-step-confirm:focus-visible {
+            outline: 2px solid rgba(56, 189, 248, 0.28);
+            outline-offset: 2px;
+        }
+
+        .approval-chain-page .approval-step-confirm i {
+            font-size: 0.84rem;
+        }
+
+        .approval-chain-page .approval-icon-button {
+            width: 2.35rem;
+            height: 2.35rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(248, 113, 113, 0.24);
+            background: rgba(248, 113, 113, 0.08);
+            color: #fca5a5;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+
+        .approval-chain-page .approval-icon-button:hover {
+            background: rgba(248, 113, 113, 0.16);
+            border-color: rgba(248, 113, 113, 0.36);
+            color: #fecaca;
+            transform: translateY(-1px);
+        }
+
+        .approval-chain-page .approval-icon-button:focus-visible {
+            outline: 2px solid rgba(248, 113, 113, 0.28);
+            outline-offset: 2px;
+        }
+
+        .approval-chain-page .approval-icon-button i {
+            font-size: 0.88rem;
+        }
+
+        .approval-chain-page .approval-outline-button {
+            border-radius: 12px;
+        }
+
+        .approval-chain-page .approval-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .approval-chain-page .approval-preview-table th,
+        .approval-chain-page .approval-preview-table td {
+            padding: 0.72rem 0.4rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .approval-chain-page .approval-preview-table th {
+            color: var(--approval-chain-subtle-text);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .approval-chain-page .approval-preview-row.is-active {
+            background: rgba(76, 111, 151, 0.1);
+        }
+
+        .approval-chain-page .approval-preview-row {
+            scroll-margin-top: 6rem;
+            transition: background-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .approval-chain-page .approval-preview-range {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .approval-chain-page .approval-preview-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.28rem 0.62rem;
+            margin: 0.12rem 0.18rem 0.12rem 0;
+            font-size: 0.77rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+        }
+
+        .approval-chain-page .approval-preview-badge--active {
+            background: rgba(76, 111, 151, 0.22);
+            color: #dbeafe;
+        }
+
+        .approval-chain-page .approval-preview-badge--teal { background: rgba(76, 111, 151, 0.16); color: #cfe2ff; }
+        .approval-chain-page .approval-preview-badge--indigo { background: rgba(94, 108, 132, 0.18); color: #d6deeb; }
+        .approval-chain-page .approval-preview-badge--amber { background: rgba(170, 127, 58, 0.18); color: #fde7c4; }
+        .approval-chain-page .approval-preview-badge--rose { background: rgba(124, 92, 120, 0.18); color: #f4d7ec; }
+
+        .approval-chain-page .approval-role--teal { color: #7fb8ff; }
+        .approval-chain-page .approval-role--indigo { color: #a5b4fc; }
+        .approval-chain-page .approval-role--amber { color: #f1b965; }
+        .approval-chain-page .approval-role--rose { color: #d8a3ca; }
+
+        .approval-chain-page .approval-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .approval-chain-page .approval-summary-card {
+            padding: 0.8rem 0.85rem;
+            border: 1px solid var(--hub-page-border);
+            border-radius: 14px;
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-summary-label {
+            color: var(--approval-chain-subtle-text);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .approval-chain-page .approval-summary-value {
+            margin-top: 0.15rem;
+            color: #f8fafc;
+            font-size: 1.12rem;
+            font-weight: 800;
+        }
+
+        .approval-chain-page .approval-summary-subtle {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.82rem;
+        }
+
+        .approval-chain-page .approval-preview-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .approval-chain-page .approval-preview-flow__item {
+            padding: 0.82rem 0.88rem;
+            border: 1px solid var(--hub-page-border);
+            border-radius: 14px;
+            background: var(--hub-page-surface-muted);
+        }
+
+        .approval-chain-page .approval-preview-flow__title {
+            color: #f8fafc;
+            font-weight: 700;
+        }
+
+        .approval-chain-page .approval-preview-flow__meta {
+            color: var(--approval-chain-muted-text);
+            font-size: 0.83rem;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-panel,
+        body:not(.theme-dark) .approval-chain-page .approval-panel--soft {
+            background: #ffffff;
+            border-color: rgba(15, 23, 42, 0.12);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-panel__title,
+        body:not(.theme-dark) .approval-chain-page .approval-step-name,
+        body:not(.theme-dark) .approval-chain-page .approval-summary-value,
+        body:not(.theme-dark) .approval-chain-page .approval-preview-flow__title,
+        body:not(.theme-dark) .approval-chain-page .approval-preview-range {
+            color: #0f172a;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-panel__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-step-subtitle,
+        body:not(.theme-dark) .approval-chain-page .approval-summary-subtle,
+        body:not(.theme-dark) .approval-chain-page .approval-preview-flow__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-summary-label,
+        body:not(.theme-dark) .approval-chain-page .approval-step-row .form-label,
+        body:not(.theme-dark) .approval-chain-page .approval-preview-table th {
+            color: #475569;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-step-row,
+        body:not(.theme-dark) .approval-chain-page .approval-summary-card,
+        body:not(.theme-dark) .approval-chain-page .approval-preview-flow__item {
+            background: rgba(15, 23, 42, 0.02);
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-input,
+        body:not(.theme-dark) .approval-chain-page .approval-select {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: rgba(148, 163, 184, 0.28);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-type-chip {
+            color: #0f172a;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+            border-color: rgba(15, 23, 42, 0.16);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-type-chip.is-active {
+            color: #ffffff;
+            background: linear-gradient(180deg, #4c6f97 0%, #3f618a 100%);
+            border-color: rgba(63, 97, 138, 0.55);
+            box-shadow: 0 8px 18px rgba(63, 97, 138, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-mode-tab {
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+            border-color: rgba(15, 23, 42, 0.16);
+            color: #0f172a;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-mode-tab.is-active {
+            background: linear-gradient(180deg, #4c6f97 0%, #3f618a 100%);
+            border-color: rgba(63, 97, 138, 0.55);
+            color: #ffffff;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-kpi-card,
+        body:not(.theme-dark) .approval-chain-page .approval-overview-item,
+        body:not(.theme-dark) .approval-chain-page .approval-validation-item,
+        body:not(.theme-dark) .approval-chain-page .approval-diff-item,
+        body:not(.theme-dark) .approval-chain-page .approval-history-item {
+            background: rgba(15, 23, 42, 0.02);
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-overview-item__title,
+        body:not(.theme-dark) .approval-chain-page .approval-validation-item__title,
+        body:not(.theme-dark) .approval-chain-page .approval-diff-item__title,
+        body:not(.theme-dark) .approval-chain-page .approval-history-item__title,
+        body:not(.theme-dark) .approval-chain-page .approval-kpi-value {
+            color: #0f172a;
+        }
+
+        body:not(.theme-dark) .approval-chain-page .approval-overview-item__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-validation-item__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-diff-item__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-history-item__meta,
+        body:not(.theme-dark) .approval-chain-page .approval-kpi-subtitle {
+            color: #475569;
+        }
+
+        @@media (max-width: 991.98px) {
+            .approval-chain-page .approval-step-row {
+                grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+            }
+
+            .approval-chain-page .approval-step-copy,
+            .approval-chain-page .approval-step-limit {
+                grid-column: 2 / -1;
+            }
+
+            .approval-chain-page .approval-step-limit {
+                margin-top: 0.25rem;
+            }
+
+            .approval-chain-page .approval-step-actions {
+                justify-content: flex-end;
+                padding-top: 0.05rem;
+            }
+
+            .approval-chain-page .approval-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .approval-chain-page .approval-kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .approval-chain-page .approval-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="dashboard-readable module-page admin-page approval-chain-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Approval</div>
+            <h1 class="module-page-title">@Model.PageTitle</h1>
+            <div class="module-page-subtitle">@Model.PageSubtitle</div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <button type="button" class="btn btn-portal btn-portal-outline btn-sm approval-outline-button" id="demoBtn">
+                <i class="fa fa-flask me-1"></i>Demo
+            </button>
+            <button type="button" class="btn btn-portal btn-portal-outline btn-sm approval-outline-button" id="resetDesignerBtn">
+                <i class="fa fa-rotate-left me-1"></i>Återställ
+            </button>
+            <button type="button" class="btn btn-portal btn-sm" id="copySummaryBtn">
+                <i class="fa fa-clipboard me-1"></i>Kopiera sammanställning
+            </button>
+        </div>
+    </div>
+
+    <div class="approval-mode-switch mb-3" id="modeSwitch">
+        <button type="button" class="approval-mode-tab is-active" data-mode-button="edit">
+            Bygg kedja
+            <span class="approval-mode-tab__meta">Ändra led och gränser</span>
+        </button>
+        <button type="button" class="approval-mode-tab" data-mode-button="review">
+            Granska
+            <span class="approval-mode-tab__meta">Diff och publicering</span>
+        </button>
+    </div>
+
+    <div class="approval-kpi-grid mb-3">
+        <div class="approval-kpi-card">
+            <div class="approval-kpi-label">Aktiv ordertyp</div>
+            <div class="approval-kpi-value" id="overviewTypeKpi">@selectedOrderType.Title</div>
+            <div class="approval-kpi-subtitle">@selectedStepCount led, @selectedQuickAmountCount snabbsummor</div>
+        </div>
+        <div class="approval-kpi-card">
+            <div class="approval-kpi-label">Redigeringsläge</div>
+            <div class="approval-kpi-value" id="overviewDraftKpi">Utkast</div>
+            <div class="approval-kpi-subtitle" id="overviewDraftMeta">Klart för simulering</div>
+        </div>
+        <div class="approval-kpi-card">
+            <div class="approval-kpi-label">Validering</div>
+            <div class="approval-kpi-value" id="overviewValidationKpi">Kontrolleras</div>
+            <div class="approval-kpi-subtitle" id="overviewValidationMeta">Intervall och reservattestanter</div>
+        </div>
+        <div class="approval-kpi-card">
+            <div class="approval-kpi-label">Kedjans form</div>
+            <div class="approval-kpi-value" id="overviewFlowKpi">@selectedUnlimitedSteps led saknar övre gräns</div>
+            <div class="approval-kpi-subtitle">Visar hur långt flödet sträcker sig</div>
+        </div>
+    </div>
+
+    <section class="approval-mode-panel" data-mode-panel="edit">
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                <div class="approval-panel p-3 p-lg-4">
+                    <div class="approval-panel__header">
+                        <div>
+                            <div class="approval-panel__title">Bygg attestkedja</div>
+                            <div class="approval-panel__meta">Välj ordertyp, belopp och justera reglerna innan du går vidare till granskning.</div>
+                        </div>
+                        <div class="approval-panel__meta text-end" id="designerStatusTextEdit">Förhandsgranskning aktiv</div>
+                    </div>
+
+                    <div class="approval-type-grid mb-3" id="orderTypeButtons">
+                        @foreach (var orderType in Model.OrderTypes)
+                        {
+                            var isActive = string.Equals(orderType.Key, selectedOrderType.Key, StringComparison.OrdinalIgnoreCase);
+                            <button type="button"
+                                    class="approval-type-chip @(isActive ? "is-active" : string.Empty)"
+                                    data-order-type-key="@orderType.Key"
+                                    style="--approval-accent: @(orderType.AccentClass switch
+                                    {
+                                        "approval-type--teal" => "#2dd4bf",
+                                        "approval-type--indigo" => "#818cf8",
+                                        "approval-type--cyan" => "#22d3ee",
+                                        "approval-type--amber" => "#f59e0b",
+                                        "approval-type--green" => "#22c55e",
+                                        _ => "#38bdf8"
+                                    })">
+                                <i class="@orderType.IconClass approval-chip-icon"></i>
+                                <span>@orderType.Title</span>
+                            </button>
+                        }
+                    </div>
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-xl-4 col-lg-5">
+                            <label class="form-label text-uppercase small text-muted mb-1" for="amountInput">Belopp (SEK)</label>
+                            <input id="amountInput"
+                                   class="form-control approval-input approval-inline-input"
+                                   type="number"
+                                   min="0"
+                                   step="1"
+                                   value="@Model.SelectedAmount.ToString(CultureInfo.InvariantCulture)" />
+                        </div>
+                        <div class="col-xl-6 col-lg-7">
+                            <div class="d-flex flex-wrap gap-2" id="quickAmountButtons">
+                                @foreach (var amount in selectedOrderType.QuickAmounts)
+                                {
+                                    <button type="button"
+                                            class="btn btn-sm btn-portal btn-portal-outline approval-outline-button approval-quick-amount"
+                                            data-quick-amount="@amount.ToString(CultureInfo.InvariantCulture)">
+                                        @amount.ToString("N0", culture) kr
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-12 text-xl-end">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-portal" id="simulateBtn">
+                                    <i class="fa fa-bolt me-1"></i>Simulera
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-8">
+                <div class="approval-panel p-3 p-lg-4 h-100">
+                    <div class="approval-panel__header">
+                        <div>
+                            <div class="approval-panel__title" id="selectedTypeTitle">@selectedOrderType.Title</div>
+                            <div class="approval-panel__meta" id="selectedTypeDescription">@selectedOrderType.Description</div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-portal btn-portal-outline approval-outline-button" id="addStepBtn">
+                            <i class="fa fa-plus me-1"></i>Lägg till led
+                        </button>
+                    </div>
+
+                    <div class="approval-step-list mb-3" id="approvalStepList">
+                        @foreach (var step in selectedOrderType.Steps)
+                        {
+                            <div class="approval-step-row" data-sequence="@step.Sequence">
+                                <div class="approval-step-index approval-role--@(step.RoleKey)" data-step-sequence>@step.Sequence</div>
+                                <div class="approval-step-copy">
+                                    <div class="approval-step-name">@step.RoleName — @step.ApproverName</div>
+                                    <div class="approval-step-subtitle">Reserv: @step.ReserveApproverName</div>
+                                    <div class="approval-step-subtitle">@step.Note</div>
+                                </div>
+                                <div class="approval-step-limit">
+                                    <label class="form-label">Beloppsgräns</label>
+                                    <input class="form-control approval-input js-step-limit"
+                                           type="number"
+                                           min="0"
+                                           step="1"
+                                           value="@(step.Limit?.ToString(CultureInfo.InvariantCulture) ?? string.Empty)" />
+                                </div>
+                                <div class="approval-step-actions">
+                                    <button type="button" class="approval-icon-button js-remove-step" aria-label="Ta bort led">
+                                        <i class="fa fa-times-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="approval-preview-shell approval-panel--soft p-3">
+                        <div class="approval-panel__header mb-2">
+                            <div>
+                                <div class="approval-panel__title">Förhandsgranskning - vem attesterar vad</div>
+                                <div class="approval-panel__meta">Uppdateras när du ändrar belopp eller gränser.</div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>Beloppsintervall</th>
+                                        <th>Attestanter</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewRows">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="approval-panel p-3 p-lg-4 h-100">
+                    <div class="approval-panel__header">
+                        <div>
+                            <div class="approval-panel__title">Aktivt scenario</div>
+                            <div class="approval-panel__meta">Visar vad som händer för det valda beloppet.</div>
+                        </div>
+                    </div>
+
+                    <div class="approval-summary-grid mb-3">
+                        <div class="approval-summary-card">
+                            <div class="approval-summary-label">Ordertyp</div>
+                            <div class="approval-summary-value" id="summaryType">@selectedOrderType.Title</div>
+                        </div>
+                        <div class="approval-summary-card">
+                            <div class="approval-summary-label">Belopp</div>
+                            <div class="approval-summary-value" id="summaryAmount">@Model.SelectedAmount.ToString("N0", culture) kr</div>
+                        </div>
+                        <div class="approval-summary-card">
+                            <div class="approval-summary-label">Aktiv led</div>
+                            <div class="approval-summary-value" id="summaryStep">-</div>
+                        </div>
+                        <div class="approval-summary-card">
+                            <div class="approval-summary-label">Nästa steg</div>
+                            <div class="approval-summary-value" id="summaryNextStep">-</div>
+                        </div>
+                    </div>
+
+                    <div class="approval-preview-flow" id="activeFlowSummary">
+                        @foreach (var step in selectedOrderType.Steps)
+                        {
+                            <div class="approval-preview-flow__item">
+                                <div class="approval-preview-flow__title">@step.Sequence. @step.RoleName</div>
+                                <div class="approval-preview-flow__meta">@step.ApproverName · Reserv: @step.ReserveApproverName</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="approval-mode-panel" data-mode-panel="review">
+        <div class="row g-3">
+            <div class="col-xl-8">
+                <div class="approval-panel p-3 p-lg-4 h-100">
+                    <div class="approval-panel__header">
+                        <div>
+                            <div class="approval-panel__title">Granska och publicera</div>
+                            <div class="approval-panel__meta">Jämför utkastet mot publicerad kedja innan du låser ändringen.</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-portal btn-portal-outline approval-outline-button" id="saveDraftBtn">
+                                <i class="fa fa-floppy-o me-1"></i>Spara utkast
+                            </button>
+                            <button type="button" class="btn btn-portal" id="publishBtn">
+                                <i class="fa fa-paper-plane me-1"></i>Publicera
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="approval-panel--soft p-3 mb-3">
+                        <div class="approval-summary-grid">
+                            <div class="approval-summary-card">
+                                <div class="approval-summary-label">Status</div>
+                                <div class="approval-summary-value" id="reviewStatusValue">Utkast</div>
+                                <div class="approval-summary-subtle" id="reviewStatusMeta">Ingen publicering än.</div>
+                            </div>
+                            <div class="approval-summary-card">
+                                <div class="approval-summary-label">Ändringar</div>
+                                <div class="approval-summary-value" id="reviewChangeValue">0</div>
+                                <div class="approval-summary-subtle">Radvisa skillnader mot publicerad kedja</div>
+                            </div>
+                            <div class="approval-summary-card">
+                                <div class="approval-summary-label">Validering</div>
+                                <div class="approval-summary-value" id="reviewValidationValue">OK</div>
+                                <div class="approval-summary-subtle" id="reviewValidationMeta">Redo för publicering när allt är grönt.</div>
+                            </div>
+                            <div class="approval-summary-card">
+                                <div class="approval-summary-label">Åtgärd</div>
+                                <div class="approval-summary-value" id="reviewActionValue">Granska diffen</div>
+                                <div class="approval-summary-subtle">Spara först, publicera därefter</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="approval-diff-list" id="reviewDiffList"></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="approval-panel p-3 p-lg-4 h-100">
+                    <div class="approval-panel__header">
+                        <div>
+                            <div class="approval-panel__title">Publiceringskontroll</div>
+                            <div class="approval-panel__meta">Det här är ytan som senare kopplas till backend och versionshistorik.</div>
+                        </div>
+                    </div>
+
+                    <div class="approval-validation-list mb-3" id="validationList"></div>
+
+                    <div class="approval-panel--soft p-3 mb-3">
+                        <div class="approval-summary-label">Publiceringsordning</div>
+                        <div class="approval-summary-value mt-1">1. Spara utkast</div>
+                        <div class="approval-summary-subtle">Kontrollerar att alla led och gränser är korrekta.</div>
+                        <div class="approval-summary-value mt-3">2. Publicera</div>
+                        <div class="approval-summary-subtle">Flyttar utkastet till aktiv version när allt är godkänt.</div>
+                    </div>
+
+                    <div class="approval-history-list">
+                        <div class="approval-history-item">
+                            <div class="approval-history-item__title">Granskningsspår</div>
+                            <div class="approval-history-item__meta">Diffen räknas från publicerad version och hjälper granskare att se vad som ändrats.</div>
+                        </div>
+                        <div class="approval-history-item">
+                            <div class="approval-history-item__title">Kontroll mot fel</div>
+                            <div class="approval-history-item__meta">Validering stoppar publicering om intervall överlappar eller om sista ledet saknar slutgräns.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<template id="approvalStepTemplate">
+    <div class="approval-step-row" data-sequence="__sequence__">
+        <div class="approval-step-index __roleClass__" data-step-sequence>__sequence__</div>
+        <div class="approval-step-copy">
+            __titleBlock__
+            __approverField__
+            <div class="approval-step-subtitle">Reserv: __reserveName__</div>
+            <div class="approval-step-subtitle">__note__</div>
+        </div>
+        <div class="approval-step-limit">
+            <label class="form-label">Beloppsgräns</label>
+            <input class="form-control approval-input js-step-limit" type="number" min="0" step="1" value="__limit__" />
+        </div>
+        <div class="approval-step-actions">
+            __confirmButton__
+            <button type="button" class="approval-icon-button js-remove-step" aria-label="Ta bort led">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+    </div>
+</template>
+
+<script>
+    (() => {
+        const model = @Html.Raw(JsonSerializer.Serialize(Model, jsonOptions));
+        const orderTypes = Array.isArray(model.orderTypes) ? model.orderTypes : [];
+        const approverOptions = Array.isArray(model.approverOptions) ? model.approverOptions : [];
+
+        const modeButtons = document.querySelectorAll('[data-mode-button]');
+        const modePanels = document.querySelectorAll('[data-mode-panel]');
+        const orderTypeButtons = document.getElementById('orderTypeButtons');
+        const amountInput = document.getElementById('amountInput');
+        const quickAmountButtons = document.getElementById('quickAmountButtons');
+        const stepList = document.getElementById('approvalStepList');
+        const previewRows = document.getElementById('previewRows');
+        const summaryType = document.getElementById('summaryType');
+        const summaryAmount = document.getElementById('summaryAmount');
+        const summaryStep = document.getElementById('summaryStep');
+        const summaryNextStep = document.getElementById('summaryNextStep');
+        const activeFlowSummary = document.getElementById('activeFlowSummary');
+        const selectedTypeTitle = document.getElementById('selectedTypeTitle');
+        const selectedTypeDescription = document.getElementById('selectedTypeDescription');
+        const addStepBtn = document.getElementById('addStepBtn');
+        const demoBtn = document.getElementById('demoBtn');
+        const resetDesignerBtn = document.getElementById('resetDesignerBtn');
+        const copySummaryBtn = document.getElementById('copySummaryBtn');
+        const simulateBtn = document.getElementById('simulateBtn');
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
+        const publishBtn = document.getElementById('publishBtn');
+        const validationList = document.getElementById('validationList');
+        const reviewDiffList = document.getElementById('reviewDiffList');
+        const designerStatusTextOverview = document.getElementById('designerStatusTextOverview');
+        const designerStatusTextEdit = document.getElementById('designerStatusTextEdit');
+        const overviewDraftKpi = document.getElementById('overviewDraftKpi');
+        const overviewDraftMeta = document.getElementById('overviewDraftMeta');
+        const overviewValidationKpi = document.getElementById('overviewValidationKpi');
+        const overviewValidationMeta = document.getElementById('overviewValidationMeta');
+        const overviewFlowKpi = document.getElementById('overviewFlowKpi');
+        const overviewDraftStateText = document.getElementById('overviewDraftStateText');
+        const overviewDraftStateBadge = document.getElementById('overviewDraftStateBadge');
+        const overviewValidationStateText = document.getElementById('overviewValidationStateText');
+        const overviewValidationStateBadge = document.getElementById('overviewValidationStateBadge');
+        const overviewNextStepText = document.getElementById('overviewNextStepText');
+        const reviewStatusValue = document.getElementById('reviewStatusValue');
+        const reviewStatusMeta = document.getElementById('reviewStatusMeta');
+        const reviewChangeValue = document.getElementById('reviewChangeValue');
+        const reviewValidationValue = document.getElementById('reviewValidationValue');
+        const reviewValidationMeta = document.getElementById('reviewValidationMeta');
+        const reviewActionValue = document.getElementById('reviewActionValue');
+        const overviewScenarioText = document.getElementById('overviewScenarioText');
+        const overviewScenarioBadge = document.getElementById('overviewScenarioBadge');
+        const template = document.getElementById('approvalStepTemplate');
+        const currencyLabel = @Html.Raw(JsonSerializer.Serialize(Model.Currency));
+
+        if (!orderTypeButtons || !amountInput || !stepList || !previewRows || !template) return;
+
+        let currentOrderType = getOrderType(model.selectedOrderTypeKey) || orderTypes[0];
+        const basePublishedByType = new Map(orderTypes.map((type) => [String(type.key).toLowerCase(), cloneSteps(type.steps || [])]));
+        const baseDraftByType = new Map(orderTypes.map((type) => [String(type.key).toLowerCase(), cloneSteps(type.steps || [])]));
+        let publishedByType = cloneStateMap(basePublishedByType);
+        let savedDraftByType = cloneStateMap(baseDraftByType);
+        let currentAmount = parseAmount(amountInput.value);
+        let currentSteps = sortStepsByLimit(savedDraftByType.get(String(currentOrderType?.key || '').toLowerCase()) || currentOrderType?.steps || []);
+        let currentMode = 'edit';
+        let demoScenarioSeed = null;
+
+        function getOrderType(key) {
+            return orderTypes.find((item) => String(item.key).toLowerCase() === String(key).toLowerCase());
+        }
+
+        function parseAmount(value) {
+            const parsed = Number.parseFloat(String(value).replace(',', '.'));
+            return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+        }
+
+        function cloneSteps(steps = []) {
+            return steps.map((step) => ({ ...step }));
+        }
+
+        function sortStepsByLimit(steps = []) {
+            return cloneSteps(steps)
+                .map((step, index) => ({ ...step, __sortIndex: index }))
+                .sort((a, b) => {
+                    if (!!a.isDraft !== !!b.isDraft) return a.isDraft ? 1 : -1;
+                    const leftLimit = a.limit == null ? Number.POSITIVE_INFINITY : a.limit;
+                    const rightLimit = b.limit == null ? Number.POSITIVE_INFINITY : b.limit;
+                    if (leftLimit !== rightLimit) return leftLimit - rightLimit;
+                    return a.__sortIndex - b.__sortIndex;
+                })
+                .map(({ __sortIndex, ...step }) => step);
+        }
+
+        function cloneStateMap(sourceMap) {
+            return new Map(Array.from(sourceMap.entries(), ([key, steps]) => [key, cloneSteps(steps || [])]));
+        }
+
+        function stepsEqual(a, b) {
+            return JSON.stringify(a || []) === JSON.stringify(b || []);
+        }
+
+        function getCommittedSteps(steps = currentSteps) {
+            return sortStepsByLimit(steps.filter((step) => !step.isDraft));
+        }
+
+        function formatAmount(value) {
+            return new Intl.NumberFormat('sv-SE', { maximumFractionDigits: 0 }).format(value);
+        }
+
+        function formatInterval(start, end) {
+            if (start <= 1 && end == null) return `1 kr – Obegränsat`;
+            if (start <= 1) return `1 kr – ${formatAmount(end)} kr`;
+            if (end == null) return `${formatAmount(start)} kr – Obegränsat`;
+            return `${formatAmount(start)} kr – ${formatAmount(end)} kr`;
+        }
+
+        function roleClass(roleKey) {
+            switch (String(roleKey).toLowerCase()) {
+                case 'chef': return 'approval-role--teal';
+                case 'controller': return 'approval-role--indigo';
+                case 'cfo': return 'approval-role--amber';
+                default: return 'approval-role--rose';
+            }
+        }
+
+        function currentKey() {
+            return String(currentOrderType?.key || '').toLowerCase();
+        }
+
+        function buildScenarioSeed() {
+            const purchaseKey = 'purchase';
+            const serviceKey = 'service';
+            const travelKey = 'travel';
+
+            return {
+                currentOrderTypeKey: purchaseKey,
+                currentAmount: 125000,
+                currentMode: 'edit',
+                publishedByType: new Map([
+                    [purchaseKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'anna-lindstrom', approverName: 'Anna Lindström', reserveApproverName: 'Marcus Ek', limit: 20000, note: 'Initial publicerat led för köp.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'marcus-ek', approverName: 'Marcus Ek', reserveApproverName: 'Helena Björk', limit: 90000, note: 'Publicerad nivå för större köp.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Anna Lindström', limit: null, note: 'Slutnivå i publicerad kedja.' }
+                    ]],
+                    [serviceKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'sara-holm', approverName: 'Sara Holm', reserveApproverName: 'Jonas Berg', limit: 15000, note: 'Standardnivå för tjänster.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'jonas-berg', approverName: 'Jonas Berg', reserveApproverName: 'Helena Björk', limit: 50000, note: 'Budgetkontroll för konsultköp.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Sara Holm', limit: null, note: 'Högsta nivån publicerad.' }
+                    ]],
+                    [travelKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'karin-stahl', approverName: 'Karin Ståhl', reserveApproverName: 'Peter Nordin', limit: 10000, note: 'Normal resepolicy.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'peter-nordin', approverName: 'Peter Nordin', reserveApproverName: 'Helena Björk', limit: 30000, note: 'Högre resebudget.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Karin Ståhl', limit: null, note: 'Slutnivå för resor.' }
+                    ]]
+                ]),
+                savedDraftByType: new Map([
+                    [purchaseKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'anna-lindstrom', approverName: 'Anna Lindström', reserveApproverName: 'Marcus Ek', limit: 25000, note: 'Demo: höjd första gräns för att visa diff.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'marcus-ek', approverName: 'Marcus Ek', reserveApproverName: 'Helena Björk', limit: 100000, note: 'Demo: uppdaterad controller-gräns.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Anna Lindström', limit: null, note: 'Demo: oförändrad slutnivå.' }
+                    ]],
+                    [serviceKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'sara-holm', approverName: 'Sara Holm', reserveApproverName: 'Jonas Berg', limit: 15000, note: 'Standardnivå för tjänster.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'jonas-berg', approverName: 'Jonas Berg', reserveApproverName: 'Helena Björk', limit: 50000, note: 'Budgetkontroll för konsultköp.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Sara Holm', limit: null, note: 'Högsta nivån publicerad.' }
+                    ]],
+                    [travelKey, [
+                        { sequence: 1, roleKey: 'chef', roleName: 'Chef', approverKey: 'karin-stahl', approverName: 'Karin Ståhl', reserveApproverName: 'Peter Nordin', limit: 10000, note: 'Normal resepolicy.' },
+                        { sequence: 2, roleKey: 'controller', roleName: 'Controller', approverKey: 'peter-nordin', approverName: 'Peter Nordin', reserveApproverName: 'Helena Björk', limit: 30000, note: 'Högre resebudget.' },
+                        { sequence: 3, roleKey: 'cfo', roleName: 'CFO', approverKey: 'helena-bjork', approverName: 'Helena Björk', reserveApproverName: 'Karin Ståhl', limit: null, note: 'Slutnivå för resor.' }
+                    ]]
+                ])
+            };
+        }
+
+        function applyScenarioSeed(seed) {
+            if (!seed) return;
+
+            publishedByType = cloneStateMap(seed.publishedByType || basePublishedByType);
+            savedDraftByType = cloneStateMap(seed.savedDraftByType || baseDraftByType);
+            const targetType = getOrderType(seed.currentOrderTypeKey) || orderTypes[0];
+            currentOrderType = targetType;
+            currentAmount = parseAmount(seed.currentAmount ?? amountInput.value);
+            amountInput.value = String(currentAmount);
+            currentSteps = sortStepsByLimit(savedDraftByType.get(String(targetType?.key || '').toLowerCase()) || targetType?.steps || []);
+            currentMode = seed.currentMode || 'overview';
+            demoScenarioSeed = seed;
+            updateModePanels();
+            renderStepRows();
+            renderAll();
+        }
+
+        function getPublishedSteps() {
+            return sortStepsByLimit(publishedByType.get(currentKey()) || currentOrderType?.steps || []);
+        }
+
+        function getSavedDraftSteps() {
+            return sortStepsByLimit(savedDraftByType.get(currentKey()) || currentSteps);
+        }
+
+        function computeValidation(steps = currentSteps) {
+            const issues = [];
+            const draftSteps = steps.filter((step) => step.isDraft);
+            const committedSteps = getCommittedSteps(steps);
+
+            if (!steps.length) {
+                issues.push({
+                    kind: 'error',
+                    title: 'Kedjan saknar led',
+                    meta: 'Lägg till minst ett attestled innan publicering.'
+                });
+                return issues;
+            }
+
+            if (draftSteps.length) {
+                issues.push({
+                    kind: 'error',
+                    title: 'Nytt led är inte sparat',
+                    meta: 'Tryck Spara på det nya ledet innan granskning eller publicering.'
+                });
+            }
+
+            let previousLimit = 0;
+
+            committedSteps.forEach((step, index) => {
+                const limit = Number.isFinite(step.limit) ? step.limit : null;
+                const isLast = index === committedSteps.length - 1;
+
+                if (!step.approverName || !step.approverName.trim()) {
+                    issues.push({
+                        kind: 'error',
+                        title: `Steg ${index + 1} saknar attestant`,
+                        meta: 'Välj en ansvarig innan flödet publiceras.'
+                    });
+                }
+
+                if (!step.reserveApproverName || !step.reserveApproverName.trim()) {
+                    issues.push({
+                        kind: 'warn',
+                        title: `Steg ${index + 1} saknar reserv`,
+                        meta: 'Reservattestant bör vara satt för driftbarhet.'
+                    });
+                }
+
+                if (!isLast && limit == null) {
+                    issues.push({
+                        kind: 'error',
+                        title: `Steg ${index + 1} saknar beloppsgräns`,
+                        meta: 'Mellansteg behöver en övre gräns.'
+                    });
+                }
+
+                if (limit != null && limit < previousLimit) {
+                    issues.push({
+                        kind: 'error',
+                        title: `Steg ${index + 1} överlappar tidigare led`,
+                        meta: 'Beloppsgränsen måste vara högre än föregående led.'
+                    });
+                }
+
+                if (limit != null) {
+                    previousLimit = limit;
+                }
+            });
+
+            const lastStep = committedSteps[committedSteps.length - 1];
+            if (lastStep?.limit != null) {
+                issues.push({
+                    kind: 'warn',
+                    title: 'Sista ledet är inte obegränsat',
+                    meta: 'Förväntat är att sista nivån fångar resterande belopp.'
+                });
+            }
+
+            return issues;
+        }
+
+        function computeDiff(baseSteps, nextSteps) {
+            const diffs = [];
+            const maxLength = Math.max(baseSteps.length, nextSteps.length);
+
+            for (let index = 0; index < maxLength; index += 1) {
+                const base = baseSteps[index];
+                const next = nextSteps[index];
+
+                if (!base && next) {
+                    diffs.push({
+                        kind: 'added',
+                        title: `Led ${index + 1} tillagt`,
+                        meta: `${next.roleName} · ${next.approverName}`
+                    });
+                    continue;
+                }
+
+                if (base && !next) {
+                    diffs.push({
+                        kind: 'removed',
+                        title: `Led ${index + 1} borttaget`,
+                        meta: `${base.roleName} · ${base.approverName}`
+                    });
+                    continue;
+                }
+
+                if (!base || !next) continue;
+
+                const changes = [];
+                if (base.roleName !== next.roleName) changes.push(`Roll ${base.roleName} → ${next.roleName}`);
+                if (base.approverName !== next.approverName) changes.push(`Attestant ${base.approverName} → ${next.approverName}`);
+                if (base.reserveApproverName !== next.reserveApproverName) changes.push(`Reserv ${base.reserveApproverName} → ${next.reserveApproverName}`);
+                if ((base.limit ?? null) !== (next.limit ?? null)) {
+                    const before = base.limit == null ? 'Obegränsat' : `${formatAmount(base.limit)} kr`;
+                    const after = next.limit == null ? 'Obegränsat' : `${formatAmount(next.limit)} kr`;
+                    changes.push(`Beloppsgräns ${before} → ${after}`);
+                }
+                if ((base.note || '') !== (next.note || '')) changes.push('Beskrivning uppdaterad');
+
+                if (changes.length) {
+                    diffs.push({
+                        kind: 'changed',
+                        title: `Steg ${index + 1} ändrat`,
+                        meta: changes.join(' · ')
+                    });
+                }
+            }
+
+            return diffs;
+        }
+
+        function renderOrderTypeButtons() {
+            orderTypeButtons.querySelectorAll('.approval-type-chip').forEach((btn) => {
+                const isActive = String(btn.dataset.orderTypeKey).toLowerCase() === String(currentOrderType?.key).toLowerCase();
+                btn.classList.toggle('is-active', isActive);
+            });
+        }
+
+        function renderQuickAmounts() {
+            if (!currentOrderType) return;
+            quickAmountButtons.querySelectorAll('.approval-quick-amount').forEach((btn) => {
+                const isActive = parseAmount(btn.dataset.quickAmount) === currentAmount;
+                btn.classList.toggle('active', isActive);
+            });
+        }
+
+        function renderStepRows() {
+            currentSteps = sortStepsByLimit(currentSteps);
+            stepList.innerHTML = '';
+
+            currentSteps.forEach((step, index) => {
+                const row = createStepRow(step, index + 1);
+                stepList.appendChild(row);
+            });
+        }
+
+        function createStepRow(step, sequence) {
+            const selectedApprover = resolveApproverOption(step.approverKey, step.roleKey, false);
+            const approverField = step.isDraft
+                ? `
+                    <div class="approval-step-control">
+                        <label class="form-label">Attestant</label>
+                        <select class="form-select approval-select js-approver-select">
+                            ${buildApproverOptionsHtml(step.approverKey || '', true)}
+                        </select>
+                    </div>
+                `
+                : '';
+            const confirmButton = step.isDraft
+                ? `
+                    <button type="button" class="approval-step-confirm js-lock-step">
+                        <i class="fa fa-check"></i>
+                        <span>Spara</span>
+                    </button>
+                `
+                : '';
+            const titleBlock = step.isDraft
+                ? ''
+                : `<div class="approval-step-name">${escapeHtml(selectedApprover?.displayName || `${step.roleName || 'Roll'} — ${step.approverName || '-'}`)}</div>`;
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = template.innerHTML
+                .replaceAll('__sequence__', String(sequence))
+                .replaceAll('__roleClass__', roleClass(step.roleKey))
+                .replaceAll('__titleBlock__', titleBlock)
+                .replaceAll('__approverField__', approverField)
+                .replaceAll('__reserveName__', escapeHtml(step.reserveApproverName || '-'))
+                .replaceAll('__note__', escapeHtml(step.note || ''))
+                .replaceAll('__limit__', step.limit == null ? '' : String(step.limit))
+                .replaceAll('__confirmButton__', confirmButton);
+
+            const row = wrapper.firstElementChild;
+            bindStepRow(row, step);
+            return row;
+        }
+
+        function bindStepRow(row, step) {
+            if (!row) return;
+            row.querySelector('.js-approver-select')?.addEventListener('change', () => {
+                updateStateFromRows();
+                renderAll();
+            });
+            row.querySelector('.js-step-limit')?.addEventListener('input', () => {
+                updateStateFromRows();
+                renderAll();
+            });
+            row.querySelector('.js-lock-step')?.addEventListener('click', () => {
+                updateStateFromRows();
+                const rows = Array.from(stepList.querySelectorAll('.approval-step-row'));
+                const rowIndex = rows.indexOf(row);
+                const draftStep = currentSteps[rowIndex];
+                if (!draftStep) return;
+
+                if (!draftStep.approverKey) {
+                    if (designerStatusTextEdit) designerStatusTextEdit.textContent = 'Välj attestant innan du trycker Spara';
+                    return;
+                }
+
+                if (draftStep.limit == null) {
+                    if (designerStatusTextEdit) designerStatusTextEdit.textContent = 'Ange beloppsgräns innan du trycker Spara';
+                    return;
+                }
+
+                const committedSteps = cloneSteps(currentSteps);
+                committedSteps[rowIndex] = { ...committedSteps[rowIndex], isDraft: false };
+                currentSteps = sortStepsByLimit(committedSteps);
+                persistCurrentDraftSnapshot();
+                renderStepRows();
+                renderAll();
+            });
+            row.querySelector('.js-remove-step')?.addEventListener('click', () => {
+                row.remove();
+                updateStateFromRows();
+                renderAll();
+            });
+        }
+
+        function updateStateFromRows() {
+            const nextSteps = Array.from(stepList.querySelectorAll('.approval-step-row')).map((row, index) => {
+                const source = currentSteps[index] || {};
+                const approverSelect = row.querySelector('.js-approver-select');
+                const selectedApprover = resolveApproverOption(approverSelect?.value || source.approverKey, source.roleKey, false) || {};
+                const limitInput = row.querySelector('.js-step-limit');
+                const isDraft = !!source.isDraft;
+                return {
+                    sequence: index + 1,
+                    roleKey: selectedApprover.roleKey || source.roleKey || 'backup',
+                    roleName: selectedApprover.title || source.roleName || 'Led',
+                    approverKey: selectedApprover.key || source.approverKey || '',
+                    approverName: selectedApprover.name || source.approverName || 'Ansvarig',
+                    reserveApproverName: source.reserveApproverName || 'Reserv',
+                    limit: parseAmount(limitInput?.value || '') || null,
+                    note: source.note || '',
+                    isDraft
+                };
+            });
+
+            currentSteps = sortStepsByLimit(nextSteps);
+        }
+
+        function persistCurrentDraftSnapshot() {
+            savedDraftByType.set(currentKey(), cloneSteps(currentSteps));
+        }
+
+        function resolveApproverOption(optionKey, roleKey, allowFallback = true) {
+            const normalizedKey = String(optionKey || '').toLowerCase();
+            const normalizedRoleKey = String(roleKey || '').toLowerCase();
+            const option = approverOptions.find((entry) => {
+                if (normalizedKey && String(entry.key).toLowerCase() === normalizedKey) return true;
+                return normalizedRoleKey && String(entry.roleKey).toLowerCase() === normalizedRoleKey;
+            });
+
+            if (option) return option;
+            return allowFallback ? approverOptions[0] || null : null;
+        }
+
+        function buildApproverOptionsHtml(selectedKey, includePlaceholder = false) {
+            const normalizedSelectedKey = String(selectedKey || '').toLowerCase();
+            if (!approverOptions.length) {
+                return '<option value="">Ingen attestant</option>';
+            }
+
+            const optionsHtml = approverOptions.map((option) => {
+                const isSelected = String(option.key).toLowerCase() === normalizedSelectedKey;
+                const label = `${option.title} — ${option.name}`;
+                return `<option value="${escapeHtml(option.key)}"${isSelected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
+            }).join('');
+
+            if (!includePlaceholder) {
+                return optionsHtml;
+            }
+
+            return `<option value="">Välj attestant</option>${optionsHtml}`;
+        }
+
+        function renderSummary() {
+            summaryType.textContent = currentOrderType?.title || '-';
+            summaryAmount.textContent = `${formatAmount(currentAmount)} ${currencyLabel}`;
+            selectedTypeTitle.textContent = currentOrderType?.title || '-';
+            selectedTypeDescription.textContent = currentOrderType?.description || '';
+
+            const computed = computeActiveStep();
+            summaryStep.textContent = computed.active ? `${computed.active.sequence}. ${computed.active.roleName}` : '-';
+            summaryNextStep.textContent = computed.next ? `${computed.next.sequence}. ${computed.next.roleName}` : 'Slutled';
+        }
+
+        function renderValidation() {
+            const issues = computeValidation();
+            const errorCount = issues.filter((issue) => issue.kind === 'error').length;
+            const warnCount = issues.filter((issue) => issue.kind === 'warn').length;
+
+            if (validationList) {
+                validationList.innerHTML = '';
+                if (!issues.length) {
+                    const item = document.createElement('div');
+                    item.className = 'approval-validation-item';
+                    item.innerHTML = `
+                        <div class="approval-validation-item__title">Inga blockerande fel</div>
+                        <div class="approval-validation-item__meta">Kedjan går att granska och publicera.</div>
+                    `;
+                    validationList.appendChild(item);
+                } else {
+                    issues.forEach((issue) => {
+                        const item = document.createElement('div');
+                        item.className = `approval-validation-item approval-validation-item--${issue.kind}`;
+                        item.innerHTML = `
+                            <div class="approval-validation-item__title">${escapeHtml(issue.title)}</div>
+                            <div class="approval-validation-item__meta">${escapeHtml(issue.meta)}</div>
+                        `;
+                        validationList.appendChild(item);
+                    });
+                }
+            }
+
+            if (overviewValidationKpi) {
+                overviewValidationKpi.textContent = errorCount ? `${errorCount} fel` : warnCount ? `${warnCount} varning${warnCount === 1 ? '' : 'ar'}` : 'OK';
+            }
+
+            if (overviewValidationMeta) {
+                overviewValidationMeta.textContent = errorCount
+                    ? 'Publicering stoppas tills felen är lösta.'
+                    : warnCount
+                        ? 'Det finns varningar, men flödet kan fortfarande granskas.'
+                        : 'Inga blockerande fel i det aktuella utkastet.';
+            }
+
+            if (overviewValidationStateText) {
+                overviewValidationStateText.textContent = errorCount
+                    ? 'Kontrollera beloppsgränser och attestanter.'
+                    : warnCount
+                        ? 'En eller flera varningar behöver din uppmärksamhet.'
+                        : 'Allt ser korrekt ut för publicering.';
+            }
+
+            if (overviewValidationStateBadge) {
+                overviewValidationStateBadge.textContent = errorCount ? `${errorCount} fel` : warnCount ? `${warnCount} varning${warnCount === 1 ? '' : 'ar'}` : 'OK';
+            }
+
+            return { issues, errorCount, warnCount };
+        }
+
+        function renderOverview() {
+            const validation = computeValidation();
+            const errorCount = validation.filter((issue) => issue.kind === 'error').length;
+            const warnCount = validation.filter((issue) => issue.kind === 'warn').length;
+            const draftSteps = getSavedDraftSteps();
+            const publishedSteps = getPublishedSteps();
+            const dirty = !stepsEqual(currentSteps, draftSteps);
+            const activeComputed = computeActiveStep();
+            const unlimitedStepCount = getCommittedSteps().filter((step) => step.limit == null).length;
+            const draftStateText = dirty ? 'Utkast har osparade ändringar.' : 'Utkastet är synkat med sparad version.';
+            const demoActive = !!demoScenarioSeed;
+
+            if (designerStatusTextOverview) {
+                designerStatusTextOverview.textContent = demoActive
+                    ? 'Demo aktiv'
+                    : dirty
+                        ? 'Ändringar pågår'
+                        : 'Förhandsgranskning aktiv';
+            }
+
+            if (overviewDraftKpi) {
+                overviewDraftKpi.textContent = demoActive ? 'Demodata' : dirty ? 'Ändrat utkast' : 'Synkat utkast';
+            }
+
+            if (overviewDraftMeta) {
+                overviewDraftMeta.textContent = demoActive
+                    ? 'Fast scenario för upprepade körningar.'
+                    : dirty
+                        ? 'Spara eller granska innan publicering.'
+                        : 'Redo för simulering och granskning.';
+            }
+
+            if (overviewDraftStateText) {
+                overviewDraftStateText.textContent = draftStateText;
+            }
+
+            if (overviewDraftStateBadge) {
+                overviewDraftStateBadge.textContent = demoActive ? 'Demo' : dirty ? 'Ej sparat' : 'Sparat';
+            }
+
+            if (overviewScenarioText) {
+                overviewScenarioText.textContent = `${formatAmount(currentAmount)} ${currencyLabel} · ${currentOrderType?.description || ''}`;
+            }
+
+            if (overviewScenarioBadge) {
+                overviewScenarioBadge.textContent = demoActive ? `${currentOrderType?.title || '-'} · Demo` : currentOrderType?.title || '-';
+            }
+
+            if (overviewFlowKpi) {
+                overviewFlowKpi.textContent = activeComputed.active
+                    ? `${activeComputed.active.sequence}. ${activeComputed.active.roleName}`
+                    : `${unlimitedStepCount} led utan slutgräns`;
+            }
+
+            if (overviewNextStepText) {
+                overviewNextStepText.textContent = errorCount
+                    ? 'Åtgärda valideringsfelen i redigeringsläget innan publicering.'
+                    : dirty
+                        ? 'Öppna Granska för att jämföra utkastet mot publicerad version.'
+                        : activeComputed.next
+                            ? `Nästa steg är ${activeComputed.next.sequence}. ${activeComputed.next.roleName}.`
+                            : 'Detta är slutnivån i kedjan.';
+            }
+
+            if (overviewValidationKpi) {
+                overviewValidationKpi.textContent = errorCount ? `${errorCount} fel` : warnCount ? `${warnCount} varning${warnCount === 1 ? '' : 'ar'}` : 'OK';
+            }
+
+            if (overviewDraftStateText) {
+                overviewDraftStateText.title = draftSteps.length !== publishedSteps.length ? 'Utkastet avviker från publicerad version.' : 'Utkastet matchar publicerad version.';
+            }
+
+            if (overviewScenarioBadge && demoActive) {
+                overviewScenarioBadge.textContent = `${currentOrderType?.title || '-'} · Demo`;
+            }
+
+        }
+
+        function renderReview() {
+            const validation = computeValidation();
+            const baseSteps = getPublishedSteps();
+            const diffs = computeDiff(baseSteps, currentSteps);
+            const dirty = !stepsEqual(currentSteps, getSavedDraftSteps());
+            const publishBlocked = validation.some((issue) => issue.kind === 'error') || diffs.length === 0;
+
+            if (reviewStatusValue) {
+                reviewStatusValue.textContent = dirty ? 'Utkast' : 'Synkat';
+            }
+            if (reviewStatusMeta) {
+                reviewStatusMeta.textContent = dirty ? 'Det finns ändringar som inte är publicerade.' : 'Det sparade utkastet matchar den aktiva konfigurationen.';
+            }
+            if (reviewChangeValue) {
+                reviewChangeValue.textContent = `${diffs.length}`;
+            }
+            if (reviewValidationValue) {
+                reviewValidationValue.textContent = validation.some((issue) => issue.kind === 'error')
+                    ? 'Blockerat'
+                    : validation.some((issue) => issue.kind === 'warn')
+                        ? 'Varning'
+                        : 'OK';
+            }
+            if (reviewValidationMeta) {
+                reviewValidationMeta.textContent = validation.some((issue) => issue.kind === 'error')
+                    ? 'Åtgärda felen innan publicering.'
+                    : validation.some((issue) => issue.kind === 'warn')
+                        ? 'Varningarna bör granskas innan publicering.'
+                        : 'Klar för publicering.';
+            }
+            if (reviewActionValue) {
+                reviewActionValue.textContent = publishBlocked ? 'Publicering spärrad' : 'Redo att publiceras';
+            }
+            if (publishBtn) {
+                publishBtn.disabled = publishBlocked;
+            }
+            if (saveDraftBtn) {
+                saveDraftBtn.disabled = false;
+            }
+
+            if (reviewDiffList) {
+                reviewDiffList.innerHTML = '';
+                if (!diffs.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'approval-diff-item';
+                    empty.innerHTML = `
+                        <div class="approval-diff-item__title">Ingen skillnad mot publicerad version</div>
+                        <div class="approval-diff-item__meta">Utkastet är identiskt med den senaste publicerade kedjan.</div>
+                    `;
+                    reviewDiffList.appendChild(empty);
+                } else {
+                    diffs.forEach((diff) => {
+                        const item = document.createElement('div');
+                        item.className = `approval-diff-item approval-diff-item--${diff.kind}`;
+                        item.innerHTML = `
+                            <div class="approval-diff-item__title">${escapeHtml(diff.title)}</div>
+                            <div class="approval-diff-item__meta">${escapeHtml(diff.meta)}</div>
+                        `;
+                        reviewDiffList.appendChild(item);
+                    });
+                }
+            }
+        }
+
+        function updateModePanels() {
+            modePanels.forEach((panel) => {
+                panel.classList.toggle('is-hidden', panel.dataset.modePanel !== currentMode);
+            });
+
+            modeButtons.forEach((button) => {
+                button.classList.toggle('is-active', button.dataset.modeButton === currentMode);
+            });
+        }
+
+        function computeBands() {
+            const bands = [];
+            let start = 1;
+
+            getCommittedSteps().forEach((step, index) => {
+                const limit = Number.isFinite(step.limit) ? step.limit : null;
+                const end = limit;
+                bands.push({
+                    step,
+                    start,
+                    end
+                });
+                if (limit != null) {
+                    start = limit + 1;
+                }
+            });
+
+            return bands;
+        }
+
+        function computeActiveStep() {
+            const bands = computeBands();
+            const active = bands.find((band) => band.end == null || currentAmount <= band.end) || bands[bands.length - 1] || null;
+            const activeIndex = active ? bands.indexOf(active) : -1;
+            return {
+                active: active?.step || null,
+                next: activeIndex >= 0 ? bands[activeIndex + 1]?.step || null : null,
+                bands
+            };
+        }
+
+        function renderPreview() {
+            const { active, bands } = computeActiveStep();
+            previewRows.innerHTML = '';
+            activeFlowSummary.innerHTML = '';
+
+            bands.forEach((band) => {
+                const isActive = active && active.sequence === band.step.sequence;
+                const row = document.createElement('tr');
+                row.dataset.sequence = String(band.step.sequence);
+                row.className = `approval-preview-row${isActive ? ' is-active' : ''}`;
+                row.innerHTML = `
+                    <td>
+                        <div class="approval-preview-range">${formatInterval(band.start, band.end)}</div>
+                    </td>
+                    <td>
+                        <div class="approval-preview-badges">
+                            <span class="approval-preview-badge ${band.step.roleKey === 'chef' ? 'approval-preview-badge--teal' : band.step.roleKey === 'controller' ? 'approval-preview-badge--indigo' : band.step.roleKey === 'cfo' ? 'approval-preview-badge--amber' : 'approval-preview-badge--rose'}">${escapeHtml(band.step.roleName)}</span>
+                            <span class="approval-preview-badge ${isActive ? 'approval-preview-badge--active' : ''}">${escapeHtml(band.step.approverName)}</span>
+                            <span class="approval-preview-badge">${escapeHtml(band.step.reserveApproverName)}</span>
+                        </div>
+                    </td>
+                `;
+                previewRows.appendChild(row);
+
+                const flowItem = document.createElement('div');
+                flowItem.className = 'approval-preview-flow__item';
+                flowItem.innerHTML = `
+                    <div class="approval-preview-flow__title">${band.step.sequence}. ${escapeHtml(band.step.roleName)}</div>
+                    <div class="approval-preview-flow__meta">${escapeHtml(band.step.approverName)} · Reserv: ${escapeHtml(band.step.reserveApproverName)}</div>
+                `;
+                activeFlowSummary.appendChild(flowItem);
+            });
+        }
+
+        function renderAll() {
+            renderOrderTypeButtons();
+            renderQuickAmounts();
+            renderSummary();
+            renderPreview();
+            renderValidation();
+            renderOverview();
+            renderReview();
+            if (designerStatusTextEdit) {
+                const savedDraft = getSavedDraftSteps();
+                designerStatusTextEdit.textContent = !stepsEqual(currentSteps, savedDraft)
+                    ? `${currentOrderType?.title || 'Valt flöde'} · osparade ändringar`
+                    : `${currentOrderType?.title || 'Valt flöde'} · ${formatAmount(currentAmount)} ${currencyLabel}`;
+            }
+        }
+
+        function scrollToActivePreview() {
+            const activeRow = previewRows.querySelector('.approval-preview-row.is-active');
+            activeRow?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function setOrderTypeByKey(key) {
+            const nextType = getOrderType(key);
+            if (!nextType) return;
+            currentOrderType = nextType;
+            currentSteps = sortStepsByLimit(savedDraftByType.get(String(nextType.key).toLowerCase()) || publishedByType.get(String(nextType.key).toLowerCase()) || nextType.steps || []);
+            amountInput.value = String(currentAmount || nextType.quickAmounts?.[0] || 0);
+            currentAmount = parseAmount(amountInput.value);
+            renderStepRows();
+            renderAll();
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        orderTypeButtons.addEventListener('click', (e) => {
+            const btn = e.target.closest('.approval-type-chip');
+            if (!btn) return;
+            setOrderTypeByKey(btn.dataset.orderTypeKey);
+        });
+
+        modeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentMode = button.dataset.modeButton || 'edit';
+                updateModePanels();
+            });
+        });
+
+        demoBtn?.addEventListener('click', () => {
+            applyScenarioSeed(buildScenarioSeed());
+        });
+
+        quickAmountButtons.addEventListener('click', (e) => {
+            const btn = e.target.closest('.approval-quick-amount');
+            if (!btn) return;
+            currentAmount = parseAmount(btn.dataset.quickAmount);
+            amountInput.value = String(currentAmount);
+            renderAll();
+        });
+
+        amountInput.addEventListener('input', () => {
+            currentAmount = parseAmount(amountInput.value);
+            renderAll();
+        });
+
+        addStepBtn?.addEventListener('click', () => {
+            currentSteps.push({
+                sequence: currentSteps.length + 1,
+                roleKey: 'backup',
+                roleName: 'Nytt led',
+                approverKey: '',
+                approverName: '',
+                reserveApproverName: 'Reserv',
+                limit: null,
+                note: 'Välj attestant för det nya ledet.',
+                isDraft: true
+            });
+            currentSteps = sortStepsByLimit(currentSteps);
+            renderStepRows();
+            renderAll();
+        });
+
+        saveDraftBtn?.addEventListener('click', () => {
+            savedDraftByType.set(currentKey(), cloneSteps(currentSteps));
+            renderAll();
+            if (designerStatusTextEdit) {
+                designerStatusTextEdit.textContent = 'Utkast sparat';
+            }
+        });
+
+        publishBtn?.addEventListener('click', () => {
+            const validation = computeValidation();
+            if (validation.some((issue) => issue.kind === 'error')) return;
+            publishedByType.set(currentKey(), cloneSteps(currentSteps));
+            savedDraftByType.set(currentKey(), cloneSteps(currentSteps));
+            renderAll();
+            if (designerStatusTextEdit) {
+                designerStatusTextEdit.textContent = 'Publicerad version uppdaterad';
+            }
+        });
+
+        resetDesignerBtn?.addEventListener('click', () => {
+            if (demoScenarioSeed) {
+                applyScenarioSeed(demoScenarioSeed);
+                if (designerStatusTextEdit) {
+                    designerStatusTextEdit.textContent = 'Demo återställd';
+                }
+                return;
+            }
+
+            currentOrderType = getOrderType(model.selectedOrderTypeKey) || orderTypes[0];
+            currentAmount = parseAmount(model.selectedAmount);
+            amountInput.value = String(currentAmount);
+            currentSteps = sortStepsByLimit(basePublishedByType.get(currentKey()) || currentOrderType?.steps || []);
+            savedDraftByType = cloneStateMap(baseDraftByType);
+            publishedByType = cloneStateMap(basePublishedByType);
+            renderStepRows();
+            renderAll();
+        });
+
+        simulateBtn?.addEventListener('click', () => {
+            renderAll();
+            scrollToActivePreview();
+            if (designerStatusTextEdit) {
+                designerStatusTextEdit.textContent = `Simulerar ${currentOrderType?.title || ''} för ${formatAmount(currentAmount)} ${currencyLabel}`;
+            }
+        });
+
+        copySummaryBtn?.addEventListener('click', async () => {
+            const computed = computeActiveStep();
+            const text = [
+                `Ordertyp: ${currentOrderType?.title || '-'}`,
+                `Belopp: ${formatAmount(currentAmount)} ${currencyLabel}`,
+                `Aktiv led: ${computed.active ? `${computed.active.sequence}. ${computed.active.roleName}` : '-'}`,
+                `Nästa steg: ${computed.next ? `${computed.next.sequence}. ${computed.next.roleName}` : 'Slutled'}`
+            ].join('\n');
+
+            try {
+                await navigator.clipboard.writeText(text);
+                designerStatusTextEdit.textContent = 'Sammanställning kopierad';
+            } catch {
+                designerStatusTextEdit.textContent = 'Kunde inte kopiera sammanställningen';
+            }
+        });
+
+        renderStepRows();
+        updateModePanels();
+        renderAll();
+    })();
+</script>

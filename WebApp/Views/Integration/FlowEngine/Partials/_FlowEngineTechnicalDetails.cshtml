@@ -1,0 +1,29 @@
+@model WebApp.Models.Integration.FlowEngineTechnicalDetailsViewModel
+
+<details data-flowengine-scroll-on-open="true">
+    <summary class="flowengine-detail-label mb-2" style="cursor:pointer;">@Model.SummaryTitle</summary>
+    <div class="flowengine-detail-toolbar">
+        <button type="button"
+                class="btn btn-portal btn-portal-outline btn-sm flowengine-copy-action"
+                data-flowengine-copy-target="@Model.CopyTargetId"
+                data-flowengine-default-label="Copy Raw"
+                data-flowengine-success-label="Copied">
+            Copy Raw
+        </button>
+    </div>
+    <pre id="@Model.CopyTargetId" class="d-none">@Model.RawDetailsText</pre>
+    <div class="flowengine-detail-label">STDOUT</div>
+    <pre class="flowengine-log-block">@Model.StandardOutput</pre>
+
+    @if (Model.ShowEmptyStandardError || !string.IsNullOrWhiteSpace(Model.StandardError))
+    {
+        <div class="flowengine-detail-label">STDERR</div>
+        @if (Model.ShowStandardErrorInfoNote)
+        {
+            <div class="flowengine-detail-meta mb-2">
+                STDERR är felkanalen från körningen. Den är ofta tom vid lyckade jobb och fylls när exporten eller anropet returnerar fel.
+            </div>
+        }
+        <pre class="flowengine-log-block@(string.IsNullOrWhiteSpace(Model.StandardError) ? string.Empty : " flowengine-log-block--error")">@(string.IsNullOrWhiteSpace(Model.StandardError) ? Model.EmptyStandardErrorText : Model.StandardError)</pre>
+    }
+</details>

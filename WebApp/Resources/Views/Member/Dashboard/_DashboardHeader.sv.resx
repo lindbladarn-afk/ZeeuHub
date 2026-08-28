@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>ZeeU Dashboard</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>affärsinsikter i realtid</value></data>
+  <data name="LiveData" xml:space="preserve"><value>LIVE DATA</value></data>
+  <data name="UpdatedAt" xml:space="preserve"><value>UPPDATERAD {0}</value></data>
+  <data name="ActiveCompany" xml:space="preserve"><value>Visar data för: {0}</value></data>
+  <data name="StandardPeriod" xml:space="preserve"><value>Standardperiod: rullande 12 månader</value></data>
+  <data name="FallbackWarning" xml:space="preserve"><value>Inga ordrar hittades för senaste 12 månaderna. Visar senaste period med data: {0} till {1}.</value></data>
+</root>

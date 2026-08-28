@@ -1,0 +1,80 @@
+﻿@page
+@model EmailModel
+@{
+    ViewData["Title"] = "E-post";
+    ViewData["ActivePage"] = ManageNavPages.Email;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="card account-manage-card h-100">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">E-post</div>
+                <div class="account-manage-card-title mb-1">Hantera din e-postadress</div>
+                <p class="module-page-meta mb-4">Se aktuell adress, verifieringsstatus och byt till en ny e-post vid behov.</p>
+
+                <form id="email-form" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    @if (Model.IsEmailConfirmed)
+                    {
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" disabled />
+                            <label asp-for="Email" class="form-label"></label>
+                        </div>
+                        <div class="alert alert-success mb-4" role="alert">
+                            E-postadressen är verifierad.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" disabled />
+                            <label asp-for="Email" class="form-label"></label>
+                        </div>
+                        <div class="account-manage-actions mb-4">
+                            <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-portal btn-portal-outline">
+                                Skicka verifieringsmail
+                            </button>
+                        </div>
+                    }
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" />
+                        <label asp-for="Input.NewEmail" class="form-label"></label>
+                        <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="account-manage-actions">
+                        <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn btn-portal">
+                            Spara ny e-post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card account-manage-card h-100">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">Status</div>
+                <div class="account-manage-card-title mb-1">Verifiering</div>
+                <p class="account-manage-note mb-0">
+                    @if (Model.IsEmailConfirmed)
+                    {
+                        <text>Din nuvarande e-post är verifierad och aktiv för kontot.</text>
+                    }
+                    else
+                    {
+                        <text>Nuvarande e-post är inte verifierad ännu. Skicka ett nytt verifieringsmail innan du byter om du vill bekräfta den befintliga adressen.</text>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

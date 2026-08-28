@@ -1,0 +1,57 @@
+@using Entities.ViewModels.Admin
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model IEnumerable<AdminUserViewModel>
+@{
+    ViewData["Title"] = Localizer["Users"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<h2 class="page-header">@Localizer["Mina användare"] <small>@Localizer["begränsat till ditt bolag"]</small></h2>
+
+<div class="mb-3">
+    <a asp-action="CreateUser" class="btn btn-portal btn-sm superuser-users-cta">
+        <i class="fa fa-user-plus me-2"></i>@Localizer["Ny användare"]
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>@Localizer["Namn"]</th>
+                <th>@Localizer["E-post"]</th>
+                <th>@Localizer["Verifierad"]</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model is null || !Model.Any())
+            {
+                <tr><td colspan="3" class="text-muted text-center">@Localizer["Inga användare hittades."]</td></tr>
+            }
+            else
+            {
+                foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.FirstName @user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>@(user.EmailValidated ? Localizer["Ja"] : Localizer["Nej"])</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-portal btn-portal-outline" asp-action="Permissions" asp-route-userId="@user.UserId">
+                                <i class="fa fa-key me-1"></i>@Localizer["Behörigheter"]
+                            </a>
+                            <a class="btn btn-sm btn-portal btn-portal-outline" asp-action="ManageUser" asp-route-userId="@user.UserId">
+                                <i class="fa fa-edit me-1"></i>@Localizer["Redigera"]
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

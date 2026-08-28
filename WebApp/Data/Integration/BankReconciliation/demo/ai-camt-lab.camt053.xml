@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CAMT.053 test file for AI-assisted matching, payment bundles, and no-match controls. -->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>ZEEU-AI-CAMT-LAB-20260427</MsgId>
+      <CreDtTm>2026-04-27T07:11:16</CreDtTm>
+    </GrpHdr>
+    <Stmt>
+      <Id>ZEEU-AI-CAMT-LAB</Id>
+      <ElctrncSeqNb>1</ElctrncSeqNb>
+      <CreDtTm>2026-04-27T07:11:16</CreDtTm>
+      <Acct>
+        <Id>
+          <IBAN>SE3550000000054910000003</IBAN>
+        </Id>
+        <Ccy>SEK</Ccy>
+      </Acct>
+      <Bal><Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp><Amt Ccy="SEK">0.00</Amt><CdtDbtInd>CRDT</CdtDbtInd></Bal>
+      <Bal><Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp><Amt Ccy="SEK">41632.37</Amt><CdtDbtInd>CRDT</CdtDbtInd></Bal>
+      <Ntry>
+        <NtryRef>AI-CAMT-001</NtryRef>
+        <Amt Ccy="SEK">11396.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-001</EndToEndId><AcctSvcrRef>AI-CAMT-001</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">11396.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Pelles Butik AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>873550016</Ref></CdtrRefInf></Strd><Ustrd>OCR 873550016</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-002</NtryRef>
+        <Amt Ccy="SEK">2465.43</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-002</EndToEndId><AcctSvcrRef>AI-CAMT-002</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">2465.43</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Dagab Inköp &amp; Logistik AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Betalning faktura 81002</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-003</NtryRef>
+        <Amt Ccy="SEK">986.58</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-003</EndToEndId><AcctSvcrRef>AI-CAMT-003</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">986.58</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Dagab Inköp &amp; Logistik AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Kort referens 91 avser faktura 81003</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-004</NtryRef>
+        <Amt Ccy="SEK">353.65</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-004</EndToEndId><AcctSvcrRef>AI-CAMT-004</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">353.65</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Dagab Inköp &amp; Logistik AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>614967628700</Ref></CdtrRefInf></Strd><Ustrd>OCR 614967628700</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-005</NtryRef>
+        <Amt Ccy="SEK">965.07</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-005</EndToEndId><AcctSvcrRef>AI-CAMT-005</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">965.07</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Dagab Inköp &amp; Logistik AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Referens 83, betalning för faktura 81005</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-006</NtryRef>
+        <Amt Ccy="SEK">2216.15</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-006</EndToEndId><AcctSvcrRef>AI-CAMT-006</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">2216.15</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Nordic Servicebolaget AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Serviceavtal april</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-007</NtryRef>
+        <Amt Ccy="SEK">999.99</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-27</Dt></BookgDt>
+        <ValDt><Dt>2026-04-27</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260427-007</EndToEndId><AcctSvcrRef>AI-CAMT-007</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">999.99</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Okänd Avsändare AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Testbetalning utan fakturaträff NO-MATCH-001</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-008</NtryRef>
+        <Amt Ccy="SEK">3500.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-28</Dt></BookgDt>
+        <ValDt><Dt>2026-04-28</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260428-008</EndToEndId><AcctSvcrRef>AI-CAMT-008</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">3500.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Fjällstad Kontor AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000110</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 1 av 2 OCR 992000110</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-009</NtryRef>
+        <Amt Ccy="SEK">6500.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-29</Dt></BookgDt>
+        <ValDt><Dt>2026-04-29</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260429-009</EndToEndId><AcctSvcrRef>AI-CAMT-009</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">6500.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Fjällstad Kontor AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000110</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 2 av 2 OCR 992000110</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-010</NtryRef>
+        <Amt Ccy="SEK">1000.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-28</Dt></BookgDt>
+        <ValDt><Dt>2026-04-28</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260428-010</EndToEndId><AcctSvcrRef>AI-CAMT-010</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">1000.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Sundhamn Fastighet AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000129</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 1 av 3 OCR 992000129</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-011</NtryRef>
+        <Amt Ccy="SEK">2250.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-29</Dt></BookgDt>
+        <ValDt><Dt>2026-04-29</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260429-011</EndToEndId><AcctSvcrRef>AI-CAMT-011</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">2250.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Sundhamn Fastighet AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000129</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 2 av 3 OCR 992000129</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-012</NtryRef>
+        <Amt Ccy="SEK">4000.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-30</Dt></BookgDt>
+        <ValDt><Dt>2026-04-30</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260430-012</EndToEndId><AcctSvcrRef>AI-CAMT-012</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">4000.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Sundhamn Fastighet AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000129</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 3 av 3 OCR 992000129</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-013</NtryRef>
+        <Amt Ccy="SEK">2000.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-29</Dt></BookgDt>
+        <ValDt><Dt>2026-04-29</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260429-013</EndToEndId><AcctSvcrRef>AI-CAMT-013</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">2000.00</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Nordverk Service AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000137</Ref></CdtrRefInf></Strd><Ustrd>Delbetalning 1 av 2 OCR 992000137</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>AI-CAMT-014</NtryRef>
+        <Amt Ccy="SEK">2999.50</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-04-30</Dt></BookgDt>
+        <ValDt><Dt>2026-04-30</Dt></ValDt>
+        <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>DMCT</SubFmlyCd></Fmly></Domn></BkTxCd>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>AI-20260430-014</EndToEndId><AcctSvcrRef>AI-CAMT-014</AcctSvcrRef></Refs>
+          <AmtDtls><TxAmt><Amt Ccy="SEK">2999.50</Amt></TxAmt></AmtDtls>
+          <RltdPties><Dbtr><Nm>Nordverk Service AB</Nm></Dbtr></RltdPties>
+          <RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>992000137</Ref></CdtrRefInf></Strd><Ustrd>Slutbetalning OCR 992000137, avrundningsdifferens 0,50</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

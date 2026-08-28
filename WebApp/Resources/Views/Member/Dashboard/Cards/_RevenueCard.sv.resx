@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AnnualRunRateTitle" xml:space="preserve"><value>Omsättning (senaste 12 mån)</value></data>
+  <data name="NoComparison" xml:space="preserve"><value>Jämförelse saknas för valt bolag</value></data>
+  <data name="NoData" xml:space="preserve"><value>Ingen data</value></data>
+  <data name="AverageOrderValueTitle" xml:space="preserve"><value>Snittordervärde (30 dagar)</value></data>
+  <data name="BasedOnOrders" xml:space="preserve"><value>Baserat på {0} ordrar</value></data>
+  <data name="AnnualRunRatePeriod" xml:space="preserve"><value>Underlag: {0} till {1}</value></data>
+  <data name="AverageOrderValuePeriod" xml:space="preserve"><value>Period: {0} till {1}</value></data>
+  <data name="NoPeriodData" xml:space="preserve"><value>Period saknas för valt bolag</value></data>
+  <data name="RollingTwelveMonths" xml:space="preserve"><value>Rullande 12 månader</value></data>
+  <data name="AverageOrderValueWindow" xml:space="preserve"><value>Senaste 30 dagar</value></data>
+  <data name="RollingAnalysisPeriod" xml:space="preserve"><value>Underlag: {0} till {1}</value></data>
+  <data name="TopSellersTitle" xml:space="preserve"><value>Toppsäljande produkter</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>Visa underlag</value></data>
+  <data name="AverageOrderValueSummary" xml:space="preserve"><value>Beräknat på {0} ordrar mellan {1} och {2}</value></data>
+  <data name="AnnualRunRateSummary" xml:space="preserve"><value>Beräknad på {0} Mkr från {1} ordrar mellan {2} och {3}</value></data>
+  <data name="NoOrderDetails" xml:space="preserve"><value>Inget orderunderlag hittades.</value></data>
+  <data name="OrderColumn" xml:space="preserve"><value>Order</value></data>
+  <data name="DateColumn" xml:space="preserve"><value>Datum</value></data>
+  <data name="AmountColumn" xml:space="preserve"><value>Belopp</value></data>
+  <data name="OrdersColumn" xml:space="preserve"><value>Ordrar i underlag</value></data>
+  <data name="RevenueBasisColumn" xml:space="preserve"><value>Omsättning i underlag</value></data>
+  <data name="AverageOrderValueShort" xml:space="preserve"><value>Snittorder</value></data>
+  <data name="HighestOrderColumn" xml:space="preserve"><value>Högsta order</value></data>
+</root>

@@ -1,0 +1,137 @@
+[
+  {
+    "id": "INV-1001",
+    "invoiceNo": "1001",
+    "ocr": "462166596",
+    "customerName": "Birgitta Andersson",
+    "amount": 9265.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-20"
+  },
+  {
+    "id": "INV-1002",
+    "invoiceNo": "1002",
+    "ocr": "462162595",
+    "customerName": "Karin Ljungh",
+    "amount": 61125.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-22"
+  },
+  {
+    "id": "INV-1003",
+    "invoiceNo": "1003",
+    "ocr": "462147299",
+    "customerName": "AB Bygg Selå",
+    "amount": 322.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-18"
+  },
+  {
+    "id": "INV-1004",
+    "invoiceNo": "1004",
+    "ocr": "462140195",
+    "customerName": "Näslund Erik",
+    "amount": 66507.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-28"
+  },
+  {
+    "id": "INV-1005",
+    "invoiceNo": "1005",
+    "ocr": "462198698",
+    "customerName": "Jan Sandell",
+    "amount": 459.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-19"
+  },
+  {
+    "id": "INV-1006",
+    "invoiceNo": "1006",
+    "ocr": "462176496",
+    "customerName": "Thomas Jönsson",
+    "amount": 7392.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-21"
+  },
+  {
+    "id": "INV-1007",
+    "invoiceNo": "1007",
+    "ocr": "462198599",
+    "customerName": "Markenberg Barbro",
+    "amount": 1199.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-23"
+  },
+  {
+    "id": "INV-1008",
+    "invoiceNo": "1008",
+    "ocr": "462156696",
+    "customerName": "Staf Susanne",
+    "amount": 1006.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-24"
+  },
+  {
+    "id": "INV-1009",
+    "invoiceNo": "1009",
+    "ocr": "462157298",
+    "customerName": "Lennart Ek",
+    "amount": 48607.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-27"
+  },
+  {
+    "id": "INV-1010",
+    "invoiceNo": "1010",
+    "ocr": "462137795",
+    "customerName": "Lindahls Bygg i Löberöd AB",
+    "amount": 79424.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-29"
+  },
+  {
+    "id": "INV-1011",
+    "invoiceNo": "1011",
+    "ocr": "462200011",
+    "customerName": "Fjällstad Kontor AB",
+    "amount": 10000.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-30"
+  },
+  {
+    "id": "INV-1012",
+    "invoiceNo": "1012",
+    "ocr": "462200029",
+    "customerName": "Sundhamn Fastighet AB",
+    "amount": 7250.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-30"
+  },
+  {
+    "id": "INV-1013",
+    "invoiceNo": "1013",
+    "ocr": "462200037",
+    "customerName": "Nordverk Service AB",
+    "amount": 5000.00,
+    "currency": "SEK",
+    "dueDate": "2025-12-31"
+  },
+  {
+    "id": "INV-1014",
+    "invoiceNo": "1014",
+    "ocr": "462200045",
+    "customerName": "Mälardalens Montage AB",
+    "amount": 8400.00,
+    "currency": "SEK",
+    "dueDate": "2026-01-02"
+  },
+  {
+    "id": "INV-1015",
+    "invoiceNo": "1015",
+    "ocr": "462200052",
+    "customerName": "Västkustens Handel AB",
+    "amount": 12500.00,
+    "currency": "SEK",
+    "dueDate": "2026-01-05"
+  }
+]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="InvoicesTitle" xml:space="preserve"><value>Invoices</value></data>
+  <data name="UnpaidSummary" xml:space="preserve"><value>{0} unpaid · {1} SEK</value></data>
+  <data name="PaidTotal" xml:space="preserve"><value>Paid total: {0} SEK</value></data>
+  <data name="LatestOverdue" xml:space="preserve"><value>Latest overdue (3):</value></data>
+  <data name="OverdueRow" xml:space="preserve"><value>{0} · #{1} · {2} SEK · {3} days</value></data>
+  <data name="NoOverdue" xml:space="preserve"><value>No overdue invoices found.</value></data>
+  <data name="OpenInvoices" xml:space="preserve"><value>Open invoices</value></data>
+  <data name="SnapshotLabel" xml:space="preserve"><value>Current status for the active company</value></data>
+</root>

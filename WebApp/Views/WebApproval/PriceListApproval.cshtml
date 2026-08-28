@@ -1,0 +1,100 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@model IEnumerable<Entities.Dto.WebApprovalPriceListDto>
+
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+	// Price list approval overview uses the shared module-page shell to match the rest of the portal.
+	// Search remains client-side because the current view still filters the rendered list directly in the browser.
+	ViewData["Title"] = localizer["PageHeader"];
+	var companyId = ViewData["CompanyId"];
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+	<style>
+		.webapproval-page .module-filter-card .input-group-text {
+			border-color: rgba(148, 163, 184, 0.24);
+			background: linear-gradient(180deg, rgba(57, 67, 84, 0.82) 0%, rgba(40, 50, 66, 0.92) 100%);
+			color: #cbd5e1;
+		}
+
+		body:not(.theme-dark) .webapproval-page .module-filter-card .input-group-text {
+			background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+			border-color: rgba(148, 163, 184, 0.34);
+			color: #475569;
+		}
+	</style>
+}
+
+<div class="dashboard-readable module-page webapproval-page">
+	<div class="module-page-header">
+		<div>
+			<div class="dashboard-card-title">Web Approval</div>
+			<h1 class="module-page-title">@localizer["PageHeader"]</h1>
+			<div class="module-page-subtitle">@localizer["PageSubHeader"]</div>
+			<div class="module-page-meta">Följ prislistor som ska granskas och se giltighetstid, antal rader och valuta i samma lista.</div>
+		</div>
+	</div>
+
+	@await Html.PartialAsync("_Alert")
+
+	<div class="card kpi-card p-3 module-table-shell">
+		@* Price lists currently only need search, so status controls are intentionally omitted instead of duplicating empty filter states. *@
+		<div class="row g-3 pb-4">
+			<div class="col-12 col-lg-6">
+				<div class="input-group module-filter-card">
+					<span class="input-group-text"><i class="fas fa-search"></i></span>
+					<input type="text" class="form-control" id="searchOrders" onkeyup="filterBySearchString()" placeholder="@sharedLocalizer["SearchBoxPlaceholder"]" />
+				</div>
+			</div>
+		</div>
+
+		<div class="table-responsive module-table">
+			<table class="table table-hover mb-0" id="ordersTable">
+				<thead>
+					<tr>
+						<th>@localizer["Header_PriceListNumber"]</th>
+						<th>@localizer["Header_PriceListName"]</th>
+						<th>@localizer["Header_PriceListValidFrom"]</th>
+						<th>@localizer["Header_PriceListValidTo"]</th>
+						<th>@localizer["Header_NumberOfRows"]</th>
+						<th>@localizer["Header_Currency"]</th>
+						<th>@localizer["Header_Status"]</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model is null || !Model.Any())
+					{
+						<tr><td colspan="7">@sharedLocalizer["Error_FailedToFindAnyRows"]</td></tr>
+					}
+					else
+					{
+						foreach (var priceList in Model)
+						{
+							<tr onclick="location.href='@Url.Action("PriceListApprovalDetails", "WebApproval", new { companyId, companyCode = priceList.CompanyCode, priceListId = priceList.PriceListId })'" onmouseover="style.cursor='pointer'">
+								<td>@priceList.PriceListId</td>
+								<td>@priceList.PriceListDescription</td>
+								<td>@(priceList.ValidFrom is not null ? ((DateTime)priceList.ValidFrom).ToShortDateString() : "-")</td>
+								<td>@(priceList.ValidTo is not null ? ((DateTime)priceList.ValidTo).ToShortDateString() : "-")</td>
+								<td>@priceList.Rows.Count()</td>
+								<td>@priceList.Currency</td>
+								<td></td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script>
+	var localizedData = {
+		'statusNotApproved': '@sharedLocalizer["Status_NotApproved"]',
+		'statusApproved': '@sharedLocalizer["Status_Approved"]',
+		'statusRejected': '@sharedLocalizer["Status_Rejected"]'
+	};
+</script>

@@ -1,0 +1,80 @@
+@model Entities.ViewModels.Admin.AdminCreateUserViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Skapa användare"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<h1 class="page-header">@Localizer["Skapa användare"] <small>@Localizer["SuperUser"]</small></h1>
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <h4 class="panel-title mb-0">@Localizer["Ny användare"]</h4>
+        <small class="text-muted">@Localizer["Användaren kopplas till ditt bolag."]</small>
+    </div>
+    <div class="panel-body">
+        <form asp-action="CreateUser" asp-controller="SuperUser" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="CompanyId" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PhoneNumber" class="form-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PersSign" class="form-label"></label>
+                    <input asp-for="PersSign" class="form-control" />
+                    <span asp-validation-for="PersSign" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Language" class="form-label"></label>
+                    <input asp-for="Language" class="form-control" />
+                    <span asp-validation-for="Language" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@Localizer["Company"]</label>
+                <select class="form-control" disabled>
+                    @foreach (var c in Model.AllCompanies ?? Enumerable.Empty<Entities.ViewModels.Admin.AdminAllCompaniesForSelectListVM>())
+                    {
+                        <option selected>@c.Name (@c.Id)</option>
+                    }
+                </select>
+                <div class="form-text">@Localizer["SuperUser kan endast skapa användare i sitt eget bolag."]</div>
+            </div>
+
+            <button type="submit" class="btn btn-portal">@Localizer["Create"]</button>
+        </form>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />

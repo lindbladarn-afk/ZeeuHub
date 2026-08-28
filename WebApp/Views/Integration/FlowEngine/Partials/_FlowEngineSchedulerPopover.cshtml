@@ -1,0 +1,41 @@
+@model WebApp.Models.Integration.FlowEngineSchedulerPopoverViewModel
+
+<div class="flowengine-popover-anchor flowengine-scheduler-anchor">
+    <button type="button"
+            class="flowengine-scheduler-trigger"
+            data-fe-toggle="@Model.ToggleKey"
+            title="Scheduled runs"
+            aria-label="Scheduled runs">
+        <svg viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="7.5" />
+            <path d="M10 5.5V10l3 2" />
+        </svg>
+    </button>
+    <div class="flowengine-popover flowengine-scheduler-popover" data-fe-popover="@Model.ToggleKey" hidden>
+        <div class="flowengine-scheduler-popover-head">
+            <span class="flowengine-popover-title">Scheduled Runs</span>
+            <label class="flowengine-toggle-row flowengine-toggle-row--compact">
+                <span data-fe-scheduler-label="@Model.ToggleKey.Replace("-scheduler", string.Empty, StringComparison.Ordinal)">Off</span>
+                <span class="flowengine-switch flowengine-switch--sm">
+                    <input type="checkbox" data-fe-scheduler-toggle="@Model.ToggleKey.Replace("-scheduler", string.Empty, StringComparison.Ordinal)" />
+                    <span class="flowengine-switch-slider"></span>
+                </span>
+            </label>
+        </div>
+        @foreach (var row in Model.InfoRows)
+        {
+            <div class="flowengine-scheduler-info">
+                <span class="flowengine-scheduler-label">@row.Label</span>
+                <span>@row.Value</span>
+            </div>
+        }
+        <div class="flowengine-scheduler-divider"></div>
+        <span class="flowengine-scheduler-label">Next runs</span>
+        <ul class="flowengine-scheduler-next-runs">
+            @foreach (var run in Model.NextRuns)
+            {
+                <li>@run</li>
+            }
+        </ul>
+    </div>
+</div>

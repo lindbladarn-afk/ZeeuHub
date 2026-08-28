@@ -1,0 +1,54 @@
+@using WebApp.ViewModels.Shared
+@{
+    // Akeneo export reuses the shared module shell so integration tools align with the rest of the portal modules.
+    ViewData["Title"] = "Akeneo Export";
+    var error = ViewBag.AkeneoError as string;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page integration-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Integration</div>
+            <h1 class="module-page-title">Akeneo export</h1>
+            <div class="module-page-subtitle">Exporterar artiklar från Akeneo till XML. Nedladdning låter dig välja plats på din dator.</div>
+            <div class="module-page-meta">Använd filtret för att begränsa antal artiklar eller sätt ett eget filnamn för exporten.</div>
+        </div>
+        <a asp-controller="Member" asp-action="Index" class="btn btn-sm btn-portal btn-portal-outline">
+            <i class="fa fa-arrow-left me-1"></i> Till dashboard
+        </a>
+    </div>
+
+    <div class="card kpi-card p-3 mb-3">
+        <div class="card-body">
+            @if (!string.IsNullOrWhiteSpace(error))
+            {
+                @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+                {
+                    Title = "Exporten kunde inte starta",
+                    Message = error,
+                    Tone = "danger",
+                    IconClass = "fa fa-circle-xmark",
+                    Compact = true
+                })
+            }
+            <form method="post" asp-action="AkeneoExport" class="row g-2 align-items-end">
+                @Html.AntiForgeryToken()
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Antal artiklar</label>
+                    <input type="number" min="1" max="1000" name="limit" class="form-control" placeholder="100" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label text-muted small">Filnamn (valfritt)</label>
+                    <input type="text" name="fileName" class="form-control" placeholder="akeneo-articles.xml" />
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-portal btn-portal-outline w-100">Exportera och ladda ner XML</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+# Defines the local hot-reload image used by Docker Compose.
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dev
+WORKDIR /src
+
+# Cache restore layer (optional). Comment out if you prefer pure bind-mount workflows.
+COPY WebApp/WebApp.csproj WebApp/
+COPY Entities/Entities.csproj Entities/
+COPY LoggerService/LoggerService.csproj LoggerService/
+COPY MailService/MailService.csproj MailService/
+COPY NotificationService/NotificationService.csproj NotificationService/
+COPY Repository/Repository.csproj Repository/
+RUN dotnet restore WebApp/WebApp.csproj
+
+# Default command replaced by compose; keep a noop here.
+CMD ["bash"]

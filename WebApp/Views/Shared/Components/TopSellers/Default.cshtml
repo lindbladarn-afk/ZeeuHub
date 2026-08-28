@@ -1,0 +1,55 @@
+@* Renders the top sellers card in a compact laptop-friendly layout with aligned value columns and a share row under revenue. *@
+@model WebApp.Models.Dashboard.RevenueDataModel
+@using System.Linq
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var amountCulture = System.Globalization.CultureInfo.CurrentCulture;
+    var topSellers = Model?.TopSellers?.Take(6).ToList() ?? new List<WebApp.Models.Dashboard.TopSellerItem>();
+    var totalRevenue = topSellers.Sum(x => x.Revenue);
+}
+
+@if (topSellers.Any())
+{
+    <div class="top-seller-list">
+        <div class="top-seller-list-header">
+            <div>@Localizer["ProductColumn"]</div>
+            <div class="ts-header-qty">@Localizer["QuantityColumn"]</div>
+            <div class="ts-header-metric">@Localizer["RevenueColumn"]</div>
+        </div>
+        <div class="top-seller-list-body">
+            @foreach (var item in topSellers.Select((value, index) => new { value, index }))
+            {
+                // Keep share as a thin secondary line so the card fits on laptop widths without adding a fourth column.
+                var sharePercent = totalRevenue > 0m
+                    ? Math.Round((item.value.Revenue / totalRevenue) * 100m, 1)
+                    : 0m;
+                var shareLabel = Localizer["Share", sharePercent.ToString("0.#", amountCulture)];
+                <div class="top-seller-row">
+                    <div class="ts-product">
+                        <div class="ts-product-topline">
+                            <span class="ts-rank">@(item.index + 1)</span>
+                            <div class="ts-title">@item.value.ArticleDescription</div>
+                        </div>
+                        <div class="ts-meta">@Localizer["ArticleNumber", item.value.ArticleNo]</div>
+                    </div>
+                    <div class="ts-qty">
+                        <div class="ts-qty-value">@item.value.Quantity.ToString("N0", amountCulture) <span class="ts-inline-unit">@Localizer["QuantityUnit"]</span></div>
+                    </div>
+                    <div class="ts-metric">
+                        <div class="ts-metric-value">@item.value.Revenue.ToString("N0", amountCulture) <span class="ts-inline-unit">kr</span></div>
+                        <div class="ts-share-inline" aria-label="@shareLabel">
+                            <span class="ts-share-copy">@shareLabel</span>
+                            <span class="ts-share-track" role="presentation">
+                                <span class="ts-share-fill" style="width:@sharePercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted">@Localizer["NoData"]</p>
+}

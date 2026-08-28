@@ -1,0 +1,27 @@
+@* Renders one dashboard card with shared runtime state, retry metadata, and freshness information. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@{
+    var refreshUrl = !string.IsNullOrWhiteSpace(Model.LazyLoadUrl)
+        ? Model.LazyLoadUrl
+        : Url.Action("DashboardCard", "Member", new { cardId = Model.Id });
+    var isLazyLoading = Model.State == WebApp.Models.Dashboard.DashboardCardState.Loading
+        && !string.IsNullOrWhiteSpace(Model.LazyLoadUrl);
+}
+
+<div class="dashboard-card-content"
+     data-dashboard-card-content
+     data-dashboard-card-id="@Model.Id"
+     data-dashboard-card-refresh-url="@refreshUrl"
+     data-dashboard-lazy-card="@(isLazyLoading ? "true" : null)"
+     data-url="@(isLazyLoading ? Model.LazyLoadUrl : null)"
+     aria-busy="@(Model.State == WebApp.Models.Dashboard.DashboardCardState.Loading ? "true" : "false")">
+    @if (Model.State == WebApp.Models.Dashboard.DashboardCardState.Ready)
+    {
+        @await Html.PartialAsync(Model.RenderViewName, Model)
+        @await Html.PartialAsync("Dashboard/_DashboardCardFreshness", Model)
+    }
+    else
+    {
+        @await Html.PartialAsync("Dashboard/_DashboardCardState", Model)
+    }
+</div>

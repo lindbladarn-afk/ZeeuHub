@@ -1,0 +1,20 @@
+[
+  { "question": "Visa omsättning per månad i år", "metric": "net_revenue", "intent": "trend", "period": "current_year", "dimensions": ["month"] },
+  { "question": "Vilka fem kunder har högst omsättning?", "metric": "net_revenue", "intent": "ranking", "dimensions": ["customer"] },
+  { "question": "Visa de tio mest sålda artiklarna", "metric": "quantity_sold", "intent": "ranking", "dimensions": ["product"] },
+  { "question": "Hur många fakturor har vi?", "metric": "record_count", "intent": "aggregate", "dimensions": [] },
+  { "question": "Visa förfallna kundfakturor", "metric": "invoice_balance", "intent": "aggregate", "dimensions": ["customer"] },
+  { "question": "Jämför omsättning per säljare förra året", "metric": "net_revenue", "intent": "aggregate", "period": "previous_year", "dimensions": ["salesperson"] },
+  { "question": "Visa orderingång per månad", "metric": "order_value", "intent": "trend", "dimensions": ["month"] },
+  { "question": "Antal sålda enheter per kund", "metric": "quantity_sold", "intent": "aggregate", "dimensions": ["customer"] },
+  { "question": "Omsättning per projekt", "metric": "net_revenue", "intent": "aggregate", "dimensions": ["project"] },
+  { "question": "Visa omsättning senaste 12 månaderna", "metric": "net_revenue", "intent": "aggregate", "period": "last_12_months", "dimensions": [] },
+  { "question": "Vilken leverantör har högst ordervärde?", "metric": "order_value", "intent": "ranking", "dimensions": ["supplier"] },
+  { "question": "Visa försäljningen per artikel", "metric": "net_revenue", "intent": "aggregate", "dimensions": ["product"] },
+  { "question": "Hur många kunder finns det?", "metric": "record_count", "intent": "aggregate", "dimensions": ["customer"] },
+  { "question": "Visa obetalda fakturor per kund", "metric": "invoice_balance", "intent": "aggregate", "dimensions": ["customer"] },
+  { "question": "Topp 3 produkter efter revenue", "metric": "net_revenue", "intent": "ranking", "dimensions": ["product"] },
+  { "question": "Visa antal sålda per månad i år", "metric": "quantity_sold", "intent": "trend", "period": "current_year", "dimensions": ["month"] },
+  { "question": "Order value by customer", "metric": "order_value", "intent": "aggregate", "dimensions": ["customer"] },
+  { "question": "Revenue by month last year", "metric": "net_revenue", "intent": "trend", "period": "previous_year", "dimensions": ["month"] }
+]

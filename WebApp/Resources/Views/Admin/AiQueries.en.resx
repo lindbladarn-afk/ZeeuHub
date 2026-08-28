@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AI-frågor" xml:space="preserve">
+    <value>AI queries</value>
+  </data>
+  <data name="senaste 30 dagar" xml:space="preserve">
+    <value>last 30 days</value>
+  </data>
+  <data name="Totala frågor" xml:space="preserve">
+    <value>Total queries</value>
+  </data>
+  <data name="Tillåtna" xml:space="preserve">
+    <value>Allowed</value>
+  </data>
+  <data name="Otillåtna" xml:space="preserve">
+    <value>Not allowed</value>
+  </data>
+  <data name="Toppbolag (antal)" xml:space="preserve">
+    <value>Top companies (count)</value>
+  </data>
+  <data name="Bolag" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  <data name="Frågor" xml:space="preserve">
+    <value>Queries</value>
+  </data>
+  <data name="Inga data" xml:space="preserve">
+    <value>No data</value>
+  </data>
+  <data name="Senaste frågor" xml:space="preserve">
+    <value>Latest queries</value>
+  </data>
+  <data name="Fråga" xml:space="preserve">
+    <value>Query</value>
+  </data>
+  <data name="Användare" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Tid" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Tillåten" xml:space="preserve">
+    <value>Allowed</value>
+  </data>
+  <data name="Avvisad" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+</root>

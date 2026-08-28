@@ -1,0 +1,14 @@
+@* Shows the overdue invoice workload without duplicating the invoice workspace. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@using System.Globalization
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.OverdueInvoicesCardViewModel ?? new();
+    var invoices = card.Invoices;
+    var culture = CultureInfo.CurrentCulture;
+}
+<div class="card kpi-card h-100"><div class="card-body">
+    <div class="dashboard-card-head"><div class="dashboard-card-title">Förfallna kundfakturor</div><a asp-controller="Invoices" asp-action="Overdue" class="btn btn-portal btn-portal-outline btn-sm">Öppna</a></div>
+    <div class="dashboard-card-subtitle">Fakturor som kräver uppföljning</div>
+    <div class="kpi-value">@invoices.OverdueCount st</div>
+    <div class="small text-muted mt-1">@invoices.OverdueHighlights.Take(3).Sum(item => item.AmountSek).ToString("N0", culture) kr i de tre äldsta</div>
+</div></div>

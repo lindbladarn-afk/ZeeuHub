@@ -1,0 +1,30 @@
+@using WebApp.ViewModels.Shared
+
+@{
+    // Placeholder view for future portal-side company access control.
+    // Uses the shared module state pattern so even unfinished tools follow the same visual language.
+    ViewData["Title"] = "Control Panel - User Company Access";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page control-panel-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Control Panel</div>
+            <h1 class="module-page-title">User ↔ Company Access</h1>
+            <div class="module-page-subtitle">Portalstyrd override av vilka bolag en användare får åtkomst till utöver standardlistan från Jeeves.</div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+    {
+        Title = "Funktionen är under uppbyggnad",
+        Message = "Nästa steg är att visa användare, deras Jeeves-bolag och portalens whitelist i en samlad CRUD-vy.",
+        Note = "Audit-logg och finare åtkomststyrning kopplas på i nästa iteration.",
+        Tone = "info",
+        IconClass = "fa fa-info-circle"
+    })
+</div>

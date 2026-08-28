@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>Revenue</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>Rolling 12 months compared by week, month, quarter and 12 months</value></data>
+  <data name="Week" xml:space="preserve"><value>Week</value></data>
+  <data name="Month" xml:space="preserve"><value>Month</value></data>
+  <data name="Quarter" xml:space="preserve"><value>Quarter</value></data>
+  <data name="All" xml:space="preserve"><value>12 mo</value></data>
+  <data name="SummaryTotal" xml:space="preserve"><value>Total</value></data>
+  <data name="SummaryAverage" xml:space="preserve"><value>Average per period</value></data>
+  <data name="SummaryBestPeriod" xml:space="preserve"><value>Best period</value></data>
+  <data name="SummaryBestValue" xml:space="preserve"><value>Highest value</value></data>
+  <data name="HoverHint" xml:space="preserve"><value>Hover a bar to inspect the amount.</value></data>
+  <data name="WeekDescription" xml:space="preserve"><value>Shows the latest 10 weeks within the rolling 12 months</value></data>
+  <data name="MonthDescription" xml:space="preserve"><value>Shows 12 months month by month</value></data>
+  <data name="QuarterDescription" xml:space="preserve"><value>Shows the latest 4 quarters within the rolling 12 months</value></data>
+  <data name="AllDescription" xml:space="preserve"><value>Shows a summarized view of the rolling 12 months</value></data>
+  <data name="MetricRevenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="YAxis" xml:space="preserve"><value>MSEK</value></data>
+  <data name="UnitMsek" xml:space="preserve"><value>MSEK</value></data>
+  <data name="UnitKsek" xml:space="preserve"><value>kSEK</value></data>
+  <data name="UnitSek" xml:space="preserve"><value>SEK</value></data>
+</root>

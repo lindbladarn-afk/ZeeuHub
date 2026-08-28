@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Control Panel" xml:space="preserve">
+    <value>Control Panel</value>
+  </data>
+  <data name="endast ditt bolag" xml:space="preserve">
+    <value>only your company</value>
+  </data>
+  <data name="Skapa användare" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="Lägg till kollegor i ditt bolag. CompanyId sätts automatiskt." xml:space="preserve">
+    <value>Add colleagues to your company. CompanyId is set automatically.</value>
+  </data>
+  <data name="Öppna" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Hantera användare" xml:space="preserve">
+    <value>Manage users</value>
+  </data>
+  <data name="Se alla användare i ditt bolag." xml:space="preserve">
+    <value>View all users in your company.</value>
+  </data>
+</root>

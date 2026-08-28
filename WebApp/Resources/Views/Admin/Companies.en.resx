@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Bolag" xml:space="preserve">
+    <value>Companies</value>
+  </data>
+  <data name="administration" xml:space="preserve">
+    <value>administration</value>
+  </data>
+  <data name="Totalt" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Har connection" xml:space="preserve">
+    <value>Has connection</value>
+  </data>
+  <data name="Har permissions" xml:space="preserve">
+    <value>Has permissions</value>
+  </data>
+  <data name="Har båda" xml:space="preserve">
+    <value>Has both</value>
+  </data>
+  <data name="Klicka på en rad för att hantera bolaget." xml:space="preserve">
+    <value>Click a row to manage the company.</value>
+  </data>
+  <data name="Sök bolag eller modul..." xml:space="preserve">
+    <value>Search company or module...</value>
+  </data>
+  <data name="Connections" xml:space="preserve">
+    <value>Connections</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Saknas" xml:space="preserve">
+    <value>Missing</value>
+  </data>
+  <data name="No modules" xml:space="preserve">
+    <value>No modules</value>
+  </data>
+</root>

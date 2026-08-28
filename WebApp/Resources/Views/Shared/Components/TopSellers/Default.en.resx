@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>Top-selling products</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>Revenue and quantity from order lines (Jeeves)</value></data>
+  <data name="ProductColumn" xml:space="preserve"><value>Product</value></data>
+  <data name="QuantityColumn" xml:space="preserve"><value>Qty</value></data>
+  <data name="RevenueColumn" xml:space="preserve"><value>Revenue</value></data>
+  <data name="ArticleNumber" xml:space="preserve"><value>Art. no: {0}</value></data>
+  <data name="QuantityUnit" xml:space="preserve"><value>pcs</value></data>
+  <data name="QuantityInline" xml:space="preserve"><value>Qty: {0}</value></data>
+  <data name="Share" xml:space="preserve"><value>{0}% share</value></data>
+  <data name="RevenueShort" xml:space="preserve"><value>Rev.</value></data>
+  <data name="Quantity" xml:space="preserve"><value>Quantity sold: {0}</value></data>
+  <data name="NoData" xml:space="preserve"><value>No sales data found.</value></data>
+</root>

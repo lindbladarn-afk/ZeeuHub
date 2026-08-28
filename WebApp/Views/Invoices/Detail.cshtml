@@ -1,0 +1,92 @@
+@model WebApp.Models.Invoices.InvoiceItem
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+@{
+    // Invoice detail should mirror the invoice list page in shell, typography and badges
+    // so users do not feel like they leave the module when opening a single invoice.
+    ViewData["Title"] = Localizer["Faktura"] + $" #{Model.InvoiceNo}";
+    var culture = CultureInfo.GetCultureInfo("sv-SE");
+    var daysToDue = (Model.DueDate.Date - DateTime.Today).Days;
+    var statusClass = "badge-unpaid";
+    var statusText = Localizer["Obetald"].Value;
+    if (Model.IsPaid)
+    {
+        statusClass = "badge-paid";
+        statusText = Localizer["Betald"].Value;
+    }
+    else if (Model.IsOverdue)
+    {
+        statusClass = "badge-overdue";
+        statusText = Localizer["Förfallen"].Value;
+    }
+    else if (daysToDue <= 7)
+    {
+        statusClass = "badge-soon";
+        statusText = Localizer["Förfaller snart"].Value;
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page invoices-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@Localizer["Fakturor"]</div>
+            <h1 class="module-page-title">#@Model.InvoiceNo</h1>
+            <div class="module-page-subtitle">@Localizer["Kund:"] @Model.Customer</div>
+        </div>
+        <a asp-action="Index" class="btn btn-portal btn-portal-outline btn-sm">@Localizer["Tillbaka till fakturalista"]</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card kpi-card h-100">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-2 gap-2">
+                        <div>
+                            <div class="dashboard-card-title">@Localizer["Status"]</div>
+                            <span class="badge @statusClass">@statusText</span>
+                        </div>
+                        @if (!Model.IsPaid)
+                        {
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm btn-portal">@Localizer["Skicka betalpåminnelse"]</button>
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-portal">@Localizer["Skicka till inkasso"]</button>
+                            </div>
+                        }
+                    </div>
+                    <ul class="module-detail-list">
+                        <li><strong>@Localizer["Belopp:"]</strong> @Model.AmountSek.ToString("N0", culture) kr</li>
+                        <li><strong>@Localizer["Förfallodatum:"]</strong> @Model.DueDate.ToString("yyyy-MM-dd")</li>
+                        <li><strong>@Localizer["Säljare:"]</strong> @(!string.IsNullOrWhiteSpace(Model.SalesPerson) ? Model.SalesPerson : "-")</li>
+                        @if (!Model.IsPaid && daysToDue > 0)
+                        {
+                            <li><strong>@Localizer["Förfaller om:"]</strong> @Localizer["{0} dagar", daysToDue]</li>
+                        }
+                        @if (Model.PaidDate.HasValue)
+                        {
+                            <li><strong>@Localizer["Betaldatum:"]</strong> @Model.PaidDate.Value.ToString("yyyy-MM-dd")</li>
+                        }
+                        else
+                        {
+                            <li><strong>@Localizer["Betaldatum:"]</strong> -</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card kpi-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-card-title mb-1">@Localizer["Snabbåtgärder"]</div>
+                    <div class="module-page-meta mb-3">@Localizer["Växla tillbaka till lista med aktuellt fokus på obetalda eller betalda fakturor."]</div>
+                    <a asp-action="Index" asp-route-tab="unpaid" class="btn btn-portal btn-portal-outline w-100 mb-2">@Localizer["Visa alla obetalda"]</a>
+                    <a asp-action="Index" asp-route-tab="paid" class="btn btn-portal btn-portal-outline w-100">@Localizer["Visa betalda"]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

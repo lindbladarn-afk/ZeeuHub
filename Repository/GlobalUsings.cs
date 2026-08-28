@@ -1,0 +1,21 @@
+﻿// Central imports for repository contracts, models and SQL access.
+global using Dapper;
+global using Dapper.FluentMap;
+global using Dapper.FluentMap.Mapping;
+global using Entities.Application;
+global using Entities.ViewModels.Admin;
+global using Repository.Contracts;
+global using System.Data;
+global using System.Data.Common;
+global using System.Data.SqlClient;
+global using Entities.Contracts;
+global using Entities.ViewModels;
+global using Entities.Customers;
+global using Entities.Member;
+global using Entities.Purchase;
+global using System.Transactions;
+global using Entities.User;
+global using Entities.ViewModels.WebApproval;
+global using Entities.Dto;
+global using Entities.Models;
+global using Entities.ZeeuDashboard;

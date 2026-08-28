@@ -1,0 +1,39 @@
+﻿@page
+@model PersonalDataModel
+@{
+    ViewData["Title"] = "Personuppgifter";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="card account-manage-card">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">Data</div>
+                <div class="account-manage-card-title mb-1">Dina personuppgifter</div>
+                <p class="module-page-meta mb-3">Ditt konto innehåller personuppgifter som du har gett oss. Här kan du ladda ner eller ta bort dessa uppgifter.</p>
+                <p class="account-manage-note mb-4"><strong>Om du tar bort uppgifterna raderas kontot permanent och det går inte att ångra.</strong></p>
+
+                <div class="account-manage-actions">
+                    <form id="download-data" asp-page="DownloadPersonalData" method="post">
+                        <button class="btn btn-portal" type="submit">Ladda ner data</button>
+                    </form>
+                    <a id="delete" asp-page="DeletePersonalData" class="btn btn-portal-danger-outline">Ta bort konto</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card account-manage-card h-100">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">Viktigt</div>
+                <div class="account-manage-card-title mb-1">Permanent åtgärd</div>
+                <p class="account-manage-note mb-0">Nedladdning sparar en kopia av dina personuppgifter. Borttagning avslutar kontot permanent och kräver separat bekräftelse.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

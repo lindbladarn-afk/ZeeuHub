@@ -1,0 +1,52 @@
+@* Provides the shared loading, empty, and error presentation for dashboard cards. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@{
+    var state = Model.State;
+    var stateClass = state.ToString().ToLowerInvariant();
+    var iconClass = state switch
+    {
+        WebApp.Models.Dashboard.DashboardCardState.Loading => "fa fa-spinner fa-spin",
+        WebApp.Models.Dashboard.DashboardCardState.Error => "fa fa-triangle-exclamation",
+        _ => "fa fa-inbox"
+    };
+    var title = !string.IsNullOrWhiteSpace(Model.StateTitle)
+        ? Model.StateTitle
+        : state switch
+        {
+            WebApp.Models.Dashboard.DashboardCardState.Loading => $"Laddar {Model.Title.ToLowerInvariant()}",
+            WebApp.Models.Dashboard.DashboardCardState.Error => $"{Model.Title} kunde inte laddas",
+            _ => "Ingen information att visa"
+        };
+    var message = !string.IsNullOrWhiteSpace(Model.StateMessage)
+        ? Model.StateMessage
+        : state switch
+        {
+            WebApp.Models.Dashboard.DashboardCardState.Loading => "Hämtar den senaste informationen.",
+            WebApp.Models.Dashboard.DashboardCardState.Error => "Försök igen om en liten stund.",
+            _ => "Det finns ingen information för det valda bolaget just nu."
+        };
+}
+
+<div class="card kpi-card h-100 dashboard-card-state dashboard-card-state--@stateClass"
+     role="@(state == WebApp.Models.Dashboard.DashboardCardState.Error ? "alert" : "status")">
+    <div class="dashboard-card-state__body">
+        <span class="dashboard-card-state__icon" aria-hidden="true">
+            <i class="@iconClass"></i>
+        </span>
+        <div class="dashboard-card-state__copy">
+            <div class="dashboard-card-state__eyebrow">@Model.Title</div>
+            <h3 class="dashboard-card-state__title">@title</h3>
+            <p class="dashboard-card-state__message">@message</p>
+        </div>
+        @if (state == WebApp.Models.Dashboard.DashboardCardState.Error)
+        {
+            <button type="button"
+                    class="btn btn-portal btn-portal-outline btn-sm dashboard-card-state__retry"
+                    data-dashboard-card-retry>
+                <i class="fa fa-rotate-right me-1" aria-hidden="true"></i>
+                Försök igen
+            </button>
+        }
+    </div>
+    @await Html.PartialAsync("Dashboard/_DashboardCardFreshness", Model)
+</div>

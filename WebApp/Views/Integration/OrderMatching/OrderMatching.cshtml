@@ -1,0 +1,383 @@
+@{
+    // Integration matching page aligned with the shared module-page shell so operational tools use the same typography and spacing.
+    ViewData["Title"] = "Centra";
+}
+@using WebApp.ViewModels.Shared
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page integration-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Integration</div>
+            <h1 class="module-page-title">Centra</h1>
+            <div class="module-page-subtitle mt-1">
+                Matcha Centra‑ordrar mot Jeeves via c_extordernr. Datumfilter baseras på createdAt (Centra).
+            </div>
+        </div>
+        <a asp-controller="Member" asp-action="Index" class="btn btn-sm btn-portal btn-portal-outline">
+            <i class="fa fa-arrow-left me-1"></i> Till dashboard
+        </a>
+    </div>
+
+    @if (ViewBag.OrderMatchingRuntimeBanner is ModuleBannerViewModel runtimeBanner)
+    {
+        @await Html.PartialAsync("_ModuleBanner", runtimeBanner)
+    }
+
+    <div class="card kpi-card p-3 mb-3 module-filter-card">
+        <div class="card-body">
+            @* Sync and health actions stay grouped because they operate on the same external integration context. *@
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <form id="integrationSyncForm" class="d-flex flex-wrap gap-2 align-items-center" method="post" action="@Url.Action("RunIntegrationSync", "Member")" data-skip-page-loader="true">
+                    @Html.AntiForgeryToken()
+                    <input type="text" name="externalOrderId" class="form-control w-auto" placeholder="c_extordernr" />
+                    <input type="date" name="createdFrom" class="form-control w-auto" />
+                    <input type="date" name="createdTo" class="form-control w-auto" />
+                    <button type="submit" class="btn btn-portal btn-portal-outline">Kör sync</button>
+                    <span id="integrationSyncStatus" class="module-inline-status module-inline-status--muted small">
+                        <span id="integrationSyncSpinner" class="inline-spinner d-none" aria-hidden="true"></span>
+                        <span id="integrationSyncText"></span>
+                    </span>
+                </form>
+                <form id="integrationHealthForm" class="d-flex flex-wrap gap-2 align-items-center" method="post" action="@Url.Action("RunIntegrationHealth", "Member")" data-skip-page-loader="true">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-portal btn-portal-outline">Testa anslutning</button>
+                    <span id="integrationHealthStatus" class="module-inline-status module-inline-status--muted small"></span>
+                </form>
+            </div>
+            <div id="integrationErrorStatus" class="module-inline-status module-inline-status--danger small mt-2" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3 h-100">
+                <div class="dashboard-card-title">Centra ordrar</div>
+                <div id="integrationCentraCount" class="metric-value">–</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3 h-100">
+                <div class="dashboard-card-title">Finns i Jeeves</div>
+                <div id="integrationMatchedCount" class="metric-value">–</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3 h-100">
+                <div class="dashboard-card-title">Ongoing ordrar</div>
+                <div id="integrationOngoingCount" class="metric-value">–</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3 h-100">
+                <div class="dashboard-card-title">Saknas i Jeeves</div>
+                <div id="integrationMissingCount" class="metric-value">–</div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-3 mt-0">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3 h-100">
+                <div class="dashboard-card-title">Saknas i Ongoing</div>
+                <div id="integrationMissingOngoingCount" class="metric-value">–</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-3 mt-3 order-match-list">
+        <div class="d-flex flex-wrap gap-4 small align-items-center">
+            <div><span class="module-page-meta">Senaste sync:</span> <span id="integrationLastSync">–</span></div>
+            <div><span class="module-page-meta">Matchningsgrad:</span> <span id="integrationMatchRate">–</span></div>
+            <label class="form-check form-check-inline mb-0">
+                <input class="form-check-input" type="checkbox" id="integrationFilterMissing" />
+                <span class="form-check-label module-page-meta">Visa bara saknade</span>
+            </label>
+        </div>
+        @* Results stay inline on the page so sync feedback, matching summary and row inspection share one operational surface. *@
+        <div id="integrationCentraList" class="mt-3 small"></div>
+        <div id="integrationOngoingList" class="mt-3 small"></div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        // Keep sync feedback client-side so the operator can inspect matching results without a full page reload.
+        const form = document.getElementById("integrationSyncForm");
+        if (!form) return;
+
+        const statusEl = document.getElementById("integrationSyncStatus");
+        const errorEl = document.getElementById("integrationErrorStatus");
+        const lastSyncEl = document.getElementById("integrationLastSync");
+        const centraEl = document.getElementById("integrationCentraCount");
+        const ongoingEl = document.getElementById("integrationOngoingCount");
+        const missingEl = document.getElementById("integrationMissingCount");
+        const missingOngoingEl = document.getElementById("integrationMissingOngoingCount");
+        const matchedEl = document.getElementById("integrationMatchedCount");
+        const matchRateEl = document.getElementById("integrationMatchRate");
+        const filterMissingEl = document.getElementById("integrationFilterMissing");
+        const centraListEl = document.getElementById("integrationCentraList");
+        const ongoingListEl = document.getElementById("integrationOngoingList");
+        const setInlineTone = (element, tone) => {
+            if (!element) return;
+            element.classList.remove(
+                "module-inline-status--muted",
+                "module-inline-status--info",
+                "module-inline-status--success",
+                "module-inline-status--warning",
+                "module-inline-status--danger");
+            element.classList.add(`module-inline-status--${tone}`);
+        };
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const spinner = document.getElementById("integrationSyncSpinner");
+            const textEl = document.getElementById("integrationSyncText");
+            const startedAt = Date.now();
+            if (spinner) spinner.classList.remove("d-none");
+            if (statusEl) setInlineTone(statusEl, "info");
+            if (textEl) textEl.textContent = "Hämtar ordrar...";
+            if (errorEl) {
+                errorEl.textContent = "";
+                errorEl.style.display = "none";
+            }
+
+            try {
+                form.classList.add("sync-loading");
+                if (textEl) textEl.textContent = "Hämtar ordrar...";
+                if (centraEl) centraEl.textContent = "…";
+                if (ongoingEl) ongoingEl.textContent = "…";
+                if (missingEl) missingEl.textContent = "…";
+                if (missingOngoingEl) missingOngoingEl.textContent = "…";
+                if (matchedEl) matchedEl.textContent = "…";
+
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form)
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    if (textEl) textEl.textContent = payload && payload.message ? payload.message : "Sync misslyckades.";
+                    if (errorEl && payload && payload.errors) {
+                        errorEl.textContent = formatErrors(payload.errors);
+                        errorEl.style.display = errorEl.textContent ? "inline-flex" : "none";
+                    }
+                    return;
+                }
+
+                const finished = payload.finishedAtUtc ? new Date(payload.finishedAtUtc).toLocaleString() : "–";
+                if (lastSyncEl) lastSyncEl.textContent = finished;
+                if (centraEl) centraEl.textContent = payload.centraCount ?? "–";
+                if (ongoingEl) ongoingEl.textContent = payload.ongoingCount ?? "–";
+                if (missingEl) missingEl.textContent = payload.missingInJeevesCount ?? "–";
+                if (missingOngoingEl) missingOngoingEl.textContent = payload.missingInOngoingCount ?? "–";
+                if (matchedEl) matchedEl.textContent = payload.matchedCount ?? (payload.matchedExternalIds || []).length ?? "–";
+                if (matchRateEl) {
+                    const centraCount = Number(payload.centraCount ?? 0);
+                    const matchedCount = Number(payload.matchedCount ?? (payload.matchedExternalIds || []).length ?? 0);
+                    const rate = centraCount > 0 ? Math.round((matchedCount / centraCount) * 100) : 0;
+                    matchRateEl.textContent = centraCount > 0 ? rate + "% (" + matchedCount + "/" + centraCount + ")" : "–";
+                }
+
+                const matched = new Set(payload.matchedExternalIds || []);
+                const matchedOngoing = new Set(payload.matchedOngoingOrderNos || []);
+
+                // Build compact row markup client-side so both Centra and Ongoing lists share the same visual structure.
+                const buildRows = (items, sourceLabel) => {
+                    return items.map((item, index) => {
+                        const id = (item.externalId || "row-" + index).replace(/[^a-zA-Z0-9_-]/g, "");
+                        const dateText = item.orderDate ? new Date(item.orderDate).toLocaleString() : "";
+                        const noText = item.orderNo ? ("#" + item.orderNo) : "";
+                        const isOngoing = sourceLabel === "Ongoing";
+                        const ok = isOngoing
+                            ? ((item.orderNo && matchedOngoing.has(item.orderNo)) || (item.externalId && matchedOngoing.has(item.externalId)))
+                            : (item.externalId && matched.has(item.externalId));
+                        const matchBadge = ok
+                            ? "<span class=\"badge bg-success\">Matchad</span>"
+                            : "<span class=\"badge bg-warning text-dark\">Ej matchad</span>";
+                        const statusDot = ok ? "<span class=\"text-success me-2\">●</span>" : "<span class=\"text-muted me-2\">●</span>";
+                        const nameText = item.customerName ? item.customerName : "";
+                        const statusText = item.status ? item.status : "";
+                        const totalText = item.totalAmount ? (item.totalAmount.toLocaleString("sv-SE") + " " + (item.currency || "")) : "";
+                        const primary = [noText, dateText].filter(Boolean).join(" • ");
+                        const secondary = [nameText, statusText, totalText].filter(Boolean).join(" • ");
+
+                        return "<div class=\"border-top py-2 order-row\">" +
+                            "<div class=\"d-flex justify-content-between align-items-center gap-3\" role=\"button\" data-toggle=\"order-row\" data-target=\"" + id + "\" data-match=\"" + (ok ? "matched" : "missing") + "\">" +
+                                "<div class=\"d-flex align-items-center gap-2\">" +
+                                    statusDot +
+                                    "<span class=\"fw-semibold\">" + (item.externalId || "-") + "</span>" +
+                                    "<span class=\"badge bg-secondary text-uppercase\">" + sourceLabel + "</span>" +
+                                    matchBadge +
+                                "</div>" +
+                                "<div class=\"text-muted small text-end\">" + [primary, secondary].filter(Boolean).join(" • ") + "</div>" +
+                                "<div class=\"text-muted\"><i class=\"fa fa-chevron-down\"></i></div>" +
+                            "</div>" +
+                            "<div id=\"" + id + "\" class=\"mt-2 ps-4 d-none order-details\">" +
+                                "<div class=\"text-muted small\">" +
+                                    "<div><strong>Order:</strong> " + (noText || "-") + "</div>" +
+                                    "<div><strong>Kund:</strong> " + (nameText || "-") + "</div>" +
+                                    "<div><strong>Status:</strong> " + (statusText || "-") + "</div>" +
+                                    "<div><strong>Datum:</strong> " + (dateText || "-") + "</div>" +
+                                    "<div><strong>Summa:</strong> " + (totalText || "-") + "</div>" +
+                                "</div>" +
+                            "</div>" +
+                        "</div>";
+                    });
+                };
+
+                if (centraListEl) {
+                    const items = payload.centraOrders || [];
+                    if (!items.length) {
+                        centraListEl.innerHTML = "";
+                    } else {
+                        const rows = buildRows(items, "Centra");
+                        centraListEl.innerHTML = "<div class=\"text-muted mb-1\">Senaste Centra‑ordrar</div>" + rows.join("");
+                    }
+                }
+
+                if (ongoingListEl) {
+                    const itemsO = payload.ongoingOrders || [];
+                    if (!itemsO.length) {
+                        ongoingListEl.innerHTML = "";
+                    } else {
+                        const rowsO = buildRows(itemsO, "Ongoing");
+                        ongoingListEl.innerHTML = "<div class=\"text-muted mb-1\">Senaste Ongoing‑ordrar</div>" + rowsO.join("");
+                    }
+                }
+
+                if (filterMissingEl) {
+                    applyMissingFilter();
+                }
+
+                if (errorEl) {
+                    errorEl.textContent = formatErrors(payload.errors || []);
+                    errorEl.style.display = errorEl.textContent ? "inline-flex" : "none";
+                }
+
+                document.querySelectorAll("[data-toggle='order-row']").forEach((row) => {
+                    row.addEventListener("click", () => {
+                        const targetId = row.getAttribute("data-target");
+                        if (!targetId) return;
+                        const details = document.getElementById(targetId);
+                        const icon = row.querySelector(".fa");
+                        if (!details) return;
+                        details.classList.toggle("d-none");
+                        if (icon) {
+                            icon.classList.toggle("fa-chevron-down");
+                            icon.classList.toggle("fa-chevron-up");
+                        }
+                    });
+                });
+
+                const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1) + "s";
+                if (statusEl) setInlineTone(statusEl, payload.warnings && payload.warnings.length ? "warning" : "success");
+                if (textEl) {
+                    textEl.textContent = payload.warnings && payload.warnings.length
+                        ? payload.warnings.join(" • ") + " (" + elapsed + ")"
+                        : "Sync klar (" + elapsed + ")";
+                }
+            } catch (error) {
+                if (statusEl) setInlineTone(statusEl, "warning");
+                if (textEl) textEl.textContent = "Kunde inte köra sync.";
+            } finally {
+                if (spinner) spinner.classList.add("d-none");
+                form.classList.remove("sync-loading");
+            }
+        });
+
+        const formatErrors = (errors) => {
+            if (!errors || !errors.length) return "";
+            return errors.map((err) => {
+                const code = err.statusCode ? (" (" + err.statusCode + ")") : "";
+                return (err.source || "Source") + ": " + (err.message || "error") + code;
+            }).join(" • ");
+        };
+
+        const applyMissingFilter = () => {
+            if (!filterMissingEl || !centraListEl) return;
+            const onlyMissing = filterMissingEl.checked;
+            centraListEl.querySelectorAll("[data-toggle='order-row']").forEach((row) => {
+                if (!onlyMissing) {
+                    row.closest(".order-row")?.classList.remove("d-none");
+                    return;
+                }
+                const match = row.getAttribute("data-match");
+                row.closest(".order-row")?.classList.toggle("d-none", match === "matched");
+            });
+        };
+
+        if (filterMissingEl) {
+            filterMissingEl.addEventListener("change", applyMissingFilter);
+        }
+    })();
+</script>
+
+<script>
+    (() => {
+        const form = document.getElementById("integrationHealthForm");
+        if (!form) return;
+
+        const statusEl = document.getElementById("integrationHealthStatus");
+        const setInlineStatus = (element, tone, text) => {
+            if (!element) return;
+            element.classList.remove(
+                "module-inline-status--muted",
+                "module-inline-status--info",
+                "module-inline-status--success",
+                "module-inline-status--warning",
+                "module-inline-status--danger");
+            element.classList.add(`module-inline-status--${tone}`);
+            element.textContent = text || "";
+        };
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (statusEl) setInlineStatus(statusEl, "info", "Testar...");
+
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form)
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    if (statusEl) statusEl.textContent = payload && payload.message ? payload.message : "Test misslyckades.";
+                    return;
+                }
+
+                const centra = payload.centra || {};
+                const jeeves = payload.jeeves || {};
+                const ongoing = payload.ongoing || {};
+                const akeneo = payload.akeneo || {};
+                const formatHealth = (label, item) => {
+                    if (!item) return label + " ok";
+                    const code = item.statusCode ? " (" + item.statusCode + ")" : "";
+                    const missing = item.missing && item.missing.length
+                        ? " • missing: " + item.missing.join(", ")
+                        : "";
+                    return label + " " + (item.status || "ok") + code + missing;
+                };
+
+                const centraText = formatHealth("Centra", centra);
+                const jeevesText = formatHealth("Jeeves", jeeves);
+                const ongoingText = formatHealth("Ongoing", ongoing);
+                const akeneoText = formatHealth("Akeneo", akeneo);
+                const extra = payload.message ? " • " + payload.message : "";
+
+                if (statusEl) {
+                    const centraOk = centra.statusCode >= 200 && centra.statusCode < 300;
+                    const jeevesOk = jeeves.statusCode >= 200 && jeeves.statusCode < 300;
+                    const ongoingOk = ongoing.statusCode >= 200 && ongoing.statusCode < 300;
+                    const akeneoOk = akeneo.statusCode >= 200 && akeneo.statusCode < 300;
+                    setInlineStatus(statusEl, centraOk && jeevesOk && ongoingOk && akeneoOk ? "success" : "warning", centraText + " • " + jeevesText + " • " + ongoingText + " • " + akeneoText + extra);
+                }
+            } catch (error) {
+                if (statusEl) setInlineStatus(statusEl, "danger", "Kunde inte testa anslutning.");
+            }
+        });
+    })();
+</script>

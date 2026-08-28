@@ -1,0 +1,96 @@
+﻿@page
+@using Microsoft.AspNetCore.Http.Features
+@model TwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Tvåfaktorsautentisering";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+@{
+    var consentFeature = HttpContext.Features.Get<ITrackingConsentFeature>();
+}
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="card account-manage-card">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">Säkerhet</div>
+                <div class="account-manage-card-title mb-1">Tvåfaktorsautentisering</div>
+                <p class="module-page-meta mb-4">Hantera extra inloggningsskydd, återställningskoder och autentiseringsapp.</p>
+
+                @if (consentFeature?.CanTrack ?? true)
+                {
+                    @if (Model.Is2faEnabled)
+                    {
+                        if (Model.RecoveryCodesLeft == 0)
+                        {
+                            <div class="alert alert-danger mb-3">
+                                <strong>Du har inga återställningskoder kvar.</strong>
+                                <p class="mb-0">Du måste <a asp-page="./GenerateRecoveryCodes" class="account-manage-inline-link">skapa nya återställningskoder</a> innan du kan logga in med en återställningskod.</p>
+                            </div>
+                        }
+                        else if (Model.RecoveryCodesLeft == 1)
+                        {
+                            <div class="alert alert-danger mb-3">
+                                <strong>Du har 1 återställningskod kvar.</strong>
+                                <p class="mb-0">Du kan <a asp-page="./GenerateRecoveryCodes" class="account-manage-inline-link">skapa en ny uppsättning återställningskoder</a>.</p>
+                            </div>
+                        }
+                        else if (Model.RecoveryCodesLeft <= 3)
+                        {
+                            <div class="alert alert-warning mb-3">
+                                <strong>Du har @Model.RecoveryCodesLeft återställningskoder kvar.</strong>
+                                <p class="mb-0">Du bör <a asp-page="./GenerateRecoveryCodes" class="account-manage-inline-link">skapa en ny uppsättning återställningskoder</a>.</p>
+                            </div>
+                        }
+
+                        <div class="account-manage-actions mb-4">
+                            @if (Model.IsMachineRemembered)
+                            {
+                                <form method="post">
+                                    <button type="submit" class="btn btn-portal btn-portal-outline">Glöm den här webbläsaren</button>
+                                </form>
+                            }
+                            <a asp-page="./Disable2fa" class="btn btn-portal btn-portal-outline">Stäng av 2FA</a>
+                            <a asp-page="./GenerateRecoveryCodes" class="btn btn-portal">Återställ återställningskoder</a>
+                        </div>
+                    }
+
+                    <div class="dashboard-card-title">Authenticator</div>
+                    <div class="account-manage-actions">
+                        @if (!Model.HasAuthenticator)
+                        {
+                            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-portal">Lägg till authenticator-app</a>
+                        }
+                        else
+                        {
+                            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-portal">Konfigurera authenticator-app</a>
+                            <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-portal btn-portal-outline">Återställ authenticator-app</a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger mb-0">
+                        <strong>Integritets- och cookiepolicyn är inte godkänd.</strong>
+                        <p class="mb-0">Du måste acceptera policyn innan du kan aktivera tvåfaktorsautentisering.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card account-manage-card h-100">
+            <div class="card-body p-4">
+                <div class="dashboard-card-title">Status</div>
+                <div class="account-manage-card-title mb-1">Skyddsnivå</div>
+                <p class="account-manage-note mb-2">2FA är @(Model.Is2faEnabled ? "aktiverat" : "inte aktiverat") på kontot.</p>
+                <p class="account-manage-note mb-0">Återställningskoder kvar: @Model.RecoveryCodesLeft</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

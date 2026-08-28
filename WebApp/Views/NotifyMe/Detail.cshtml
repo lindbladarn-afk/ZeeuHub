@@ -1,0 +1,211 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeDetailsPageVm
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // NotifyMe detail page aligned with the shared module-page shell.
+    // The page keeps detailed notification controls local but reuses the portal-wide header and metadata patterns.
+    ViewData["Title"] = sharedLocalizer["NotifyMe_DetailTitle"];
+    ViewData["NotifyMeSection"] = "overview";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-detail-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@sharedLocalizer["NotifyMe_DetailTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["NotifyMe_DetailSubtitle"]</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" asp-action="NotifyMe">@sharedLocalizer["NotifyMe_BackToOverview"]</a>
+            <a class="btn btn-portal btn-portal-outline" asp-action="Editor" asp-route-id="@Model.Notification?.NotificationId">@sharedLocalizer["NotifyMe_OpenEditor"]</a>
+        </div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = Model.IsInstalled ? sharedLocalizer["NotifyMe_StatusTitle"] : sharedLocalizer["NotifyMe_RequiresAttentionTitle"],
+            Message = Model.StatusMessage,
+            Tone = Model.IsInstalled ? "info" : "warning",
+            IconClass = Model.IsInstalled ? "fa fa-circle-info" : "fa fa-triangle-exclamation"
+        })
+    }
+
+    @if ((User.IsInRole("Administrator") || User.IsInRole("SuperUser")) && TempData["NotifyMeTestRunMessage"] is string testMessage && !string.IsNullOrWhiteSpace(testMessage))
+    {
+        var level = TempData["NotifyMeTestRunLevel"]?.ToString() ?? "info";
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = sharedLocalizer["NotifyMe_TestRunResultTitle"],
+            Message = testMessage,
+            Tone = level switch
+            {
+                "success" => "success",
+                "warning" => "warning",
+                "danger" => "danger",
+                _ => "info"
+            },
+            IconClass = level switch
+            {
+                "success" => "fa fa-check",
+                "warning" => "fa fa-triangle-exclamation",
+                "danger" => "fa fa-circle-xmark",
+                _ => "fa fa-circle-info"
+            }
+        })
+    }
+
+    @if (!Model.IsInstalled)
+    {
+        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+        {
+            Title = "NotifyMe-detaljer är tillfälligt otillgängliga",
+            Message = string.IsNullOrWhiteSpace(Model.StatusMessage)
+                ? "Detaljer för vald notifiering kunde inte läsas för valt bolag."
+                : Model.StatusMessage,
+            Note = "Detaljsidan kräver tenantdata från Jeeves för att läsa notifiering, historik och testkörning.",
+            Tone = "warning",
+            IconClass = "fa fa-triangle-exclamation"
+        })
+    }
+    else if (Model.Notification != null)
+    {
+        var selected = Model.Notification;
+        <div class="card kpi-card p-2 mb-3 module-shell-divider">
+            @* Test run and editor actions stay near the selected notification because they depend on the active item context. *@
+            <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                <div>
+                    <div class="notifyme-detail-title mb-2">@selected.Description</div>
+                    <div class="module-page-meta mb-3">ID @selected.NotificationId</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="module-inline-pill">@selected.TypeLabel</span>
+                        <span class="module-inline-pill">@selected.PriorityLabel</span>
+                        <span class="module-inline-pill">@(selected.SchemaCode ?? "-") / @(selected.ScheduleCode ?? "-")</span>
+                        <span class="module-inline-pill">@(selected.IsActive ? sharedLocalizer["NotifyMe_Active"] : sharedLocalizer["NotifyMe_Inactive"])</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 align-items-start">
+                    @if (User.IsInRole("Administrator") || User.IsInRole("SuperUser"))
+                    {
+                        <form asp-action="TestRun" method="post" class="d-flex gap-2 align-items-start flex-wrap">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@selected.NotificationId" />
+                            <div>
+                                <input type="email"
+                                       name="overrideRecipient"
+                                       class="form-control form-control-sm"
+                                       value="@Model.DefaultTestRecipientEmail"
+                                       placeholder="test@zeeu.se"
+                                       style="min-width: 240px;" />
+                                <div class="module-page-meta mt-1">@sharedLocalizer["NotifyMe_TestRunOnlyToAddress"]</div>
+                            </div>
+                            <button type="submit" class="btn btn-portal">@sharedLocalizer["NotifyMe_TestRunNotification"]</button>
+                        </form>
+                    }
+                    <a class="btn btn-portal btn-portal-outline" asp-action="Editor" asp-route-id="@selected.NotificationId">@sharedLocalizer["NotifyMe_OpenEditor"]</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-12 col-xl-7">
+                <div class="card kpi-card p-2 h-100 notifyme-shell">
+                    <div class="dashboard-card-title mb-2">@sharedLocalizer["NotifyMe_Configuration"]</div>
+                    <dl class="row mb-0 notifyme-detail-list">
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_StartDate"]</dt><dd class="col-sm-7">@(selected.StartDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_NextRun"]</dt><dd class="col-sm-7">@(selected.NextExecutionAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_LastWarning"]</dt><dd class="col-sm-7">@(selected.LastWarningAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_WarningCount"]</dt><dd class="col-sm-7">@selected.WarningCount</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["Recipients"]</dt><dd class="col-sm-7">@selected.PrimaryEmail @(string.IsNullOrWhiteSpace(selected.SecondaryEmail) ? string.Empty : $"; {selected.SecondaryEmail}")</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_CcBcc"]</dt><dd class="col-sm-7">@((selected.Cc ?? "-") + " / " + (selected.Bcc ?? "-"))</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_Escalation"]</dt><dd class="col-sm-7">@(selected.EscalateAfterCount.HasValue && selected.EscalateAfterCount > 0 ? sharedLocalizer["NotifyMe_EscalationConfigured", selected.EscalateAfterCount, selected.EscalationEmail] : sharedLocalizer["NotifyMe_NotConfigured"])</dd>
+                        <dt class="col-sm-5">@sharedLocalizer["NotifyMe_Source"]</dt>
+                        <dd class="col-sm-7">
+                            @if (selected.UsesSysChangeSource)
+                            {
+                                <span class="badge text-bg-info">SYSL</span>
+                            }
+                            @if (selected.UsesCustomSql)
+                            {
+                                <span class="badge text-bg-primary">Custom SQL</span>
+                            }
+                            @if (!selected.UsesSysChangeSource && !selected.UsesCustomSql)
+                            {
+                                <span>-</span>
+                            }
+                        </dd>
+                    </dl>
+                    @if (!string.IsNullOrWhiteSpace(selected.Comment))
+                    {
+                        <div class="mt-3">
+                            <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_CommentAction"]</div>
+                            <div class="notifyme-detail-copy">@selected.Comment</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(selected.SqlPreview))
+                    {
+                        <div class="mt-3">
+                            <div class="dashboard-card-title">@sharedLocalizer["NotifyMe_SqlPreview"]</div>
+                            <pre class="small mb-0 notifyme-sql" style="white-space:pre-wrap;">@selected.SqlPreview</pre>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-12 col-xl-5">
+                <div class="card kpi-card p-2 h-100 notifyme-shell">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <div class="dashboard-card-title mb-0">@sharedLocalizer["NotifyMe_RecentDeliveriesForNotification"]</div>
+                        <a class="btn btn-portal btn-portal-outline btn-sm"
+                           asp-action="History"
+                           asp-route-historyNotificationId="@selected.NotificationId">@sharedLocalizer["NotifyMe_FullHistory"]</a>
+                    </div>
+                    @if (selected.RecentLogEntries.Count == 0)
+                    {
+                        @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+                        {
+                            Title = sharedLocalizer["NotifyMe_NoHistoryForNotificationTitle"],
+                            Message = sharedLocalizer["NotifyMe_NoHistoryForNotificationMessage"],
+                            Tone = "neutral",
+                            IconClass = "fa fa-clock-rotate-left",
+                            Compact = true
+                        })
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                        @foreach (var log in selected.RecentLogEntries)
+                        {
+                            <div class="notifyme-log-item p-2">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="notifyme-log-title">@log.Subject</div>
+                                    <div class="notifyme-log-meta">@(log.SentAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</div>
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <span class="badge bg-@log.ExecutionStatusTone">@log.ExecutionStatus</span>
+                                    <span class="badge bg-dark">@log.SchemaCode</span>
+                                </div>
+                            </div>
+                                <div class="notifyme-log-recipients mt-2"><span class="notifyme-log-label">@sharedLocalizer["Recipients"]:</span> @log.Recipients</div>
+                                @if (!string.IsNullOrWhiteSpace(log.HtmlPreviewText))
+                                {
+                                    <div class="notifyme-log-preview mt-2">@log.HtmlPreviewText</div>
+                                }
+                            </div>
+                        }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

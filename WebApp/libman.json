@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "d3@3.5.17",
+      "destination": "wwwroot/lib/d3",
+      "files": [ "d3.min.js" ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "nvd3@1.8.6",
+      "destination": "wwwroot/lib/nvd3",
+      "files": [
+        "nv.d3.min.css",
+        "nv.d3.min.js"
+      ]
+    },
+    {
+      "library": "jvectormap@2.0.5",
+      "destination": "wwwroot/lib/jvectormap-next",
+      "files": [
+        "jquery-jvectormap.css",
+        "jquery-jvectormap.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap-calendar@0.2.5",
+      "destination": "wwwroot/lib/bootstrap-calendar",
+      "files": [
+        "css/calendar.css",
+        "css/calendar.min.css",
+        "js/calendar.min.js"
+      ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "gritter@1.7.4",
+      "destination": "wwwroot/lib/gritter",
+      "files": [
+        "css/jquery.gritter.css",
+        "js/jquery.gritter.min.js"
+      ]
+    }
+  ]
+}

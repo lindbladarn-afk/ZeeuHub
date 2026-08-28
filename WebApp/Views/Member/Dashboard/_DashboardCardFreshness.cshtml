@@ -1,0 +1,12 @@
+@* Shows when a dashboard card last completed a data refresh. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+
+@if (Model.LastUpdatedAtUtc.HasValue)
+{
+    <div class="dashboard-card-freshness">
+        <i class="fa fa-clock" aria-hidden="true"></i>
+        <span>Senast uppdaterad</span>
+        <time datetime="@Model.LastUpdatedAtUtc.Value.ToString("O")"
+              data-dashboard-updated-at>@Model.LastUpdatedAtUtc.Value.ToLocalTime().ToString("HH:mm")</time>
+    </div>
+}

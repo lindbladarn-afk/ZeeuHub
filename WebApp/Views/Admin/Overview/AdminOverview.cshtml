@@ -1,0 +1,286 @@
+﻿@model WebApp.ViewModels.Admin.AdminOverviewViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WebApp.ViewModels.Shared
+@inject IViewLocalizer Localizer
+@{
+    // Admin landing page that explains the permission model and links into the most-used admin areas.
+    // Uses shared admin/module primitives so cards, accordions and lazy blocks stay aligned with the rest of the portal.
+    ViewData["Title"] = Localizer["Admin Dashboard"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-overview dashboard-readable module-page admin-page">
+<div class="module-page-header">
+    <div>
+        <div class="dashboard-card-title">Admin</div>
+        <h1 class="module-page-title">@Localizer["Admin Dashboard"]</h1>
+        <div class="module-page-subtitle">@Localizer["Roller, statistik, onboarding och behörighetsmodell i ett gemensamt kontrollplan."]</div>
+    </div>
+    <div class="d-flex flex-column align-items-end gap-2">
+        <div class="module-page-meta">@Localizer["översikt & guider"]</div>
+        <a asp-controller="WebApproval" asp-action="AttestChains" class="btn btn-portal btn-sm rounded-pill">
+            <i class="fa fa-sitemap me-2"></i>Attestkedja
+        </a>
+        <a asp-controller="Admin" asp-action="PurchaseApprovalParity" class="btn btn-outline-light btn-sm rounded-pill">
+            <i class="fa fa-search me-2"></i>Paritetskontroll
+        </a>
+    </div>
+</div>
+
+<div class="row g-2 mb-2">
+    <div class="col-md-4">
+        <a asp-action="Companies" class="text-decoration-none text-reset">
+            <div class="card shadow-sm h-100 admin-overview-stat-card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="admin-overview-stat-label">@Localizer["Bolag"]</div>
+                        <div class="h4 mb-0 admin-overview-stat-value">@Model.CompanyCount</div>
+                    </div>
+                    <div class="admin-overview-stat-icon fs-3"><i class="fa fa-building"></i></div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="Users" class="text-decoration-none text-reset">
+            <div class="card shadow-sm h-100 admin-overview-stat-card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="admin-overview-stat-label">@Localizer["Användare"]</div>
+                        <div class="h4 mb-0 admin-overview-stat-value">@Model.UserCount</div>
+                    </div>
+                    <div class="admin-overview-stat-icon fs-3"><i class="fa fa-users"></i></div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="PortalSessions" class="text-decoration-none text-reset">
+            <div class="card shadow-sm h-100 admin-overview-stat-card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="admin-overview-stat-label">@Localizer["Tid i portalen"]</div>
+                        <div class="h4 mb-0 admin-overview-stat-value">@Model.SessionDurationText</div>
+                    </div>
+                    <div class="admin-overview-stat-icon fs-3"><i class="fa fa-clock"></i></div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-2 mb-2">
+    <div class="col-12">
+        <div id="zeeu-operations-slot"
+             data-url="@Url.Action("InternalOperationsCard", "Admin")">
+            @* Operations card loads lazily because it aggregates operational data beyond the static admin overview. *@
+            @await Html.PartialAsync("_ModuleState", new ModuleStateViewModel
+            {
+                Title = "Laddar ZeeU Operations...",
+                Message = "Driftsignaler och interna operationer hämtas separat för att hålla adminöversikten snabb.",
+                Tone = "loading",
+                IconClass = "fa fa-spinner fa-spin"
+            })
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mt-1">
+    <div class="col-12">
+        <div class="accordion accordion-flush admin-overview-accordion" id="adminInfoAccordion">
+            <div class="accordion-item shadow-sm mb-2">
+                <h2 class="accordion-header" id="headingRoles">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
+                        @Localizer["Roller & behörighet"]
+                    </button>
+                </h2>
+                <div id="collapseRoles" class="accordion-collapse collapse" aria-labelledby="headingRoles" data-bs-parent="#adminInfoAccordion">
+                    <div class="accordion-body">
+                        @* Role cards stay grouped here because admins compare capabilities side by side during onboarding. *@
+                        <div class="row g-2">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["User"]</div>
+                                        <ul class="small mb-0">
+                                            <li>@Localizer["Använder tilldelade moduler enligt CompanyPermissions."]</li>
+                                            <li>@Localizer["Ingen åtkomst till Admin eller konfig."]</li>
+                                            <li>@Localizer["Måste ha CompanyId + ActiveConnectionString."]</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["SuperUser"]</div>
+                                        <ul class="small mb-0">
+                                            <li>@Localizer["Skapa användare i eget bolag."]</li>
+                                            <li>@Localizer["Ingen åtkomst till Companies/permissions."]</li>
+                                            <li>@Localizer["För bolagsansvariga som onboardar kollegor."]</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Administrator"]</div>
+                                        <ul class="small mb-0">
+                                            <li>@Localizer["Full Admin: Companies, Users, Permissions, Excelimporter och AI-kontrollpanel."]</li>
+                                            <li>@Localizer["Kan ändra CompanyPermissions och connections."]</li>
+                                            <li>@Localizer["Sparsamt använd – ger insyn i alla bolag."]</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item shadow-sm">
+                <h2 class="accordion-header" id="headingModel">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseModel" aria-expanded="false" aria-controls="collapseModel">
+                        @Localizer["Behörighetsmodell & moduler"]
+                    </button>
+                </h2>
+                <div id="collapseModel" class="accordion-collapse collapse" aria-labelledby="headingModel" data-bs-parent="#adminInfoAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-2">
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Behörighetsmodell"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["Menyn styrs av CompanyPermissions per modul/submodul."]</li>
+                                            <li>@Localizer["Tenant Guard/Feature Access håller bolagsisolering."]</li>
+                                            <li>@Localizer["CompanyId + ActiveConnectionStringId krävs för inloggning."]</li>
+                                        </ul>
+                                        <small class="admin-tip d-block">@Localizer["Tips: Kontrollera CompanyPermissions vid saknade menyval."]</small>
+                                        <small class="admin-tip d-block mt-1">@Localizer["Tips: Ge Ordermatchning endast till Holdit via CompanyPermissions."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Dashboards & moduler"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["ZeeU Dashboard m.fl. kräver permissions + aktiv connection."]</li>
+                                            <li>@Localizer["Invoices/Orders hämtar Jeeves-data; ForetagKod (JeevesActiveCompany) måste stämma."]</li>
+                                            <li>@Localizer["SuperUser kan inte ändra permissions, bara skapa användare i eget bolag."]</li>
+                                        </ul>
+                                        <small class="admin-tip">@Localizer["Utöka menyn: lägg till CompanyPermissions under Admin \"Companies\"."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item shadow-sm mt-2">
+                <h2 class="accordion-header" id="headingGuides">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGuides" aria-expanded="false" aria-controls="collapseGuides">
+                        @Localizer["Guider & säkerhet"]
+                    </button>
+                </h2>
+                <div id="collapseGuides" class="accordion-collapse collapse" aria-labelledby="headingGuides" data-bs-parent="#adminInfoAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-2">
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Onboarding: nytt bolag"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["Skapa bolag i Admin → Companies."]</li>
+                                            <li>@Localizer["Sätt rätt connection string i Azure App Settings/Key Vault för bolaget."]</li>
+                                            <li>@Localizer["Ange PersSign på användaren (måste finnas i SY2)."]</li>
+                                            <li>@Localizer["Tilldela CompanyPermissions (moduler) för bolaget."]</li>
+                                        </ul>
+                                        <small class="admin-tip d-block">@Localizer["Tips: Om bara 9900 syns, flagga bolag i jvss (custom_portal_3/4/5 = 1)."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Integrationer: test & drift"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["Lagra integrations-credentials i Azure App Settings/Key Vault (inte i kod)."]</li>
+                                            <li>@Localizer["Kör “Testa anslutning” för Centra/Jeeves/Ongoing/Akeneo."]</li>
+                                            <li>@Localizer["Ordermatchning kräver JeevesCompanyCode + c_extordernr."]</li>
+                                        </ul>
+                                        <small class="admin-tip d-block">@Localizer["Tips: Använd companyId från Azure när du mappar integrationer."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Säkerhetsnivåer"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["Minimera Administrator-rollen; ge bara vid behov."]</li>
+                                            <li>@Localizer["SuperUser skapar användare i eget bolag, utan permissions‑styrning."]</li>
+                                            <li>@Localizer["Se till att varje bolag bara har sina moduler + connection strings."]</li>
+                                            <li>@Localizer["Secrets ska alltid ligga i App Settings/Key Vault, aldrig i kod."]</li>
+                                            <li>@Localizer["AI-kvot styrs i Admin → AI-frågor → AI kvotstyrning (globalt + per bolag)."]</li>
+                                        </ul>
+                                        <small class="admin-tip d-block">@Localizer["Tips: Rensa dubblett‑email i Admin → Users innan lösenordsreset."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card info-card">
+                                    <div class="card-body">
+                                        <div class="fw-bold">@Localizer["Drift & felsökning"]</div>
+                                        <ul class="small mb-2">
+                                            <li>@Localizer["Saknad connection string? Kontrollera Azure App Settings/Key Vault för bolagets nyckel."]</li>
+                                            <li>@Localizer["Fel “missing_company_code”? Kontrollera JeevesCompanyCode i App Settings."]</li>
+                                            <li>@Localizer["Kör SEED_MENU=true vid deploy om moduler saknas."]</li>
+                                            <li>@Localizer["Kontrollera AI-kvotläge vid stoppade AI-frågor (standard/betalläge/paus)."]</li>
+                                        </ul>
+                                        <small class="admin-tip d-block">@Localizer["Tips: Efter seeding, slå av SEED_MENU igen."]</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const slot = document.getElementById('zeeu-operations-slot');
+        if (!slot) return;
+
+        const url = slot.dataset.url;
+        if (!url) return;
+
+        try {
+            const response = await fetch(url, { credentials: 'same-origin' });
+            if (!response.ok) {
+                throw new Error('Could not load internal operations.');
+            }
+
+            slot.innerHTML = await response.text();
+        } catch {
+            slot.innerHTML = `
+                <div class="card shadow-sm h-100 admin-overview-lazy-card">
+                    <div class="card-body d-flex align-items-center justify-content-center text-muted">
+                        Kunde inte ladda ZeeU Operations just nu.
+                    </div>
+                </div>`;
+        }
+    });
+</script>
+
+</div>

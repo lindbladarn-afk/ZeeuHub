@@ -1,0 +1,39 @@
+{
+  "profiles": {
+    "WebApp": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ZeeuCustomerPortal_VerificationMailRedirectEnabled": "true",
+        "ZeeuCustomerPortal_VerificationMailRedirectTo": "Alexander.ek@zeeu.se"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7017;http://localhost:5017"
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ZeeuCustomerPortal_VerificationMailRedirectEnabled": "true",
+        "ZeeuCustomerPortal_VerificationMailRedirectTo": "Alexander.ek@zeeu.se"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:4868",
+      "sslPort": 44305
+    }
+  }
+}

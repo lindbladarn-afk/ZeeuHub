@@ -1,0 +1,24 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@using WebApp.ViewModels.Shared
+
+<div id="ai-manual-panel" class="d-none">
+    @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+    {
+        Message = Localizer["Endast SELECT/CTE är tillåtna. Max 200 rader returneras. Använd helst databasen/schemat som är kopplat till ditt aktiva bolag."].Value,
+        Tone = "info",
+        IconClass = "fa fa-info-circle",
+        Compact = true
+    })
+
+    <form id="manual-form" class="mb-3" data-skip-page-loader="true">
+        <label class="form-label small fw-bold mb-1" for="manual-sql">@Localizer["SQL-fråga"]</label>
+        <textarea class="form-control" id="manual-sql" rows="5"
+                  placeholder="SELECT TOP 10 * FROM dbo.oh;"></textarea>
+        <div class="d-flex align-items-center gap-2 mt-2">
+            <button class="btn btn-portal btn-sm" id="manual-run" type="submit">
+                <i class="fa fa-play"></i> @Localizer["Kör"]
+            </button>
+            <span id="manual-status" class="module-inline-status module-inline-status--muted small"></span>
+        </div>
+    </form>
+</div>

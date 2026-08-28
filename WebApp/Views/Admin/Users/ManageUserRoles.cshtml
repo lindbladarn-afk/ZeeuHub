@@ -1,0 +1,46 @@
+﻿@using Entities.ViewModels.Admin
+@using Microsoft.Extensions.Localization
+@model List<AdminUserRolesViewModel>
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+
+@{
+    ViewData["Title"] = sharedLocalizer["Admin_ManageUserRolesTitle"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page admin-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Admin"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Admin_ManageUserRolesTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["Admin_ManageUserRolesSubtitle"]</div>
+            <div class="module-page-meta">@sharedLocalizer["User"]: @ViewBag.UserName</div>
+        </div>
+    </div>
+
+    <form method="post">
+        <div class="card kpi-card p-2">
+            <div class="admin-section-title mb-2">@sharedLocalizer["Admin_Roles"]</div>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <div class="form-check m-1">
+                    <input type="hidden" asp-for="@Model[i].RoleId" />
+                    <input type="hidden" asp-for="@Model[i].RoleName" />
+                    <input asp-for="@Model[i].Selected" class="form-check-input" />
+                    <label class="form-check-label" asp-for="@Model[i].Selected">
+                        @Model[i].RoleName
+                    </label>
+                </div>
+            }
+            <div asp-validation-summary="All" class="text-danger mt-2"></div>
+            <div class="d-flex gap-2 mt-2">
+                <input type="submit" value="@sharedLocalizer["Update"]" class="btn btn-sm btn-primary" />
+                <a asp-action="EditUser" asp-route-id="@ViewBag.userId" class="btn btn-sm btn-outline-secondary">@sharedLocalizer["Cancel"]</a>
+            </div>
+        </div>
+    </form>
+</div>

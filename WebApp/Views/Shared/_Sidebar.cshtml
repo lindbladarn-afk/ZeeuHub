@@ -1,0 +1,1362 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Configuration
+@using WebApp.Models.Identity
+@using Entities.ViewModels;
+@using WebApp.Services;
+@using Entities.Application
+@using WebApp.Services.Application
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+@inject IApplicationMenuService ApplicationMenuService
+@inject ISidebarRuntimeStatusService SidebarRuntimeStatusService
+
+@{
+	var modules = new SideMenuViewModel();
+	var dynamicModules = modules.Modules ?? new List<SideMenuModulesViewModel>();
+	
+	var menuController = ViewContext.RouteData.Values["controller"]?.ToString() ?? null;
+	var menuAction = ViewContext.RouteData.Values["action"]?.ToString() ?? null;
+	var sessionUser = _httpContextAccessor.HttpContext?.Session.Get<UserSession>("UserObject");
+	var hasDataAccess = sessionUser?.HasDataAccess != false;
+	var runtimeStatus = await SidebarRuntimeStatusService.GetStatusAsync(sessionUser, Context.RequestAborted);
+	var currentSidebarReturnUrl = $"{ViewContext.HttpContext.Request.Path}{ViewContext.HttpContext.Request.QueryString}";
+	string RuntimeStatusText(string? statusLabel) => statusLabel switch
+	{
+		"Queued" => sharedLocalizer["RuntimeStatus_Queued"].Value,
+		"Running" => sharedLocalizer["RuntimeStatus_Running"].Value,
+		"Completed" => sharedLocalizer["RuntimeStatus_Completed"].Value,
+		"Failed" => sharedLocalizer["RuntimeStatus_Failed"].Value,
+		"Canceled" or "Cancelled" => sharedLocalizer["RuntimeStatus_Canceled"].Value,
+		_ => string.IsNullOrWhiteSpace(statusLabel) ? sharedLocalizer["RuntimeStatus_Unknown"].Value : statusLabel
+	};
+
+	var sidebarSnapshotVersionParts = new List<string>
+	{
+		$"{runtimeStatus.OverallTone}|{runtimeStatus.OverallLabel}|{runtimeStatus.RunningLabel}|{runtimeStatus.LatestLabel}|{runtimeStatus.NotificationCount}"
+	};
+
+	foreach (var item in runtimeStatus.NotificationItems.Take(10))
+	{
+		sidebarSnapshotVersionParts.Add($"{item.AggregateKey}|{item.OccurredAtUtc:O}|{item.Title}|{item.StatusLabel}|{item.StatusTone}");
+	}
+
+	if (runtimeStatus.ActionCenterSummaryItem is not null)
+	{
+		sidebarSnapshotVersionParts.Add(
+			$"action-center-summary:{runtimeStatus.ActionCenterSummaryItem.AggregateKey}|{runtimeStatus.ActionCenterSummaryItem.OccurredAtUtc:O}|{runtimeStatus.ActionCenterSummaryItem.Title}|{runtimeStatus.ActionCenterSummaryItem.StatusLabel}|{runtimeStatus.ActionCenterSummaryItem.StatusTone}");
+	}
+
+	if (runtimeStatus.LatestItem is not null)
+	{
+		sidebarSnapshotVersionParts.Add(
+			$"latest:{runtimeStatus.LatestItem.AggregateKey}|{runtimeStatus.LatestItem.OccurredAtUtc:O}|{runtimeStatus.LatestItem.Title}|{runtimeStatus.LatestItem.StatusLabel}|{runtimeStatus.LatestItem.StatusTone}");
+	}
+
+	var sidebarInitialSnapshotVersion = string.Join(";", sidebarSnapshotVersionParts);
+
+	bool ModuleRequiresDatabase(SideMenuModulesViewModel module)
+	{
+		var controller = module.MenuSectionController ?? string.Empty;
+		if (string.IsNullOrWhiteSpace(controller))
+		{
+			return false;
+		}
+
+		return !string.Equals(controller, "Member", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "Integration", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "ActionCenter", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "NotifyMe", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "Support", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "Admin", StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(controller, "SuperUser", StringComparison.OrdinalIgnoreCase);
+	}
+
+	if (sessionUser?.CompanyId is Guid companyId && companyId != Guid.Empty)
+	{
+		modules = await ApplicationMenuService.GetMenuAsync(companyId, sessionUser?.UserId, Context.RequestAborted);
+		dynamicModules = modules.Modules ?? new List<SideMenuModulesViewModel>();
+	}
+}
+
+<style>
+	.ai-menu-icon { position: relative; }
+
+	/* Pull the entire sidebar menu up so it starts directly under the top navbar. */
+	#sidebar .app-sidebar-content {
+		padding-top: 0 !important;
+	}
+
+	#sidebar .menu {
+		padding-top: 0 !important;
+		margin-top: 0 !important;
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+	}
+
+	#sidebar .menu > .menu-header {
+		margin-top: 0 !important;
+		padding-top: 0 !important;
+		margin-bottom: 8px !important;
+	}
+
+	#sidebar .menu > .menu-item:first-of-type {
+		margin-top: 0 !important;
+	}
+
+	/* När sidomenyn är minifierad: dölj texten för våra kompakta punkter (Excelimport, Fakturor, Orders, ZeeU Intelligence) */
+	body.app-sidebar-minified .app-sidebar .menu-item--compact .menu-text,
+	body.app-sidebar-minify .app-sidebar .menu-item--compact .menu-text,
+	.app-sidebar-minified .app-sidebar .menu-item--compact .menu-text,
+	.app-sidebar-minify .app-sidebar .menu-item--compact .menu-text {
+		display: none !important;
+	}
+
+	body.app-sidebar-minified .app-sidebar .menu-link-no-access .menu-text,
+	body.app-sidebar-minify .app-sidebar .menu-link-no-access .menu-text,
+	.app-sidebar-minified .app-sidebar .menu-link-no-access .menu-text,
+	.app-sidebar-minify .app-sidebar .menu-link-no-access .menu-text {
+		display: none !important;
+	}
+
+	body.app-sidebar-minified .app-sidebar .menu-item--compact .menu-link,
+	body.app-sidebar-minify .app-sidebar .menu-item--compact .menu-link,
+	.app-sidebar-minified .app-sidebar .menu-item--compact .menu-link,
+	.app-sidebar-minify .app-sidebar .menu-item--compact .menu-link {
+		justify-content: center;
+	}
+
+	body.app-sidebar-minified .app-sidebar .menu-link-no-access,
+	body.app-sidebar-minify .app-sidebar .menu-link-no-access,
+	.app-sidebar-minified .app-sidebar .menu-link-no-access,
+	.app-sidebar-minify .app-sidebar .menu-link-no-access {
+		justify-content: center;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	body.app-sidebar-minified .app-sidebar .menu-item--compact .menu-icon,
+	body.app-sidebar-minify .app-sidebar .menu-item--compact .menu-icon,
+	.app-sidebar-minified .app-sidebar .menu-item--compact .menu-icon,
+	.app-sidebar-minify .app-sidebar .menu-item--compact .menu-icon {
+		margin-right: 0;
+	}
+
+	body.app-sidebar-minified .app-sidebar .menu-link-no-access .menu-icon,
+	body.app-sidebar-minify .app-sidebar .menu-link-no-access .menu-icon,
+	.app-sidebar-minified .app-sidebar .menu-link-no-access .menu-icon,
+	.app-sidebar-minify .app-sidebar .menu-link-no-access .menu-icon {
+		margin-right: 0;
+	}
+
+	body:not(.theme-dark) #sidebar.app-sidebar,
+	body:not(.theme-dark) .app-sidebar-bg {
+		background: #41505d !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-header {
+		color: rgba(255, 255, 255, 0.88) !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-link,
+	body:not(.theme-dark) #sidebar .menu-link .menu-text,
+	body:not(.theme-dark) #sidebar .menu-link .menu-icon,
+	body:not(.theme-dark) #sidebar .menu-link .menu-caret,
+	body:not(.theme-dark) #sidebar .menu-link-no-access,
+	body:not(.theme-dark) #sidebar .menu-link-no-access .menu-text,
+	body:not(.theme-dark) #sidebar .menu-link-no-access .menu-icon {
+		color: rgba(241, 245, 249, 0.92) !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-link .menu-icon i,
+	body:not(.theme-dark) #sidebar .menu-link-no-access .menu-icon i {
+		color: rgba(203, 213, 225, 0.92) !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-item:not(.active) > .menu-link:hover,
+	body:not(.theme-dark) #sidebar .menu-submenu .menu-item:not(.active) > .menu-link:hover {
+		background: rgba(255, 255, 255, 0.08) !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-item.active > .menu-link,
+	body:not(.theme-dark) #sidebar .menu-submenu .menu-item.active > .menu-link {
+		color: #ffffff !important;
+	}
+
+	body:not(.theme-dark) #sidebar .menu-item.active > .menu-link .menu-text,
+	body:not(.theme-dark) #sidebar .menu-item.active > .menu-link .menu-icon,
+	body:not(.theme-dark) #sidebar .menu-item.active > .menu-link .menu-icon i,
+	body:not(.theme-dark) #sidebar .menu-item.active > .menu-link .menu-caret {
+		color: #ffffff !important;
+	}
+
+	body:not(.theme-dark) #sidebar .app-sidebar-minify-btn,
+	body:not(.theme-dark) #sidebar .app-sidebar-minify-btn i {
+		color: rgba(255, 255, 255, 0.92) !important;
+	}
+
+	#sidebar .menu-item > .menu-link,
+	#sidebar .menu-link-no-access {
+		border: 1px solid transparent;
+		border-radius: 10px;
+		margin: 2px 8px;
+		transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+	}
+
+	#sidebar .menu-link-no-access .menu-icon--locked {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	#sidebar .menu-link-no-access .menu-icon-lock {
+		position: absolute;
+		right: -4px;
+		bottom: -4px;
+		width: 14px;
+		height: 14px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 999px;
+		background: #0f172a;
+		border: 1px solid rgba(148, 163, 184, 0.4);
+		color: #e2e8f0;
+		font-size: 0.5rem;
+		line-height: 1;
+		box-shadow: 0 4px 10px rgba(2, 6, 23, 0.35);
+	}
+
+	#sidebar .menu-item.active > .menu-link,
+	#sidebar .menu-submenu .menu-item.active > .menu-link {
+		background: transparent !important;
+		border-color: rgba(255, 255, 255, 0.78) !important;
+		box-shadow: none !important;
+		color: #ffffff !important;
+	}
+
+	#sidebar .menu-item.active > .menu-link .menu-text,
+	#sidebar .menu-item.active > .menu-link .menu-icon,
+	#sidebar .menu-item.active > .menu-link .menu-icon i,
+	#sidebar .menu-item.active > .menu-link .menu-caret {
+		color: #ffffff !important;
+	}
+
+	#sidebar .menu-item:not(.active) > .menu-link:hover,
+	#sidebar .menu-submenu .menu-item:not(.active) > .menu-link:hover {
+		background: rgba(255, 255, 255, 0.06) !important;
+		border-color: rgba(255, 255, 255, 0.14) !important;
+	}
+
+	#sidebar .menu-runtime-status {
+		position: relative;
+		margin: auto 12px 10px;
+		width: calc(100% - 24px);
+		min-height: 178px;
+		padding: 14px 14px 12px;
+		box-sizing: border-box;
+		border-radius: 18px;
+		background: rgba(15, 23, 42, 0.78);
+		border: 1px solid rgba(148, 163, 184, 0.16);
+		box-shadow: 0 18px 42px rgba(2, 6, 23, 0.28);
+		overflow: hidden;
+	}
+
+	#sidebar .menu-runtime-status__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 6px;
+		margin-bottom: 12px;
+	}
+
+	#sidebar .menu-runtime-status__header-main {
+		display: inline-flex;
+		align-items: center;
+		flex: 0 0 auto;
+		gap: 6px;
+		min-width: 0;
+	}
+
+	#sidebar .menu-runtime-status__title {
+		flex: 0 0 auto;
+		font-size: 0.74rem;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		color: rgba(226, 232, 240, 0.84);
+	}
+
+	#sidebar .menu-runtime-status__bell {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		flex: 0 0 auto;
+		color: rgba(191, 219, 254, 0.92);
+		font-size: 0.85rem;
+		background: transparent;
+		border: 0;
+		padding: 0;
+	}
+
+	#sidebar .menu-runtime-status__bell:hover {
+		color: #ffffff;
+	}
+
+	#sidebar .menu-runtime-status__count {
+		position: absolute;
+		top: -7px;
+		right: -10px;
+		min-width: 17px;
+		height: 17px;
+		padding: 0 4px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 999px;
+		background: rgba(99, 102, 241, 0.9);
+		color: #fff;
+		font-size: 0.65rem;
+		font-weight: 700;
+	}
+
+	#sidebar .menu-runtime-status__line {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 8px;
+		font-size: 0.89rem;
+		color: rgba(226, 232, 240, 0.88);
+	}
+
+	#sidebar .menu-runtime-status__label {
+		color: rgba(148, 163, 184, 0.88);
+	}
+
+	#sidebar .menu-runtime-status__pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		flex: 0 0 auto;
+		padding: 4px 10px;
+		border-radius: 999px;
+		font-size: 0.78rem;
+		font-weight: 700;
+		border: 1px solid transparent;
+		white-space: nowrap;
+	}
+
+	#sidebar .menu-runtime-status__pill--compact {
+		width: 96px;
+		min-width: 96px;
+		max-width: 96px;
+		justify-content: center;
+		padding: 2px 8px;
+		font-size: 0.68rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#sidebar .menu-runtime-status__pill--compact::before {
+		width: 6px;
+		height: 6px;
+	}
+
+	#sidebar .menu-runtime-status__pill::before {
+		content: "";
+		width: 7px;
+		height: 7px;
+		border-radius: 999px;
+		background: currentColor;
+	}
+
+	#sidebar .menu-runtime-status__pill--ready {
+		color: #86efac;
+		background: rgba(34, 197, 94, 0.12);
+		border-color: rgba(34, 197, 94, 0.24);
+	}
+
+	#sidebar .menu-runtime-status__pill--info {
+		color: #7dd3fc;
+		background: rgba(56, 189, 248, 0.12);
+		border-color: rgba(56, 189, 248, 0.24);
+	}
+
+	#sidebar .menu-runtime-status__pill--danger {
+		color: #fca5a5;
+		background: rgba(239, 68, 68, 0.12);
+		border-color: rgba(239, 68, 68, 0.24);
+	}
+
+	#sidebar .menu-runtime-status__meta {
+		margin-bottom: 6px;
+		min-height: 1.15rem;
+		font-size: 0.84rem;
+		line-height: 1.35;
+		color: rgba(226, 232, 240, 0.78);
+	}
+
+	#sidebar .menu-runtime-status__list {
+		margin: 10px 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 7px;
+	}
+
+	#sidebar .menu-runtime-status__item {
+		display: grid;
+		grid-template-columns: 16px 1fr auto;
+		gap: 8px;
+		align-items: start;
+		font-size: 0.8rem;
+		color: rgba(226, 232, 240, 0.84);
+	}
+
+	#sidebar .menu-runtime-status__item i {
+		margin-top: 2px;
+		color: rgba(125, 211, 252, 0.9);
+	}
+
+	#sidebar .menu-runtime-status__item-title {
+		font-weight: 700;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	#sidebar .menu-runtime-status__item-summary {
+		margin-top: 1px;
+		color: rgba(148, 163, 184, 0.88);
+		line-height: 1.25;
+	}
+
+	#sidebar .menu-runtime-status__item-meta {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.72rem;
+		color: rgba(148, 163, 184, 0.82);
+		white-space: nowrap;
+	}
+
+	#sidebar .menu-runtime-status__item-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 999px;
+		background: #64748b;
+		box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.12);
+	}
+
+	#sidebar .menu-runtime-status__item-dot--success {
+		background: #4ade80;
+		box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.12);
+	}
+
+	#sidebar .menu-runtime-status__item-dot--danger {
+		background: #f87171;
+		box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.12);
+	}
+
+	#sidebar .menu-runtime-status__item-dot--info {
+		background: #38bdf8;
+		box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+	}
+
+	.menu-runtime-status__notifications {
+		position: fixed;
+		top: -9999px;
+		left: -9999px;
+		width: 320px;
+		max-height: 520px;
+		padding: 14px;
+		box-sizing: border-box;
+		border-radius: 18px;
+		background: rgba(17, 24, 39, 0.98);
+		border: 1px solid rgba(148, 163, 184, 0.2);
+		box-shadow: 0 24px 60px rgba(2, 6, 23, 0.44);
+		overflow: visible;
+		opacity: 0;
+		pointer-events: none;
+		transform: translateY(8px);
+		transition: opacity 0.18s ease, transform 0.18s ease;
+		z-index: 2000;
+	}
+
+	.menu-runtime-status__notifications.is-open {
+		opacity: 1;
+		pointer-events: auto;
+		transform: translateY(0);
+	}
+
+	.menu-runtime-status__notifications-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+
+	.menu-runtime-status__notifications-header form {
+		flex: 0 0 auto;
+	}
+
+	.menu-runtime-status__notifications-header .menu-runtime-status__mark-all-read-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.26rem 0.74rem;
+		font-size: 0.78rem;
+		line-height: 1.2;
+		border-radius: 0.75rem;
+		min-height: 1.9rem;
+		min-width: 0;
+		white-space: nowrap;
+	}
+
+	.menu-runtime-status__notifications-title {
+		font-size: 1rem;
+		font-weight: 800;
+		color: #f8fafc;
+	}
+
+	.menu-runtime-status__notifications-scroll {
+		max-height: 430px;
+		min-height: 0;
+		overflow-y: auto;
+		scrollbar-gutter: stable;
+		padding-right: 4px;
+		padding-top: 1px;
+		padding-bottom: 2px;
+		display: grid;
+		gap: 6px;
+	}
+
+	.menu-runtime-status__notification-card {
+		display: block;
+		padding: 8px 10px 7px;
+		border-radius: 10px;
+		background: rgba(51, 65, 85, 0.46);
+		border: 1px solid rgba(96, 165, 250, 0.22);
+		text-decoration: none;
+		transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+	}
+
+	.menu-runtime-status__notification-card:hover {
+		border-color: rgba(125, 211, 252, 0.36);
+		background: rgba(51, 65, 85, 0.62);
+		box-shadow: 0 10px 24px rgba(2, 6, 23, 0.22);
+	}
+
+	.menu-runtime-status__notification-card--action-center {
+		background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(15, 23, 42, 0.92));
+		border-color: rgba(96, 165, 250, 0.42);
+		box-shadow: 0 16px 30px rgba(15, 23, 42, 0.25);
+	}
+
+	.menu-runtime-status__notification-card--action-center .menu-runtime-status__notification-icon {
+		color: #60a5fa;
+	}
+
+	.menu-runtime-status__notification-head {
+		display: flex;
+		align-items: start;
+		justify-content: space-between;
+		gap: 5px;
+	}
+
+	.menu-runtime-status__notification-main {
+		display: grid;
+		grid-template-columns: 15px 1fr;
+		gap: 6px;
+		align-items: start;
+		min-width: 0;
+	}
+
+	.menu-runtime-status__notification-icon {
+		margin-top: 0;
+		color: rgba(125, 211, 252, 0.92);
+		font-size: 0.76rem;
+	}
+
+	.menu-runtime-status__notification-title {
+		font-size: 0.86rem;
+		font-weight: 800;
+		line-height: 1.08;
+		color: #f8fafc;
+	}
+
+	.menu-runtime-status__notification-subtitle {
+		margin-top: 3px;
+		font-size: 0.76rem;
+		line-height: 1.18;
+		color: rgba(226, 232, 240, 0.76);
+	}
+
+	.menu-runtime-status__notification-meta {
+		margin-top: 4px;
+		font-size: 0.72rem;
+		color: rgba(191, 219, 254, 0.74);
+	}
+
+	.menu-runtime-status__notification-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 2px 7px;
+		border-radius: 999px;
+		font-size: 0.68rem;
+		font-weight: 700;
+		white-space: nowrap;
+	}
+
+	.menu-runtime-status__notification-badge::before {
+		content: "";
+		width: 6px;
+		height: 6px;
+		border-radius: 999px;
+		background: currentColor;
+	}
+
+	.menu-runtime-status__notification-badge--success {
+		color: #86efac;
+		background: rgba(34, 197, 94, 0.14);
+	}
+
+	.menu-runtime-status__notification-badge--danger {
+		color: #fca5a5;
+		background: rgba(239, 68, 68, 0.14);
+	}
+
+	.menu-runtime-status__notification-badge--info {
+		color: #7dd3fc;
+		background: rgba(56, 189, 248, 0.14);
+	}
+
+	.menu-runtime-status__notification-badge--muted {
+		color: #cbd5e1;
+		background: rgba(148, 163, 184, 0.14);
+	}
+
+	.menu-runtime-status__empty {
+		padding: 18px 12px;
+		min-height: 72px;
+		border-radius: 14px;
+		background: rgba(30, 41, 59, 0.48);
+		color: rgba(226, 232, 240, 0.74);
+		font-size: 0.84rem;
+	}
+
+	body.app-sidebar-minified #sidebar .menu-runtime-status,
+	body.app-sidebar-minify #sidebar .menu-runtime-status,
+	.app-sidebar-minified #sidebar .menu-runtime-status,
+	.app-sidebar-minify #sidebar .menu-runtime-status {
+		display: none !important;
+	}
+
+</style>
+
+<!-- BEGIN #sidebar -->
+<div id="sidebar" class="app-sidebar @(ViewData["AppSidebarTransparent"] != null ? " app-sidebar-transparent" : "")">
+	<!-- BEGIN scrollbar -->
+	<div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
+		<!-- BEGIN menu -->
+			<div class="menu">
+				<div class="menu-header">@sharedLocalizer["Navigation"]</div>
+			@if (SignInManager.IsSignedIn(User))
+			{
+				@if (ViewContext.HttpContext.User.IsInRole("Administrator"))
+				{
+					<!-- ADMIN med undermenyer - oförändrad -->
+					<div class="menu-item has-sub @((menuController == "Admin" || menuAction == "AdminOverview" || menuAction == "Companies" || menuAction == "ExcelImports" || menuAction == "AiQueries" || menuAction == "EventLogs") ? "active" : "")">
+						<a class="menu-link" href="javascript:;">
+							<div class="menu-icon"><i class="fas fa-shield-alt"></i></div>
+								<div class="menu-text">@sharedLocalizer["Admin"]</div>
+							<div class="menu-caret"></div>
+						</a>
+						<div class="menu-submenu">
+							<div class="menu-item @(menuAction == "AdminOverview" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="AdminOverview">
+									<div class="menu-icon"><i class="fas fa-info"></i></div>
+										<div class="menu-text">@sharedLocalizer["Overview"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "Companies" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="Companies">
+									<div class="menu-icon"><i class="fas fa-building"></i></div>
+										<div class="menu-text">@sharedLocalizer["Company"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "Users" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="Users">
+									<div class="menu-icon"><i class="fas fa-user"></i></div>
+										<div class="menu-text">@sharedLocalizer["User"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "ExcelImports" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="ExcelImports">
+									<div class="menu-icon"><i class="fas fa-file-excel"></i></div>
+										<div class="menu-text">@sharedLocalizer["Admin_ExcelImports"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "EventLogs" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="EventLogs">
+									<div class="menu-icon"><i class="fas fa-bug"></i></div>
+										<div class="menu-text">@sharedLocalizer["Admin_EventLogs"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "AiQueries" ? "active" : "")">
+								<a class="menu-link" asp-controller="Admin" asp-action="AiQueries">
+									<div class="menu-icon"><i class="fas fa-robot"></i></div>
+										<div class="menu-text">@sharedLocalizer["Admin_AiControlPanel"]</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				}
+				@if (ViewContext.HttpContext.User.IsInRole("SuperUser"))
+				{
+					<div class="menu-item has-sub @((menuController == "SuperUser") ? "active" : "")">
+						<a class="menu-link" href="javascript:;">
+							<div class="menu-icon"><i class="fas fa-user-shield"></i></div>
+							<div class="menu-text">@sharedLocalizer["Control Panel"]</div>
+							<div class="menu-caret"></div>
+						</a>
+						<div class="menu-submenu">
+							<div class="menu-item @(menuAction == "ControlPanel" ? "active" : "")">
+								<a class="menu-link" asp-controller="SuperUser" asp-action="ControlPanel">
+									<div class="menu-icon"><i class="fas fa-th-large"></i></div>
+									<div class="menu-text">@sharedLocalizer["Översikt"]</div>
+								</a>
+							</div>
+							<div class="menu-item @(menuAction == "Users" ? "active" : "")">
+								<a class="menu-link" asp-controller="SuperUser" asp-action="Users">
+									<div class="menu-icon"><i class="fas fa-user-friends"></i></div>
+									<div class="menu-text">@sharedLocalizer["Användare"]</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				}
+
+				@* DYNAMISKA MODULER – samma som tidigare *@
+				@foreach (var module in dynamicModules.Where(x => x != null))
+				{
+					var moduleText = module.MenuSectionText ?? string.Empty;
+					var localizedText = string.IsNullOrWhiteSpace(moduleText)
+						? string.Empty
+						: sharedLocalizer[moduleText].Value ?? moduleText;
+					var moduleIcon = string.Equals(module.MenuSectionController, "NotifyMe", StringComparison.OrdinalIgnoreCase)
+						? "fas fa-broadcast-tower"
+						: module.MenuSectionIcon;
+					// Menyval styrs nu endast via SQL/permissions.
+
+						var effectiveSubModules = module.SubModules?
+							.Where(sm => sm.MenuItemEnabled == true && sm.UserHasPermission)
+							.ToList() ?? new List<SideMenuSubModuleViewModel>();
+						var hasConfiguredSubModules = module.SubModules?.Any(sm => sm.MenuItemEnabled == true) ?? false;
+						var hasEffectiveAccess = hasConfiguredSubModules
+							? effectiveSubModules.Count > 0
+							: module.CompanyHasPermission;
+						var isIntegrationModule = string.Equals(module.MenuSectionController, "Integration", StringComparison.OrdinalIgnoreCase)
+							&& string.Equals(module.MenuSectionText, "Module_Integration", StringComparison.OrdinalIgnoreCase);
+						var isLockedForMissingData = !hasDataAccess && ModuleRequiresDatabase(module);
+						var directSubModule = effectiveSubModules
+							.OrderBy(sm => sm.MenuItemSortOrder ?? int.MaxValue)
+							.FirstOrDefault();
+						var directController = module.MenuSectionController;
+						var directAction = module.MenuSectionAction;
+						var integrationFlowEngineActions = new[]
+						{
+							"FlowEngine",
+							"FlowEngineCentra",
+							"FlowEngineAkeneo",
+							"FlowEngineJeeves",
+							"FlowEngineShopify"
+						};
+							var integrationFlowEngineSubModules = isIntegrationModule
+								? effectiveSubModules
+									.Where(sm => integrationFlowEngineActions.Contains(sm.MenuItemAction ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+									.OrderBy(sm => Array.IndexOf(integrationFlowEngineActions, integrationFlowEngineActions.First(x => string.Equals(x, sm.MenuItemAction, StringComparison.OrdinalIgnoreCase))))
+									.ToList()
+								: new List<SideMenuSubModuleViewModel>();
+							var integrationOtherSubModules = isIntegrationModule
+								? effectiveSubModules
+									.Where(sm => !integrationFlowEngineActions.Contains(sm.MenuItemAction ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+									.OrderBy(sm => sm.MenuItemSortOrder ?? int.MaxValue)
+									.ToList()
+								: new List<SideMenuSubModuleViewModel>();
+						var hasIntegrationMenuItems = integrationFlowEngineSubModules.Count > 0;
+
+					if (!isIntegrationModule && effectiveSubModules.Count == 1)
+					{
+						var single = effectiveSubModules[0];
+						if (string.Equals(single.MenuItemController, module.MenuSectionController, StringComparison.OrdinalIgnoreCase)
+							&& string.Equals(single.MenuItemAction, module.MenuSectionAction, StringComparison.OrdinalIgnoreCase))
+							{
+								effectiveSubModules = new List<SideMenuSubModuleViewModel>();
+							}
+					}
+
+					if (isLockedForMissingData)
+					{
+						<div class="menu-item">
+							<a class="menu-link-no-access"
+							   data-bs-toggle="tooltip"
+							   data-bs-placement="right"
+								   title="@sharedLocalizer["MissingDataSourceTooltip"]">
+								<div class="menu-icon menu-icon--locked">
+									<i class="@moduleIcon"></i>
+									<span class="menu-icon-lock"><i class="fa fa-lock"></i></span>
+								</div>
+								<div class="menu-text">@localizedText</div>
+							</a>
+						</div>
+					}
+						else if (!hasEffectiveAccess)
+						{
+							<div class="menu-item">
+								<a class="menu-link-no-access">
+									<div class="menu-icon menu-icon--locked">
+										<i class="@moduleIcon"></i>
+										<span class="menu-icon-lock"><i class="fa fa-lock"></i></span>
+									</div>
+									<div class="menu-text">@localizedText</div>
+								</a>
+							</div>
+					}
+					else
+					{
+						var subMenuActive = "";
+						var moduleRouteActive =
+							string.Equals(menuController, module.MenuSectionController, StringComparison.OrdinalIgnoreCase)
+							&& string.Equals(menuAction, module.MenuSectionAction, StringComparison.OrdinalIgnoreCase);
+						if (effectiveSubModules.Count > 0)
+						{
+							foreach (var subMenu in effectiveSubModules)
+							{
+								var subMenuText = subMenu.MenuItemText ?? string.Empty;
+								var localizedSub = string.IsNullOrWhiteSpace(subMenuText)
+									? string.Empty
+									: sharedLocalizer[subMenuText].Value ?? subMenuText;
+								// Menyval styrs nu endast via SQL/permissions.
+								subMenuActive = (menuAction == subMenu.MenuItemAction) ? "active" : subMenuActive;
+							}
+						}
+
+							if (isIntegrationModule && (hasIntegrationMenuItems || integrationOtherSubModules.Count > 0))
+							{
+								var integrationActive = string.Equals(menuController, "Integration", StringComparison.OrdinalIgnoreCase)
+									&& (integrationFlowEngineSubModules.Any(sm => string.Equals(menuAction, sm.MenuItemAction, StringComparison.OrdinalIgnoreCase))
+									    || integrationOtherSubModules.Any(sm => string.Equals(menuAction, sm.MenuItemAction, StringComparison.OrdinalIgnoreCase)));
+								var flowEngineActive = string.Equals(menuController, "Integration", StringComparison.OrdinalIgnoreCase)
+									&& integrationFlowEngineSubModules.Any(sm => string.Equals(menuAction, sm.MenuItemAction, StringComparison.OrdinalIgnoreCase));
+								<div class="menu-item has-sub @(integrationActive ? "active" : "")">
+									<a class="menu-link" href="javascript:;">
+										<div class="menu-icon"><i class="@moduleIcon"></i></div>
+										<div class="menu-text">@localizedText</div>
+										<div class="menu-caret"></div>
+									</a>
+									<div class="menu-submenu">
+										@if (integrationOtherSubModules.Count > 0)
+										{
+											@foreach (var subModule in integrationOtherSubModules)
+											{
+												var subModuleText = subModule.MenuItemText ?? string.Empty;
+												var localizedSubModuleText = string.IsNullOrWhiteSpace(subModuleText)
+													? string.Empty
+													: sharedLocalizer[subModuleText].Value ?? subModuleText;
+												<div class="menu-item @(string.Equals(menuAction, subModule.MenuItemAction, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+													<a class="menu-link" asp-controller="@subModule.MenuItemController" asp-action="@subModule.MenuItemAction">
+														<div class="menu-text">@localizedSubModuleText</div>
+													</a>
+												</div>
+											}
+										}
+										@if (integrationFlowEngineSubModules.Count > 0)
+										{
+											<div class="menu-item has-sub @(flowEngineActive ? "active" : "")">
+											<a class="menu-link" href="javascript:;">
+												<div class="menu-text">@sharedLocalizer["SubModule_FlowEngine"]</div>
+												<div class="menu-caret"></div>
+											</a>
+											<div class="menu-submenu">
+												@foreach (var subModule in integrationFlowEngineSubModules)
+												{
+													var subModuleText = subModule.MenuItemText ?? string.Empty;
+													var localizedSubModuleText = string.Equals(subModule.MenuItemAction, "FlowEngine", StringComparison.OrdinalIgnoreCase)
+														? sharedLocalizer["SubModule_FlowEngine_Dashboard"].Value
+														: string.IsNullOrWhiteSpace(subModuleText)
+															? string.Empty
+															: sharedLocalizer[subModuleText].Value ?? subModuleText;
+													<div class="menu-item @(string.Equals(menuAction, subModule.MenuItemAction, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+														<a class="menu-link" asp-controller="@subModule.MenuItemController" asp-action="@subModule.MenuItemAction">
+															<div class="menu-text">@localizedSubModuleText</div>
+														</a>
+													</div>
+												}
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+						else if (!isIntegrationModule && effectiveSubModules.Count > 0)
+						{
+							<div class="menu-item has-sub @((moduleRouteActive || subMenuActive == "active") ? "active" : "")">
+								<a class="menu-link" href="javascript:;">
+									<div class="menu-icon"><i class="@moduleIcon"></i></div>
+									<div class="menu-text">@localizedText</div>
+									<div class="menu-caret"></div>
+								</a>
+								<div class="menu-submenu">
+									@foreach (var subModule in effectiveSubModules)
+									{
+										var subModuleText = subModule.MenuItemText ?? string.Empty;
+										var localizedSubModuleText = string.IsNullOrWhiteSpace(subModuleText)
+											? string.Empty
+											: sharedLocalizer[subModuleText].Value ?? subModuleText;
+										<div class="menu-item @((menuAction == subModule.MenuItemAction || subMenuActive == subModule.MenuItemAction) ? "active" : "")">
+											<a class="menu-link" asp-controller="@subModule.MenuItemController" asp-action="@subModule.MenuItemAction">
+												<div class="menu-text">@localizedSubModuleText</div>
+											</a>
+										</div>
+									}
+								</div>
+							</div>
+						}
+						else
+						{
+								if (hasEffectiveAccess || !hasConfiguredSubModules)
+								{
+									<div class="menu-item @(moduleRouteActive ? "active" : "")">
+										<a class="menu-link" asp-controller="@directController" asp-action="@directAction">
+											<div class="menu-icon"><i class="@moduleIcon"></i></div>
+											<div class="menu-text">@localizedText</div>
+										</a>
+								</div>
+							}
+							else
+							{
+								<div class="menu-item">
+									<a class="menu-link-no-access">
+										<div class="menu-icon menu-icon--locked">
+											<i class="@moduleIcon"></i>
+											<span class="menu-icon-lock"><i class="fa fa-lock"></i></span>
+										</div>
+										<div class="menu-text">@localizedText</div>
+									</a>
+								</div>
+							}
+						}
+					}
+				}
+
+			<!-- BEGIN minify-button -->
+			<div class="menu-item d-flex">
+				<a href="javascript:;" class="app-sidebar-minify-btn ms-auto" data-toggle="app-sidebar-minify">
+					<i class="fa fa-angle-double-left"></i>
+				</a>
+			</div>
+			<!-- END minify-button -->
+				@if (runtimeStatus.IsVisible)
+				{
+					<div class="menu-runtime-status">
+						<div class="menu-runtime-status__header">
+							<div class="menu-runtime-status__header-main">
+								<div class="menu-runtime-status__title">@sharedLocalizer["Status"]</div>
+								<span class="menu-runtime-status__pill menu-runtime-status__pill--compact menu-runtime-status__pill--@runtimeStatus.OverallTone" data-sidebar-overall-pill>@runtimeStatus.OverallLabel</span>
+							</div>
+							<button type="button" class="menu-runtime-status__bell" data-sidebar-notifications-toggle aria-expanded="false" aria-haspopup="dialog">
+								<i class="fa fa-bell-o"></i>
+								@if (runtimeStatus.NotificationCount > 0)
+								{
+									<span class="menu-runtime-status__count" data-sidebar-count-full>@runtimeStatus.NotificationCount</span>
+								}
+								else
+								{
+									<span class="menu-runtime-status__count" data-sidebar-count-full hidden></span>
+								}
+							</button>
+						</div>
+						<div class="menu-runtime-status__meta">@sharedLocalizer["SidebarRuntime_RunningNow"]: <span data-sidebar-running-label>@runtimeStatus.RunningLabel</span></div>
+						<div class="menu-runtime-status__meta">@sharedLocalizer["SidebarRuntime_Latest"]: <span data-sidebar-latest-label>@runtimeStatus.LatestLabel</span></div>
+						@if (runtimeStatus.LatestItem is { } latestItem)
+						{
+							<ul class="menu-runtime-status__list" data-sidebar-latest-item>
+								<li class="menu-runtime-status__item">
+									<i class="@latestItem.IconClass" aria-hidden="true"></i>
+									<div>
+										<div class="menu-runtime-status__item-title">@latestItem.Source</div>
+									</div>
+									<div class="menu-runtime-status__item-meta">
+										<span class="menu-runtime-status__item-dot menu-runtime-status__item-dot--@latestItem.StatusTone"></span>
+									</div>
+								</li>
+							</ul>
+						}
+						else
+						{
+							<ul class="menu-runtime-status__list" data-sidebar-latest-item hidden></ul>
+						}
+
+						</div>
+					}
+				}
+		</div>
+		<!-- END menu -->
+	</div>
+	<!-- END scrollbar -->
+</div>
+<div class="app-sidebar-bg"></div>
+<div class="app-sidebar-mobile-backdrop">
+	<a href="#" data-dismiss="app-sidebar-mobile" class="stretched-link"></a>
+</div>
+
+@if (runtimeStatus.IsVisible)
+{
+	<div class="menu-runtime-status__notifications" data-sidebar-notifications-panel>
+		<div class="menu-runtime-status__notifications-header">
+			<div class="menu-runtime-status__notifications-title">@sharedLocalizer["SidebarRuntime_NotificationsTitle"]</div>
+			<form asp-controller="Member" asp-action="MarkSidebarNotificationsRead" method="post">
+				@Html.AntiForgeryToken()
+				<input type="hidden" name="returnUrl" value="@currentSidebarReturnUrl" />
+				<button type="submit"
+				        class="btn btn-sm btn-portal menu-runtime-status__mark-all-read-btn"
+				        title="@sharedLocalizer["SidebarRuntime_MarkAllReadTooltip"]"
+				        aria-label="@sharedLocalizer["SidebarRuntime_MarkAllReadTooltip"]">
+					@sharedLocalizer["SidebarRuntime_MarkAllRead"]
+				</button>
+			</form>
+		</div>
+		<div class="menu-runtime-status__notifications-scroll" data-sidebar-notifications-scroll>
+			@if (runtimeStatus.ActionCenterSummaryItem is { } actionCenterSummaryItem)
+			{
+				<a class="menu-runtime-status__notification-card menu-runtime-status__notification-card--action-center" href="@(actionCenterSummaryItem.LinkUrl ?? "/ActionCenter")">
+					<div class="menu-runtime-status__notification-head">
+						<div class="menu-runtime-status__notification-main">
+							<i class="@actionCenterSummaryItem.IconClass menu-runtime-status__notification-icon" aria-hidden="true"></i>
+							<div class="menu-runtime-status__notification-title">@actionCenterSummaryItem.Title</div>
+						</div>
+						<span class="menu-runtime-status__notification-badge menu-runtime-status__notification-badge--@actionCenterSummaryItem.StatusTone">@RuntimeStatusText(actionCenterSummaryItem.StatusLabel)</span>
+					</div>
+					<div class="menu-runtime-status__notification-subtitle">@actionCenterSummaryItem.Source · @actionCenterSummaryItem.Summary</div>
+				</a>
+			}
+			@if (runtimeStatus.NotificationItems.Count == 0 && runtimeStatus.ActionCenterSummaryItem is null)
+			{
+				<div class="menu-runtime-status__empty">@sharedLocalizer["SidebarRuntime_NoNotificationsYet"]</div>
+			}
+			@if (runtimeStatus.NotificationItems.Count > 0)
+			{
+				@foreach (var item in runtimeStatus.NotificationItems)
+				{
+					@if (string.IsNullOrWhiteSpace(item.LinkUrl))
+					{
+						<div class="menu-runtime-status__notification-card">
+							<div class="menu-runtime-status__notification-head">
+								<div class="menu-runtime-status__notification-main">
+									<i class="@item.IconClass menu-runtime-status__notification-icon" aria-hidden="true"></i>
+									<div class="menu-runtime-status__notification-title">@item.Title</div>
+								</div>
+								<span class="menu-runtime-status__notification-badge menu-runtime-status__notification-badge--@item.StatusTone">@RuntimeStatusText(item.StatusLabel)</span>
+							</div>
+							<div class="menu-runtime-status__notification-subtitle">@item.Source · @item.Summary</div>
+						</div>
+					}
+					else
+					{
+						<a class="menu-runtime-status__notification-card" href="@item.LinkUrl">
+							<div class="menu-runtime-status__notification-head">
+								<div class="menu-runtime-status__notification-main">
+									<i class="@item.IconClass menu-runtime-status__notification-icon" aria-hidden="true"></i>
+									<div class="menu-runtime-status__notification-title">@item.Title</div>
+								</div>
+								<span class="menu-runtime-status__notification-badge menu-runtime-status__notification-badge--@item.StatusTone">@RuntimeStatusText(item.StatusLabel)</span>
+							</div>
+							<div class="menu-runtime-status__notification-subtitle">@item.Source · @item.Summary</div>
+						</a>
+					}
+				}
+			}
+		</div>
+	</div>
+}
+<!-- END #sidebar -->
+
+<script>
+	// Initiera Bootstrap-tooltips om det inte redan görs globalt
+	(function initSidebarRuntimeStatus() {
+		if (window.bootstrap) {
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+			tooltipTriggerList.map(function (el) {
+				return new bootstrap.Tooltip(el);
+			});
+		}
+
+		var toggles = Array.prototype.slice.call(document.querySelectorAll('[data-sidebar-notifications-toggle]'));
+		var panel = document.querySelector('[data-sidebar-notifications-panel]');
+		var snapshotUrl = '@Url.Action("SidebarRuntimeStatusSnapshot", "Member")';
+		var latestLabelEl = document.querySelector('[data-sidebar-latest-label]');
+		var runningLabelEl = document.querySelector('[data-sidebar-running-label]');
+		var overallPillEl = document.querySelector('[data-sidebar-overall-pill]');
+		var latestItemEl = document.querySelector('[data-sidebar-latest-item]');
+		var fullCountEl = document.querySelector('[data-sidebar-count-full]');
+		var headerCountEl = document.querySelector('[data-sidebar-count-header]');
+		var notificationScrollEl = panel ? panel.querySelector('[data-sidebar-notifications-scroll]') : null;
+		var lastVersion = '@sidebarInitialSnapshotVersion';
+		var pollInFlight = false;
+		var notificationsEmptyText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["SidebarRuntime_NoNotificationsYet"].Value));
+		var overallReadyText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["SidebarRuntime_OverallReady"].Value));
+		var idleText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["SidebarRuntime_Idle"].Value));
+		var noActivityText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sharedLocalizer["SidebarRuntime_NoActivityYet"].Value));
+
+		var escapeHtml = function (value) {
+			return String(value || '')
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;');
+		};
+
+		var renderNotificationCard = function (item, extraClass) {
+			var body =
+				'<div class="menu-runtime-status__notification-head">' +
+					'<div class="menu-runtime-status__notification-main">' +
+						'<i class="' + escapeHtml(item.iconClass || 'fa fa-circle') + ' menu-runtime-status__notification-icon" aria-hidden="true"></i>' +
+						'<div class="menu-runtime-status__notification-title">' + escapeHtml(item.title) + '</div>' +
+					'</div>' +
+					'<span class="menu-runtime-status__notification-badge menu-runtime-status__notification-badge--' + escapeHtml(item.statusTone) + '">' + escapeHtml(item.statusLabel) + '</span>' +
+				'</div>' +
+				'<div class="menu-runtime-status__notification-subtitle">' + escapeHtml(item.source) + ' · ' + escapeHtml(item.summary) + '</div>';
+			var className = 'menu-runtime-status__notification-card' + (extraClass ? ' ' + extraClass : '');
+
+			if (item.linkUrl) {
+				return '<a class="' + className + '" href="' + escapeHtml(item.linkUrl) + '">' + body + '</a>';
+			}
+
+			return '<div class="' + className + '">' + body + '</div>';
+		};
+
+		var renderNotificationItems = function (items, actionCenterSummaryItem) {
+			if (!notificationScrollEl) {
+				return;
+			}
+
+			if ((!items || !items.length) && !actionCenterSummaryItem) {
+				notificationScrollEl.innerHTML = '<div class="menu-runtime-status__empty">' + escapeHtml(notificationsEmptyText) + '</div>';
+				return;
+			}
+
+			var cards = [];
+			if (actionCenterSummaryItem) {
+				cards.push(renderNotificationCard(actionCenterSummaryItem, 'menu-runtime-status__notification-card--action-center'));
+			}
+
+			if (items && items.length) {
+				cards = cards.concat(items.map(function (item) {
+					return renderNotificationCard(item, '');
+				}));
+			}
+
+			notificationScrollEl.innerHTML = cards.join('');
+		};
+
+		var applySnapshot = function (payload) {
+			if (overallPillEl) {
+				var isCompactPill = overallPillEl.classList.contains('menu-runtime-status__pill--compact');
+				overallPillEl.className = 'menu-runtime-status__pill'
+					+ (isCompactPill ? ' menu-runtime-status__pill--compact' : '')
+					+ ' menu-runtime-status__pill--' + (payload.overallTone || 'ready');
+				overallPillEl.textContent = payload.overallLabel || overallReadyText;
+			}
+
+			if (runningLabelEl) {
+				runningLabelEl.textContent = payload.runningLabel || idleText;
+			}
+
+			if (latestLabelEl) {
+				latestLabelEl.textContent = payload.latestLabel || noActivityText;
+			}
+
+			var count = Number(payload.notificationCount || 0);
+			if (fullCountEl) {
+				if (count > 0) {
+					fullCountEl.textContent = count;
+					fullCountEl.hidden = false;
+				} else {
+					fullCountEl.hidden = true;
+				}
+			}
+
+			if (headerCountEl) {
+				if (count > 0) {
+					headerCountEl.textContent = count;
+					headerCountEl.hidden = false;
+				} else {
+					headerCountEl.hidden = true;
+				}
+			}
+
+			if (latestItemEl) {
+				if (payload.latestItem) {
+						latestItemEl.innerHTML =
+							'<li class="menu-runtime-status__item">' +
+								'<i class="' + escapeHtml(payload.latestItem.iconClass || 'fa fa-circle') + '" aria-hidden="true"></i>' +
+								'<div>' +
+									'<div class="menu-runtime-status__item-title">' + escapeHtml(payload.latestItem.source) + '</div>' +
+								'</div>' +
+								'<div class="menu-runtime-status__item-meta">' +
+									'<span class="menu-runtime-status__item-dot menu-runtime-status__item-dot--' + escapeHtml(payload.latestItem.statusTone || 'muted') + '"></span>' +
+								'</div>' +
+							'</li>';
+					latestItemEl.hidden = false;
+				} else {
+					latestItemEl.hidden = true;
+					latestItemEl.innerHTML = '';
+				}
+			}
+
+			renderNotificationItems(payload.notificationItems || [], payload.actionCenterSummaryItem || null);
+		};
+
+		var getPollDelay = function () {
+			var pillTone = overallPillEl ? (overallPillEl.className.indexOf('menu-runtime-status__pill--info') >= 0 ? 'info' : '') : '';
+			return pillTone === 'info' ? 5000 : 25000;
+		};
+
+		var schedulePoll = function () {
+			window.setTimeout(pollSnapshot, getPollDelay());
+		};
+
+		var pollSnapshot = function () {
+			if (!snapshotUrl || pollInFlight || document.hidden) {
+				schedulePoll();
+				return;
+			}
+
+			pollInFlight = true;
+
+			window.fetch(snapshotUrl, {
+				credentials: 'same-origin',
+				cache: 'no-store'
+			})
+				.then(function (response) {
+					if (!response.ok) {
+						throw new Error('Sidebar snapshot failed');
+					}
+
+					return response.json();
+				})
+				.then(function (payload) {
+					if (!payload || typeof payload.version !== 'string') {
+						return;
+					}
+
+					if (payload.version !== lastVersion) {
+						lastVersion = payload.version;
+						applySnapshot(payload);
+					}
+				})
+				.catch(function () {
+				})
+				.finally(function () {
+					pollInFlight = false;
+					schedulePoll();
+				});
+		};
+
+		if (toggles.length && panel) {
+			if (panel.parentElement !== document.body) {
+				document.body.appendChild(panel);
+			}
+
+			var isSidebarMinified = function () {
+				return document.body.classList.contains('app-sidebar-minified')
+					|| document.body.classList.contains('app-sidebar-minify')
+					|| document.documentElement.classList.contains('app-sidebar-minified')
+					|| document.documentElement.classList.contains('app-sidebar-minify')
+					|| document.querySelector('.app-sidebar-minified')
+					|| document.querySelector('.app-sidebar-minify');
+			};
+
+			var positionPanel = function (toggle) {
+				var rect = toggle.getBoundingClientRect();
+				var sidebar = toggle.closest('.menu-runtime-status');
+				var sidebarRect = sidebar ? sidebar.getBoundingClientRect() : rect;
+				var panelWidth = panel.offsetWidth || 320;
+				var panelHeight = Math.min(panel.scrollHeight || 420, 420);
+				var viewportPadding = 16;
+				var horizontalGap = 18;
+				var left;
+				var top;
+
+				if (isSidebarMinified()) {
+					// In minified mode the trigger sits at the bottom-left corner.
+					// Keep the panel visually attached by opening it above the trigger,
+					// not by clamping it toward the top-left of the viewport.
+					left = rect.right + 12;
+					top = rect.bottom - panelHeight;
+				} else {
+					left = sidebarRect.right + horizontalGap;
+					top = rect.top - 6;
+				}
+
+				left = Math.max(viewportPadding, Math.min(left, window.innerWidth - panelWidth - viewportPadding));
+				top = Math.max(viewportPadding, Math.min(top, window.innerHeight - panelHeight - viewportPadding));
+
+				panel.style.left = left + 'px';
+				panel.style.top = top + 'px';
+			};
+
+			var setExpanded = function (expanded) {
+				toggles.forEach(function (toggle) {
+					toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+				});
+			};
+
+			toggles.forEach(function (toggle) {
+				toggle.addEventListener('click', function (event) {
+					event.stopPropagation();
+					var isOpen = !panel.classList.contains('is-open');
+					if (isOpen) {
+						positionPanel(toggle);
+					}
+					panel.classList.toggle('is-open', isOpen);
+					setExpanded(isOpen);
+				});
+			});
+
+			panel.addEventListener('click', function (event) {
+				event.stopPropagation();
+			});
+
+			document.addEventListener('click', function () {
+				panel.classList.remove('is-open');
+				setExpanded(false);
+			});
+
+			document.addEventListener('keydown', function (event) {
+				if (event.key === 'Escape') {
+					panel.classList.remove('is-open');
+					setExpanded(false);
+				}
+			});
+		}
+
+		if (headerCountEl && fullCountEl) {
+			if (!fullCountEl.hidden && fullCountEl.textContent) {
+				headerCountEl.textContent = fullCountEl.textContent;
+				headerCountEl.hidden = false;
+			} else {
+				headerCountEl.hidden = true;
+			}
+		}
+
+		schedulePoll();
+	})();
+</script>

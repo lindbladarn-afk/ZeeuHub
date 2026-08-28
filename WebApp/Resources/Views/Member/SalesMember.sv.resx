@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>ZeeU Dashboard</value></data>
+  <data name="Subtitle" xml:space="preserve"><value>affärsinsikter i realtid</value></data>
+  <data name="KpiAnnualRunRate" xml:space="preserve"><value>Omsättning årstakt</value></data>
+  <data name="KpiForecast" xml:space="preserve"><value>Prognos</value></data>
+  <data name="KpiAverageOrderValue" xml:space="preserve"><value>Snittordervärde</value></data>
+  <data name="KpiAovSubtitle" xml:space="preserve"><value>Senaste 7 dagar · {0} ordrar</value></data>
+  <data name="RevenueLabel" xml:space="preserve"><value>Omsättning</value></data>
+  <data name="SegmentedTitle" xml:space="preserve"><value>Segmenterad omsättning</value></data>
+  <data name="SegmentedSubtitle" xml:space="preserve"><value>Per marknad/område med filtrering</value></data>
+  <data name="SegWeek" xml:space="preserve"><value>Vecka</value></data>
+  <data name="SegMonth" xml:space="preserve"><value>Månad</value></data>
+  <data name="SegQuarter" xml:space="preserve"><value>Kvartal</value></data>
+  <data name="SegYAxis" xml:space="preserve"><value>MSEK</value></data>
+  <data name="SegXAxisWeek" xml:space="preserve"><value>Vecka</value></data>
+  <data name="SegXAxisMonth" xml:space="preserve"><value>Månad</value></data>
+  <data name="SegXAxisQuarter" xml:space="preserve"><value>Kvartal</value></data>
+  <data name="SegMarketNorth" xml:space="preserve"><value>Marknad Norden</value></data>
+  <data name="SegMarketEurope" xml:space="preserve"><value>Marknad Europa</value></data>
+  <data name="SegMarketNew" xml:space="preserve"><value>Ny kundgrupp</value></data>
+  <data name="PipelineTitle" xml:space="preserve"><value>Pipeline &amp; möjligheter</value></data>
+  <data name="PipelineOpportunity" xml:space="preserve"><value>Möjlighet</value></data>
+  <data name="PipelineValue" xml:space="preserve"><value>Värde</value></data>
+  <data name="PipelineStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="StatusWon" xml:space="preserve"><value>Vunnen</value></data>
+  <data name="StatusInProgress" xml:space="preserve"><value>Pågående</value></data>
+  <data name="StatusRisk" xml:space="preserve"><value>Risk</value></data>
+  <data name="StatusQualifying" xml:space="preserve"><value>Kvalificeras</value></data>
+  <data name="PipelineOpp1" xml:space="preserve"><value>Offert #2024-178</value></data>
+  <data name="PipelineOpp2" xml:space="preserve"><value>Ramavtal Nordplast</value></data>
+  <data name="PipelineOpp3" xml:space="preserve"><value>Upphandling CityEnergi</value></data>
+  <data name="PipelineOpp4" xml:space="preserve"><value>Tillbehörspaket 3303</value></data>
+  <data name="PipelineVal1" xml:space="preserve"><value>450 Tkr</value></data>
+  <data name="PipelineVal2" xml:space="preserve"><value>1.2 MSEK</value></data>
+  <data name="PipelineVal3" xml:space="preserve"><value>980 Tkr</value></data>
+  <data name="PipelineVal4" xml:space="preserve"><value>210 Tkr</value></data>
+</root>

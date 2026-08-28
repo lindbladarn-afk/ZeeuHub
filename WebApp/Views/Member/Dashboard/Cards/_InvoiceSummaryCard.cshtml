@@ -1,0 +1,7 @@
+@* Renders the compact invoice status summary and its module shortcut. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.InvoiceSummaryCardViewModel ?? new();
+}
+
+@await Html.PartialAsync("_InvoiceSummary", card.Invoices)

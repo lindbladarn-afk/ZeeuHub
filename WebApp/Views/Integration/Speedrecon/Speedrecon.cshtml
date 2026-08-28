@@ -1,0 +1,516 @@
+@model WebApp.ViewModels.Integration.Speedrecon.SpeedreconPageViewModel
+@using System.Globalization
+@using WebApp.ViewModels.Shared
+
+@{
+    ViewData["Title"] = "Speedrecon";
+    var invariant = CultureInfo.InvariantCulture;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page speedrecon-page">
+    <section class="module-hero">
+        <div>
+            <div class="dashboard-card-title">Speedrecon</div>
+            <h1 class="module-page-title">Speedrecon</h1>
+            <p class="module-page-subtitle">Jeeves-avstamning for reskontra, lager, periodiseringar och PIA.</p>
+        </div>
+        <form asp-action="Speedrecon" method="get" class="speedrecon-date-form module-filter-card">
+            <input type="date"
+                   name="reconDate"
+                   value="@Model.ReconDate.ToString("yyyy-MM-dd", invariant)"
+                   class="form-control flowengine-date-input"
+                   data-fe-datepicker="true" />
+            <button type="submit" class="btn btn-portal btn-portal-outline btn-sm">
+                <i class="fa fa-refresh"></i>
+                Uppdatera
+            </button>
+        </form>
+    </section>
+
+    @if (Model.RuntimeBanner is not null)
+    {
+        @await Html.PartialAsync("_ModuleBanner", Model.RuntimeBanner)
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = Model.StatusTone == "warning" ? "Atgard kravs" : "Speedrecon",
+            Message = Model.StatusMessage,
+            Tone = Model.StatusTone,
+            IconClass = Model.StatusTone == "warning" ? "fa fa-exclamation-triangle" : "fa fa-check-circle"
+        })
+    }
+
+    <section class="speedrecon-summary-grid">
+        <article class="speedrecon-panel">
+            <span>Bolag</span>
+            <strong>@Model.Probe.CompanyCode</strong>
+            <small>@(string.IsNullOrWhiteSpace(Model.Probe.CompanyName) ? "Okant bolag" : Model.Probe.CompanyName)</small>
+        </article>
+        <article class="speedrecon-panel">
+            <span>PersSign</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.Probe.PersSign) ? "-" : Model.Probe.PersSign)</strong>
+            <small>Aktiv Jeeves-anvandare</small>
+        </article>
+        <article class="speedrecon-panel">
+            <span>Jeeves-parameter</span>
+            <strong>@(Model.Probe.IsEnabledInJeeves ? "Aktiv" : "Ej aktiv")</strong>
+            <small>CUSTOM_SPEEDRECON_01</small>
+        </article>
+        <article class="speedrecon-panel">
+            <span>Senast kontrollerad</span>
+            <strong>@Model.Probe.ProbeTimeUtc.ToLocalTime().ToString("HH:mm", invariant)</strong>
+            <small>@Model.Probe.ProbeTimeUtc.ToLocalTime().ToString("yyyy-MM-dd", invariant)</small>
+        </article>
+    </section>
+
+    <section class="speedrecon-actions">
+        <div>
+            <h2>Körning</h2>
+            <form asp-action="SpeedreconRun" method="post" class="speedrecon-run-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="reconDate" value="@Model.ReconDate.ToString("yyyy-MM-dd", invariant)" />
+                <button type="submit" class="btn btn-portal" @(Model.CanRun ? null : "disabled")>
+                    <i class="fa fa-play"></i>
+                    Kör Speedrecon
+                </button>
+            </form>
+            <p class="speedrecon-run-note">Kör Speedrecon i hubben mot Jeeves-tabellerna for valt bolag, PersSign och avstamningsdatum.</p>
+        </div>
+    </section>
+
+    <section class="speedrecon-section">
+        <div class="speedrecon-section-header">
+            <h2>Underhåll</h2>
+        </div>
+        <div class="speedrecon-maintenance-grid">
+            <form asp-action="SpeedreconCreateYear" method="post" class="speedrecon-maintenance-action">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="reconDate" value="@Model.ReconDate.ToString("yyyy-MM-dd", invariant)" />
+                <label for="speedrecon-fiscal-year">Redovisningsår</label>
+                <div>
+                    <input id="speedrecon-fiscal-year" class="form-control" type="number" name="fiscalYear" value="@Model.ReconDate.Year" min="2000" max="2100" />
+                    <button type="submit" class="btn btn-portal btn-portal-outline" @(Model.CanRun ? null : "disabled")>
+                        <i class="fa fa-calendar-plus-o"></i>
+                        Skapa år
+                    </button>
+                </div>
+            </form>
+            <form asp-action="SpeedreconRunDepreciation" method="post" class="speedrecon-maintenance-action">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="reconDate" value="@Model.ReconDate.ToString("yyyy-MM-dd", invariant)" />
+                <label>Fristående avskrivning</label>
+                <div>
+                    <button type="submit" class="btn btn-portal btn-portal-outline" @(Model.CanRun ? null : "disabled")>
+                        <i class="fa fa-calculator"></i>
+                        Kör ANLAVSKR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="speedrecon-section">
+        <div class="speedrecon-section-header">
+            <h2>Resultat @Model.ReconDate.ToString("yyyy-MM-dd", invariant)</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table speedrecon-table">
+                <thead>
+                    <tr>
+                        <th>Typ</th>
+                        <th class="text-end">Rader</th>
+                        <th class="text-end">Recon</th>
+                        <th class="text-end">GL</th>
+                        <th class="text-end">Diff</th>
+                        <th class="text-end">Avvikande rader</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Probe.ResultSummary.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6">Inga resultat hittades for valt datum.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var row in Model.Probe.ResultSummary)
+                    {
+                        <tr class="@(row.Difference != 0 ? "speedrecon-row-warning" : null)">
+                            <td>@row.Description</td>
+                            <td class="text-end">@row.RowCount</td>
+                            <td class="text-end">@row.ReconAmount.ToString("N2", CultureInfo.CurrentCulture)</td>
+                            <td class="text-end">@row.GlAmount.ToString("N2", CultureInfo.CurrentCulture)</td>
+                            <td class="text-end">@row.Difference.ToString("N2", CultureInfo.CurrentCulture)</td>
+                            <td class="text-end">@row.DifferenceRows</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="speedrecon-section">
+        <div class="speedrecon-section-header">
+            <h2>Körplan</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table speedrecon-table">
+                <thead>
+                    <tr>
+                        <th>Recondate</th>
+                        <th>Execdate</th>
+                        <th>PersSign</th>
+                        <th class="text-end">Aktiva kontroller</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Probe.PlanRows.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5">Ingen körplan hittades for aktivt bolag och PersSign.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var row in Model.Probe.PlanRows)
+                    {
+                        <tr>
+                            <td>@row.ReconDate.ToString("yyyy-MM-dd", invariant)</td>
+                            <td>@(row.ExecDate?.ToString("yyyy-MM-dd", invariant) ?? "-")</td>
+                            <td>@row.PersSign</td>
+                            <td class="text-end">@row.EnabledChecks</td>
+                            <td>@(row.IsLocked ? "Sparrad" : "Oppen")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="speedrecon-section">
+        <div class="speedrecon-section-header">
+            <h2>Installerade objekt</h2>
+        </div>
+        <div class="speedrecon-object-grid">
+            @foreach (var item in Model.Probe.Objects)
+            {
+                <div class="speedrecon-object @(item.Exists ? "is-ok" : "is-missing")">
+                    <span>@item.ObjectType</span>
+                    <strong>@item.ObjectName</strong>
+                    <small>@(item.Exists ? "Finns" : "Saknas")</small>
+                </div>
+            }
+        </div>
+    </section>
+
+</div>
+
+<script>
+    (() => {
+        const page = document.querySelector('.speedrecon-page');
+        if (!page || !window.jQuery || !window.jQuery.fn || typeof window.jQuery.fn.datepicker !== 'function') {
+            return;
+        }
+
+        const applyDatepickerTheme = () => {
+            window.setTimeout(() => {
+                window.jQuery('#ui-datepicker-div').addClass('flowengine-datepicker');
+            }, 0);
+        };
+
+        window.jQuery(page)
+            .find('input[data-fe-datepicker="true"]')
+            .each(function () {
+                const input = this;
+                const $input = window.jQuery(input);
+
+                if ($input.hasClass('hasDatepicker')) {
+                    return;
+                }
+
+                const currentValue = input.value;
+                input.setAttribute('type', 'text');
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('placeholder', 'YYYY-MM-DD');
+
+                $input.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    showOtherMonths: true,
+                    selectOtherMonths: true,
+                    showButtonPanel: true,
+                    beforeShow: applyDatepickerTheme,
+                    onChangeMonthYear: applyDatepickerTheme
+                });
+
+                if (currentValue) {
+                    $input.datepicker('setDate', currentValue);
+                }
+            });
+    })();
+</script>
+
+<style>
+    .speedrecon-page {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        color: var(--hub-page-text, #e5e7eb);
+    }
+
+    .speedrecon-date-form,
+    .speedrecon-actions {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .speedrecon-date-form .flowengine-date-input.form-control {
+        width: 10.5rem;
+        min-height: 38px;
+        border-color: rgba(148, 163, 184, .28);
+        background-color: rgba(15, 23, 42, .72);
+        color: #e5e7eb;
+    }
+
+    .speedrecon-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: .75rem;
+    }
+
+    .speedrecon-panel,
+    .speedrecon-section,
+    .speedrecon-actions {
+        border: 1px solid rgba(148, 163, 184, .2);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, .72);
+        padding: 1rem;
+        color: #e5e7eb;
+    }
+
+    .speedrecon-actions > div {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .6rem;
+    }
+
+    .speedrecon-panel span,
+    .speedrecon-object span {
+        display: block;
+        color: #94a3b8;
+        font-size: .82rem;
+    }
+
+    .speedrecon-panel strong,
+    .speedrecon-object strong {
+        display: block;
+        font-size: 1.1rem;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+        color: #f8fafc;
+    }
+
+    .speedrecon-panel small,
+    .speedrecon-object small {
+        color: #94a3b8;
+    }
+
+    .speedrecon-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .75rem;
+    }
+
+    .speedrecon-section h2 {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .speedrecon-page .btn-portal,
+    .speedrecon-page .btn-portal-outline {
+        gap: .6rem;
+    }
+
+    .speedrecon-run-form {
+        margin: 0;
+    }
+
+    .speedrecon-run-note {
+        margin: 0;
+        color: #cbd5e1;
+    }
+
+    .speedrecon-section h3 {
+        font-size: 1rem;
+        margin: 1rem 0 .5rem;
+    }
+
+    .speedrecon-maintenance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: .75rem;
+    }
+
+    .speedrecon-maintenance-action {
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+    }
+
+    .speedrecon-maintenance-action label {
+        color: #cbd5e1;
+        font-size: .84rem;
+        font-weight: 600;
+    }
+
+    .speedrecon-maintenance-action div {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .speedrecon-maintenance-action input {
+        min-height: 38px;
+        width: 120px;
+        padding: .35rem .7rem;
+        border: 1px solid rgba(148, 163, 184, .28);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, .72);
+        color: #e5e7eb;
+        box-shadow: none;
+    }
+
+    .speedrecon-maintenance-action input:focus {
+        border-color: rgba(147, 197, 253, .55);
+        background: rgba(15, 23, 42, .9);
+        color: #f8fafc;
+        box-shadow: 0 0 0 .2rem rgba(59, 130, 246, .16);
+        outline: 0;
+    }
+
+    .speedrecon-maintenance-action input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    .speedrecon-maintenance-action input[type="number"]::-webkit-inner-spin-button,
+    .speedrecon-maintenance-action input[type="number"]::-webkit-outer-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+    }
+
+    .speedrecon-table {
+        margin-bottom: 0;
+        color: #e5e7eb;
+    }
+
+    .speedrecon-table th {
+        white-space: nowrap;
+        color: #f8fafc;
+        font-size: .82rem;
+        background: #0f172a;
+        border-color: rgba(148, 163, 184, .24);
+    }
+
+    .speedrecon-table td {
+        border-color: rgba(148, 163, 184, .2);
+    }
+
+    .speedrecon-row-warning td {
+        background: rgba(146, 64, 14, .22);
+    }
+
+    .speedrecon-object-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: .75rem;
+    }
+
+    .speedrecon-object {
+        border: 1px solid rgba(148, 163, 184, .2);
+        border-radius: 8px;
+        padding: .75rem;
+        background: rgba(2, 6, 23, .25);
+    }
+
+    .speedrecon-object.is-ok {
+        border-left: 4px solid #16a34a;
+    }
+
+    .speedrecon-object.is-missing {
+        border-left: 4px solid #dc2626;
+    }
+
+    body:not(.theme-dark) .speedrecon-page {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .speedrecon-date-form .flowengine-date-input.form-control,
+    body:not(.theme-dark) .speedrecon-maintenance-action input {
+        border-color: #ced4da;
+        background-color: #fff;
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .speedrecon-panel,
+    body:not(.theme-dark) .speedrecon-section,
+    body:not(.theme-dark) .speedrecon-actions {
+        border-color: #e2e8f0;
+        background: #fff;
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .speedrecon-panel span,
+    body:not(.theme-dark) .speedrecon-object span,
+    body:not(.theme-dark) .speedrecon-panel small,
+    body:not(.theme-dark) .speedrecon-object small {
+        color: #64748b;
+    }
+
+    body:not(.theme-dark) .speedrecon-panel strong,
+    body:not(.theme-dark) .speedrecon-object strong {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .speedrecon-maintenance-action label,
+    body:not(.theme-dark) .speedrecon-table th {
+        color: #475569;
+    }
+
+    body:not(.theme-dark) .speedrecon-table {
+        color: #0f172a;
+    }
+
+    body:not(.theme-dark) .speedrecon-table th {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    body:not(.theme-dark) .speedrecon-table td {
+        border-color: #e2e8f0;
+    }
+
+    body:not(.theme-dark) .speedrecon-row-warning td {
+        background: #fff7ed;
+    }
+
+    body:not(.theme-dark) .speedrecon-object {
+        border-color: #e2e8f0;
+        background: #fff;
+    }
+</style>

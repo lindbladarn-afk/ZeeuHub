@@ -1,0 +1,9 @@
+@model WebApp.Models.Integration.FlowEngineJobStatus
+@{
+    var statusClass = WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusClass(Model);
+    var statusLabel = WebApp.Models.Integration.FlowEngineJobPresentation.GetStatusLabel(Model);
+}
+<span class="flowengine-job-status-pill @statusClass">
+    <span class="flowengine-job-status-dot" aria-hidden="true"></span>
+    <span>@statusLabel</span>
+</span>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AI Intelligence" xml:space="preserve">
+    <value>AI Intelligence</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Okänd</value>
+  </data>
+  <data name="Ställ frågor om lager, kunder, produkter och få svar från SQL-data." xml:space="preserve">
+    <value>Ställ frågor om lager, kunder, produkter och få svar från SQL-data.</value>
+  </data>
+  <data name="Datakälla:" xml:space="preserve">
+    <value>Datakälla:</value>
+  </data>
+  <data name="Databas för ZeeU Intelligence (Manual SQL):" xml:space="preserve">
+    <value>Databas för ZeeU Intelligence (Manual SQL):</value>
+  </data>
+  <data name="Välj vilken databas manuella SQL-frågor ska köras mot." xml:space="preserve">
+    <value>Välj vilken databas manuella SQL-frågor ska köras mot.</value>
+  </data>
+  <data name="Läge:" xml:space="preserve">
+    <value>Läge:</value>
+  </data>
+  <data name="AI Assisted" xml:space="preserve">
+    <value>AI Assisted</value>
+  </data>
+  <data name="Manual SQL" xml:space="preserve">
+    <value>Manual SQL</value>
+  </data>
+  <data name="Byt till Manual för att skriva egna SELECT-frågor (max 200 rader)." xml:space="preserve">
+    <value>Byt till Manual för att skriva egna SELECT-frågor (max 200 rader).</value>
+  </data>
+  <data name="Visa lagersaldo för produkt 1001 i Malmö" xml:space="preserve">
+    <value>Visa lagersaldo för produkt 1001 i Malmö</value>
+  </data>
+  <data name="Saldo produkt 1001" xml:space="preserve">
+    <value>Saldo produkt 1001</value>
+  </data>
+  <data name="Vilka kunder har köpt produkt 2005 senaste 30 dagarna?" xml:space="preserve">
+    <value>Vilka kunder har köpt produkt 2005 senaste 30 dagarna?</value>
+  </data>
+  <data name="Kunder 30 dagar" xml:space="preserve">
+    <value>Kunder 30 dagar</value>
+  </data>
+  <data name="Lista 5 produkter med lägst lagersaldo" xml:space="preserve">
+    <value>Lista 5 produkter med lägst lagersaldo</value>
+  </data>
+  <data name="Låg lagernivå" xml:space="preserve">
+    <value>Låg lagernivå</value>
+  </data>
+  <data name="Visa senaste ordrar" xml:space="preserve">
+    <value>Visa senaste ordrar</value>
+  </data>
+  <data name="Senaste ordrar" xml:space="preserve">
+    <value>Senaste ordrar</value>
+  </data>
+  <data name="Visa senaste fakturor" xml:space="preserve">
+    <value>Visa senaste fakturor</value>
+  </data>
+  <data name="Senaste fakturor" xml:space="preserve">
+    <value>Senaste fakturor</value>
+  </data>
+  <data name="Visa största kunderna" xml:space="preserve">
+    <value>Visa största kunderna</value>
+  </data>
+  <data name="Största kunder" xml:space="preserve">
+    <value>Största kunder</value>
+  </data>
+  <data name="Fråga t.ex. ”Vad är lagersaldo på produkt 1234 i Göteborg?”" xml:space="preserve">
+    <value>Fråga t.ex. ”Vad är lagersaldo på produkt 1234 i Göteborg?”</value>
+  </data>
+  <data name="Endast SELECT/CTE är tillåtna. Max 200 rader returneras. Använd helst databasen/schemat som är kopplat till ditt aktiva bolag." xml:space="preserve">
+    <value>Endast SELECT/CTE är tillåtna. Max 200 rader returneras. Använd helst databasen/schemat som är kopplat till ditt aktiva bolag.</value>
+  </data>
+  <data name="SQL-fråga" xml:space="preserve">
+    <value>SQL-fråga</value>
+  </data>
+  <data name="Kör" xml:space="preserve">
+    <value>Kör</value>
+  </data>
+  <data name="Ingen fråga körd ännu." xml:space="preserve">
+    <value>Ingen fråga körd ännu.</value>
+  </data>
+  <data name="Var svaret hjälpsamt?" xml:space="preserve"><value>Var svaret hjälpsamt?</value></data>
+  <data name="Ja, svaret var hjälpsamt" xml:space="preserve"><value>Ja, svaret var hjälpsamt</value></data>
+  <data name="Nej, svaret behöver förbättras" xml:space="preserve"><value>Nej, svaret behöver förbättras</value></data>
+  <data name="Vad saknades i svaret?" xml:space="preserve"><value>Vad saknades i svaret?</value></data>
+  <data name="Vad saknades? (valfritt)" xml:space="preserve"><value>Vad saknades? (valfritt)</value></data>
+  <data name="Skicka feedback" xml:space="preserve"><value>Skicka feedback</value></data>
+  <data name="Startar analysen..." xml:space="preserve"><value>Startar analysen...</value></data>
+  <data name="Frågan kunde inte slutföras" xml:space="preserve"><value>Frågan kunde inte slutföras</value></data>
+  <data name="Förslag på frågor" xml:space="preserve"><value>Förslag på frågor</value></data>
+  <data name="Visa omsättning per månad i år" xml:space="preserve"><value>Visa omsättning per månad i år</value></data>
+  <data name="Omsättning per månad" xml:space="preserve"><value>Omsättning per månad</value></data>
+  <data name="Visa de fem största kunderna i år" xml:space="preserve"><value>Visa de fem största kunderna i år</value></data>
+  <data name="Största kunderna" xml:space="preserve"><value>Största kunderna</value></data>
+  <data name="Visa förfallna kundfakturor" xml:space="preserve"><value>Visa förfallna kundfakturor</value></data>
+  <data name="Förfallna fakturor" xml:space="preserve"><value>Förfallna fakturor</value></data>
+  <data name="Diagram" xml:space="preserve"><value>Diagram</value></data>
+  <data name="Diagramtypen väljs automatiskt utifrån resultatet." xml:space="preserve"><value>Diagramtypen väljs automatiskt utifrån resultatet.</value></data>
+  <data name="Diagramtyp" xml:space="preserve"><value>Diagramtyp</value></data>
+  <data name="Automatisk" xml:space="preserve"><value>Automatisk</value></data>
+  <data name="Staplar" xml:space="preserve"><value>Staplar</value></data>
+  <data name="Horisontella staplar" xml:space="preserve"><value>Horisontella staplar</value></data>
+  <data name="Linje" xml:space="preserve"><value>Linje</value></data>
+  <data name="Ring" xml:space="preserve"><value>Ring</value></data>
+  <data name="Försök igen" xml:space="preserve"><value>Försök igen</value></data>
+  <data name="Tack för feedbacken." xml:space="preserve"><value>Tack för feedbacken.</value></data>
+  <data name="Feedbacken kunde inte sparas. Försök igen." xml:space="preserve"><value>Feedbacken kunde inte sparas. Försök igen.</value></data>
+  <data name="Avbryt analysen" xml:space="preserve"><value>Avbryt analysen</value></data>
+  <data name="Avbryt" xml:space="preserve"><value>Avbryt</value></data>
+</root>

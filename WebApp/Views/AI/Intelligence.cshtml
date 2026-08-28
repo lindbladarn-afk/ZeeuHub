@@ -1,0 +1,50 @@
+@* Composes the full ZeeU Intelligence workspace. *@
+@model WebApp.Controllers.AIController.AiViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "ZeeU Intelligence";
+}
+
+@* Anti-forgery token för fetch (AI/query + manual-query) *@
+<form id="__af" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="dashboard-readable module-page ai-page">
+    <div class="module-page-header">
+        <div>
+            <h1 class="module-page-title">ZeeU Intelligence</h1>
+        </div>
+        @await Html.PartialAsync("Partials/_AiHeader", Model)
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card kpi-card p-3 h-100 ai-shell">
+                <div class="card-body p-0 d-flex flex-column gap-3">
+                    @await Html.PartialAsync("Partials/_AiModeToggle", Model)
+                    @await Html.PartialAsync("Partials/_AiChatPanel", Model)
+                    @await Html.PartialAsync("Partials/_AiManualPanel", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("Partials/_AiResultsPanel", Model)
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ai.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    @await Html.PartialAsync("Partials/_AiConfigScript", Model)
+    <script src="~/js/ai-query-client.js" asp-append-version="true"></script>
+    <script src="~/js/ai-chart.js" asp-append-version="true"></script>
+    <script src="~/js/ai.js" asp-append-version="true"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => { ZeeUAI.init(); });</script>
+}

@@ -1,0 +1,2767 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddUser" xml:space="preserve">
+    <value>Add user</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="ApprovePriceList_AlreadyHandled" xml:space="preserve">
+    <value>Price list approval already handled</value>
+  </data>
+  <data name="ApprovePurchase_AlreadyHandled" xml:space="preserve">
+    <value>Purchase order already handled</value>
+  </data>
+  <data name="ApproveSales_AlreadyHandled" xml:space="preserve">
+    <value>Order already handled</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  <data name="CompanyRequired" xml:space="preserve">
+    <value>Select a company.</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="ConnectionStrings" xml:space="preserve">
+    <value>ConnectionStrings</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>Email is required</value>
+  </data>
+  <data name="Error_FailedToFindAnyRows" xml:space="preserve">
+    <value>Failed to find any data</value>
+  </data>
+  <data name="Error_NoRowsSelected" xml:space="preserve">
+    <value>You need to select an action before clicking OK</value>
+  </data>
+  <data name="Error_NotAuthorizedForThisResource" xml:space="preserve">
+    <value>You are not authorized to see this resource</value>
+  </data>
+  <data name="Error_OrderPriceListFail" xml:space="preserve">
+    <value>Could not update price list</value>
+  </data>
+  <data name="Error_OrderUpdateFail" xml:space="preserve">
+    <value>Could not update order. </value>
+  </data>
+  <data name="Error_RowAlreadyHandled" xml:space="preserve">
+    <value>Row already handled</value>
+  </data>
+  <data name="Error_RowCannotBeApprovedAndRejected" xml:space="preserve">
+    <value>You can't approve and reject a row at the same time</value>
+  </data>
+  <data name="Filter_Clear" xml:space="preserve">
+    <value>Clear Filter</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="FirstNameRequired" xml:space="preserve">
+    <value>First name is required</value>
+  </data>
+  <data name="Hello" xml:space="preserve">
+    <value>Hello</value>
+  </data>
+  <data name="IP" xml:space="preserve">
+    <value>IP-address</value>
+  </data>
+  <data name="Control Panel" xml:space="preserve">
+    <value>Control Panel</value>
+  </data>
+  <data name="Översikt" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="BankRec_WorkspaceModeLabel" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="BankRec_ModeOverview" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="BankRec_ModeClassification" xml:space="preserve">
+    <value>Review</value>
+  </data>
+  <data name="BankRec_ModeReconciliation" xml:space="preserve">
+    <value>Reconciliation</value>
+  </data>
+  <data name="BankRec_ModeDescriptionOverview" xml:space="preserve">
+    <value>Check the file, balances and bank transactions before continuing.</value>
+  </data>
+  <data name="BankRec_ModeDescriptionClassification" xml:space="preserve">
+    <value>Review transaction types and adjust coding suggestions where needed.</value>
+  </data>
+  <data name="BankRec_ModeCoding" xml:space="preserve">
+    <value>Coding</value>
+  </data>
+  <data name="BankRec_ModeDescriptionCoding" xml:space="preserve">
+    <value>Adjust the suggested account and cost center per type before saving rules.</value>
+  </data>
+  <data name="BankRec_ModeDescriptionReconciliation" xml:space="preserve">
+    <value>Focused workspace for manual review and matching.</value>
+  </data>
+  <data name="BankRec_ClassificationPanelEyebrow" xml:space="preserve">
+    <value>Classification</value>
+  </data>
+  <data name="BankRec_ClassificationPanelTitle" xml:space="preserve">
+    <value>Types and volumes</value>
+  </data>
+  <data name="BankRec_ClassificationPanelHint" xml:space="preserve">
+    <value>This is the same bank data, grouped by the new classification.</value>
+  </data>
+  <data name="BankRec_ClassificationAllTypes" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="BankRec_NoTransactionsForSelectedType" xml:space="preserve">
+    <value>No bank transactions for the selected type.</value>
+  </data>
+  <data name="BankRec_SuggestedAccount" xml:space="preserve">
+    <value>Suggested account</value>
+  </data>
+  <data name="BankRec_SuggestedCostCenter" xml:space="preserve">
+    <value>Cost center</value>
+  </data>
+  <data name="BankRec_CodingPanelEyebrow" xml:space="preserve">
+    <value>Coding</value>
+  </data>
+  <data name="BankRec_CodingPanelTitle" xml:space="preserve">
+    <value>Coding suggestions per type</value>
+  </data>
+  <data name="BankRec_CodingPanelHint" xml:space="preserve">
+    <value>Adjust the account or cost center when needed and save the changes here.</value>
+  </data>
+  <data name="BankRec_UnsavedCodingChanges" xml:space="preserve">
+    <value>Unsaved changes</value>
+  </data>
+  <data name="BankRec_UnsavedCodingConfirm" xml:space="preserve">
+    <value>You have unsaved coding changes. Leave the review without saving?</value>
+  </data>
+  <data name="BankRec_CodingLegendSuggested" xml:space="preserve">
+    <value>Suggested</value>
+  </data>
+  <data name="BankRec_CodingLegendEditable" xml:space="preserve">
+    <value>Editable</value>
+  </data>
+  <data name="BankRec_CodingAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="BankRec_CodingCostCenter" xml:space="preserve">
+    <value>Cost center</value>
+  </data>
+  <data name="BankRec_CodingReset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="BankRec_CodingSave" xml:space="preserve">
+    <value>Save rules</value>
+  </data>
+  <data name="BankRec_CodingSaveSuccess" xml:space="preserve">
+    <value>Coding rules saved.</value>
+  </data>
+  <data name="BankRec_CodingSaveFailure" xml:space="preserve">
+    <value>Coding rules could not be saved.</value>
+  </data>
+  <data name="Användare" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="LoginPartial_EditProfile" xml:space="preserve">
+    <value>Edit Profile</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Log out</value>
+  </data>
+  <data name="Module_Customers" xml:space="preserve">
+    <value>Customers</value>
+  </data>
+  <data name="Module_Finance" xml:space="preserve">
+    <value>Finance Portal</value>
+  </data>
+  <data name="Module_Purchase" xml:space="preserve">
+    <value>Purchase</value>
+  </data>
+  <data name="Module_WebApproval" xml:space="preserve">
+    <value>Approval</value>
+  </data>
+  <data name="Module_ZeeUAnalyzer" xml:space="preserve">
+    <value>ZeeU Analyzer</value>
+  </data>
+  <data name="Module_ZeeUDashboard" xml:space="preserve">
+    <value>ZeeU Dashboard</value>
+  </data>
+  <data name="Module_NotifyMe" xml:space="preserve">
+    <value>NotifyMe</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>The password and confirmation password do not match</value>
+  </data>
+  <data name="Perssign" xml:space="preserve">
+    <value>Jeeves signature</value>
+    <comment>The perssign in SY2</comment>
+  </data>
+  <data name="PerssignRequired" xml:space="preserve">
+    <value>PersSign is required.</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Cell phone</value>
+  </data>
+  <data name="PhoneNumberValidationError" xml:space="preserve">
+    <value>Invalid cell number</value>
+  </data>
+  <data name="Purchase_NoOrderRows" xml:space="preserve">
+    <value>There are no valid order rows</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SearchBoxPlaceholder" xml:space="preserve">
+    <value>Start typing.</value>
+  </data>
+  <data name="Status_Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Status_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Status_Delivered" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="Status_NotApproved" xml:space="preserve">
+    <value>Not approved</value>
+  </data>
+  <data name="Status_PartiallyDelivered" xml:space="preserve">
+    <value>Partially Delivered</value>
+  </data>
+  <data name="Status_Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="SubModule_Customers_Customers" xml:space="preserve">
+    <value>All Customers</value>
+  </data>
+  <data name="SubModule_NotifyMe_CreateNew" xml:space="preserve">
+    <value>Create New</value>
+  </data>
+  <data name="SubModule_NotifyMe_Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="SubModule_Purchase_CreatePurchaseOrder" xml:space="preserve">
+    <value>Create Purchase Order</value>
+  </data>
+  <data name="SubModule_Purchase_PurchaseOrders" xml:space="preserve">
+    <value>Purchase Orders</value>
+  </data>
+  <data name="SubModule_Purchase_OrderAcknowledgement" xml:space="preserve">
+    <value>Order acknowledgment</value>
+  </data>
+  <data name="SubModule_WebApproval_DeliveryApproval" xml:space="preserve">
+    <value>Delivery Approval</value>
+  </data>
+  <data name="SubModule_WebApproval_GDPRApproval" xml:space="preserve">
+    <value>GDPR Approval</value>
+  </data>
+  <data name="SubModule_WebApproval_AttestChains" xml:space="preserve">
+    <value>Approval Chain</value>
+  </data>
+  <data name="SubModule_WebApproval_OrderApproval" xml:space="preserve">
+    <value>Order Approval</value>
+  </data>
+  <data name="SubModule_WebApproval_PriceListApproval" xml:space="preserve">
+    <value>Price List Approval</value>
+  </data>
+  <data name="SubModule_WebApproval_PurchaseApproval" xml:space="preserve">
+    <value>Purchase Approval</value>
+  </data>
+  <data name="Module_Integration" xml:space="preserve">
+    <value>Integrations</value>
+  </data>
+  <data name="Module_BankReconciliation" xml:space="preserve">
+    <value>Bank reconciliation</value>
+  </data>
+  <data name="Module_Speedrecon" xml:space="preserve">
+    <value>Speedrecon</value>
+  </data>
+  <data name="Module_DocumentSigning" xml:space="preserve">
+    <value>Document signing</value>
+  </data>
+  <data name="SubModule_CustomerSync" xml:space="preserve">
+    <value>Customer sync</value>
+  </data>
+  <data name="Module_FlowEngine" xml:space="preserve">
+    <value>FlowEngine</value>
+  </data>
+  <data name="SubModule_OrderMatching" xml:space="preserve">
+    <value>Centra</value>
+  </data>
+  <data name="SubModule_Ongoing" xml:space="preserve">
+    <value>Ongoing</value>
+  </data>
+  <data name="SubModule_AkeneoExport" xml:space="preserve">
+    <value>Akeneo export</value>
+  </data>
+  <data name="SubModule_BankReconciliation" xml:space="preserve">
+    <value>Bank reconciliation</value>
+  </data>
+  <data name="SubModule_Speedrecon" xml:space="preserve">
+    <value>Speedrecon</value>
+  </data>
+  <data name="SubModule_DocumentSigning" xml:space="preserve">
+    <value>Document signing</value>
+  </data>
+  <data name="SubModule_FlowEngine" xml:space="preserve">
+    <value>FlowEngine</value>
+  </data>
+  <data name="SubModule_FlowEngine_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="SubModule_FlowEngine_Jeeves" xml:space="preserve">
+    <value>Jeeves</value>
+  </data>
+  <data name="SubModule_FlowEngine_Centra" xml:space="preserve">
+    <value>Centra</value>
+  </data>
+  <data name="SubModule_FlowEngine_Shopify" xml:space="preserve">
+    <value>Shopify</value>
+  </data>
+  <data name="SubModule_FlowEngine_Akeneo" xml:space="preserve">
+    <value>Akeneo</value>
+  </data>
+  <data name="SubModule_FlowEngine_Jobs" xml:space="preserve">
+    <value>Jobs</value>
+  </data>
+  <data name="SubModule_FlowEngine_Config" xml:space="preserve">
+    <value>Config</value>
+  </data>
+  <data name="SubModule_ZeeUDashboard_Production" xml:space="preserve">
+    <value>Production Dashboard</value>
+  </data>
+  <data name="SubModule_ZeeUDashboard_ProductionAdmin" xml:space="preserve">
+    <value>Production Dashboard Admin</value>
+  </data>
+  <data name="Success_OrderUpdated" xml:space="preserve">
+    <value>The order was updated. </value>
+  </data>
+  <data name="Success_PriceListUpdated" xml:space="preserve">
+    <value>Price list was updated</value>
+  </data>
+  <data name="Tips: Ge Ordermatchning endast till Holdit via CompanyPermissions." xml:space="preserve">
+    <value>Tip: Grant Order matching only to Holdit via CompanyPermissions.</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="FlowEngine_GetProducts" xml:space="preserve">
+    <value>Get Products</value>
+  </data>
+  <data name="FlowEngine_GetAllProducts" xml:space="preserve">
+    <value>Get All Products</value>
+  </data>
+  <data name="FlowEngine_SendToShopify" xml:space="preserve">
+    <value>Send to Shopify</value>
+  </data>
+  <data name="FlowEngine_SendToCentra" xml:space="preserve">
+    <value>Send to Centra</value>
+  </data>
+  <data name="FlowEngine_GetDeliveryAddress" xml:space="preserve">
+    <value>Get delivery address</value>
+  </data>
+  <data name="FlowEngine_GetOrders" xml:space="preserve">
+    <value>Get orders</value>
+  </data>
+  <data name="FlowEngine_GetProduct" xml:space="preserve">
+    <value>Get product</value>
+  </data>
+  <data name="FlowEngine_CheckArtStatus" xml:space="preserve">
+    <value>Check art status</value>
+  </data>
+  <data name="FlowEngine_OrderExists" xml:space="preserve">
+    <value>Order exists</value>
+  </data>
+  <data name="FlowEngine_ExtractPdf" xml:space="preserve">
+    <value>Extract PDF</value>
+  </data>
+  <data name="FlowEngine_ClearSheet" xml:space="preserve">
+    <value>Clear sheet</value>
+  </data>
+  <data name="FlowEngine_ImportOrder" xml:space="preserve">
+    <value>Import order</value>
+  </data>
+  <data name="FlowEngine_ApplyExtractedRows" xml:space="preserve">
+    <value>Apply extracted rows</value>
+  </data>
+  <data name="FlowEngine_Akeneo_ExportSelectedProducts" xml:space="preserve">
+    <value>Export selected products</value>
+  </data>
+  <data name="FlowEngine_Akeneo_ExportAllProducts" xml:space="preserve">
+    <value>Export all products</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ImportOrder" xml:space="preserve">
+    <value>Import Order</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ImportOrder_Subtitle" xml:space="preserve">
+    <value>Paste article number and quantity, or extract rows from a document.</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyId" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyNotLoaded" xml:space="preserve">
+    <value>No active company context loaded</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerNumber" xml:space="preserve">
+    <value>Customer number</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerNumber_Placeholder" xml:space="preserve">
+    <value>e.g. 100012</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderType" xml:space="preserve">
+    <value>Order type</value>
+  </data>
+  <data name="FlowEngine_Jeeves_DeliveryAddress" xml:space="preserve">
+    <value>Delivery address</value>
+  </data>
+  <data name="FlowEngine_Jeeves_SelectDeliveryAddress" xml:space="preserve">
+    <value>Select delivery address</value>
+  </data>
+  <data name="FlowEngine_Jeeves_NoDeliveryAddressesLoaded" xml:space="preserve">
+    <value>No delivery addresses loaded</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerReference" xml:space="preserve">
+    <value>Customer ref./PO number</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerReference_Placeholder" xml:space="preserve">
+    <value>Optional reference value</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines" xml:space="preserve">
+    <value>Order lines</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines_Help" xml:space="preserve">
+    <value>Semicolon or tab between columns. One row per article.</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines_Placeholder" xml:space="preserve">
+    <value>ART123;2;199.00&#10;7330985123450;1&#10;ART456	3	89.50</value>
+  </data>
+  <data name="FlowEngine_Jeeves_RowsLabel" xml:space="preserve">
+    <value>Rows</value>
+  </data>
+  <data name="FlowEngine_Jeeves_AddPriceColumn" xml:space="preserve">
+    <value>Add price column</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArtName" xml:space="preserve">
+    <value>Art Name</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArtStatus" xml:space="preserve">
+    <value>Art Status</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLineCount" xml:space="preserve">
+    <value>Order Lines</value>
+  </data>
+  <data name="FlowEngine_Jeeves_UploadHint" xml:space="preserve">
+    <value>Upload supports PDF, DOC, DOCX, XLSX, CSV, and TSV. Review before applying.</value>
+  </data>
+  <data name="FlowEngine_UploadOrder" xml:space="preserve">
+    <value>Upload Order</value>
+  </data>
+  <data name="FlowEngine_Jeeves_DocumentReview" xml:space="preserve">
+    <value>Document review</value>
+  </data>
+  <data name="FlowEngine_Jeeves_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticleOrEan" xml:space="preserve">
+    <value>Article / EAN</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Lookup" xml:space="preserve">
+    <value>Lookup</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLookup" xml:space="preserve">
+    <value>Order lookup</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyCode_Placeholder" xml:space="preserve">
+    <value>Company code</value>
+  </data>
+  <data name="FlowEngine_Jeeves_LookupValue" xml:space="preserve">
+    <value>Lookup value</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticleAndOrderControl" xml:space="preserve">
+    <value>Article and order control</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticlePlaceholder" xml:space="preserve">
+    <value>e.g. 12345</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticlesForBatchStatus" xml:space="preserve">
+    <value>Articles for batch status</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderId" xml:space="preserve">
+    <value>Order ID</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Navigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="Admin_ExcelImports" xml:space="preserve">
+    <value>Excel imports</value>
+  </data>
+  <data name="Admin_EventLogs" xml:space="preserve">
+    <value>Error logs</value>
+  </data>
+  <data name="Admin_AiControlPanel" xml:space="preserve">
+    <value>AI control panel</value>
+  </data>
+  <data name="MissingDataSourceTooltip" xml:space="preserve">
+    <value>No data source has been configured for this company yet.</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Back to dashboard</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Mockup" xml:space="preserve">
+    <value>Mockup</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Reference" xml:space="preserve">
+    <value>Reference</value>
+  </data>
+  <data name="Payer" xml:space="preserve">
+    <value>Payer</value>
+  </data>
+  <data name="Invoices" xml:space="preserve">
+    <value>Invoices</value>
+  </data>
+  <data name="Invoice" xml:space="preserve">
+    <value>Invoice</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>Remaining</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Partially paid</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Schedule" xml:space="preserve">
+    <value>Schedule</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Recipients" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="ShowMore" xml:space="preserve">
+    <value>Show more</value>
+  </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Uploaded" xml:space="preserve">
+    <value>uploaded</value>
+  </data>
+  <data name="OrderNumber" xml:space="preserve">
+    <value>Order number</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="ChooseFile" xml:space="preserve">
+    <value>Choose file</value>
+  </data>
+  <data name="ChooseFiles" xml:space="preserve">
+    <value>Choose files</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="ActionCenter_Label" xml:space="preserve">
+    <value>Action Center</value>
+  </data>
+  <data name="ActionCenter_Title" xml:space="preserve">
+    <value>ZeeU Action Center</value>
+  </data>
+  <data name="ActionCenter_Subtitle" xml:space="preserve">
+    <value>A single place for deviations, notifications, and follow-up that needs action or extra review.</value>
+  </data>
+  <data name="ActionCenter_HowUsedTitle" xml:space="preserve">
+    <value>How is this used?</value>
+  </data>
+  <data name="ActionCenter_HowUsed_1" xml:space="preserve">
+    <value>The header row shows title and status. Click to expand details and actions.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_2" xml:space="preserve">
+    <value>Priority controls icon and badge color. Start with the red ones.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_3" xml:space="preserve">
+    <value>Mark as done can include a comment. Reopen is also available in history.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_4" xml:space="preserve">
+    <value>Quick actions take you straight to relevant views such as orders, purchasing, and invoices.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_5" xml:space="preserve">
+    <value>The badge in the header updates when insights are completed or reopened.</value>
+  </data>
+  <data name="ActionCenter_SummaryOpen" xml:space="preserve">
+    <value>Open actions</value>
+  </data>
+  <data name="ActionCenter_SummaryCritical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="ActionCenter_SummaryDueSoon" xml:space="preserve">
+    <value>Due soon</value>
+  </data>
+  <data name="ActionCenter_SummaryImpact" xml:space="preserve">
+    <value>Impacted value</value>
+  </data>
+  <data name="ActionCenter_FilterAria" xml:space="preserve">
+    <value>Filter Action Center</value>
+  </data>
+  <data name="ActionCenter_FilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="ActionCenter_FilterCritical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="ActionCenter_FilterDueSoon" xml:space="preserve">
+    <value>Due soon</value>
+  </data>
+  <data name="ActionCenter_DetailPlaceholderTitle" xml:space="preserve">
+    <value>Select an action</value>
+  </data>
+  <data name="ActionCenter_DetailPlaceholderText" xml:space="preserve">
+    <value>Details, impact, and next steps appear here.</value>
+  </data>
+  <data name="ActionCenter_HistoryRecent" xml:space="preserve">
+    <value>History (recent)</value>
+  </data>
+  <data name="ActionCenter_Reopen" xml:space="preserve">
+    <value>Reopen</value>
+  </data>
+  <data name="Priority_High" xml:space="preserve">
+    <value>High priority</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>Medium priority</value>
+  </data>
+  <data name="Priority_Low" xml:space="preserve">
+    <value>Low priority</value>
+  </data>
+  <data name="Priority_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Status_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Status_InProgress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="Status_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="ActionCenter_InsightsCount" xml:space="preserve">
+    <value>{0} Insights</value>
+  </data>
+  <data name="ActionCenter_NoInsightsTitle" xml:space="preserve">
+    <value>No insights right now</value>
+  </data>
+  <data name="ActionCenter_NoInsightsSubtitle" xml:space="preserve">
+    <value>New signals, risks, and actions will appear here when something needs follow-up.</value>
+  </data>
+  <data name="ActionCenter_AgeDays" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="ActionCenter_ForecastTitle" xml:space="preserve">
+    <value>Forward delivery plan</value>
+  </data>
+  <data name="ActionCenter_ForecastMeta" xml:space="preserve">
+    <value>Upcoming months with open orders</value>
+  </data>
+  <data name="ActionCenter_ForecastPointTitle" xml:space="preserve">
+    <value>{0}: {1} orders · {2} SEK</value>
+  </data>
+  <data name="ActionCenter_Detected" xml:space="preserve">
+    <value>Detected</value>
+  </data>
+  <data name="ActionCenter_Sla" xml:space="preserve">
+    <value>SLA</value>
+  </data>
+  <data name="ActionCenter_AssignedTo" xml:space="preserve">
+    <value>Assigned to</value>
+  </data>
+  <data name="ActionCenter_Unhandled" xml:space="preserve">
+    <value>Unhandled</value>
+  </data>
+  <data name="ActionCenter_MarkDone" xml:space="preserve">
+    <value>Mark as done</value>
+  </data>
+  <data name="ActionCenter_CommentOptional" xml:space="preserve">
+    <value>Comment (optional)</value>
+  </data>
+  <data name="ActionCenter_CommentPlaceholder" xml:space="preserve">
+    <value>Leave empty if you want</value>
+  </data>
+  <data name="NotifyMe_OverviewTitle" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="NotifyMe_OverviewSubtitle" xml:space="preserve">
+    <value>Quick overview of notifications, recent runs, and what needs attention.</value>
+  </data>
+  <data name="NotifyMe_StatusTitle" xml:space="preserve">
+    <value>NotifyMe status</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionTitle" xml:space="preserve">
+    <value>NotifyMe needs attention</value>
+  </data>
+  <data name="NotifyMe_TotalNotifications" xml:space="preserve">
+    <value>Total notifications</value>
+  </data>
+  <data name="NotifyMe_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="NotifyMe_DueNow" xml:space="preserve">
+    <value>Due now</value>
+  </data>
+  <data name="NotifyMe_RecentRuns" xml:space="preserve">
+    <value>Recent runs</value>
+  </data>
+  <data name="NotifyMe_NotAvailableTitle" xml:space="preserve">
+    <value>NotifyMe is not available in this database</value>
+  </data>
+  <data name="NotifyMe_NotAvailableMessage" xml:space="preserve">
+    <value>The portal cannot find the NotifyMe tables in the portal database.</value>
+  </data>
+  <data name="NotifyMe_NotAvailableNote" xml:space="preserve">
+    <value>Next step is installation or variant detection per customer.</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionCardTitle" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionCardSubtitle" xml:space="preserve">
+    <value>Notifications that are running now or failed most recently.</value>
+  </data>
+  <data name="NotifyMe_NothingRequiresAttentionTitle" xml:space="preserve">
+    <value>Nothing needs attention right now</value>
+  </data>
+  <data name="NotifyMe_NothingRequiresAttentionMessage" xml:space="preserve">
+    <value>Active notifications are either scheduled ahead or have recently run without errors.</value>
+  </data>
+  <data name="NotifyMe_NotificationMeta" xml:space="preserve">
+    <value>Notification {0} • {1} • {2}</value>
+  </data>
+  <data name="NotifyMe_NextRun" xml:space="preserve">
+    <value>Next run</value>
+  </data>
+  <data name="NotifyMe_LastRun" xml:space="preserve">
+    <value>Last run</value>
+  </data>
+  <data name="NotifyMe_ViewNotification" xml:space="preserve">
+    <value>View notification</value>
+  </data>
+  <data name="NotifyMe_ActiveNotificationsTitle" xml:space="preserve">
+    <value>Active notifications</value>
+  </data>
+  <data name="NotifyMe_ActiveNotificationsSubtitle" xml:space="preserve">
+    <value>The first active notifications for the current company.</value>
+  </data>
+  <data name="NotifyMe_NoActiveNotificationsTitle" xml:space="preserve">
+    <value>No active notifications</value>
+  </data>
+  <data name="NotifyMe_NoActiveNotificationsMessage" xml:space="preserve">
+    <value>Enable notifications in the editor when you want them to run automatically.</value>
+  </data>
+  <data name="NotifyMe_RecentDeliveriesTitle" xml:space="preserve">
+    <value>Recent deliveries</value>
+  </data>
+  <data name="NotifyMe_NoHistoryTitle" xml:space="preserve">
+    <value>No history found yet</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMessage" xml:space="preserve">
+    <value>Deliveries and runs will appear here once the notifications start being used.</value>
+  </data>
+  <data name="NotifyMe_LogMeta" xml:space="preserve">
+    <value>Notification {0} • {1}</value>
+  </data>
+  <data name="BankRec_Subtitle" xml:space="preserve">
+    <value>Match uploaded camt.053 transactions against invoices for the current session.</value>
+  </data>
+  <data name="BankRec_Match" xml:space="preserve">
+    <value>Match</value>
+  </data>
+  <data name="BankRec_RunAutoMatch" xml:space="preserve">
+    <value>Run auto-match</value>
+  </data>
+  <data name="BankRec_ResetMatches" xml:space="preserve">
+    <value>Reset matches</value>
+  </data>
+  <data name="BankRec_NoFileTitle" xml:space="preserve">
+    <value>No file uploaded</value>
+  </data>
+  <data name="BankRec_NoFileMessage" xml:space="preserve">
+    <value>Upload a camt.053 file to start matching bank transactions against invoices.</value>
+  </data>
+  <data name="BankRec_NoFileNote" xml:space="preserve">
+    <value>The file is only available in your current session and must be uploaded again after logout.</value>
+  </data>
+  <data name="BankRec_FileUploadedTitle" xml:space="preserve">
+    <value>File uploaded</value>
+  </data>
+  <data name="BankRec_FileUploadedMessage" xml:space="preserve">
+    <value>Clear the uploaded file if you want to upload a new camt.053 file.</value>
+  </data>
+  <data name="BankRec_UploadFailedTitle" xml:space="preserve">
+    <value>Upload failed</value>
+  </data>
+  <data name="BankRec_AddFile" xml:space="preserve">
+    <value>Add camt.053 file (.xml/.nda)</value>
+  </data>
+  <data name="BankRec_UploadReady" xml:space="preserve">
+    <value>Upload camt.053 (.xml/.nda)</value>
+  </data>
+  <data name="BankRec_Uploading" xml:space="preserve">
+    <value>Loading camt.053...</value>
+  </data>
+  <data name="BankRec_ClearFile" xml:space="preserve">
+    <value>Clear camt.053 file</value>
+  </data>
+  <data name="BankRec_FileCleared" xml:space="preserve">
+    <value>The uploaded camt.053 file has been cleared.</value>
+  </data>
+  <data name="BankRec_LatestFile" xml:space="preserve">
+    <value>Latest file</value>
+  </data>
+  <data name="BankRec_IncomingPayments" xml:space="preserve">
+    <value>Incoming payments</value>
+  </data>
+  <data name="BankRec_OutgoingPayments" xml:space="preserve">
+    <value>Outgoing payments</value>
+  </data>
+  <data name="BankRec_MatchedAmount" xml:space="preserve">
+    <value>Matched amount</value>
+  </data>
+  <data name="BankRec_UnmatchedAmount" xml:space="preserve">
+    <value>Unmatched amount</value>
+  </data>
+  <data name="BankRec_BankTransactions" xml:space="preserve">
+    <value>Bank transactions</value>
+  </data>
+  <data name="BankRec_FilterTransactionsAria" xml:space="preserve">
+    <value>Filter transactions</value>
+  </data>
+  <data name="BankRec_GroupTransactionsAria" xml:space="preserve">
+    <value>Filter transaction flow</value>
+  </data>
+  <data name="BankRec_AllGroups" xml:space="preserve">
+    <value>All flows</value>
+  </data>
+  <data name="BankRec_CustomerPayments" xml:space="preserve">
+    <value>Customer payments</value>
+  </data>
+  <data name="BankRec_SupplierPaymentsShort" xml:space="preserve">
+    <value>Supplier payouts</value>
+  </data>
+  <data name="BankRec_FilterInvoicesAria" xml:space="preserve">
+    <value>Filter invoices</value>
+  </data>
+  <data name="BankRec_ManualMatching" xml:space="preserve">
+    <value>Manual matching</value>
+  </data>
+  <data name="BankRec_ManualMatchingMessage" xml:space="preserve">
+    <value>Work here: first choose a bank transaction, then an invoice, and finally confirm the match manually.</value>
+  </data>
+  <data name="BankRec_DemoGuideTitle" xml:space="preserve">
+    <value>How to try this scenario</value>
+  </data>
+  <data name="BankRec_DemoGuide_Overview" xml:space="preserve">
+    <value>Select Auto-match and then click Run auto-match in the workspace. This scenario is designed to produce clear automatic matches.</value>
+  </data>
+  <data name="BankRec_DemoGuide_ManualReview" xml:space="preserve">
+    <value>Select Manual review, click a bank transaction, review the recommendations, then choose the correct invoice and use Match manually.</value>
+  </data>
+  <data name="BankRec_DemoGuide_PartialPayments" xml:space="preserve">
+    <value>Select Partial payments to try pre-seeded partial allocations. Then continue allocating the remaining amount or undo individual allocations.</value>
+  </data>
+  <data name="BankRec_ManualMatch" xml:space="preserve">
+    <value>Match manually</value>
+  </data>
+  <data name="BankRec_MatchAmountInput" xml:space="preserve">
+    <value>Match amount</value>
+  </data>
+  <data name="BankRec_MatchAmountHint" xml:space="preserve">
+    <value>Select a transaction and an invoice to set the match amount.</value>
+  </data>
+  <data name="BankRec_MatchAmountSelectedHint" xml:space="preserve">
+    <value>The default value uses the smallest safe amount between the transaction and the invoice's remaining balance.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitTransaction" xml:space="preserve">
+    <value>The match amount is limited by the transaction amount.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitInvoice" xml:space="preserve">
+    <value>The match amount is limited by the invoice's remaining balance.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitBoth" xml:space="preserve">
+    <value>The match amount is limited by both the transaction and the invoice's remaining balance.</value>
+  </data>
+  <data name="BankRec_OnlyPositiveTransactionsCanBeMatched" xml:space="preserve">
+    <value>Only positive customer receipts can be matched to invoices.</value>
+  </data>
+  <data name="BankRec_TransactionHasNoRemainingAmount" xml:space="preserve">
+    <value>The transaction has no remaining amount left to allocate.</value>
+  </data>
+  <data name="BankRec_InvoiceHasNoRemainingAmount" xml:space="preserve">
+    <value>The invoice has no remaining amount left to match.</value>
+  </data>
+  <data name="BankRec_InvalidMatchAmount" xml:space="preserve">
+    <value>Enter a valid match amount greater than zero.</value>
+  </data>
+  <data name="BankRec_MatchAmountExceedsTransaction" xml:space="preserve">
+    <value>The match amount cannot exceed the transaction amount.</value>
+  </data>
+  <data name="BankRec_MatchAmountExceedsInvoice" xml:space="preserve">
+    <value>The match amount cannot exceed the invoice's remaining balance.</value>
+  </data>
+  <data name="BankRec_CurrentAllocations" xml:space="preserve">
+    <value>Matches on selected transaction</value>
+  </data>
+  <data name="BankRec_CurrentAllocationsTitle" xml:space="preserve">
+    <value>Invoices matched to this transaction</value>
+  </data>
+  <data name="BankRec_NoCurrentAllocations" xml:space="preserve">
+    <value>This transaction has not been matched to an invoice yet.</value>
+  </data>
+  <data name="BankRec_RemoveAllocation" xml:space="preserve">
+    <value>Remove allocation</value>
+  </data>
+  <data name="BankRec_AllocationPrefix" xml:space="preserve">
+    <value>Match</value>
+  </data>
+  <data name="BankRec_NoSelectionYet" xml:space="preserve">
+    <value>No row selected yet.</value>
+  </data>
+  <data name="BankRec_InvoiceInfo" xml:space="preserve">
+    <value>Invoice info</value>
+  </data>
+  <data name="BankRec_NoInvoiceSelected" xml:space="preserve">
+    <value>No invoice selected.</value>
+  </data>
+  <data name="BankRec_LoadingInvoices" xml:space="preserve">
+    <value>Loading invoices</value>
+  </data>
+  <data name="BankRec_LoadingInvoicesNote" xml:space="preserve">
+    <value>We fetch 20 invoices at a time for a faster initial load.</value>
+  </data>
+  <data name="BankRec_NoInvoicesOnPage" xml:space="preserve">
+    <value>No invoices to show on this page.</value>
+  </data>
+  <data name="BankRec_InvoicesUnavailable" xml:space="preserve">
+    <value>Invoices could not be loaded.</value>
+  </data>
+  <data name="BankRec_DemoOn" xml:space="preserve">
+    <value>Demo on</value>
+  </data>
+  <data name="BankRec_DemoOff" xml:space="preserve">
+    <value>Demo off</value>
+  </data>
+  <data name="BankRec_DemoEnableTitle" xml:space="preserve">
+    <value>Enable demo mode for bank reconciliation</value>
+  </data>
+  <data name="BankRec_DemoDisableTitle" xml:space="preserve">
+    <value>Disable demo mode for bank reconciliation</value>
+  </data>
+  <data name="BankRec_DemoActiveTitle" xml:space="preserve">
+    <value>Demo mode is active</value>
+  </data>
+  <data name="BankRec_DemoActiveMessage" xml:space="preserve">
+    <value>Bank reconciliation is now running on ZeeU demo data so the full flow can be tested without a live data source.</value>
+  </data>
+  <data name="BankRec_DemoEnabled" xml:space="preserve">
+    <value>Demo mode enabled for bank reconciliation.</value>
+  </data>
+  <data name="BankRec_DemoDisabled" xml:space="preserve">
+    <value>Demo mode disabled. Bank reconciliation now shows the live state.</value>
+  </data>
+  <data name="BankRec_DemoSourceLabel" xml:space="preserve">
+    <value>Demo data</value>
+  </data>
+  <data name="BankRec_NoActiveSource" xml:space="preserve">
+    <value>No active bank source was found for the session.</value>
+  </data>
+  <data name="BankRec_DemoWorkspace" xml:space="preserve">
+    <value>Demo data</value>
+  </data>
+  <data name="BankRec_DemoScenarioHeading" xml:space="preserve">
+    <value>Select test data</value>
+  </data>
+  <data name="BankRec_DemoScenarioHelp" xml:space="preserve">
+    <value>This only changes the test data. Then continue through steps 1–5 below.</value>
+  </data>
+  <data name="BankRec_DemoScenarioButtonPrefix" xml:space="preserve">
+    <value>Test data:</value>
+  </data>
+  <data name="BankRec_DemoResetScenario" xml:space="preserve">
+    <value>Reset scenario</value>
+  </data>
+  <data name="BankRec_DemoScenarioLoaded" xml:space="preserve">
+    <value>Demo scenario {0} loaded.</value>
+  </data>
+  <data name="BankRec_DemoScenarioReset" xml:space="preserve">
+    <value>The active demo scenario was reset.</value>
+  </data>
+  <data name="BankRec_DemoSummaryMatched" xml:space="preserve">
+    <value>Matched</value>
+  </data>
+  <data name="BankRec_DemoSummaryReview" xml:space="preserve">
+    <value>Needs review</value>
+  </data>
+  <data name="BankRec_DemoSummaryUnmatched" xml:space="preserve">
+    <value>Unmatched</value>
+  </data>
+  <data name="BankRec_AccountNotVerifiedTitle" xml:space="preserve">
+    <value>Check bank account and company</value>
+  </data>
+  <data name="BankRec_AccountNotVerifiedMessage" xml:space="preserve">
+    <value>Bank account {0} cannot yet be verified automatically against {1}. Check that the statement belongs to the correct company before continuing.</value>
+  </data>
+  <data name="BankRec_SelectedCompanyFallback" xml:space="preserve">
+    <value>the selected company</value>
+  </data>
+  <data name="BankRec_StatusSummaryAria" xml:space="preserve">
+    <value>Reconciliation status</value>
+  </data>
+  <data name="BankRec_StatusSummaryHint" xml:space="preserve">
+    <value>Details are shown in step 5</value>
+  </data>
+  <data name="BankRec_ProcessStep" xml:space="preserve">
+    <value>Step {0}</value>
+  </data>
+  <data name="BankRec_ProcessReviewTitle" xml:space="preserve">
+    <value>Types and coding</value>
+  </data>
+  <data name="BankRec_ProcessMatchTitle" xml:space="preserve">
+    <value>Match</value>
+  </data>
+  <data name="BankRec_ProcessPartialTitle" xml:space="preserve">
+    <value>Partial payments</value>
+  </data>
+  <data name="BankRec_ProcessPartialDescription" xml:space="preserve">
+    <value>Continue partial payments and confirm payments that together cover one invoice.</value>
+  </data>
+  <data name="BankRec_ProcessCompleteTitle" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="BankRec_ProcessCompleteDescription" xml:space="preserve">
+    <value>Check the result and remaining work.</value>
+  </data>
+  <data name="BankRec_PaymentBundlesLabel" xml:space="preserve">
+    <value>Combined payments</value>
+  </data>
+  <data name="BankRec_PaymentBundlesTitle" xml:space="preserve">
+    <value>Payments that together match one invoice</value>
+  </data>
+  <data name="BankRec_PaymentBundlesLoading" xml:space="preserve">
+    <value>Looking for payments that together match one invoice...</value>
+  </data>
+  <data name="BankRec_CompleteReadyTitle" xml:space="preserve">
+    <value>The reconciliation has been reviewed</value>
+  </data>
+  <data name="BankRec_CompleteReadyMessage" xml:space="preserve">
+    <value>No transactions require further manual review. The result has not been locked or posted.</value>
+  </data>
+  <data name="BankRec_CompletePendingTitle" xml:space="preserve">
+    <value>The reconciliation needs more work</value>
+  </data>
+  <data name="BankRec_CompletePendingMessage" xml:space="preserve">
+    <value>Continue with transactions that require review or remain unmatched.</value>
+  </data>
+  <data name="BankRec_RunSafeAutoMatch" xml:space="preserve">
+    <value>Run safe auto-match</value>
+  </data>
+  <data name="BankRec_TransactionFlow" xml:space="preserve">
+    <value>Flow</value>
+  </data>
+  <data name="BankRec_DemoScenario_Overview_Title" xml:space="preserve">
+    <value>Auto-match</value>
+  </data>
+  <data name="BankRec_DemoScenario_Overview_Description" xml:space="preserve">
+    <value>Shows clear OCR and amount matches that should go straight through auto-match.</value>
+  </data>
+  <data name="BankRec_DemoScenario_ManualReview_Title" xml:space="preserve">
+    <value>Manual review</value>
+  </data>
+  <data name="BankRec_DemoScenario_ManualReview_Description" xml:space="preserve">
+    <value>Shows intentionally uncertain candidates that should be reviewed and confirmed manually.</value>
+  </data>
+  <data name="BankRec_DemoScenario_PartialPayments_Title" xml:space="preserve">
+    <value>Partial payments</value>
+  </data>
+  <data name="BankRec_DemoScenario_PartialPayments_Description" xml:space="preserve">
+    <value>Shows split payments and one bundled payment to test multi-allocation flows.</value>
+  </data>
+  <data name="BankRec_DemoScenario_AiCamtLab_Title" xml:space="preserve">
+    <value>AI test</value>
+  </data>
+  <data name="BankRec_DemoScenario_AiCamtLab_Description" xml:space="preserve">
+    <value>Controlled test data with OCR hits, free text, uncertain candidates, and one row without a legitimate match.</value>
+  </data>
+  <data name="DocumentSigning_DemoOn" xml:space="preserve">
+    <value>Demo mode on</value>
+  </data>
+  <data name="DocumentSigning_DemoOff" xml:space="preserve">
+    <value>Demo mode off</value>
+  </data>
+  <data name="DocumentSigning_DemoDisableTitle" xml:space="preserve">
+    <value>Click to turn off demo mode</value>
+  </data>
+  <data name="DocumentSigning_DemoEnableTitle" xml:space="preserve">
+    <value>Click to enable demo mode</value>
+  </data>
+  <data name="DocumentSigning_Status_Signed" xml:space="preserve">
+    <value>Signed</value>
+  </data>
+  <data name="DocumentSigning_Status_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="DocumentSigning_Status_WaitingInternal" xml:space="preserve">
+    <value>Signed by recipient</value>
+  </data>
+  <data name="DocumentSigning_Status_Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="DocumentSigning_Status_Preparing" xml:space="preserve">
+    <value>Preparing</value>
+  </data>
+  <data name="DocumentSigning_Status_Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="DocumentSigning_Status_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="DocumentSigning_Status_TimedOut" xml:space="preserve">
+    <value>Timed out</value>
+  </data>
+  <data name="DocumentSigning_Status_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="DocumentSigning_Subtitle" xml:space="preserve">
+    <value>Send documents and attachments for electronic signing.</value>
+  </data>
+  <data name="DocumentSigning_Meta" xml:space="preserve">
+    <value>Create a new signing with an uploaded PDF or follow existing cases here.</value>
+  </data>
+  <data name="DocumentSigning_NotConfiguredTitle" xml:space="preserve">
+    <value>Document signing is not configured</value>
+  </data>
+  <data name="DocumentSigning_NotConfiguredMessage" xml:space="preserve">
+    <value>Add Oneflow token, user email, workspace and template before using the integration in production.</value>
+  </data>
+  <data name="DocumentSigning_DemoActiveTitle" xml:space="preserve">
+    <value>Demo mode active</value>
+  </data>
+  <data name="DocumentSigning_DemoActiveMessage" xml:space="preserve">
+    <value>The view below shows example data for order, signer, and status flow. Upload and status sync stay locked until credentials are in place.</value>
+  </data>
+  <data name="DocumentSigning_SelectOrderTitle" xml:space="preserve">
+    <value>Select order</value>
+  </data>
+  <data name="DocumentSigning_OrderNumberPlaceholder" xml:space="preserve">
+    <value>Example: 12345</value>
+  </data>
+  <data name="DocumentSigning_OpenOrder" xml:space="preserve">
+    <value>Open order in document signing</value>
+  </data>
+  <data name="DocumentSigning_ViewAllCases" xml:space="preserve">
+    <value>View all cases</value>
+  </data>
+  <data name="DocumentSigning_SelectedOrder" xml:space="preserve">
+    <value>Selected order</value>
+  </data>
+  <data name="DocumentSigning_OpenOrderDetail" xml:space="preserve">
+    <value>Open order details</value>
+  </data>
+  <data name="DocumentSigning_MainFile" xml:space="preserve">
+    <value>Main file</value>
+  </data>
+  <data name="DocumentSigning_DemoAttachmentsValue" xml:space="preserve">
+    <value>2 PDF attachments</value>
+  </data>
+  <data name="DocumentSigning_ExpectedNextStep" xml:space="preserve">
+    <value>Expected next step</value>
+  </data>
+  <data name="DocumentSigning_DemoNextStepValue" xml:space="preserve">
+    <value>The signer opens the link and signs digitally</value>
+  </data>
+  <data name="DocumentSigning_DocumentTitle" xml:space="preserve">
+    <value>Document title</value>
+  </data>
+  <data name="DocumentSigning_SignerFirstName" xml:space="preserve">
+    <value>Signer first name</value>
+  </data>
+  <data name="DocumentSigning_SignerLastName" xml:space="preserve">
+    <value>Signer last name</value>
+  </data>
+  <data name="DocumentSigning_SignerEmail" xml:space="preserve">
+    <value>Signer email</value>
+  </data>
+  <data name="DocumentSigning_SignerMobile" xml:space="preserve">
+    <value>Signer mobile (optional)</value>
+  </data>
+  <data name="DocumentSigning_MessageToSigner" xml:space="preserve">
+    <value>Message to signer</value>
+  </data>
+  <data name="DocumentSigning_QuotePdf" xml:space="preserve">
+    <value>Signing PDF</value>
+  </data>
+  <data name="DocumentSigning_NoFileSelected" xml:space="preserve">
+    <value>No file selected</value>
+  </data>
+  <data name="DocumentSigning_MainFileHelp" xml:space="preserve">
+    <value>The main file sent for signing. PDF only.</value>
+  </data>
+  <data name="DocumentSigning_AttachmentsPdf" xml:space="preserve">
+    <value>Attachments (PDF)</value>
+  </data>
+  <data name="DocumentSigning_AttachmentsHelp" xml:space="preserve">
+    <value>Optional attachments the recipient must review before signing.</value>
+  </data>
+  <data name="DocumentSigning_SendForSigning" xml:space="preserve">
+    <value>Send for signing</value>
+  </data>
+  <data name="DocumentSigning_SendForSigningDemoLocked" xml:space="preserve">
+    <value>Send for signing (locked in demo)</value>
+  </data>
+  <data name="Module_Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Orders_ListTitle" xml:space="preserve">
+    <value>Order list</value>
+  </data>
+  <data name="Orders_ListSubtitle" xml:space="preserve">
+    <value>Order data from the active data source.</value>
+  </data>
+  <data name="Orders_DefaultPeriodMessage" xml:space="preserve">
+    <value>Default view: current year for faster loading.</value>
+  </data>
+  <data name="Orders_PaidAmountPeriod" xml:space="preserve">
+    <value>Paid amount (period)</value>
+  </data>
+  <data name="Orders_UnpaidAmountPeriod" xml:space="preserve">
+    <value>Unpaid amount (period)</value>
+  </data>
+  <data name="Orders_TotalAmountPeriod" xml:space="preserve">
+    <value>Total order amount (period)</value>
+  </data>
+  <data name="Orders_SearchPlaceholder" xml:space="preserve">
+    <value>Search order no, customer, description</value>
+  </data>
+  <data name="Orders_CurrentYear" xml:space="preserve">
+    <value>Current year</value>
+  </data>
+  <data name="Orders_AllPaymentStatuses" xml:space="preserve">
+    <value>All payment statuses</value>
+  </data>
+  <data name="Orders_PaidPlural" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Orders_UnpaidPlural" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="Orders_OrderDate" xml:space="preserve">
+    <value>Order date</value>
+  </data>
+  <data name="Orders_SalesPerson" xml:space="preserve">
+    <value>Sales person</value>
+  </data>
+  <data name="Orders_PromisedDelivery" xml:space="preserve">
+    <value>Promised delivery</value>
+  </data>
+  <data name="Orders_AmountInclVat" xml:space="preserve">
+    <value>Amount incl. VAT</value>
+  </data>
+  <data name="Orders_Unpaid" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="Orders_ViewOrder" xml:space="preserve">
+    <value>View order</value>
+  </data>
+  <data name="Orders_PageSummary" xml:space="preserve">
+    <value>Showing page {0} of {1} · {2} orders in result</value>
+  </data>
+  <data name="Orders_NoOrderMessage" xml:space="preserve">
+    <value>Check the order number or go back to the order list to choose another order.</value>
+  </data>
+  <data name="Orders_BackToList" xml:space="preserve">
+    <value>Back to order list</value>
+  </data>
+  <data name="Orders_DocumentSigningMessage" xml:space="preserve">
+    <value>Document signing is handled as a separate integration. Open the integration flow to send a quote and attachments for signing.</value>
+  </data>
+  <data name="Orders_OpenDocumentSigning" xml:space="preserve">
+    <value>Open document signing</value>
+  </data>
+  <data name="Orders_PreviousSigningCases" xml:space="preserve">
+    <value>Previous signing cases</value>
+  </data>
+  <data name="Orders_Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Orders_Signer" xml:space="preserve">
+    <value>Signer</value>
+  </data>
+  <data name="Orders_Provider" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="Orders_DocumentId" xml:space="preserve">
+    <value>Document ID</value>
+  </data>
+  <data name="Orders_SyncStatus" xml:space="preserve">
+    <value>Sync status</value>
+  </data>
+  <data name="Orders_PlannedDelivery" xml:space="preserve">
+    <value>Planned delivery</value>
+  </data>
+  <data name="Orders_ActualDelivery" xml:space="preserve">
+    <value>Actual delivery</value>
+  </data>
+  <data name="Orders_Amounts" xml:space="preserve">
+    <value>Amounts</value>
+  </data>
+  <data name="Orders_AmountExclVat" xml:space="preserve">
+    <value>Excl. VAT</value>
+  </data>
+  <data name="Orders_StatusCode" xml:space="preserve">
+    <value>Status code</value>
+  </data>
+  <data name="Orders_OrderType" xml:space="preserve">
+    <value>Order type</value>
+  </data>
+  <data name="Orders_Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="Orders_OrderLines" xml:space="preserve">
+    <value>Order lines</value>
+  </data>
+  <data name="Orders_OrderLinesSubtitle" xml:space="preserve">
+    <value>Line-level details for the selected order with quantity, remaining, price, and discount.</value>
+  </data>
+  <data name="Orders_Line" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="Orders_Article" xml:space="preserve">
+    <value>Article</value>
+  </data>
+  <data name="Orders_Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Orders_DeliveredShort" xml:space="preserve">
+    <value>Deliv.</value>
+  </data>
+  <data name="Orders_Remaining" xml:space="preserve">
+    <value>Remaining</value>
+  </data>
+  <data name="Orders_Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="Orders_NetPrice" xml:space="preserve">
+    <value>Net price</value>
+  </data>
+  <data name="Orders_LineAmount" xml:space="preserve">
+    <value>Line amount incl.</value>
+  </data>
+  <data name="Orders_DiscountPercent" xml:space="preserve">
+    <value>Discount %</value>
+  </data>
+  <data name="Orders_DiscountValue" xml:space="preserve">
+    <value>Discount amount</value>
+  </data>
+  <data name="Orders_ForecastTitle" xml:space="preserve">
+    <value>Order forecast</value>
+  </data>
+  <data name="Orders_ForecastSubtitle" xml:space="preserve">
+    <value>Upcoming open orders with delivery dates ahead in time.</value>
+  </data>
+  <data name="Orders_ForecastMeta" xml:space="preserve">
+    <value>Use this view to see load and order value over the coming months.</value>
+  </data>
+  <data name="Orders_PlanningHorizon" xml:space="preserve">
+    <value>Planning horizon</value>
+  </data>
+  <data name="Orders_MonthRange" xml:space="preserve">
+    <value>{0} months</value>
+  </data>
+  <data name="Orders_AllCustomers" xml:space="preserve">
+    <value>All customers</value>
+  </data>
+  <data name="Orders_UpcomingOrders" xml:space="preserve">
+    <value>Upcoming orders</value>
+  </data>
+  <data name="Orders_OrderValue" xml:space="preserve">
+    <value>Order value</value>
+  </data>
+  <data name="Orders_NextDelivery" xml:space="preserve">
+    <value>Next delivery</value>
+  </data>
+  <data name="Orders_TopMonth" xml:space="preserve">
+    <value>Top month</value>
+  </data>
+  <data name="Orders_OrderCountLabel" xml:space="preserve">
+    <value>{0} orders</value>
+  </data>
+  <data name="Orders_NoUpcomingOrdersTitle" xml:space="preserve">
+    <value>No upcoming orders in the selected period</value>
+  </data>
+  <data name="Orders_NoUpcomingOrdersMessage" xml:space="preserve">
+    <value>There are no open orders with forward delivery dates within the selected planning horizon.</value>
+  </data>
+  <data name="Orders_ForwardDeliveryPlan" xml:space="preserve">
+    <value>Forward delivery plan</value>
+  </data>
+  <data name="Orders_ForwardDeliveryPlanSubtitle" xml:space="preserve">
+    <value>Switch between bars and table for the same monthly data in the selected horizon.</value>
+  </data>
+  <data name="Orders_LastDelivery" xml:space="preserve">
+    <value>Last delivery</value>
+  </data>
+  <data name="Orders_DeliveryPlanViewAria" xml:space="preserve">
+    <value>Delivery plan view</value>
+  </data>
+  <data name="Orders_Bars" xml:space="preserve">
+    <value>Bars</value>
+  </data>
+  <data name="Orders_Table" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="Orders_ForecastPointTitle" xml:space="preserve">
+    <value>{0}: {1} orders · {2} kr</value>
+  </data>
+  <data name="Orders_Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Orders_Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Orders_UpcomingOrderTitle" xml:space="preserve">
+    <value>Upcoming orders</value>
+  </data>
+  <data name="Orders_UpcomingOrderSubtitle" xml:space="preserve">
+    <value>Open orders sorted by nearest delivery first.</value>
+  </data>
+  <data name="Orders_ShowingRange" xml:space="preserve">
+    <value>Showing {0}-{1} of {2} orders</value>
+  </data>
+  <data name="Orders_PageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="NotifyMe_Templates" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="NotifyMe_Statistics" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="NotifyMe_NotificationsTitle" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="NotifyMe_NotificationsSubtitle" xml:space="preserve">
+    <value>All notifications for the active company, with next run and latest result.</value>
+  </data>
+  <data name="NotifyMe_OpenEditor" xml:space="preserve">
+    <value>Open editor</value>
+  </data>
+  <data name="NotifyMe_ShownAfterFilter" xml:space="preserve">
+    <value>Shown after filter</value>
+  </data>
+  <data name="NotifyMe_NotificationsCardSubtitle" xml:space="preserve">
+    <value>Configuration and run status for the active company.</value>
+  </data>
+  <data name="NotifyMe_SearchPlaceholder" xml:space="preserve">
+    <value>Search by description, subject, or ID</value>
+  </data>
+  <data name="NotifyMe_AllStatuses" xml:space="preserve">
+    <value>All statuses</value>
+  </data>
+  <data name="NotifyMe_Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="NotifyMe_AllTypes" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="NotifyMe_AllPriorities" xml:space="preserve">
+    <value>All priorities</value>
+  </data>
+  <data name="NotifyMe_NoNotificationsForFilterTitle" xml:space="preserve">
+    <value>No notifications match the selected filter</value>
+  </data>
+  <data name="NotifyMe_NoNotificationsForFilterMessage" xml:space="preserve">
+    <value>Adjust search, status, or type to show more notifications.</value>
+  </data>
+  <data name="NotifyMe_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="NotifyMe_PriorityShort" xml:space="preserve">
+    <value>Prio</value>
+  </data>
+  <data name="NotifyMe_Due" xml:space="preserve">
+    <value>Due</value>
+  </data>
+  <data name="Admin_UsersTitle" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Admin_UsersSubtitle" xml:space="preserve">
+    <value>Manage users, roles, company links, and verification status in one shared flow.</value>
+  </data>
+  <data name="Admin_UsersMeta" xml:space="preserve">
+    <value>Click a row to open the user in the detail view.</value>
+  </data>
+  <data name="Admin_CreateUser" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="Admin_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Admin_Verified" xml:space="preserve">
+    <value>Verified</value>
+  </data>
+  <data name="Admin_CompanyLinked" xml:space="preserve">
+    <value>Company linked</value>
+  </data>
+  <data name="Admin_HasRoles" xml:space="preserve">
+    <value>Has roles</value>
+  </data>
+  <data name="Admin_UserList" xml:space="preserve">
+    <value>User list</value>
+  </data>
+  <data name="Admin_UserListMeta" xml:space="preserve">
+    <value>Filter by name or company and open the user to change access, security, and Jeeves links.</value>
+  </data>
+  <data name="Admin_FilterList" xml:space="preserve">
+    <value>Filter list</value>
+  </data>
+  <data name="Admin_FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Admin_LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Admin_Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Admin_ResendValidationEmail" xml:space="preserve">
+    <value>Resend validation email</value>
+  </data>
+  <data name="Admin_DeleteUserConfirm" xml:space="preserve">
+    <value>Delete this user?</value>
+  </data>
+  <data name="Admin_ManageUserTitle" xml:space="preserve">
+    <value>Manage user</value>
+  </data>
+  <data name="Admin_ManageUserSubtitle" xml:space="preserve">
+    <value>Manage basic information, company links, Jeeves access, and security actions in one combined user view.</value>
+  </data>
+  <data name="Admin_ManageUserMeta" xml:space="preserve">
+    <value>Use the tabs to switch between core data, roles, and password reset.</value>
+  </data>
+  <data name="Admin_BasicInformation" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="Admin_Access" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="Admin_Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="Admin_EnvironmentKey" xml:space="preserve">
+    <value>Environment key</value>
+  </data>
+  <data name="Admin_WhitelistMessage" xml:space="preserve">
+    <value>Whitelisted (skips PersSign/ForetagKod)</value>
+  </data>
+  <data name="Admin_RestrictToSelectedCompanyCodes" xml:space="preserve">
+    <value>Restrict to selected company codes</value>
+  </data>
+  <data name="Admin_FetchJeevesCompanies" xml:space="preserve">
+    <value>Fetch Jeeves companies</value>
+  </data>
+  <data name="Admin_PersSignHelp" xml:space="preserve">
+    <value>PersSign must exist in SY2. If restriction is enabled, only the selected ForetagKod values are used in the company selector.</value>
+  </data>
+  <data name="Admin_ConfirmPasswordReset" xml:space="preserve">
+    <value>Confirm password reset</value>
+  </data>
+  <data name="Admin_ConfirmPasswordResetMessage" xml:space="preserve">
+    <value>Type Godkänner in the field below and then click the button to reset the user's password.</value>
+  </data>
+  <data name="Admin_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Admin_TypeApproveToContinue" xml:space="preserve">
+    <value>Type 'Godkänner' to continue</value>
+  </data>
+  <data name="Admin_ResetPassword" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="Admin_NoCompaniesFound" xml:space="preserve">
+    <value>No companies found.</value>
+  </data>
+  <data name="Admin_FillPersSignFirst" xml:space="preserve">
+    <value>Fill in PersSign first.</value>
+  </data>
+  <data name="Admin_SelectActiveEnvironmentFirst" xml:space="preserve">
+    <value>Select an active environment first.</value>
+  </data>
+  <data name="Admin_Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Admin_CouldNotFetchCompanies" xml:space="preserve">
+    <value>Could not fetch companies.</value>
+  </data>
+  <data name="Admin_Found" xml:space="preserve">
+    <value>Found</value>
+  </data>
+  <data name="Admin_MustTypeApproveToResetPassword" xml:space="preserve">
+    <value>You must type 'Godkänner' to reset the password.</value>
+  </data>
+  <data name="Admin_ManageUserRolesTitle" xml:space="preserve">
+    <value>Manage user roles</value>
+  </data>
+  <data name="Admin_ManageUserRolesSubtitle" xml:space="preserve">
+    <value>Add or remove roles for the selected user in a separate role view.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="NotifyMe_EditTitle" xml:space="preserve">
+    <value>Edit NotifyMe</value>
+  </data>
+  <data name="NotifyMe_EditorTitle" xml:space="preserve">
+    <value>NotifyMe editor</value>
+  </data>
+  <data name="NotifyMe_EditNotification" xml:space="preserve">
+    <value>Edit notification</value>
+  </data>
+  <data name="NotifyMe_NotificationEditor" xml:space="preserve">
+    <value>Notification editor</value>
+  </data>
+  <data name="NotifyMe_EditSelectedSubtitle" xml:space="preserve">
+    <value>Edit the selected notification on top of the existing SQL engine.</value>
+  </data>
+  <data name="NotifyMe_ConfigureRuleSubtitle" xml:space="preserve">
+    <value>Configure a notification rule on top of the existing SQL engine.</value>
+  </data>
+  <data name="NotifyMe_EditorMeta" xml:space="preserve">
+    <value>Build recipients, schedule, priority, and SQL source for the notification in the same editor.</value>
+  </data>
+  <data name="NotifyMe_BackToOverview" xml:space="preserve">
+    <value>Back to overview</value>
+  </data>
+  <data name="NotifyMe_BackToDetail" xml:space="preserve">
+    <value>Back to detail</value>
+  </data>
+  <data name="NotifyMe_TemplatePrefilledTitle" xml:space="preserve">
+    <value>Template prefilled</value>
+  </data>
+  <data name="NotifyMe_TemplatePrefilledMessage" xml:space="preserve">
+    <value>The template {0} is used as the starting point in the editor.</value>
+  </data>
+  <data name="NotifyMe_Configuration" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="NotifyMe_DescriptionPlaceholder" xml:space="preserve">
+    <value>For example: Stock deviation below min level</value>
+  </data>
+  <data name="NotifyMe_Notification" xml:space="preserve">
+    <value>Notification</value>
+  </data>
+  <data name="NotifyMe_NewNotification" xml:space="preserve">
+    <value>New notification</value>
+  </data>
+  <data name="NotifyMe_WarningTextSubject" xml:space="preserve">
+    <value>Warning text / subject</value>
+  </data>
+  <data name="NotifyMe_WarningTextPlaceholder" xml:space="preserve">
+    <value>For example: NotifyMe: Stock deviation</value>
+  </data>
+  <data name="NotifyMe_CommentAction" xml:space="preserve">
+    <value>Comment / action</value>
+  </data>
+  <data name="NotifyMe_CommentActionPlaceholder" xml:space="preserve">
+    <value>What the user should do when the notification arrives.</value>
+  </data>
+  <data name="NotifyMe_Frequency" xml:space="preserve">
+    <value>Frequency</value>
+  </data>
+  <data name="NotifyMe_StartDate" xml:space="preserve">
+    <value>Start date</value>
+  </data>
+  <data name="NotifyMe_EscalateAfterCount" xml:space="preserve">
+    <value>Escalate after number of warnings</value>
+  </data>
+  <data name="NotifyMe_EscalateAfterCountPlaceholder" xml:space="preserve">
+    <value>For example: 3</value>
+  </data>
+  <data name="NotifyMe_PrimaryRecipient" xml:space="preserve">
+    <value>Primary recipient</value>
+  </data>
+  <data name="NotifyMe_SecondaryRecipient" xml:space="preserve">
+    <value>Secondary recipient</value>
+  </data>
+  <data name="NotifyMe_Cc" xml:space="preserve">
+    <value>CC</value>
+  </data>
+  <data name="NotifyMe_BccEscalation" xml:space="preserve">
+    <value>BCC / escalation</value>
+  </data>
+  <data name="NotifyMe_EscalationEmail" xml:space="preserve">
+    <value>Escalation email</value>
+  </data>
+  <data name="NotifyMe_SqlSource" xml:space="preserve">
+    <value>SQL source</value>
+  </data>
+  <data name="NotifyMe_DynamicRecipients" xml:space="preserve">
+    <value>Dynamic recipients</value>
+  </data>
+  <data name="NotifyMe_DynamicRecipientsHelp" xml:space="preserve">
+    <value>The SQL source must return a Mottagare column. Hub sends one separate email per recipient.</value>
+  </data>
+  <data name="NotifyMe_SaveChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="NotifyMe_SaveNotification" xml:space="preserve">
+    <value>Save notification</value>
+  </data>
+  <data name="NotifyMe_TestRun" xml:space="preserve">
+    <value>Test run</value>
+  </data>
+  <data name="NotifyMe_ActiveNotification" xml:space="preserve">
+    <value>Active notification</value>
+  </data>
+  <data name="NotifyMe_PrototypeSetupTitle" xml:space="preserve">
+    <value>What the prototype sets up</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem1" xml:space="preserve">
+    <value>Notification header for the selected watch</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem2" xml:space="preserve">
+    <value>Type and priority from lookup tables</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem3" xml:space="preserve">
+    <value>Schedule/frequency used by the portal to calculate the next run</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem4" xml:space="preserve">
+    <value>SQL query that the portal engine runs against the selected data source</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem5" xml:space="preserve">
+    <value>History and status are written to the portal's NotifyMe log</value>
+  </data>
+  <data name="NotifyMe_WhatIsSavedNow" xml:space="preserve">
+    <value>What is saved now?</value>
+  </data>
+  <data name="NotifyMe_WhatIsSavedNowMessage" xml:space="preserve">
+    <value>The editor saves the notification directly into the portal's NotifyMe tables. The portal validates recipients, schedule, and SQL before the notification is saved.</value>
+  </data>
+  <data name="NotifyMe_DetailTitle" xml:space="preserve">
+    <value>Notification detail</value>
+  </data>
+  <data name="NotifyMe_DetailSubtitle" xml:space="preserve">
+    <value>Details, history, and next steps for the selected notification.</value>
+  </data>
+  <data name="NotifyMe_TestRunResultTitle" xml:space="preserve">
+    <value>Test run result</value>
+  </data>
+  <data name="NotifyMe_TestRunOnlyToAddress" xml:space="preserve">
+    <value>The test run is only sent to the specified address.</value>
+  </data>
+  <data name="NotifyMe_TestRunNotification" xml:space="preserve">
+    <value>Test run notification</value>
+  </data>
+  <data name="NotifyMe_LastWarning" xml:space="preserve">
+    <value>Last warning</value>
+  </data>
+  <data name="NotifyMe_WarningCount" xml:space="preserve">
+    <value>Warning count</value>
+  </data>
+  <data name="NotifyMe_CcBcc" xml:space="preserve">
+    <value>CC/BCC</value>
+  </data>
+  <data name="NotifyMe_Escalation" xml:space="preserve">
+    <value>Escalation</value>
+  </data>
+  <data name="NotifyMe_EscalationConfigured" xml:space="preserve">
+    <value>After {0} warnings to {1}</value>
+  </data>
+  <data name="NotifyMe_NotConfigured" xml:space="preserve">
+    <value>Not configured</value>
+  </data>
+  <data name="NotifyMe_Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="NotifyMe_SqlPreview" xml:space="preserve">
+    <value>SQL preview</value>
+  </data>
+  <data name="NotifyMe_RecentDeliveriesForNotification" xml:space="preserve">
+    <value>Recent deliveries for the notification</value>
+  </data>
+  <data name="NotifyMe_FullHistory" xml:space="preserve">
+    <value>Full history</value>
+  </data>
+  <data name="NotifyMe_NoHistoryForNotificationTitle" xml:space="preserve">
+    <value>No history found for the notification yet</value>
+  </data>
+  <data name="NotifyMe_NoHistoryForNotificationMessage" xml:space="preserve">
+    <value>When the notification runs, the latest deliveries and preview will be shown here.</value>
+  </data>
+  <data name="NotifyMe_HistorySubtitle" xml:space="preserve">
+    <value>Previous deliveries and runs for the active company.</value>
+  </data>
+  <data name="NotifyMe_HistoryTotalHits" xml:space="preserve">
+    <value>Total {0} hits after the current selection.</value>
+  </data>
+  <data name="NotifyMe_AllNotifications" xml:space="preserve">
+    <value>All notifications</value>
+  </data>
+  <data name="NotifyMe_HistorySearchPlaceholder" xml:space="preserve">
+    <value>Search in subject, recipients, or history text</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMatchesFilterTitle" xml:space="preserve">
+    <value>No history matches the current selection</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMatchesFilterMessage" xml:space="preserve">
+    <value>Try a broader selection or choose another notification.</value>
+  </data>
+  <data name="NotifyMe_Subject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="NotifyMe_Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="NotifyMe_LibrarySubtitle" xml:space="preserve">
+    <value>All notifications for the active company, shown as a list or cards depending on what is most convenient.</value>
+  </data>
+  <data name="NotifyMe_NotificationCount" xml:space="preserve">
+    <value>{0} notifications</value>
+  </data>
+  <data name="NotifyMe_ListView" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="NotifyMe_CardView" xml:space="preserve">
+    <value>Cards</value>
+  </data>
+  <data name="NotifyMe_LatestResult" xml:space="preserve">
+    <value>Latest result</value>
+  </data>
+  <data name="NotifyMe_NoRunYet" xml:space="preserve">
+    <value>No run yet</value>
+  </data>
+  <data name="NotifyMe_StatisticsSubtitle" xml:space="preserve">
+    <value>Actual activity, deliveries, and notification quality for the active company.</value>
+  </data>
+  <data name="NotifyMe_RunsInPeriod" xml:space="preserve">
+    <value>Runs in period</value>
+  </data>
+  <data name="NotifyMe_ActiveWithRuns" xml:space="preserve">
+    <value>Active with runs</value>
+  </data>
+  <data name="NotifyMe_ShareActiveWithRuns" xml:space="preserve">
+    <value>Share of active with runs</value>
+  </data>
+  <data name="NotifyMe_AverageRunsPerActive" xml:space="preserve">
+    <value>Average runs / active</value>
+  </data>
+  <data name="NotifyMe_RunsOverTime" xml:space="preserve">
+    <value>Runs over time</value>
+  </data>
+  <data name="NotifyMe_RunsOverTimeSubtitle" xml:space="preserve">
+    <value>Actual logged runs per month for the active company.</value>
+  </data>
+  <data name="NotifyMe_TotalWarnings" xml:space="preserve">
+    <value>Total warnings</value>
+  </data>
+  <data name="NotifyMe_RunCount" xml:space="preserve">
+    <value>{0} runs</value>
+  </data>
+  <data name="NotifyMe_InsightsFromPeriod" xml:space="preserve">
+    <value>Insights from the period data</value>
+  </data>
+  <data name="NotifyMe_NotificationActivity" xml:space="preserve">
+    <value>Notification activity</value>
+  </data>
+  <data name="NotifyMe_NotificationActivitySubtitle" xml:space="preserve">
+    <value>Shows actual activity per notification during the selected period and how well they are used.</value>
+  </data>
+  <data name="NotifyMe_OpenTemplates" xml:space="preserve">
+    <value>Open templates</value>
+  </data>
+  <data name="NotifyMe_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="NotifyMe_ShareOfPeriod" xml:space="preserve">
+    <value>Share of period</value>
+  </data>
+  <data name="NotifyMe_Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="Admin_CompaniesTitle" xml:space="preserve">
+    <value>Companies</value>
+  </data>
+  <data name="Admin_CompaniesSubtitle" xml:space="preserve">
+    <value>Manage companies, connections, and module access in the same view.</value>
+  </data>
+  <data name="Admin_CompaniesMeta" xml:space="preserve">
+    <value>Click a row to continue administering the company.</value>
+  </data>
+  <data name="Admin_CreateCompany" xml:space="preserve">
+    <value>Create company</value>
+  </data>
+  <data name="Admin_HasConnection" xml:space="preserve">
+    <value>Has connection</value>
+  </data>
+  <data name="Admin_HasPermissions" xml:space="preserve">
+    <value>Has permissions</value>
+  </data>
+  <data name="Admin_HasBoth" xml:space="preserve">
+    <value>Has both</value>
+  </data>
+  <data name="Admin_CompanyList" xml:space="preserve">
+    <value>Company list</value>
+  </data>
+  <data name="Admin_CompanyListMeta" xml:space="preserve">
+    <value>Search by company name or enabled modules.</value>
+  </data>
+  <data name="Admin_SearchCompanyOrModule" xml:space="preserve">
+    <value>Search company or module...</value>
+  </data>
+  <data name="Admin_Connections" xml:space="preserve">
+    <value>Connections</value>
+  </data>
+  <data name="Admin_Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Missing" xml:space="preserve">
+    <value>Missing</value>
+  </data>
+  <data name="Admin_NoModules" xml:space="preserve">
+    <value>No modules</value>
+  </data>
+  <data name="NotifyMe_TemplateLoadedAsBase" xml:space="preserve">
+    <value>The template "{0}" has been loaded as a starting point. Adjust conditions, recipients, and SQL before saving.</value>
+  </data>
+  <data name="NotifyMe_CheckHighlightedFields" xml:space="preserve">
+    <value>Check the highlighted fields below before saving the notification.</value>
+  </data>
+  <data name="NotifyMe_NotificationUpdated" xml:space="preserve">
+    <value>Notification {0} was updated.</value>
+  </data>
+  <data name="NotifyMe_NotificationCreated" xml:space="preserve">
+    <value>Notification {0} was created.</value>
+  </data>
+  <data name="NotifyMe_CouldNotSaveNotification" xml:space="preserve">
+    <value>Could not save the notification: {0}</value>
+  </data>
+  <data name="NotifyMe_TestRunQueued" xml:space="preserve">
+    <value>Test run queued for notification {0} to {1}.</value>
+  </data>
+  <data name="NotifyMe_MailItemIdLabel" xml:space="preserve">
+    <value>MailItemId</value>
+  </data>
+  <data name="NotifyMe_TestRunNoMailVerified" xml:space="preserve">
+    <value>The test run completed without SQL errors for notification {0}, but no new email could be verified to {1}. This usually means the notification returned no hits, the customer's variant does not log single-run, or Database Mail is not active.</value>
+  </data>
+  <data name="NotifyMe_TestRunFailed" xml:space="preserve">
+    <value>Test run failed: {0}</value>
+  </data>
+  <data name="DescriptionRequired" xml:space="preserve">
+    <value>Description is required.</value>
+  </data>
+  <data name="WarningTextRequired" xml:space="preserve">
+    <value>Warning text / subject is required.</value>
+  </data>
+  <data name="TypeRequired" xml:space="preserve">
+    <value>Type must be selected.</value>
+  </data>
+  <data name="PriorityRequired" xml:space="preserve">
+    <value>Priority must be selected.</value>
+  </data>
+  <data name="ScheduleSchemaRequired" xml:space="preserve">
+    <value>Schema must be selected.</value>
+  </data>
+  <data name="FrequencyRequired" xml:space="preserve">
+    <value>Frequency must be selected.</value>
+  </data>
+  <data name="StartDateRequired" xml:space="preserve">
+    <value>Start date is required.</value>
+  </data>
+  <data name="SqlSourceRequired" xml:space="preserve">
+    <value>SQL source is required.</value>
+  </data>
+  <data name="EscalationCannotBeNegative" xml:space="preserve">
+    <value>Escalation cannot be a negative number of warnings.</value>
+  </data>
+  <data name="AtLeastOneRecipientRequiredForActiveNotification" xml:space="preserve">
+    <value>At least one recipient must be specified for an active notification.</value>
+  </data>
+  <data name="EscalationEmailRequiredWhenEscalationEnabled" xml:space="preserve">
+    <value>Escalation email is required when escalation after warning count is used.</value>
+  </data>
+  <data name="FieldMustBeValidEmail" xml:space="preserve">
+    <value>{0} must be a valid email address.</value>
+  </data>
+  <data name="FieldContainsInvalidEmails" xml:space="preserve">
+    <value>{0} contains invalid email addresses: {1}.</value>
+  </data>
+  <data name="SuperUser_MissingCompanyId" xml:space="preserve">
+    <value>Your user is missing CompanyId.</value>
+  </data>
+  <data name="SuperUser_OwnCompany" xml:space="preserve">
+    <value>Own company</value>
+  </data>
+  <data name="SuperUser_UserNotFoundInCompany" xml:space="preserve">
+    <value>User not found in your company.</value>
+  </data>
+  <data name="SuperUser_UserUpdated" xml:space="preserve">
+    <value>User updated.</value>
+  </data>
+  <data name="SuperUser_ResetPasswordFailed" xml:space="preserve">
+    <value>Failed to reset password.</value>
+  </data>
+  <data name="SuperUser_PermissionsSaved" xml:space="preserve">
+    <value>Permissions saved.</value>
+  </data>
+  <data name="SuperUser_PermissionsSaveFailed" xml:space="preserve">
+    <value>Permissions could not be saved.</value>
+  </data>
+  <data name="SuperUser_TemporaryPassword" xml:space="preserve">
+    <value>Temporary password for {0}: {1}</value>
+  </data>
+  <data name="SuperUser_MenuPermissionsAdminOnly" xml:space="preserve">
+    <value>Menu permissions can only be managed by Administrators.</value>
+  </data>
+  <data name="SuperUser_CurrentCompany" xml:space="preserve">
+    <value>Current company</value>
+  </data>
+  <data name="SuperUser_AddedUser" xml:space="preserve">
+    <value>Added user {0}</value>
+  </data>
+  <data name="SuperUser_UserCreatedMailFailed" xml:space="preserve">
+    <value>User {0} was created, but the verification email could not be sent. Please contact support.</value>
+  </data>
+  <data name="ExcelImport_ResultMissingOrUnauthorized" xml:space="preserve">
+    <value>The result is no longer available or you do not have permission to view it.</value>
+  </data>
+  <data name="ExcelImport_TableInitCompleted" xml:space="preserve">
+    <value>Import table initialization completed. {0} tables were verified.</value>
+  </data>
+  <data name="ExcelImport_TableInitCompletedWithErrors" xml:space="preserve">
+    <value>Import table initialization completed with errors. See details below.</value>
+  </data>
+  <data name="ExcelImport_NoFileSelected" xml:space="preserve">
+    <value>No file selected. Choose an Excel file and try again.</value>
+  </data>
+  <data name="ExcelImport_OnlyExcelSupported" xml:space="preserve">
+    <value>Only Excel files (.xls, .xlsx, .xlsm, .csv) are supported at the moment.</value>
+  </data>
+  <data name="ExcelImport_TypeNotSupportedInUi" xml:space="preserve">
+    <value>The import type '{0}' is not yet supported in the UI.</value>
+  </data>
+  <data name="ExcelImport_VoucherPostingDateRequired" xml:space="preserve">
+    <value>Enter a posting date for the voucher import.</value>
+  </data>
+  <data name="ExcelImport_Failed" xml:space="preserve">
+    <value>Import failed: {0}</value>
+  </data>
+  <data name="ExcelImport_ImportCancelled" xml:space="preserve">
+    <value>Import cancelled ({0}): '{1}' ({2} KB).</value>
+  </data>
+  <data name="ExcelImport_ImportCompleted" xml:space="preserve">
+    <value>Import completed ({0}): '{1}' ({2} KB). All {3} rows were saved to staging. Batch: {4}</value>
+  </data>
+  <data name="ExcelImport_FileCouldNotBeValidated" xml:space="preserve">
+    <value>The file could not be validated for {0}.</value>
+  </data>
+  <data name="ExcelImport_EmptyTemplateCreated" xml:space="preserve">
+    <value>Empty template created ({0}). Fill in rows and import when ready.</value>
+  </data>
+  <data name="ExcelImport_EditSessionCreatedWithErrors" xml:space="preserve">
+    <value>Edit session started ({0}): '{1}' ({2} KB). Validation found issues. Correct the rows and import again.</value>
+  </data>
+  <data name="ExcelImport_EditSessionCreatedReady" xml:space="preserve">
+    <value>Edit session started ({0}): '{1}' ({2} KB). Ready to import.</value>
+  </data>
+  <data name="ExcelImport_TemporaryEditSession" xml:space="preserve">
+    <value>Temporary edit session. If you leave the page before importing, nothing is saved.</value>
+  </data>
+  <data name="ExcelImport_TypeVoucher" xml:space="preserve">
+    <value>voucher import</value>
+  </data>
+  <data name="ExcelImport_TypeBudget" xml:space="preserve">
+    <value>budget import</value>
+  </data>
+  <data name="ExcelImport_TypePurchasePrice" xml:space="preserve">
+    <value>purchase price import</value>
+  </data>
+  <data name="ExcelImport_TypePriceUpdate" xml:space="preserve">
+    <value>price update</value>
+  </data>
+  <data name="ExcelImport_TypeTransAutoPrice" xml:space="preserve">
+    <value>Trans Auto price import</value>
+  </data>
+  <data name="ExcelImport_TypeSelected" xml:space="preserve">
+    <value>selected import</value>
+  </data>
+  <data name="ExcelImport_CheckFileStructure" xml:space="preserve">
+    <value>Check the file structure and try again.</value>
+  </data>
+  <data name="ExcelImport_ColumnsDoNotMatch" xml:space="preserve">
+    <value>The columns in the file do not match {0}. Make sure you selected the correct import type and uploaded the right template.</value>
+  </data>
+  <data name="ExcelImport_ValidationStoppedImport" xml:space="preserve">
+    <value>Validation stopped the import before any rows could be saved. Check the file and try again.</value>
+  </data>
+  <data name="ExcelImport_Details" xml:space="preserve">
+    <value>Rows read: {0}, valid: {1}, invalid: {2}</value>
+  </data>
+  <data name="ExcelImport_EditSessionTooLarge" xml:space="preserve">
+    <value>The edit session contains more than {0} rows and cannot be imported through editing.</value>
+  </data>
+  <data name="ExcelImport_EnterVoucherPostingDateBeforeImport" xml:space="preserve">
+    <value>Enter a posting date before importing vouchers.</value>
+  </data>
+  <data name="Integration_OrderIdRequiredForCentraFetchOrder" xml:space="preserve">
+    <value>Order ID is required for Centra fetch order.</value>
+  </data>
+  <data name="Integration_ReturnIdRequiredForCentraFetchReturn" xml:space="preserve">
+    <value>Return ID is required for Centra fetch return.</value>
+  </data>
+  <data name="Integration_OrderIdRequiredForCentraCreateShipment" xml:space="preserve">
+    <value>Order ID is required for Centra create shipment.</value>
+  </data>
+  <data name="Integration_AtLeastOneSkuRequiredForAkeneoExport" xml:space="preserve">
+    <value>At least one SKU is required for Akeneo export.</value>
+  </data>
+  <data name="Integration_NoPdfSelectedForExtraction" xml:space="preserve">
+    <value>No PDF selected for document extraction.</value>
+  </data>
+  <data name="Integration_OnlyPdfSupportedForExtraction" xml:space="preserve">
+    <value>Only PDF files are supported for document extraction.</value>
+  </data>
+  <data name="Integration_DocumentExtractedReadyForReview" xml:space="preserve">
+    <value>Document extracted: {0} row(s) ready for review.</value>
+  </data>
+  <data name="Integration_NoExtractedDocumentRowsToAdd" xml:space="preserve">
+    <value>There are no extracted document rows to add.</value>
+  </data>
+  <data name="Integration_ExtractedRowsAddedToImportTable" xml:space="preserve">
+    <value>Extracted rows added to the import table from {0}.</value>
+  </data>
+  <data name="Integration_DocumentSigningDemoModeNoFilesSent" xml:space="preserve">
+    <value>Document signing is running in demo mode. No files have been sent.</value>
+  </data>
+  <data name="Integration_CouldNotFindSelectedOrder" xml:space="preserve">
+    <value>Could not find the selected order.</value>
+  </data>
+  <data name="Integration_QuoteSentForSigning" xml:space="preserve">
+    <value>The quote was sent for signing.</value>
+  </data>
+  <data name="Integration_StatusSyncDisabledInDemoMode" xml:space="preserve">
+    <value>Status sync is disabled in demo mode.</value>
+  </data>
+  <data name="Integration_SigningStatusUpdated" xml:space="preserve">
+    <value>Signing status updated.</value>
+  </data>
+  <data name="Integration_CouldNotReadCamtFile" xml:space="preserve">
+    <value>Could not read the camt.053 file. {0}</value>
+  </data>
+  <data name="Integration_CamtFileContainsNoTransactions" xml:space="preserve">
+    <value>The camt.053 file could be read, but no transactions were found. Check that the file contains statement entries.</value>
+  </data>
+  <data name="Integration_NoFileSelected" xml:space="preserve">
+    <value>No file selected.</value>
+  </data>
+  <data name="Integration_InvalidFileFormatOnlyXml" xml:space="preserve">
+    <value>Invalid file format. Only camt.053 files (.xml or .nda) are supported.</value>
+  </data>
+  <data name="Integration_FileUploaded" xml:space="preserve">
+    <value>File uploaded: {0}</value>
+  </data>
+  <data name="Integration_CouldNotSaveCamtFile" xml:space="preserve">
+    <value>Could not save the camt.053 file. Try again or choose another file.</value>
+  </data>
+  <data name="BankRec_SafetyCheck" xml:space="preserve">
+    <value>Safety</value>
+  </data>
+  <data name="BankRec_ConfidenceLevel" xml:space="preserve">
+    <value>Confidence level</value>
+  </data>
+  <data name="BankRec_SelectBothForAssessment" xml:space="preserve">
+    <value>Select a transaction and an invoice to see the assessment.</value>
+  </data>
+  <data name="BankRec_UndoMatch" xml:space="preserve">
+    <value>Undo match</value>
+  </data>
+  <data name="BankRec_ClearSelection" xml:space="preserve">
+    <value>Clear selection</value>
+  </data>
+  <data name="BankRec_Recommendations" xml:space="preserve">
+    <value>Recommendations</value>
+  </data>
+  <data name="BankRec_RecommendationTitle" xml:space="preserve">
+    <value>Suggested invoices</value>
+  </data>
+  <data name="BankRec_RecommendationTitleSingular" xml:space="preserve">
+    <value>Recommended invoice</value>
+  </data>
+  <data name="BankRec_Step2RecommendedInvoice" xml:space="preserve">
+    <value>Recommended invoice</value>
+  </data>
+  <data name="BankRec_Step2RecommendedInvoices" xml:space="preserve">
+    <value>Recommended invoices</value>
+  </data>
+  <data name="BankRec_SelectTransactionForRecommendations" xml:space="preserve">
+    <value>Select a customer payment to see recommended invoices.</value>
+  </data>
+  <data name="BankRec_LoadingRecommendations" xml:space="preserve">
+    <value>Loading recommendations…</value>
+  </data>
+  <data name="BankRec_NoRecommendations" xml:space="preserve">
+    <value>No sufficiently reliable recommendations were found for this transaction.</value>
+  </data>
+  <data name="BankRec_AiAssistLabel" xml:space="preserve">
+    <value>AI assistance</value>
+  </data>
+  <data name="BankRec_AiAssistTitle" xml:space="preserve">
+    <value>Controlled AI suggestion</value>
+  </data>
+  <data name="BankRec_AiAssistSelectTransaction" xml:space="preserve">
+    <value>Select a customer payment to check AI status.</value>
+  </data>
+  <data name="BankRec_AiAssistLoading" xml:space="preserve">
+    <value>Checking AI status…</value>
+  </data>
+  <data name="BankRec_AiAssistDisabled" xml:space="preserve">
+    <value>AI suggestions are disabled. Rule candidates are used until AI is enabled.</value>
+  </data>
+  <data name="BankRec_AiAssistProviderMissing" xml:space="preserve">
+    <value>AI is enabled in settings, but no approved provider is configured.</value>
+  </data>
+  <data name="BankRec_AiAssistNoSuggestions" xml:space="preserve">
+    <value>No verified AI suggestions are available for this transaction.</value>
+  </data>
+  <data name="BankRec_AiAssistPromptVersion" xml:space="preserve">
+    <value>Prompt version</value>
+  </data>
+  <data name="BankRec_AiAssistInputHash" xml:space="preserve">
+    <value>Input hash</value>
+  </data>
+  <data name="BankRec_AiAssistNoExternalData" xml:space="preserve">
+    <value>No bank data has been sent externally.</value>
+  </data>
+  <data name="BankRec_AiAssistLimitedExternalData" xml:space="preserve">
+    <value>Only minimized transaction evidence and rule candidates were sent to the approved AI provider.</value>
+  </data>
+  <data name="BankRec_AiAssistSkippedStrongMatch" xml:space="preserve">
+    <value>AI was not run because the rule engine already has a strong match.</value>
+  </data>
+  <data name="BankRec_RecentChanges" xml:space="preserve">
+    <value>Recent changes</value>
+  </data>
+  <data name="BankRec_RecentChangesTitle" xml:space="preserve">
+    <value>What happened recently</value>
+  </data>
+  <data name="BankRec_NoRecentChanges" xml:space="preserve">
+    <value>No changes yet in this bank file.</value>
+  </data>
+  <data name="BankRec_ConfidenceHigh" xml:space="preserve">
+    <value>High confidence</value>
+  </data>
+  <data name="BankRec_ConfidenceMedium" xml:space="preserve">
+    <value>Medium confidence</value>
+  </data>
+  <data name="BankRec_ConfidenceLow" xml:space="preserve">
+    <value>Low confidence</value>
+  </data>
+  <data name="BankRec_ActionManualMatch" xml:space="preserve">
+    <value>Manual match</value>
+  </data>
+  <data name="BankRec_ActionAutoMatch" xml:space="preserve">
+    <value>Auto-match</value>
+  </data>
+  <data name="BankRec_ActionReset" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
+  <data name="BankRec_ActionReverse" xml:space="preserve">
+    <value>Reversed match</value>
+  </data>
+  <data name="BankRec_ManualConfirmationRequired" xml:space="preserve">
+    <value>Requires manual confirmation</value>
+  </data>
+  <data name="BankRec_ManualConfirmationDefaultReason" xml:space="preserve">
+    <value>This match should be reviewed manually before it is confirmed.</value>
+  </data>
+  <data name="BankRec_AutoMatchedNow" xml:space="preserve">
+    <value>Auto-match now</value>
+  </data>
+  <data name="BankRec_AutoMatchedNowTitle" xml:space="preserve">
+    <value>Transactions matched automatically</value>
+  </data>
+  <data name="BankRec_AutoMatchedEmpty" xml:space="preserve">
+    <value>No auto-matches yet.</value>
+  </data>
+  <data name="BankRec_ManualReviewQueue" xml:space="preserve">
+    <value>Manual review</value>
+  </data>
+  <data name="BankRec_ManualReviewQueueTitle" xml:space="preserve">
+    <value>Transactions that need manual review</value>
+  </data>
+  <data name="BankRec_ManualReviewQueueEmpty" xml:space="preserve">
+    <value>Nothing needs manual review right now.</value>
+  </data>
+  <data name="BankRec_RemainingToMatch" xml:space="preserve">
+    <value>need manual handling</value>
+  </data>
+  <data name="BankRec_AutoMatchSuccess" xml:space="preserve">
+    <value>Safe auto-matches: {0}. Remaining for manual handling: {1}.</value>
+  </data>
+  <data name="BankRec_AutoMatchNoChange" xml:space="preserve">
+    <value>No new safe auto-matches were found. Remaining for manual handling: {0}.</value>
+  </data>
+  <data name="BankRec_CompleteSummaryHint" xml:space="preserve">
+    <value>Select a status card to show its items.</value>
+  </data>
+  <data name="BankRec_ShowMatched" xml:space="preserve">
+    <value>Show matched items</value>
+  </data>
+  <data name="BankRec_ShowReview" xml:space="preserve">
+    <value>Show items requiring review</value>
+  </data>
+  <data name="BankRec_ShowUnmatched" xml:space="preserve">
+    <value>Show unmatched items</value>
+  </data>
+  <data name="BankRec_CompleteItemsTitle" xml:space="preserve">
+    <value>Transactions with selected status</value>
+  </data>
+  <data name="BankRec_CompleteItemsDescription" xml:space="preserve">
+    <value>Select a transaction to review it or continue working in Match.</value>
+  </data>
+  <data name="BankRec_CompleteItemsLoading" xml:space="preserve">
+    <value>Loading transactions...</value>
+  </data>
+  <data name="BankRec_CompleteItemsEmpty" xml:space="preserve">
+    <value>There are no transactions with this status.</value>
+  </data>
+  <data name="BankRec_CompleteReviewReason" xml:space="preserve">
+    <value>A suggestion or partial match needs to be reviewed.</value>
+  </data>
+  <data name="BankRec_CompleteUnmatchedReason" xml:space="preserve">
+    <value>No safe invoice candidate was found. Search for and select an invoice manually if one exists.</value>
+  </data>
+  <data name="BankRec_CompleteMatchedReason" xml:space="preserve">
+    <value>The match is complete and can be reviewed.</value>
+  </data>
+  <data name="BankRec_CompleteHandleAction" xml:space="preserve">
+    <value>Handle in Match</value>
+  </data>
+  <data name="BankRec_CompleteViewAction" xml:space="preserve">
+    <value>View match</value>
+  </data>
+  <data name="BankRec_CompleteLoadError" xml:space="preserve">
+    <value>The transactions could not be loaded. Try again.</value>
+  </data>
+  <data name="BankRec_ManualInvoiceTitle" xml:space="preserve">
+    <value>Select invoice manually</value>
+  </data>
+  <data name="BankRec_ManualInvoiceDescription" xml:space="preserve">
+    <value>The rules engine found no safe candidate. Select an open invoice below if you know what the payment is for.</value>
+  </data>
+  <data name="BankRec_ManualInvoiceChoice" xml:space="preserve">
+    <value>Manual selection</value>
+  </data>
+  <data name="BankRec_NoSafeRecommendation" xml:space="preserve">
+    <value>No safe recommendation was found for this transaction.</value>
+  </data>
+  <data name="BankRec_ViewTransaction" xml:space="preserve">
+    <value>View transaction</value>
+  </data>
+  <data name="BankRec_SelectedTransaction" xml:space="preserve">
+    <value>Selected transaction</value>
+  </data>
+  <data name="BankRec_ConflictTitle" xml:space="preserve">
+    <value>State changed</value>
+  </data>
+  <data name="BankRec_ConflictMessage" xml:space="preserve">
+    <value>Another user changed the bank reconciliation before your action was saved. Reload the state and try again.</value>
+  </data>
+  <data name="BankRec_ConflictMessageWithVersion" xml:space="preserve">
+    <value>Another user changed the bank reconciliation before your action was saved. Reload the state and continue from version {0}.</value>
+  </data>
+  <data name="BankRec_ReloadState" xml:space="preserve">
+    <value>Reload state</value>
+  </data>
+  <data name="SidebarRuntime_NotificationsTitle" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="SidebarRuntime_MarkAllRead" xml:space="preserve">
+    <value>Mark read</value>
+  </data>
+  <data name="SidebarRuntime_MarkAllReadTooltip" xml:space="preserve">
+    <value>Mark all as read</value>
+  </data>
+  <data name="SidebarRuntime_NoNotificationsYet" xml:space="preserve">
+    <value>No unread notifications yet.</value>
+  </data>
+  <data name="SidebarRuntime_OverallReady" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="SidebarRuntime_OverallAttention" xml:space="preserve">
+    <value>Attention</value>
+  </data>
+  <data name="SidebarRuntime_OverallRunning" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="SidebarRuntime_Idle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="SidebarRuntime_NoActivityYet" xml:space="preserve">
+    <value>No activity yet</value>
+  </data>
+  <data name="SidebarRuntime_RunningNow" xml:space="preserve">
+    <value>Running now</value>
+  </data>
+  <data name="SidebarRuntime_Latest" xml:space="preserve">
+    <value>Latest</value>
+  </data>
+  <data name="SidebarRuntime_TimeRunning" xml:space="preserve">
+    <value>running</value>
+  </data>
+  <data name="SidebarRuntime_TimeNow" xml:space="preserve">
+    <value>now</value>
+  </data>
+  <data name="RuntimeStatus_Queued" xml:space="preserve">
+    <value>Queued</value>
+  </data>
+  <data name="RuntimeStatus_Running" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="RuntimeStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="RuntimeStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="RuntimeStatus_Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="RuntimeStatus_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ExcelImport_Runtime_QueuedTitle" xml:space="preserve">
+    <value>Import queued</value>
+  </data>
+  <data name="ExcelImport_Runtime_RunningTitle" xml:space="preserve">
+    <value>Import running</value>
+  </data>
+  <data name="ExcelImport_Runtime_CompletedTitle" xml:space="preserve">
+    <value>Import completed</value>
+  </data>
+  <data name="ExcelImport_Runtime_FailedTitle" xml:space="preserve">
+    <value>Excel import requires action</value>
+  </data>
+  <data name="ExcelImport_Runtime_CanceledTitle" xml:space="preserve">
+    <value>Excel import canceled</value>
+  </data>
+  <data name="ExcelImport_Runtime_QueuedDescription" xml:space="preserve">
+    <value>Waiting for the import to start.</value>
+  </data>
+  <data name="ExcelImport_Runtime_RunningDescription" xml:space="preserve">
+    <value>The file is being read, validated, and imported.</value>
+  </data>
+  <data name="ExcelImport_Runtime_CompletedDescription" xml:space="preserve">
+    <value>The import is complete.</value>
+  </data>
+  <data name="ExcelImport_Runtime_FailedDescription" xml:space="preserve">
+    <value>The import stopped and needs attention.</value>
+  </data>
+  <data name="ExcelImport_Runtime_CanceledDescription" xml:space="preserve">
+    <value>The import was canceled.</value>
+  </data>
+  <data name="ExcelImport_Runtime_UnknownDescription" xml:space="preserve">
+    <value>Status unknown.</value>
+  </data>
+  <data name="ExcelImport_RuntimeStatusTitle" xml:space="preserve">
+    <value>Import status</value>
+  </data>
+  <data name="ExcelImport_RuntimeStatusSubtitle" xml:space="preserve">
+    <value>Recent Excel imports in this portal.</value>
+  </data>
+  <data name="ExcelImport_RuntimeLive" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="ExcelImport_RuntimeOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="ExcelImport_RuntimeEditRows" xml:space="preserve">
+    <value>Open and correct rows</value>
+  </data>
+  <data name="ExcelImport_RuntimeEditMode" xml:space="preserve">
+    <value>Edit mode</value>
+  </data>
+  <data name="ExcelImport_RuntimeFailedBeforeRows" xml:space="preserve">
+    <value>The import stopped before rows could be edited. Check the selected import type and the template column headers.</value>
+  </data>
+  <data name="ExcelImport_RuntimeImportedRows" xml:space="preserve">
+    <value>Imported rows</value>
+  </data>
+  <data name="ExcelImport_RuntimeRowProgress" xml:space="preserve">
+    <value>Read rows: {0}/{1}</value>
+  </data>
+  <data name="ExcelImport_RuntimeImportedCount" xml:space="preserve">
+    <value>Imported rows: {0}</value>
+  </data>
+  <data name="ExcelImport_RuntimeRow" xml:space="preserve">
+    <value>Row</value>
+  </data>
+  <data name="BankRec_CloseAction" xml:space="preserve">
+    <value>Complete and lock</value>
+  </data>
+  <data name="BankRec_ReopenAction" xml:space="preserve">
+    <value>Reopen</value>
+  </data>
+  <data name="BankRec_ReopenReasonLabel" xml:space="preserve">
+    <value>Reason for reopening</value>
+  </data>
+  <data name="BankRec_ReopenReasonPlaceholder" xml:space="preserve">
+    <value>Briefly describe why the reconciliation needs to change</value>
+  </data>
+  <data name="BankRec_ClosedTitle" xml:space="preserve">
+    <value>The reconciliation is complete</value>
+  </data>
+  <data name="BankRec_ClosedMessage" xml:space="preserve">
+    <value>The result is saved and locked. No posting has been sent to Jeeves.</value>
+  </data>
+  <data name="BankRec_CloseReadyStatus" xml:space="preserve">
+    <value>All items are ready. The reconciliation can be completed.</value>
+  </data>
+  <data name="BankRec_ClosePendingStatus" xml:space="preserve">
+    <value>Resolve the remaining items before completing the reconciliation.</value>
+  </data>
+  <data name="BankRec_ClosedStatus" xml:space="preserve">
+    <value>Completed {0} by {1}.</value>
+  </data>
+  <data name="BankRec_SaveCodingBeforeClose" xml:space="preserve">
+    <value>Save the coding changes before completing the reconciliation.</value>
+  </data>
+  <data name="BankRec_PaymentBundlesHelp" xml:space="preserve">
+    <value>Review safe rule-engine suggestions or create your own group.</value>
+  </data>
+  <data name="BankRec_ManualBundleCreate" xml:space="preserve">
+    <value>Create group manually</value>
+  </data>
+  <data name="BankRec_ManualBundleTitle" xml:space="preserve">
+    <value>Create payment group</value>
+  </data>
+  <data name="BankRec_ManualBundleHelp" xml:space="preserve">
+    <value>Select an invoice and at least two payments. The total is validated before the group is saved.</value>
+  </data>
+  <data name="BankRec_ManualBundleInvoice" xml:space="preserve">
+    <value>Invoice</value>
+  </data>
+  <data name="BankRec_ManualBundleConfirm" xml:space="preserve">
+    <value>Confirm manual group</value>
+  </data>
+  <data name="BankRec_ManualBundleApplySuggestion" xml:space="preserve">
+    <value>Select suggested group</value>
+  </data>
+  <data name="BankRec_PaymentBundleAdjustManual" xml:space="preserve">
+    <value>Adjust manually</value>
+  </data>
+</root>

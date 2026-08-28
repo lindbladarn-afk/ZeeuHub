@@ -1,0 +1,23 @@
+@model WebApp.ViewModels.Shared.ModuleBannerViewModel
+@{
+    // Shared module banner used for cross-module info, warning and success notices.
+    var tone = string.IsNullOrWhiteSpace(Model.Tone) ? "info" : Model.Tone.Trim().ToLowerInvariant();
+    var rootClasses = $"module-banner module-banner--{tone}" + (Model.Compact ? " module-banner--compact" : string.Empty);
+}
+
+<div class="@rootClasses" role="alert">
+    <div class="module-banner-icon" aria-hidden="true">
+        <i class="@Model.IconClass"></i>
+    </div>
+    <div class="module-banner-content">
+        <div class="module-banner-title">@Model.Title</div>
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="module-banner-message">@Model.Message</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+        {
+            <div class="module-banner-note">@Model.Note</div>
+        }
+    </div>
+</div>

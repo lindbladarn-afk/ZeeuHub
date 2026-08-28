@@ -1,0 +1,198 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeCreatePrototypeVm
+@using Microsoft.Extensions.Localization
+@using WebApp.ViewModels.Shared
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // NotifyMe editor shares the module-page shell with the rest of the portal,
+    // while the actual form remains local because the editor layout is specific to notifier configuration.
+    ViewData["Title"] = Model.IsEditMode ? sharedLocalizer["NotifyMe_EditTitle"] : sharedLocalizer["NotifyMe_EditorTitle"];
+    ViewData["NotifyMeSection"] = "editor";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-editor-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@(Model.IsEditMode ? sharedLocalizer["NotifyMe_EditNotification"] : sharedLocalizer["NotifyMe_NotificationEditor"])</h1>
+            <div class="module-page-subtitle">
+                @(Model.IsEditMode
+                    ? sharedLocalizer["NotifyMe_EditSelectedSubtitle"]
+                    : sharedLocalizer["NotifyMe_ConfigureRuleSubtitle"])
+            </div>
+            <div class="module-page-meta">@sharedLocalizer["NotifyMe_EditorMeta"]</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-portal btn-portal-outline" asp-action="NotifyMe">@sharedLocalizer["NotifyMe_BackToOverview"]</a>
+            @if (Model.IsEditMode && Model.NotificationId.HasValue)
+            {
+                <a class="btn btn-portal btn-portal-outline" asp-action="Detail" asp-route-id="@Model.NotificationId.Value">@sharedLocalizer["NotifyMe_BackToDetail"]</a>
+            }
+        </div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = Model.IsInstalled ? sharedLocalizer["NotifyMe_StatusTitle"] : sharedLocalizer["NotifyMe_RequiresAttentionTitle"],
+            Message = Model.StatusMessage,
+            Tone = Model.IsInstalled ? "info" : "warning",
+            IconClass = Model.IsInstalled ? "fa fa-circle-info" : "fa fa-triangle-exclamation"
+        })
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.TemplateName))
+    {
+        @await Html.PartialAsync("_ModuleBanner", new ModuleBannerViewModel
+        {
+            Title = sharedLocalizer["NotifyMe_TemplatePrefilledTitle"],
+            Message = sharedLocalizer["NotifyMe_TemplatePrefilledMessage", Model.TemplateName],
+            Tone = "success",
+            IconClass = "fa fa-check"
+        })
+    }
+
+    <div class="row g-2">
+        <div class="col-12">
+            <div class="card kpi-card p-2 h-100 notifyme-editor-shell">
+                <div class="dashboard-card-title mb-2">@sharedLocalizer["NotifyMe_Configuration"]</div>
+                @* The editor fields intentionally stay in one form block so future write-capability can bind the full draft model without split sections. *@
+                <form asp-action="Editor" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Draft.NotificationId" value="@Model.NotificationId" />
+                    <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+                    <div class="row g-2">
+                        <div class="col-12 col-md-8">
+                            <label class="form-label">@sharedLocalizer["Description"]</label>
+                            <input class="form-control" asp-for="Draft.Description" placeholder="@sharedLocalizer["NotifyMe_DescriptionPlaceholder"]" />
+                            <span asp-validation-for="Draft.Description" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_Notification"]</label>
+                            <input class="form-control" value="@(Model.NotificationId.HasValue ? $"ID {Model.NotificationId.Value}" : sharedLocalizer["NotifyMe_NewNotification"].Value)" readonly />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_WarningTextSubject"]</label>
+                            <input class="form-control" asp-for="Draft.WarningText" placeholder="@sharedLocalizer["NotifyMe_WarningTextPlaceholder"]" />
+                            <span asp-validation-for="Draft.WarningText" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_CommentAction"]</label>
+                            <textarea class="form-control" asp-for="Draft.Comment" rows="3" placeholder="@sharedLocalizer["NotifyMe_CommentActionPlaceholder"]"></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_Type"]</label>
+                            <select class="form-select" asp-for="Draft.TypeCode">
+                                @foreach (var option in Model.Types)
+                                {
+                                    <option value="@option.Value">@option.Label</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Draft.TypeCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["Priority"]</label>
+                            <select class="form-select" asp-for="Draft.PriorityCode">
+                                @foreach (var option in Model.Priorities)
+                                {
+                                    <option value="@option.Value">@option.Label</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Draft.PriorityCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["Schedule"]</label>
+                            <select class="form-select" asp-for="Draft.SchemaCode">
+                                @foreach (var option in Model.Schemas)
+                                {
+                                    <option value="@option.Value">@option.Label</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Draft.SchemaCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_Frequency"]</label>
+                            <select class="form-select" asp-for="Draft.ScheduleCode">
+                                @foreach (var option in Model.Schedules)
+                                {
+                                    <option value="@option.Value">@option.Label</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Draft.ScheduleCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_StartDate"]</label>
+                            <input type="date" class="form-control" asp-for="Draft.StartDate" value="@(Model.Draft.StartDate?.ToString("yyyy-MM-dd") ?? string.Empty)" />
+                            <span asp-validation-for="Draft.StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_EscalateAfterCount"]</label>
+                            <input type="number" class="form-control" asp-for="Draft.EscalateAfterCount" value="@(Model.Draft.EscalateAfterCount?.ToString() ?? string.Empty)" placeholder="@sharedLocalizer["NotifyMe_EscalateAfterCountPlaceholder"]" />
+                            <span asp-validation-for="Draft.EscalateAfterCount" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_PrimaryRecipient"]</label>
+                            <input class="form-control" asp-for="Draft.PrimaryEmail" placeholder="mail@kund.se" />
+                            <span asp-validation-for="Draft.PrimaryEmail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_SecondaryRecipient"]</label>
+                            <input class="form-control" asp-for="Draft.SecondaryEmail" placeholder="mail2@kund.se" />
+                            <span asp-validation-for="Draft.SecondaryEmail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_Cc"]</label>
+                            <input class="form-control" asp-for="Draft.Cc" placeholder="cc@kund.se" />
+                            <span asp-validation-for="Draft.Cc" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_BccEscalation"]</label>
+                            <input class="form-control" asp-for="Draft.Bcc" placeholder="bcc@kund.se" />
+                            <span asp-validation-for="Draft.Bcc" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_EscalationEmail"]</label>
+                            <input class="form-control" asp-for="Draft.EscalationEmail" placeholder="eskalering@kund.se" />
+                            <span asp-validation-for="Draft.EscalationEmail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="notifyme-editor-toggle-row">
+                                <label class="notifyme-editor-toggle" asp-for="Draft.UsesDynamicRecipients">
+                                    <input class="notifyme-editor-toggle-input" type="checkbox" asp-for="Draft.UsesDynamicRecipients" />
+                                    <span class="notifyme-editor-toggle-ui" aria-hidden="true"></span>
+                                    <span class="notifyme-editor-toggle-copy">@sharedLocalizer["NotifyMe_DynamicRecipients"]</span>
+                                </label>
+                                <span class="notifyme-editor-help" tabindex="0" role="img" aria-label="@sharedLocalizer["NotifyMe_DynamicRecipientsHelp"]" title="@sharedLocalizer["NotifyMe_DynamicRecipientsHelp"]">
+                                    <i class="fa fa-circle-info" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@sharedLocalizer["NotifyMe_SqlSource"]</label>
+                            <textarea class="form-control" asp-for="Draft.SqlPreview" rows="8" placeholder="SELECT ... FROM ... WHERE ..."></textarea>
+                            <span asp-validation-for="Draft.SqlPreview" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex align-items-center justify-content-between gap-2 flex-wrap notifyme-editor-actions">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-portal">@(Model.IsEditMode ? sharedLocalizer["NotifyMe_SaveChanges"] : sharedLocalizer["NotifyMe_SaveNotification"])</button>
+                            <button type="button" class="btn btn-portal btn-portal-outline" disabled>@sharedLocalizer["NotifyMe_TestRun"]</button>
+                        </div>
+                        <label class="notifyme-editor-toggle" asp-for="Draft.IsActive">
+                            <input class="notifyme-editor-toggle-input" type="checkbox" asp-for="Draft.IsActive" />
+                            <span class="notifyme-editor-toggle-ui" aria-hidden="true"></span>
+                            <span class="notifyme-editor-toggle-copy">@sharedLocalizer["NotifyMe_ActiveNotification"]</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

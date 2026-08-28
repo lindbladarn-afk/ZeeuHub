@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Admin Dashboard" xml:space="preserve">
+    <value>Admin Dashboard</value>
+  </data>
+  <data name="roller, statistik och behörigheter" xml:space="preserve">
+    <value>roles, stats and permissions</value>
+  </data>
+  <data name="Bolag" xml:space="preserve">
+    <value>Companies</value>
+  </data>
+  <data name="Användare" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Tid i portalen" xml:space="preserve">
+    <value>Time in portal</value>
+  </data>
+  <data name="Excelimporter (senaste 30 d)" xml:space="preserve">
+    <value>Excel imports (last 30 d)</value>
+  </data>
+  <data name="AI kontrollpanel" xml:space="preserve">
+    <value>AI control panel</value>
+  </data>
+  <data name="Hälsokontroller" xml:space="preserve">
+    <value>Health checks</value>
+  </data>
+  <data name="Nyckelanslutningar" xml:space="preserve">
+    <value>Key connections</value>
+  </data>
+  <data name="Visa alla" xml:space="preserve">
+    <value>Show all</value>
+  </data>
+  <data name="Pinga" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="Ingen data." xml:space="preserve">
+    <value>No data.</value>
+  </data>
+  <data name="Pingar..." xml:space="preserve">
+    <value>Pinging...</value>
+  </data>
+  <data name="Uppdaterad." xml:space="preserve">
+    <value>Updated.</value>
+  </data>
+  <data name="Kunde inte pinga." xml:space="preserve">
+    <value>Ping failed.</value>
+  </data>
+  <data name="Behörighetsmodell &amp; moduler" xml:space="preserve">
+    <value>Permissions model &amp; modules</value>
+  </data>
+  <data name="Behörighetsmodell" xml:space="preserve">
+    <value>Permissions model</value>
+  </data>
+  <data name="Dashboards &amp; moduler" xml:space="preserve">
+    <value>Dashboards &amp; modules</value>
+  </data>
+  <data name="Roller &amp; behörighet" xml:space="preserve">
+    <value>Roles &amp; permissions</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Använder tilldelade moduler enligt CompanyPermissions." xml:space="preserve">
+    <value>Uses assigned modules per CompanyPermissions.</value>
+  </data>
+  <data name="Ingen åtkomst till Admin eller konfig." xml:space="preserve">
+    <value>No access to Admin or config.</value>
+  </data>
+  <data name="Måste ha CompanyId + ActiveConnectionString." xml:space="preserve">
+    <value>Requires CompanyId + ActiveConnectionString.</value>
+  </data>
+  <data name="SuperUser" xml:space="preserve">
+    <value>SuperUser</value>
+  </data>
+  <data name="Skapa användare i eget bolag." xml:space="preserve">
+    <value>Create users in own company.</value>
+  </data>
+  <data name="Ingen åtkomst till Companies/permissions." xml:space="preserve">
+    <value>No access to Companies/permissions.</value>
+  </data>
+  <data name="För bolagsansvariga som onboardar kollegor." xml:space="preserve">
+    <value>For company owners onboarding colleagues.</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="Full Admin: Companies, Users, Permissions, Licenses." xml:space="preserve">
+    <value>Full Admin: Companies, Users, Permissions, Licenses.</value>
+  </data>
+  <data name="Kan ändra CompanyPermissions och connections." xml:space="preserve">
+    <value>Can change CompanyPermissions and connections.</value>
+  </data>
+  <data name="Sparsamt använd – ger insyn i alla bolag." xml:space="preserve">
+    <value>Use sparingly – sees all companies.</value>
+  </data>
+  <data name="Menyn styrs av CompanyPermissions per modul/submodul." xml:space="preserve">
+    <value>Menu is driven by CompanyPermissions per module/submodule.</value>
+  </data>
+  <data name="Tenant Guard/Feature Access håller bolagsisolering." xml:space="preserve">
+    <value>Tenant Guard/Feature Access enforces tenant isolation.</value>
+  </data>
+  <data name="CompanyId + ActiveConnectionStringId krävs för inloggning." xml:space="preserve">
+    <value>CompanyId + ActiveConnectionStringId required for login.</value>
+  </data>
+  <data name="Tips: Kontrollera CompanyPermissions vid saknade menyval." xml:space="preserve">
+    <value>Tip: Check CompanyPermissions if menu items are missing.</value>
+  </data>
+  <data name="ZeeU Dashboard m.fl. kräver permissions + aktiv connection." xml:space="preserve">
+    <value>ZeeU Dashboard etc. need permissions + active connection.</value>
+  </data>
+  <data name="Invoices/Orders hämtar Jeeves-data; ForetagKod (JeevesActiveCompany) måste stämma." xml:space="preserve">
+    <value>Invoices/Orders read Jeeves data; ForetagKod (JeevesActiveCompany) must match.</value>
+  </data>
+  <data name="SuperUser kan inte ändra permissions, bara skapa användare i eget bolag." xml:space="preserve">
+    <value>SuperUser cannot change permissions, only create users in their company.</value>
+  </data>
+  <data name="Utöka menyn: lägg till CompanyPermissions under Admin &quot;Companies&quot;." xml:space="preserve">
+    <value>Expand the menu: add CompanyPermissions under Admin &quot;Companies&quot;.</value>
+  </data>
+</root>

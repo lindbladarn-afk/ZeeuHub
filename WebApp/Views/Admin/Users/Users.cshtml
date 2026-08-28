@@ -1,0 +1,220 @@
+﻿@using Entities.ViewModels.Admin
+@using Microsoft.Extensions.Localization
+@model List<AdminUserViewModel>
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+
+@{
+    // User list shares the same admin/module shell as company administration so list pages keep the same hierarchy, search behavior and KPI rhythm.
+    ViewData["Title"] = sharedLocalizer["Admin_UsersTitle"];
+    var totalUsers = Model?.Count ?? 0;
+    var validatedUsers = Model?.Count(x => x.EmailValidated) ?? 0;
+    var companyLinkedUsers = Model?.Count(x => !string.IsNullOrWhiteSpace(x.CompanyName)) ?? 0;
+    var roleAssignedUsers = Model?.Count(x => x.Roles?.Any(r => r.Selected) == true) ?? 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page admin-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Admin"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Admin_UsersTitle"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["Admin_UsersSubtitle"]</div>
+            <div class="module-page-meta">@sharedLocalizer["Admin_UsersMeta"]</div>
+        </div>
+        <button type="button"
+                class="btn btn-portal btn-sm rounded-pill"
+                data-toggle="ajax-modal"
+                data-target="#createUser"
+                data-url="@Url.Action("CreateUser")">
+            <i class="fa fa-plus me-2"></i>
+            @sharedLocalizer["Admin_CreateUser"]
+        </button>
+    </div>
+
+    <div id="ModalPopupPlaceholder"></div>
+    <div id="adminUsersFlashMessage" class="d-none"></div>
+
+    <div class="row mb-2">
+        <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm h-100 admin-kpi-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="admin-kpi-label">@sharedLocalizer["Admin_Total"]</div>
+                        <div class="admin-kpi-value mb-0">@totalUsers</div>
+                    </div>
+                    <i class="fa fa-users text-primary fs-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm h-100 admin-kpi-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="admin-kpi-label">@sharedLocalizer["Admin_Verified"]</div>
+                        <div class="admin-kpi-value mb-0">@validatedUsers</div>
+                    </div>
+                    <i class="fa fa-check-circle text-success fs-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm h-100 admin-kpi-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="admin-kpi-label">@sharedLocalizer["Admin_CompanyLinked"]</div>
+                        <div class="admin-kpi-value mb-0">@companyLinkedUsers</div>
+                    </div>
+                    <i class="fa fa-building text-info fs-3"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm h-100 admin-kpi-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="admin-kpi-label">@sharedLocalizer["Admin_HasRoles"]</div>
+                        <div class="admin-kpi-value mb-0">@roleAssignedUsers</div>
+                    </div>
+                    <i class="fa fa-key text-warning fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card kpi-card p-2">
+        <div class="admin-filter-toolbar mb-2">
+            <div>
+                <div class="admin-section-title">@sharedLocalizer["Admin_UserList"]</div>
+                <div class="module-page-meta">@sharedLocalizer["Admin_UserListMeta"]</div>
+            </div>
+            <div class="input-group input-group-sm admin-search-control">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="search" class="form-control" id="searchUsers" onkeyup="filterByString()" placeholder="@sharedLocalizer["Admin_FilterList"]" />
+            </div>
+        </div>
+
+        <div class="module-table-shell">
+            <div class="table-responsive module-table admin-table">
+                <table class="table table-hover mb-0" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>@sharedLocalizer["Admin_FirstName"]</th>
+                            <th>@sharedLocalizer["Admin_LastName"]</th>
+                            <th>Company</th>
+                            <th>Email</th>
+                            <th>@sharedLocalizer["Admin_Roles"]</th>
+                            <th class="text-end">@sharedLocalizer["Action"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            @* The entire row remains clickable so user maintenance stays one interaction away from the list. *@
+                            <tr class="admin-row-link"
+                                onclick="location.href='@Url.Action("ManageUser","Admin", new { userId = user.UserId })'"
+                                onmouseover="style.cursor='pointer'">
+                                <td>@user.FirstName</td>
+                                <td>@user.LastName</td>
+                                <td>@user.CompanyName</td>
+                                <td>
+                                    @user.Email
+                                    @if (user.EmailValidated)
+                                    {
+                                        <i class="fa fa-check text-green-300"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-times text-red-300"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        if (role.Selected)
+                                        {
+                                            <span class="badge bg-primary">@role.RoleName</span>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (!user.EmailValidated)
+                                    {
+                                        <form asp-controller="Admin"
+                                              asp-action="ResendEmailVerificationToken"
+                                              asp-route-userId="@user.UserId"
+                                              method="post"
+                                              class="d-inline"
+                                              onclick="event.stopPropagation();">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-portal btn-sm rounded-pill">
+                                                @sharedLocalizer["Admin_ResendValidationEmail"]
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-controller="Admin"
+                                          asp-action="DeleteUser"
+                                          asp-route-userId="@user.UserId"
+                                          method="post"
+                                          class="d-inline"
+                                          onclick="event.stopPropagation();">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="btn btn-portal-danger-outline btn-sm rounded-pill ms-2"
+                                                onclick="event.stopPropagation(); return confirm('@sharedLocalizer["Admin_DeleteUserConfirm"]');">
+                                            @sharedLocalizer["Delete"]
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function showCreateUserFlash() {
+            const flashKey = 'admin.users.create.success';
+            const message = sessionStorage.getItem(flashKey);
+            if (!message) return;
+
+            sessionStorage.removeItem(flashKey);
+
+            const host = document.getElementById('adminUsersFlashMessage');
+            if (!host) return;
+
+            host.className = 'alert alert-success mb-3';
+            host.textContent = message;
+        })();
+
+        function filterByString() {
+            const input = document.getElementById('searchUsers');
+            const filter = (input?.value || '').toUpperCase();
+            const table = document.getElementById('usersTable');
+            if (!table) return;
+
+            const rows = table.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const tdFirstName = rows[i].getElementsByTagName('td')[0];
+                const tdLastName = rows[i].getElementsByTagName('td')[1];
+                const tdCompany = rows[i].getElementsByTagName('td')[2];
+                if (tdFirstName && tdLastName && tdCompany) {
+                    const textValueFirstName = tdFirstName.textContent || tdFirstName.innerText;
+                    const textValueLastName = tdLastName.textContent || tdLastName.innerText;
+                    const textValueCompany = tdCompany.textContent || tdCompany.innerText;
+                    rows[i].style.display =
+                        textValueFirstName.toUpperCase().indexOf(filter) > -1 ||
+                        textValueLastName.toUpperCase().indexOf(filter) > -1 ||
+                        textValueCompany.toUpperCase().indexOf(filter) > -1
+                            ? ''
+                            : 'none';
+                }
+            }
+        }
+    </script>
+</div>

@@ -1,0 +1,2791 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddUser" xml:space="preserve">
+    <value>Lägg till användare</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Godkänn</value>
+  </data>
+  <data name="ApprovePriceList_AlreadyHandled" xml:space="preserve">
+    <value>Prislistan redan hanterad</value>
+  </data>
+  <data name="ApprovePurchase_AlreadyHandled" xml:space="preserve">
+    <value>Inköpsordern är redan hanterad</value>
+  </data>
+  <data name="ApproveSales_AlreadyHandled" xml:space="preserve">
+    <value>Ordern är redan hanterad</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Avbryt</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Företag</value>
+  </data>
+  <data name="CompanyRequired" xml:space="preserve">
+    <value>Välj ett företag</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Bekräfta lösenord</value>
+  </data>
+  <data name="ConnectionStrings" xml:space="preserve">
+    <value>ConnectionStrings</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-post</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>Fyll i en E-postaddress</value>
+  </data>
+  <data name="Error_FailedToFindAnyRows" xml:space="preserve">
+    <value>Kunde inte hitta någon data</value>
+  </data>
+  <data name="Error_NoRowsSelected" xml:space="preserve">
+    <value>Markera en rad innan du klickar spara</value>
+  </data>
+  <data name="Error_NotAuthorizedForThisResource" xml:space="preserve">
+    <value>Du har inte behörighet att se denna resurs</value>
+  </data>
+  <data name="Error_OrderPriceListFail" xml:space="preserve">
+    <value>Kunde inte uppdatera prislista</value>
+  </data>
+  <data name="Error_OrderUpdateFail" xml:space="preserve">
+    <value>Kunde inte uppdatera order. </value>
+  </data>
+  <data name="Error_RowAlreadyHandled" xml:space="preserve">
+    <value>Raden är redan hanterad</value>
+  </data>
+  <data name="Error_RowCannotBeApprovedAndRejected" xml:space="preserve">
+    <value>Det går inte att godkänna och avvisa en rad samtidigt</value>
+  </data>
+  <data name="Filter_Clear" xml:space="preserve">
+    <value>Rensa filter</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>Förnamn</value>
+  </data>
+  <data name="FirstNameRequired" xml:space="preserve">
+    <value>Förnamn måste anges</value>
+  </data>
+  <data name="Hello" xml:space="preserve">
+    <value>Hej</value>
+  </data>
+  <data name="IP" xml:space="preserve">
+    <value>IP-address</value>
+  </data>
+  <data name="Control Panel" xml:space="preserve">
+    <value>Kontrollpanel</value>
+  </data>
+  <data name="Översikt" xml:space="preserve">
+    <value>Översikt</value>
+  </data>
+  <data name="BankRec_WorkspaceModeLabel" xml:space="preserve">
+    <value>Arbetsflöde</value>
+  </data>
+  <data name="BankRec_ModeOverview" xml:space="preserve">
+    <value>Underlag</value>
+  </data>
+  <data name="BankRec_ModeClassification" xml:space="preserve">
+    <value>Granska</value>
+  </data>
+  <data name="BankRec_ModeReconciliation" xml:space="preserve">
+    <value>Avstämning</value>
+  </data>
+  <data name="BankRec_ModeDescriptionOverview" xml:space="preserve">
+    <value>Kontrollera fil, saldon och bankhändelser innan avstämningen fortsätter.</value>
+  </data>
+  <data name="BankRec_ModeDescriptionClassification" xml:space="preserve">
+    <value>Granska typer och justera konteringsförslag där det behövs.</value>
+  </data>
+  <data name="BankRec_ModeCoding" xml:space="preserve">
+    <value>Kontering</value>
+  </data>
+  <data name="BankRec_ModeDescriptionCoding" xml:space="preserve">
+    <value>Justera föreslaget konto och kostnadsställe per typ innan regler sparas.</value>
+  </data>
+  <data name="BankRec_ModeDescriptionReconciliation" xml:space="preserve">
+    <value>Fokuserat läge för manuell granskning och matchning.</value>
+  </data>
+  <data name="BankRec_ClassificationPanelEyebrow" xml:space="preserve">
+    <value>Klassificering</value>
+  </data>
+  <data name="BankRec_ClassificationPanelTitle" xml:space="preserve">
+    <value>Typer och volymer</value>
+  </data>
+  <data name="BankRec_ClassificationPanelHint" xml:space="preserve">
+    <value>Det här är samma bankunderlag, men grupperat efter den nya klassificeringen.</value>
+  </data>
+  <data name="BankRec_ClassificationAllTypes" xml:space="preserve">
+    <value>Alla typer</value>
+  </data>
+  <data name="BankRec_NoTransactionsForSelectedType" xml:space="preserve">
+    <value>Inga banktransaktioner för vald typ.</value>
+  </data>
+  <data name="BankRec_SuggestedAccount" xml:space="preserve">
+    <value>Föreslaget konto</value>
+  </data>
+  <data name="BankRec_SuggestedCostCenter" xml:space="preserve">
+    <value>Kostnadsställe</value>
+  </data>
+  <data name="BankRec_CodingPanelEyebrow" xml:space="preserve">
+    <value>Kontering</value>
+  </data>
+  <data name="BankRec_CodingPanelTitle" xml:space="preserve">
+    <value>Konteringsförslag per typ</value>
+  </data>
+  <data name="BankRec_CodingPanelHint" xml:space="preserve">
+    <value>Justera konto eller kostnadsställe vid behov och spara ändringarna här.</value>
+  </data>
+  <data name="BankRec_UnsavedCodingChanges" xml:space="preserve">
+    <value>Osparade ändringar</value>
+  </data>
+  <data name="BankRec_UnsavedCodingConfirm" xml:space="preserve">
+    <value>Du har osparade konteringsändringar. Vill du lämna granskningen utan att spara?</value>
+  </data>
+  <data name="BankRec_CodingLegendSuggested" xml:space="preserve">
+    <value>Föreslaget</value>
+  </data>
+  <data name="BankRec_CodingLegendEditable" xml:space="preserve">
+    <value>Redigerbart</value>
+  </data>
+  <data name="BankRec_CodingAccount" xml:space="preserve">
+    <value>Konto</value>
+  </data>
+  <data name="BankRec_CodingCostCenter" xml:space="preserve">
+    <value>Kostnadsställe</value>
+  </data>
+  <data name="BankRec_CodingReset" xml:space="preserve">
+    <value>Återställ</value>
+  </data>
+  <data name="BankRec_CodingSave" xml:space="preserve">
+    <value>Spara regler</value>
+  </data>
+  <data name="BankRec_CodingSaveSuccess" xml:space="preserve">
+    <value>Konteringsregler sparade.</value>
+  </data>
+  <data name="BankRec_CodingSaveFailure" xml:space="preserve">
+    <value>Konteringsreglerna kunde inte sparas.</value>
+  </data>
+  <data name="Användare" xml:space="preserve">
+    <value>Användare</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Språk</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Efternamn</value>
+  </data>
+  <data name="LoginPartial_EditProfile" xml:space="preserve">
+    <value>Ändra profil</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logga ut</value>
+  </data>
+  <data name="Module_Customers" xml:space="preserve">
+    <value>Kunder</value>
+  </data>
+  <data name="Module_Finance" xml:space="preserve">
+    <value>Ekonomi Portal</value>
+  </data>
+  <data name="Module_NotifyMe" xml:space="preserve">
+    <value>NotifyMe</value>
+  </data>
+  <data name="Module_Purchase" xml:space="preserve">
+    <value>Inköp</value>
+  </data>
+  <data name="Module_WebApproval" xml:space="preserve">
+    <value>Approval</value>
+  </data>
+  <data name="Module_ZeeUAnalyzer" xml:space="preserve">
+    <value>ZeeU Analyzer</value>
+  </data>
+  <data name="Module_ZeeUDashboard" xml:space="preserve">
+    <value>ZeeU Dashboard</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Lösenord</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Lösenorden stämmer inte överens</value>
+  </data>
+  <data name="Perssign" xml:space="preserve">
+    <value>Jeeves signatur</value>
+    <comment>The perssign in SY2</comment>
+  </data>
+  <data name="PerssignRequired" xml:space="preserve">
+    <value>Fyll i PersSign</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Mobilnummer</value>
+  </data>
+  <data name="PhoneNumberValidationError" xml:space="preserve">
+    <value>Ange ett giltigt mobilnummer</value>
+  </data>
+  <data name="Purchase_NoOrderRows" xml:space="preserve">
+    <value>Det finns inga orderrader</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Avvisa</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Spara</value>
+  </data>
+  <data name="SearchBoxPlaceholder" xml:space="preserve">
+    <value>Sök</value>
+  </data>
+  <data name="Status_Approved" xml:space="preserve">
+    <value>Godkänd</value>
+  </data>
+  <data name="Status_Cancelled" xml:space="preserve">
+    <value>Annullerad</value>
+  </data>
+  <data name="Status_Delivered" xml:space="preserve">
+    <value>Levererad</value>
+  </data>
+  <data name="Status_NotApproved" xml:space="preserve">
+    <value>Ej godkänd</value>
+  </data>
+  <data name="Status_PartiallyDelivered" xml:space="preserve">
+    <value>Dellevererad</value>
+  </data>
+  <data name="Status_Rejected" xml:space="preserve">
+    <value>Avvisad</value>
+  </data>
+  <data name="SubModule_Customers_Customers" xml:space="preserve">
+    <value>Alla kunder</value>
+  </data>
+  <data name="SubModule_NotifyMe_CreateNew" xml:space="preserve">
+    <value>Skapa ny</value>
+  </data>
+  <data name="SubModule_NotifyMe_Overview" xml:space="preserve">
+    <value>Översikt</value>
+  </data>
+  <data name="SubModule_Purchase_CreatePurchaseOrder" xml:space="preserve">
+    <value>Skapa inköpsorder</value>
+  </data>
+  <data name="SubModule_Purchase_PurchaseOrders" xml:space="preserve">
+    <value>Inköpsorder</value>
+  </data>
+  <data name="SubModule_Purchase_OrderAcknowledgement" xml:space="preserve">
+    <value>Ordererkännande</value>
+  </data>
+  <data name="SubModule_WebApproval_DeliveryApproval" xml:space="preserve">
+    <value>Leveransattest</value>
+  </data>
+  <data name="SubModule_WebApproval_GDPRApproval" xml:space="preserve">
+    <value>GDPR godkännande</value>
+  </data>
+  <data name="SubModule_WebApproval_AttestChains" xml:space="preserve">
+    <value>Attestkedja</value>
+  </data>
+  <data name="SubModule_WebApproval_OrderApproval" xml:space="preserve">
+    <value>Kundorder</value>
+  </data>
+  <data name="SubModule_WebApproval_PriceListApproval" xml:space="preserve">
+    <value>Prislista</value>
+  </data>
+  <data name="SubModule_WebApproval_PurchaseApproval" xml:space="preserve">
+    <value>Inköpsorder</value>
+  </data>
+  <data name="Module_Integration" xml:space="preserve">
+    <value>Integrationer</value>
+  </data>
+  <data name="Module_BankReconciliation" xml:space="preserve">
+    <value>Bankavstämning</value>
+  </data>
+  <data name="Module_Speedrecon" xml:space="preserve">
+    <value>Speedrecon</value>
+  </data>
+  <data name="Module_DocumentSigning" xml:space="preserve">
+    <value>Dokumentsignering</value>
+  </data>
+  <data name="SubModule_CustomerSync" xml:space="preserve">
+    <value>Kundsynk</value>
+  </data>
+  <data name="Module_FlowEngine" xml:space="preserve">
+    <value>FlowEngine</value>
+  </data>
+  <data name="SubModule_OrderMatching" xml:space="preserve">
+    <value>Centra</value>
+  </data>
+  <data name="SubModule_Ongoing" xml:space="preserve">
+    <value>Ongoing</value>
+  </data>
+  <data name="SubModule_AkeneoExport" xml:space="preserve">
+    <value>Akeneo export</value>
+  </data>
+  <data name="SubModule_BankReconciliation" xml:space="preserve">
+    <value>Bankavstämning</value>
+  </data>
+  <data name="SubModule_Speedrecon" xml:space="preserve">
+    <value>Speedrecon</value>
+  </data>
+  <data name="SubModule_DocumentSigning" xml:space="preserve">
+    <value>Dokumentsignering</value>
+  </data>
+  <data name="SubModule_FlowEngine" xml:space="preserve">
+    <value>FlowEngine</value>
+  </data>
+  <data name="SubModule_FlowEngine_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="SubModule_FlowEngine_Jeeves" xml:space="preserve">
+    <value>Jeeves</value>
+  </data>
+  <data name="SubModule_FlowEngine_Centra" xml:space="preserve">
+    <value>Centra</value>
+  </data>
+  <data name="SubModule_FlowEngine_Shopify" xml:space="preserve">
+    <value>Shopify</value>
+  </data>
+  <data name="SubModule_FlowEngine_Akeneo" xml:space="preserve">
+    <value>Akeneo</value>
+  </data>
+  <data name="SubModule_FlowEngine_Jobs" xml:space="preserve">
+    <value>Jobb</value>
+  </data>
+  <data name="SubModule_FlowEngine_Config" xml:space="preserve">
+    <value>Konfiguration</value>
+  </data>
+  <data name="SubModule_ZeeUDashboard_Production" xml:space="preserve">
+    <value>Produktionsdashboard</value>
+  </data>
+  <data name="SubModule_ZeeUDashboard_ProductionAdmin" xml:space="preserve">
+    <value>Produktionsdashboard Admin</value>
+  </data>
+  <data name="Success_OrderUpdated" xml:space="preserve">
+    <value>Ordern uppdaterades. </value>
+  </data>
+  <data name="Success_PriceListUpdated" xml:space="preserve">
+    <value>Prislistan uppdaterades</value>
+  </data>
+  <data name="Tips: Ge Ordermatchning endast till Holdit via CompanyPermissions." xml:space="preserve">
+    <value>Tips: Ge Ordermatchning endast till Holdit via CompanyPermissions.</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Användarnamn</value>
+  </data>
+  <data name="FlowEngine_GetProducts" xml:space="preserve">
+    <value>Hämta produkter</value>
+  </data>
+  <data name="FlowEngine_GetAllProducts" xml:space="preserve">
+    <value>Hämta alla produkter</value>
+  </data>
+  <data name="FlowEngine_SendToShopify" xml:space="preserve">
+    <value>Skicka till Shopify</value>
+  </data>
+  <data name="FlowEngine_SendToCentra" xml:space="preserve">
+    <value>Skicka till Centra</value>
+  </data>
+  <data name="FlowEngine_GetDeliveryAddress" xml:space="preserve">
+    <value>Hämta leveransadress</value>
+  </data>
+  <data name="FlowEngine_GetOrders" xml:space="preserve">
+    <value>Hämta order</value>
+  </data>
+  <data name="FlowEngine_GetProduct" xml:space="preserve">
+    <value>Hämta artikel</value>
+  </data>
+  <data name="FlowEngine_CheckArtStatus" xml:space="preserve">
+    <value>Kontrollera artikelstatus</value>
+  </data>
+  <data name="FlowEngine_OrderExists" xml:space="preserve">
+    <value>Order finns</value>
+  </data>
+  <data name="FlowEngine_ExtractPdf" xml:space="preserve">
+    <value>Extrahera PDF</value>
+  </data>
+  <data name="FlowEngine_ClearSheet" xml:space="preserve">
+    <value>Rensa blad</value>
+  </data>
+  <data name="FlowEngine_ImportOrder" xml:space="preserve">
+    <value>Importera order</value>
+  </data>
+  <data name="FlowEngine_ApplyExtractedRows" xml:space="preserve">
+    <value>Använd extraherade rader</value>
+  </data>
+  <data name="FlowEngine_Akeneo_ExportSelectedProducts" xml:space="preserve">
+    <value>Exportera valda produkter</value>
+  </data>
+  <data name="FlowEngine_Akeneo_ExportAllProducts" xml:space="preserve">
+    <value>Exportera alla produkter</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ImportOrder" xml:space="preserve">
+    <value>Importera order</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ImportOrder_Subtitle" xml:space="preserve">
+    <value>Klistra in artikelnummer och antal eller extrahera rader från ett dokument.</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyId" xml:space="preserve">
+    <value>Bolag</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyNotLoaded" xml:space="preserve">
+    <value>Ingen aktiv bolagskontext laddad</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerNumber" xml:space="preserve">
+    <value>Kundnummer</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerNumber_Placeholder" xml:space="preserve">
+    <value>Ex. 100012</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderType" xml:space="preserve">
+    <value>Ordertyp</value>
+  </data>
+  <data name="FlowEngine_Jeeves_DeliveryAddress" xml:space="preserve">
+    <value>Leveransadress</value>
+  </data>
+  <data name="FlowEngine_Jeeves_SelectDeliveryAddress" xml:space="preserve">
+    <value>Välj leveransadress</value>
+  </data>
+  <data name="FlowEngine_Jeeves_NoDeliveryAddressesLoaded" xml:space="preserve">
+    <value>Inga leveransadresser inlästa</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerReference" xml:space="preserve">
+    <value>Kundref./PO-nummer</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CustomerReference_Placeholder" xml:space="preserve">
+    <value>Valfritt referensvärde</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines" xml:space="preserve">
+    <value>Orderrader</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines_Help" xml:space="preserve">
+    <value>Semikolon eller tab mellan kolumner. En rad per artikel.</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLines_Placeholder" xml:space="preserve">
+    <value>ART123;2;199,00&#10;7330985123450;1&#10;ART456	3	89.50</value>
+  </data>
+  <data name="FlowEngine_Jeeves_RowsLabel" xml:space="preserve">
+    <value>Rader</value>
+  </data>
+  <data name="FlowEngine_Jeeves_AddPriceColumn" xml:space="preserve">
+    <value>Lägg till priskolumn</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArtName" xml:space="preserve">
+    <value>Art Name</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArtStatus" xml:space="preserve">
+    <value>Art Status</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Price" xml:space="preserve">
+    <value>Pris</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLineCount" xml:space="preserve">
+    <value>Order Lines</value>
+  </data>
+  <data name="FlowEngine_Jeeves_UploadHint" xml:space="preserve">
+    <value>Uppladdning stödjer PDF, DOC, DOCX, XLSX, CSV och TSV. Granska alltid innan applicering.</value>
+  </data>
+  <data name="FlowEngine_UploadOrder" xml:space="preserve">
+    <value>Ladda upp order</value>
+  </data>
+  <data name="FlowEngine_Jeeves_DocumentReview" xml:space="preserve">
+    <value>Dokumentgranskning</value>
+  </data>
+  <data name="FlowEngine_Jeeves_File" xml:space="preserve">
+    <value>Fil</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticleOrEan" xml:space="preserve">
+    <value>Artikel / EAN</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Quantity" xml:space="preserve">
+    <value>Antal</value>
+  </data>
+  <data name="FlowEngine_Jeeves_Lookup" xml:space="preserve">
+    <value>Lookup</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderLookup" xml:space="preserve">
+    <value>Orderlookup</value>
+  </data>
+  <data name="FlowEngine_Jeeves_CompanyCode_Placeholder" xml:space="preserve">
+    <value>Bolagskod</value>
+  </data>
+  <data name="FlowEngine_Jeeves_LookupValue" xml:space="preserve">
+    <value>Lookup-värde</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticleAndOrderControl" xml:space="preserve">
+    <value>Artikel- och orderkontroll</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticlePlaceholder" xml:space="preserve">
+    <value>Ex. 12345</value>
+  </data>
+  <data name="FlowEngine_Jeeves_ArticlesForBatchStatus" xml:space="preserve">
+    <value>Artiklar för batchstatus</value>
+  </data>
+  <data name="FlowEngine_Jeeves_OrderId" xml:space="preserve">
+    <value>Order-id</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Stäng</value>
+  </data>
+  <data name="Navigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Översikt</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Användare</value>
+  </data>
+  <data name="Admin_ExcelImports" xml:space="preserve">
+    <value>Excelimporter</value>
+  </data>
+  <data name="Admin_EventLogs" xml:space="preserve">
+    <value>Felloggar</value>
+  </data>
+  <data name="Admin_AiControlPanel" xml:space="preserve">
+    <value>AI kontrollpanel</value>
+  </data>
+  <data name="MissingDataSourceTooltip" xml:space="preserve">
+    <value>Ingen datakälla är uppsatt ännu för det här bolaget.</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Till dashboard</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Kommentar</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Skicka</value>
+  </data>
+  <data name="Mockup" xml:space="preserve">
+    <value>Mockup</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+    <value>Grupp</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Datum</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Belopp</value>
+  </data>
+  <data name="Reference" xml:space="preserve">
+    <value>Referens</value>
+  </data>
+  <data name="Payer" xml:space="preserve">
+    <value>Betalare</value>
+  </data>
+  <data name="Invoices" xml:space="preserve">
+    <value>Fakturor</value>
+  </data>
+  <data name="Invoice" xml:space="preserve">
+    <value>Faktura</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Betalt</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>Rest</value>
+  </data>
+  <data name="Customer" xml:space="preserve">
+    <value>Kund</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>Alla</value>
+  </data>
+  <data name="Matched" xml:space="preserve">
+    <value>Matchade</value>
+  </data>
+  <data name="Unmatched" xml:space="preserve">
+    <value>Omatchade</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Övrigt</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Delbetalda</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Beskrivning</value>
+  </data>
+  <data name="Schedule" xml:space="preserve">
+    <value>Schema</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Åtgärd</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>Visa</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>Historik</value>
+  </data>
+  <data name="Recipients" xml:space="preserve">
+    <value>Mottagare</value>
+  </data>
+  <data name="ShowMore" xml:space="preserve">
+    <value>Visa mer</value>
+  </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>Försök igen</value>
+  </data>
+  <data name="Uploaded" xml:space="preserve">
+    <value>uppladdad</value>
+  </data>
+  <data name="OrderNumber" xml:space="preserve">
+    <value>Ordernummer</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>Bilagor</value>
+  </data>
+  <data name="ChooseFile" xml:space="preserve">
+    <value>Välj fil</value>
+  </data>
+  <data name="ChooseFiles" xml:space="preserve">
+    <value>Välj filer</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="ActionCenter_Label" xml:space="preserve">
+    <value>Action Center</value>
+  </data>
+  <data name="ActionCenter_Title" xml:space="preserve">
+    <value>ZeeU Action Center</value>
+  </data>
+  <data name="ActionCenter_Subtitle" xml:space="preserve">
+    <value>Samlingsplats för avvikelser, notifieringar och uppföljning som kräver åtgärd eller extra kontroll.</value>
+  </data>
+  <data name="ActionCenter_HowUsedTitle" xml:space="preserve">
+    <value>Hur används detta?</value>
+  </data>
+  <data name="ActionCenter_HowUsed_1" xml:space="preserve">
+    <value>Rubrikraden visar titel och status. Klicka för att fälla ut detaljer och åtgärder.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_2" xml:space="preserve">
+    <value>Prioritet styr färg på ikon och badge. Börja med de röda.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_3" xml:space="preserve">
+    <value>Markera som klar kan få en kommentar. Återöppna finns även i historiken.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_4" xml:space="preserve">
+    <value>Snabbknappar tar dig direkt till relevanta vyer som order, inköp och fakturor.</value>
+  </data>
+  <data name="ActionCenter_HowUsed_5" xml:space="preserve">
+    <value>Badge i headern uppdateras när insikter klarmarkeras eller återöppnas.</value>
+  </data>
+  <data name="ActionCenter_SummaryOpen" xml:space="preserve">
+    <value>Öppna åtgärder</value>
+  </data>
+  <data name="ActionCenter_SummaryCritical" xml:space="preserve">
+    <value>Kritiska</value>
+  </data>
+  <data name="ActionCenter_SummaryDueSoon" xml:space="preserve">
+    <value>Förfaller snart</value>
+  </data>
+  <data name="ActionCenter_SummaryImpact" xml:space="preserve">
+    <value>Påverkat värde</value>
+  </data>
+  <data name="ActionCenter_FilterAria" xml:space="preserve">
+    <value>Filtrera Action Center</value>
+  </data>
+  <data name="ActionCenter_FilterAll" xml:space="preserve">
+    <value>Alla</value>
+  </data>
+  <data name="ActionCenter_FilterCritical" xml:space="preserve">
+    <value>Kritiska</value>
+  </data>
+  <data name="ActionCenter_FilterDueSoon" xml:space="preserve">
+    <value>Förfaller snart</value>
+  </data>
+  <data name="ActionCenter_DetailPlaceholderTitle" xml:space="preserve">
+    <value>Välj en åtgärd</value>
+  </data>
+  <data name="ActionCenter_DetailPlaceholderText" xml:space="preserve">
+    <value>Detaljer, påverkan och nästa steg visas här.</value>
+  </data>
+  <data name="ActionCenter_HistoryRecent" xml:space="preserve">
+    <value>Historik (senaste)</value>
+  </data>
+  <data name="ActionCenter_Reopen" xml:space="preserve">
+    <value>Återöppna</value>
+  </data>
+  <data name="Priority_High" xml:space="preserve">
+    <value>Hög prioritet</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>Medel prioritet</value>
+  </data>
+  <data name="Priority_Low" xml:space="preserve">
+    <value>Låg prioritet</value>
+  </data>
+  <data name="Priority_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Status_Open" xml:space="preserve">
+    <value>Öppen</value>
+  </data>
+  <data name="Status_InProgress" xml:space="preserve">
+    <value>Pågår</value>
+  </data>
+  <data name="Status_Done" xml:space="preserve">
+    <value>Klar</value>
+  </data>
+  <data name="ActionCenter_InsightsCount" xml:space="preserve">
+    <value>{0} Insikter</value>
+  </data>
+  <data name="ActionCenter_NoInsightsTitle" xml:space="preserve">
+    <value>Inga insikter just nu</value>
+  </data>
+  <data name="ActionCenter_NoInsightsSubtitle" xml:space="preserve">
+    <value>Nya signaler, risker och åtgärder visas här när något kräver uppföljning.</value>
+  </data>
+  <data name="ActionCenter_AgeDays" xml:space="preserve">
+    <value>{0} dagar</value>
+  </data>
+  <data name="ActionCenter_ForecastTitle" xml:space="preserve">
+    <value>Leveransplan framåt</value>
+  </data>
+  <data name="ActionCenter_ForecastMeta" xml:space="preserve">
+    <value>Kommande månader med öppna order</value>
+  </data>
+  <data name="ActionCenter_ForecastPointTitle" xml:space="preserve">
+    <value>{0}: {1} order · {2} kr</value>
+  </data>
+  <data name="ActionCenter_Detected" xml:space="preserve">
+    <value>Upptäckt</value>
+  </data>
+  <data name="ActionCenter_Sla" xml:space="preserve">
+    <value>SLA</value>
+  </data>
+  <data name="ActionCenter_AssignedTo" xml:space="preserve">
+    <value>Tilldelad</value>
+  </data>
+  <data name="ActionCenter_Unhandled" xml:space="preserve">
+    <value>Obehandlad</value>
+  </data>
+  <data name="ActionCenter_MarkDone" xml:space="preserve">
+    <value>Markera som klar</value>
+  </data>
+  <data name="ActionCenter_CommentOptional" xml:space="preserve">
+    <value>Kommentar (valfri)</value>
+  </data>
+  <data name="ActionCenter_CommentPlaceholder" xml:space="preserve">
+    <value>Lämna tomt om du vill</value>
+  </data>
+  <data name="NotifyMe_OverviewTitle" xml:space="preserve">
+    <value>Översikt</value>
+  </data>
+  <data name="NotifyMe_OverviewSubtitle" xml:space="preserve">
+    <value>Snabb lägesbild över notifieringar, senaste körningar och vad som kräver åtgärd.</value>
+  </data>
+  <data name="NotifyMe_StatusTitle" xml:space="preserve">
+    <value>NotifyMe-status</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionTitle" xml:space="preserve">
+    <value>NotifyMe kräver åtgärd</value>
+  </data>
+  <data name="NotifyMe_TotalNotifications" xml:space="preserve">
+    <value>Totala notifieringar</value>
+  </data>
+  <data name="NotifyMe_Active" xml:space="preserve">
+    <value>Aktiva</value>
+  </data>
+  <data name="NotifyMe_DueNow" xml:space="preserve">
+    <value>Förfaller nu</value>
+  </data>
+  <data name="NotifyMe_RecentRuns" xml:space="preserve">
+    <value>Senaste körningar</value>
+  </data>
+  <data name="NotifyMe_NotAvailableTitle" xml:space="preserve">
+    <value>NotifyMe är inte tillgängligt i den här databasen</value>
+  </data>
+  <data name="NotifyMe_NotAvailableMessage" xml:space="preserve">
+    <value>Portalen hittar inte NotifyMe-tabellerna i portalens databas.</value>
+  </data>
+  <data name="NotifyMe_NotAvailableNote" xml:space="preserve">
+    <value>Nästa steg är installation eller variantdetektion per kund.</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionCardTitle" xml:space="preserve">
+    <value>Kräver åtgärd</value>
+  </data>
+  <data name="NotifyMe_RequiresAttentionCardSubtitle" xml:space="preserve">
+    <value>Notifieringar som kör nu eller senast misslyckades.</value>
+  </data>
+  <data name="NotifyMe_NothingRequiresAttentionTitle" xml:space="preserve">
+    <value>Inget kräver åtgärd just nu</value>
+  </data>
+  <data name="NotifyMe_NothingRequiresAttentionMessage" xml:space="preserve">
+    <value>Aktiva notifieringar är antingen planerade framåt eller har nyligen körts utan fel.</value>
+  </data>
+  <data name="NotifyMe_NotificationMeta" xml:space="preserve">
+    <value>Notifiering {0} • {1} • {2}</value>
+  </data>
+  <data name="NotifyMe_NextRun" xml:space="preserve">
+    <value>Nästa körning</value>
+  </data>
+  <data name="NotifyMe_LastRun" xml:space="preserve">
+    <value>Senast</value>
+  </data>
+  <data name="NotifyMe_ViewNotification" xml:space="preserve">
+    <value>Visa notifiering</value>
+  </data>
+  <data name="NotifyMe_ActiveNotificationsTitle" xml:space="preserve">
+    <value>Aktiva notifieringar</value>
+  </data>
+  <data name="NotifyMe_ActiveNotificationsSubtitle" xml:space="preserve">
+    <value>De första aktiva notifieringarna för aktivt bolag.</value>
+  </data>
+  <data name="NotifyMe_NoActiveNotificationsTitle" xml:space="preserve">
+    <value>Inga aktiva notifieringar</value>
+  </data>
+  <data name="NotifyMe_NoActiveNotificationsMessage" xml:space="preserve">
+    <value>Aktivera notifieringar i editorn när ni vill börja köra dem automatiskt.</value>
+  </data>
+  <data name="NotifyMe_RecentDeliveriesTitle" xml:space="preserve">
+    <value>Senaste utskick</value>
+  </data>
+  <data name="NotifyMe_NoHistoryTitle" xml:space="preserve">
+    <value>Ingen historik hittades ännu</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMessage" xml:space="preserve">
+    <value>Utskick och körningar visas här när notifieringarna börjar användas.</value>
+  </data>
+  <data name="NotifyMe_LogMeta" xml:space="preserve">
+    <value>Notifiering {0} • {1}</value>
+  </data>
+  <data name="BankRec_Subtitle" xml:space="preserve">
+    <value>Matcha uppladdade camt.053-transaktioner mot fakturor för aktiv session.</value>
+  </data>
+  <data name="BankRec_Match" xml:space="preserve">
+    <value>Matcha</value>
+  </data>
+  <data name="BankRec_RunAutoMatch" xml:space="preserve">
+    <value>Kör auto-match</value>
+  </data>
+  <data name="BankRec_ResetMatches" xml:space="preserve">
+    <value>Återställ matchningar</value>
+  </data>
+  <data name="BankRec_NoFileTitle" xml:space="preserve">
+    <value>Ingen fil uppladdad</value>
+  </data>
+  <data name="BankRec_NoFileMessage" xml:space="preserve">
+    <value>Ladda upp en camt.053-fil för att börja matcha banktransaktioner mot fakturor.</value>
+  </data>
+  <data name="BankRec_NoFileNote" xml:space="preserve">
+    <value>Filen är bara tillgänglig i din nuvarande session och behöver laddas upp igen efter utloggning.</value>
+  </data>
+  <data name="BankRec_FileUploadedTitle" xml:space="preserve">
+    <value>Fil uppladdad</value>
+  </data>
+  <data name="BankRec_FileUploadedMessage" xml:space="preserve">
+    <value>Rensa den uppladdade filen om du vill ladda upp en ny camt.053-fil.</value>
+  </data>
+  <data name="BankRec_UploadFailedTitle" xml:space="preserve">
+    <value>Uppladdningen misslyckades</value>
+  </data>
+  <data name="BankRec_AddFile" xml:space="preserve">
+    <value>Lägg till camt.053-fil (.xml/.nda)</value>
+  </data>
+  <data name="BankRec_UploadReady" xml:space="preserve">
+    <value>Ladda upp camt.053 (.xml/.nda)</value>
+  </data>
+  <data name="BankRec_Uploading" xml:space="preserve">
+    <value>Läser in camt.053...</value>
+  </data>
+  <data name="BankRec_ClearFile" xml:space="preserve">
+    <value>Rensa camt.053-fil</value>
+  </data>
+  <data name="BankRec_FileCleared" xml:space="preserve">
+    <value>Den uppladdade camt.053-filen har rensats.</value>
+  </data>
+  <data name="BankRec_LatestFile" xml:space="preserve">
+    <value>Senaste fil</value>
+  </data>
+  <data name="BankRec_IncomingPayments" xml:space="preserve">
+    <value>Inbetalningar</value>
+  </data>
+  <data name="BankRec_OutgoingPayments" xml:space="preserve">
+    <value>Utbetalningar</value>
+  </data>
+  <data name="BankRec_MatchedAmount" xml:space="preserve">
+    <value>Matchat belopp</value>
+  </data>
+  <data name="BankRec_UnmatchedAmount" xml:space="preserve">
+    <value>Omatchat belopp</value>
+  </data>
+  <data name="BankRec_BankTransactions" xml:space="preserve">
+    <value>Banktransaktioner</value>
+  </data>
+  <data name="BankRec_FilterTransactionsAria" xml:space="preserve">
+    <value>Filtrera transaktioner</value>
+  </data>
+  <data name="BankRec_GroupTransactionsAria" xml:space="preserve">
+    <value>Filtrera transaktionsflöde</value>
+  </data>
+  <data name="BankRec_AllGroups" xml:space="preserve">
+    <value>Alla flöden</value>
+  </data>
+  <data name="BankRec_CustomerPayments" xml:space="preserve">
+    <value>Kundinbetalningar</value>
+  </data>
+  <data name="BankRec_SupplierPaymentsShort" xml:space="preserve">
+    <value>Leverantörsutb.</value>
+  </data>
+  <data name="BankRec_FilterInvoicesAria" xml:space="preserve">
+    <value>Filtrera fakturor</value>
+  </data>
+  <data name="BankRec_ManualMatching" xml:space="preserve">
+    <value>Manuell matchning</value>
+  </data>
+  <data name="BankRec_ManualMatchingMessage" xml:space="preserve">
+    <value>Arbeta här: välj först en banktransaktion, därefter en faktura och bekräfta sedan matchningen manuellt.</value>
+  </data>
+  <data name="BankRec_DemoGuideTitle" xml:space="preserve">
+    <value>Så provar du scenariot</value>
+  </data>
+  <data name="BankRec_DemoGuide_Overview" xml:space="preserve">
+    <value>Välj Auto-match och klicka sedan på Kör auto-match i workspacen. Det här scenariot är byggt för att ge tydliga automatiska träffar.</value>
+  </data>
+  <data name="BankRec_DemoGuide_ManualReview" xml:space="preserve">
+    <value>Välj Manuell granskning, klicka på en banktransaktion och jämför rekommendationerna. Välj därefter rätt faktura och använd Matcha manuellt.</value>
+  </data>
+  <data name="BankRec_DemoGuide_PartialPayments" xml:space="preserve">
+    <value>Välj Delbetalningar för att prova redan seedade delmatchningar. Fortsätt sedan allokera återstående belopp eller ångra enskilda allokeringar.</value>
+  </data>
+  <data name="BankRec_ManualMatch" xml:space="preserve">
+    <value>Matcha manuellt</value>
+  </data>
+  <data name="BankRec_MatchAmountInput" xml:space="preserve">
+    <value>Matchbelopp</value>
+  </data>
+  <data name="BankRec_MatchAmountHint" xml:space="preserve">
+    <value>Välj transaktion och faktura för att ange matchbelopp.</value>
+  </data>
+  <data name="BankRec_MatchAmountSelectedHint" xml:space="preserve">
+    <value>Standardvärdet sätts till minsta trygga belopp mellan transaktionen och fakturans kvarvarande belopp.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitTransaction" xml:space="preserve">
+    <value>Matchbeloppet begränsas av transaktionsbeloppet.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitInvoice" xml:space="preserve">
+    <value>Matchbeloppet begränsas av fakturans kvarvarande belopp.</value>
+  </data>
+  <data name="BankRec_MatchAmountLimitBoth" xml:space="preserve">
+    <value>Matchbeloppet begränsas av både transaktionen och fakturans kvarvarande belopp.</value>
+  </data>
+  <data name="BankRec_OnlyPositiveTransactionsCanBeMatched" xml:space="preserve">
+    <value>Bara positiva kundinbetalningar kan matchas mot fakturor.</value>
+  </data>
+  <data name="BankRec_TransactionHasNoRemainingAmount" xml:space="preserve">
+    <value>Transaktionen har inget kvarvarande belopp att fördela.</value>
+  </data>
+  <data name="BankRec_InvoiceHasNoRemainingAmount" xml:space="preserve">
+    <value>Fakturan har inget kvarvarande belopp att matcha.</value>
+  </data>
+  <data name="BankRec_InvalidMatchAmount" xml:space="preserve">
+    <value>Ange ett giltigt matchbelopp som är större än noll.</value>
+  </data>
+  <data name="BankRec_MatchAmountExceedsTransaction" xml:space="preserve">
+    <value>Matchbeloppet kan inte vara större än transaktionsbeloppet.</value>
+  </data>
+  <data name="BankRec_MatchAmountExceedsInvoice" xml:space="preserve">
+    <value>Matchbeloppet kan inte vara större än fakturans kvarvarande belopp.</value>
+  </data>
+  <data name="BankRec_CurrentAllocations" xml:space="preserve">
+    <value>Matchningar på vald transaktion</value>
+  </data>
+  <data name="BankRec_CurrentAllocationsTitle" xml:space="preserve">
+    <value>Fakturor som transaktionen är matchad mot</value>
+  </data>
+  <data name="BankRec_NoCurrentAllocations" xml:space="preserve">
+    <value>Transaktionen är inte matchad mot någon faktura ännu.</value>
+  </data>
+  <data name="BankRec_RemoveAllocation" xml:space="preserve">
+    <value>Ta bort allokering</value>
+  </data>
+  <data name="BankRec_AllocationPrefix" xml:space="preserve">
+    <value>Matchning</value>
+  </data>
+  <data name="BankRec_NoSelectionYet" xml:space="preserve">
+    <value>Ingen rad vald ännu.</value>
+  </data>
+  <data name="BankRec_InvoiceInfo" xml:space="preserve">
+    <value>Faktura info</value>
+  </data>
+  <data name="BankRec_NoInvoiceSelected" xml:space="preserve">
+    <value>Ingen faktura vald.</value>
+  </data>
+  <data name="BankRec_LoadingInvoices" xml:space="preserve">
+    <value>Laddar fakturor</value>
+  </data>
+  <data name="BankRec_LoadingInvoicesNote" xml:space="preserve">
+    <value>Vi hämtar 20 fakturor åt gången för snabbare laddning.</value>
+  </data>
+  <data name="BankRec_NoInvoicesOnPage" xml:space="preserve">
+    <value>Inga fakturor att visa på den här sidan.</value>
+  </data>
+  <data name="BankRec_InvoicesUnavailable" xml:space="preserve">
+    <value>Fakturor kunde inte laddas.</value>
+  </data>
+  <data name="BankRec_DemoOn" xml:space="preserve">
+    <value>Demo på</value>
+  </data>
+  <data name="BankRec_DemoOff" xml:space="preserve">
+    <value>Demo av</value>
+  </data>
+  <data name="BankRec_DemoEnableTitle" xml:space="preserve">
+    <value>Aktivera demoläge för bankavstämning</value>
+  </data>
+  <data name="BankRec_DemoDisableTitle" xml:space="preserve">
+    <value>Stäng av demoläge för bankavstämning</value>
+  </data>
+  <data name="BankRec_DemoActiveTitle" xml:space="preserve">
+    <value>Demoläge är aktivt</value>
+  </data>
+  <data name="BankRec_DemoActiveMessage" xml:space="preserve">
+    <value>Bankavstämningen kör nu mot ZeeUs demo-data så att hela flödet kan testas utan live-datakälla.</value>
+  </data>
+  <data name="BankRec_DemoEnabled" xml:space="preserve">
+    <value>Demoläge aktiverat för bankavstämning.</value>
+  </data>
+  <data name="BankRec_DemoDisabled" xml:space="preserve">
+    <value>Demoläge avstängt. Bankavstämningen visar nu live-läget.</value>
+  </data>
+  <data name="BankRec_DemoSourceLabel" xml:space="preserve">
+    <value>Demo data</value>
+  </data>
+  <data name="BankRec_NoActiveSource" xml:space="preserve">
+    <value>Ingen aktiv bankkälla hittades för sessionen.</value>
+  </data>
+  <data name="BankRec_DemoWorkspace" xml:space="preserve">
+    <value>Demodata</value>
+  </data>
+  <data name="BankRec_DemoScenarioHeading" xml:space="preserve">
+    <value>Välj testunderlag</value>
+  </data>
+  <data name="BankRec_DemoScenarioHelp" xml:space="preserve">
+    <value>Detta byter endast testdata. Arbeta sedan vidare i steg 1–5 nedan.</value>
+  </data>
+  <data name="BankRec_DemoScenarioButtonPrefix" xml:space="preserve">
+    <value>Testdata:</value>
+  </data>
+  <data name="BankRec_DemoResetScenario" xml:space="preserve">
+    <value>Återställ scenario</value>
+  </data>
+  <data name="BankRec_DemoScenarioLoaded" xml:space="preserve">
+    <value>Demoscenariot {0} laddades.</value>
+  </data>
+  <data name="BankRec_DemoScenarioReset" xml:space="preserve">
+    <value>Aktivt demoscenario återställdes.</value>
+  </data>
+  <data name="BankRec_DemoSummaryMatched" xml:space="preserve">
+    <value>Matchade</value>
+  </data>
+  <data name="BankRec_DemoSummaryReview" xml:space="preserve">
+    <value>Kräver granskning</value>
+  </data>
+  <data name="BankRec_DemoSummaryUnmatched" xml:space="preserve">
+    <value>Omatchade</value>
+  </data>
+  <data name="BankRec_AccountNotVerifiedTitle" xml:space="preserve">
+    <value>Kontrollera bankkonto och bolag</value>
+  </data>
+  <data name="BankRec_AccountNotVerifiedMessage" xml:space="preserve">
+    <value>Bankkontot {0} kan ännu inte verifieras automatiskt mot {1}. Kontrollera att kontoutdraget hör till rätt bolag innan du fortsätter.</value>
+  </data>
+  <data name="BankRec_SelectedCompanyFallback" xml:space="preserve">
+    <value>valt bolag</value>
+  </data>
+  <data name="BankRec_StatusSummaryAria" xml:space="preserve">
+    <value>Status för avstämningen</value>
+  </data>
+  <data name="BankRec_StatusSummaryHint" xml:space="preserve">
+    <value>Detaljer visas i steg 5</value>
+  </data>
+  <data name="BankRec_ProcessStep" xml:space="preserve">
+    <value>Steg {0}</value>
+  </data>
+  <data name="BankRec_ProcessReviewTitle" xml:space="preserve">
+    <value>Typer och kontering</value>
+  </data>
+  <data name="BankRec_ProcessMatchTitle" xml:space="preserve">
+    <value>Matcha</value>
+  </data>
+  <data name="BankRec_ProcessPartialTitle" xml:space="preserve">
+    <value>Delbetalningar</value>
+  </data>
+  <data name="BankRec_ProcessPartialDescription" xml:space="preserve">
+    <value>Fortsätt delbetalningar och bekräfta betalningar som tillsammans täcker en faktura.</value>
+  </data>
+  <data name="BankRec_ProcessCompleteTitle" xml:space="preserve">
+    <value>Klart</value>
+  </data>
+  <data name="BankRec_ProcessCompleteDescription" xml:space="preserve">
+    <value>Kontrollera resultatet och vad som återstår.</value>
+  </data>
+  <data name="BankRec_PaymentBundlesLabel" xml:space="preserve">
+    <value>Samlingsbetalningar</value>
+  </data>
+  <data name="BankRec_PaymentBundlesTitle" xml:space="preserve">
+    <value>Betalningar som tillsammans matchar en faktura</value>
+  </data>
+  <data name="BankRec_PaymentBundlesLoading" xml:space="preserve">
+    <value>Söker efter betalningar som tillsammans matchar en faktura...</value>
+  </data>
+  <data name="BankRec_CompleteReadyTitle" xml:space="preserve">
+    <value>Avstämningen är genomgången</value>
+  </data>
+  <data name="BankRec_CompleteReadyMessage" xml:space="preserve">
+    <value>Inga poster kräver fortsatt manuell granskning. Resultatet är ännu inte låst eller bokfört.</value>
+  </data>
+  <data name="BankRec_CompletePendingTitle" xml:space="preserve">
+    <value>Avstämningen behöver mer arbete</value>
+  </data>
+  <data name="BankRec_CompletePendingMessage" xml:space="preserve">
+    <value>Fortsätt med posterna som kräver granskning eller saknar matchning.</value>
+  </data>
+  <data name="BankRec_RunSafeAutoMatch" xml:space="preserve">
+    <value>Kör säker auto-match</value>
+  </data>
+  <data name="BankRec_TransactionFlow" xml:space="preserve">
+    <value>Flöde</value>
+  </data>
+  <data name="BankRec_DemoScenario_Overview_Title" xml:space="preserve">
+    <value>Auto-match</value>
+  </data>
+  <data name="BankRec_DemoScenario_Overview_Description" xml:space="preserve">
+    <value>Visar tydliga OCR- och beloppsmatchningar som ska gå direkt att auto-matcha.</value>
+  </data>
+  <data name="BankRec_DemoScenario_ManualReview_Title" xml:space="preserve">
+    <value>Manuell granskning</value>
+  </data>
+  <data name="BankRec_DemoScenario_ManualReview_Description" xml:space="preserve">
+    <value>Visar avsiktligt osäkra träffar där användaren ska granska och bekräfta manuellt.</value>
+  </data>
+  <data name="BankRec_DemoScenario_PartialPayments_Title" xml:space="preserve">
+    <value>Delbetalningar</value>
+  </data>
+  <data name="BankRec_DemoScenario_PartialPayments_Description" xml:space="preserve">
+    <value>Visar splittrade betalningar och en samlingsbetalning för att testa allokeringar.</value>
+  </data>
+  <data name="BankRec_DemoScenario_AiCamtLab_Title" xml:space="preserve">
+    <value>AI-test</value>
+  </data>
+  <data name="BankRec_DemoScenario_AiCamtLab_Description" xml:space="preserve">
+    <value>Kontrollerat testunderlag med OCR-träffar, fritext, osäkra kandidater och en rad utan legitim matchning.</value>
+  </data>
+  <data name="DocumentSigning_DemoOn" xml:space="preserve">
+    <value>Demoläge på</value>
+  </data>
+  <data name="DocumentSigning_DemoOff" xml:space="preserve">
+    <value>Demoläge av</value>
+  </data>
+  <data name="DocumentSigning_DemoDisableTitle" xml:space="preserve">
+    <value>Klicka för att stänga av demoläge</value>
+  </data>
+  <data name="DocumentSigning_DemoEnableTitle" xml:space="preserve">
+    <value>Klicka för att aktivera demoläge</value>
+  </data>
+  <data name="DocumentSigning_Status_Signed" xml:space="preserve">
+    <value>Signerad</value>
+  </data>
+  <data name="DocumentSigning_Status_Completed" xml:space="preserve">
+    <value>Avslutad</value>
+  </data>
+  <data name="DocumentSigning_Status_WaitingInternal" xml:space="preserve">
+    <value>Signerad av mottagare</value>
+  </data>
+  <data name="DocumentSigning_Status_Sent" xml:space="preserve">
+    <value>Skickad</value>
+  </data>
+  <data name="DocumentSigning_Status_Preparing" xml:space="preserve">
+    <value>Förbereds</value>
+  </data>
+  <data name="DocumentSigning_Status_Rejected" xml:space="preserve">
+    <value>Avvisad</value>
+  </data>
+  <data name="DocumentSigning_Status_Cancelled" xml:space="preserve">
+    <value>Avbruten</value>
+  </data>
+  <data name="DocumentSigning_Status_TimedOut" xml:space="preserve">
+    <value>Tidsgräns passerad</value>
+  </data>
+  <data name="DocumentSigning_Status_Failed" xml:space="preserve">
+    <value>Misslyckad</value>
+  </data>
+  <data name="DocumentSigning_Subtitle" xml:space="preserve">
+    <value>Skicka dokument och bilagor för elektronisk signering.</value>
+  </data>
+  <data name="DocumentSigning_Meta" xml:space="preserve">
+    <value>Skapa en ny signering med en uppladdad PDF eller följ befintliga ärenden här.</value>
+  </data>
+  <data name="DocumentSigning_NotConfiguredTitle" xml:space="preserve">
+    <value>Dokumentsignering är inte konfigurerat</value>
+  </data>
+  <data name="DocumentSigning_NotConfiguredMessage" xml:space="preserve">
+    <value>Lägg in Oneflow-token, användar-e-post, workspace och template innan integrationen används i skarp drift.</value>
+  </data>
+  <data name="DocumentSigning_DemoActiveTitle" xml:space="preserve">
+    <value>Demoläge aktivt</value>
+  </data>
+  <data name="DocumentSigning_DemoActiveMessage" xml:space="preserve">
+    <value>Vyn nedan visar exempeldata för order, signatör och statusflöde. Uppladdning och statussynk är låsta tills credentials är på plats.</value>
+  </data>
+  <data name="DocumentSigning_SelectOrderTitle" xml:space="preserve">
+    <value>Välj order</value>
+  </data>
+  <data name="DocumentSigning_OrderNumberPlaceholder" xml:space="preserve">
+    <value>Exempel: 12345</value>
+  </data>
+  <data name="DocumentSigning_OpenOrder" xml:space="preserve">
+    <value>Öppna order i dokumentsignering</value>
+  </data>
+  <data name="DocumentSigning_ViewAllCases" xml:space="preserve">
+    <value>Visa alla ärenden</value>
+  </data>
+  <data name="DocumentSigning_SelectedOrder" xml:space="preserve">
+    <value>Vald order</value>
+  </data>
+  <data name="DocumentSigning_OpenOrderDetail" xml:space="preserve">
+    <value>Öppna orderdetalj</value>
+  </data>
+  <data name="DocumentSigning_MainFile" xml:space="preserve">
+    <value>Huvudfil</value>
+  </data>
+  <data name="DocumentSigning_DemoAttachmentsValue" xml:space="preserve">
+    <value>2 PDF-bilagor</value>
+  </data>
+  <data name="DocumentSigning_ExpectedNextStep" xml:space="preserve">
+    <value>Förväntat nästa steg</value>
+  </data>
+  <data name="DocumentSigning_DemoNextStepValue" xml:space="preserve">
+    <value>Signeraren öppnar länken och signerar digitalt</value>
+  </data>
+  <data name="DocumentSigning_DocumentTitle" xml:space="preserve">
+    <value>Dokumenttitel</value>
+  </data>
+  <data name="DocumentSigning_SignerFirstName" xml:space="preserve">
+    <value>Signerare förnamn</value>
+  </data>
+  <data name="DocumentSigning_SignerLastName" xml:space="preserve">
+    <value>Signerare efternamn</value>
+  </data>
+  <data name="DocumentSigning_SignerEmail" xml:space="preserve">
+    <value>Signerare e-post</value>
+  </data>
+  <data name="DocumentSigning_SignerMobile" xml:space="preserve">
+    <value>Signerare mobil (valfritt)</value>
+  </data>
+  <data name="DocumentSigning_MessageToSigner" xml:space="preserve">
+    <value>Meddelande till signeraren</value>
+  </data>
+  <data name="DocumentSigning_QuotePdf" xml:space="preserve">
+    <value>Signerings-PDF</value>
+  </data>
+  <data name="DocumentSigning_NoFileSelected" xml:space="preserve">
+    <value>Ingen fil har valts</value>
+  </data>
+  <data name="DocumentSigning_MainFileHelp" xml:space="preserve">
+    <value>Huvudfilen som skickas för signering. Endast PDF.</value>
+  </data>
+  <data name="DocumentSigning_AttachmentsPdf" xml:space="preserve">
+    <value>Bilagor (PDF)</value>
+  </data>
+  <data name="DocumentSigning_AttachmentsHelp" xml:space="preserve">
+    <value>Valfria bilagor som mottagaren måste granska innan signering.</value>
+  </data>
+  <data name="DocumentSigning_SendForSigning" xml:space="preserve">
+    <value>Skicka för signering</value>
+  </data>
+  <data name="DocumentSigning_SendForSigningDemoLocked" xml:space="preserve">
+    <value>Skicka för signering (låst i demo)</value>
+  </data>
+  <data name="Module_Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Orders_ListTitle" xml:space="preserve">
+    <value>Orderlista</value>
+  </data>
+  <data name="Orders_ListSubtitle" xml:space="preserve">
+    <value>Orderdata från aktiv datakälla.</value>
+  </data>
+  <data name="Orders_DefaultPeriodMessage" xml:space="preserve">
+    <value>Standardvisning: innevarande år för snabbare laddning.</value>
+  </data>
+  <data name="Orders_PaidAmountPeriod" xml:space="preserve">
+    <value>Betald summa (period)</value>
+  </data>
+  <data name="Orders_UnpaidAmountPeriod" xml:space="preserve">
+    <value>Obetald summa (period)</value>
+  </data>
+  <data name="Orders_TotalAmountPeriod" xml:space="preserve">
+    <value>Total ordersumma (period)</value>
+  </data>
+  <data name="Orders_SearchPlaceholder" xml:space="preserve">
+    <value>Sök ordernr, kund, beskrivning</value>
+  </data>
+  <data name="Orders_CurrentYear" xml:space="preserve">
+    <value>Innevarande år</value>
+  </data>
+  <data name="Orders_AllPaymentStatuses" xml:space="preserve">
+    <value>Alla betalstatusar</value>
+  </data>
+  <data name="Orders_PaidPlural" xml:space="preserve">
+    <value>Betalda</value>
+  </data>
+  <data name="Orders_UnpaidPlural" xml:space="preserve">
+    <value>Obetalda</value>
+  </data>
+  <data name="Orders_OrderDate" xml:space="preserve">
+    <value>Orderdatum</value>
+  </data>
+  <data name="Orders_SalesPerson" xml:space="preserve">
+    <value>Säljare</value>
+  </data>
+  <data name="Orders_PromisedDelivery" xml:space="preserve">
+    <value>Lovad lev.</value>
+  </data>
+  <data name="Orders_AmountInclVat" xml:space="preserve">
+    <value>Summa inkl. moms</value>
+  </data>
+  <data name="Orders_Unpaid" xml:space="preserve">
+    <value>Ej betald</value>
+  </data>
+  <data name="Orders_ViewOrder" xml:space="preserve">
+    <value>Visa order</value>
+  </data>
+  <data name="Orders_PageSummary" xml:space="preserve">
+    <value>Visar sida {0} av {1} · {2} order i träffen</value>
+  </data>
+  <data name="Orders_NoOrderMessage" xml:space="preserve">
+    <value>Kontrollera ordernumret eller gå tillbaka till orderlistan för att välja en annan order.</value>
+  </data>
+  <data name="Orders_BackToList" xml:space="preserve">
+    <value>Tillbaka till orderlista</value>
+  </data>
+  <data name="Orders_DocumentSigningMessage" xml:space="preserve">
+    <value>Dokumentsignering hanteras som en egen integration. Öppna integrationsflödet för att skicka offert och bilagor för signering.</value>
+  </data>
+  <data name="Orders_OpenDocumentSigning" xml:space="preserve">
+    <value>Öppna dokumentsignering</value>
+  </data>
+  <data name="Orders_PreviousSigningCases" xml:space="preserve">
+    <value>Tidigare signeringsärenden</value>
+  </data>
+  <data name="Orders_Created" xml:space="preserve">
+    <value>Skapad</value>
+  </data>
+  <data name="Orders_Signer" xml:space="preserve">
+    <value>Signerare</value>
+  </data>
+  <data name="Orders_Provider" xml:space="preserve">
+    <value>Leverantör</value>
+  </data>
+  <data name="Orders_DocumentId" xml:space="preserve">
+    <value>Dokument-ID</value>
+  </data>
+  <data name="Orders_SyncStatus" xml:space="preserve">
+    <value>Synka status</value>
+  </data>
+  <data name="Orders_PlannedDelivery" xml:space="preserve">
+    <value>Beräknad lev.</value>
+  </data>
+  <data name="Orders_ActualDelivery" xml:space="preserve">
+    <value>Faktisk lev.</value>
+  </data>
+  <data name="Orders_Amounts" xml:space="preserve">
+    <value>Summor</value>
+  </data>
+  <data name="Orders_AmountExclVat" xml:space="preserve">
+    <value>Exkl. moms</value>
+  </data>
+  <data name="Orders_StatusCode" xml:space="preserve">
+    <value>Statuskod</value>
+  </data>
+  <data name="Orders_OrderType" xml:space="preserve">
+    <value>Ordertyp</value>
+  </data>
+  <data name="Orders_Closed" xml:space="preserve">
+    <value>Avslutad</value>
+  </data>
+  <data name="Orders_OrderLines" xml:space="preserve">
+    <value>Orderrader</value>
+  </data>
+  <data name="Orders_OrderLinesSubtitle" xml:space="preserve">
+    <value>Radnivå för vald order med antal, rest, pris och rabatt.</value>
+  </data>
+  <data name="Orders_Line" xml:space="preserve">
+    <value>Rad</value>
+  </data>
+  <data name="Orders_Article" xml:space="preserve">
+    <value>Artikel</value>
+  </data>
+  <data name="Orders_Quantity" xml:space="preserve">
+    <value>Antal</value>
+  </data>
+  <data name="Orders_DeliveredShort" xml:space="preserve">
+    <value>Lev.</value>
+  </data>
+  <data name="Orders_Remaining" xml:space="preserve">
+    <value>Rest</value>
+  </data>
+  <data name="Orders_Unit" xml:space="preserve">
+    <value>Enhet</value>
+  </data>
+  <data name="Orders_NetPrice" xml:space="preserve">
+    <value>À-pris</value>
+  </data>
+  <data name="Orders_LineAmount" xml:space="preserve">
+    <value>Summa inkl.</value>
+  </data>
+  <data name="Orders_DiscountPercent" xml:space="preserve">
+    <value>Rabatt %</value>
+  </data>
+  <data name="Orders_DiscountValue" xml:space="preserve">
+    <value>Rabatt bel.</value>
+  </data>
+  <data name="Orders_ForecastTitle" xml:space="preserve">
+    <value>Orderprognos</value>
+  </data>
+  <data name="Orders_ForecastSubtitle" xml:space="preserve">
+    <value>Kommande öppna order med leveransdatum framåt i tiden.</value>
+  </data>
+  <data name="Orders_ForecastMeta" xml:space="preserve">
+    <value>Använd vyn för att se belastning och ordervärde de kommande månaderna.</value>
+  </data>
+  <data name="Orders_PlanningHorizon" xml:space="preserve">
+    <value>Planhorisont</value>
+  </data>
+  <data name="Orders_MonthRange" xml:space="preserve">
+    <value>{0} månader</value>
+  </data>
+  <data name="Orders_AllCustomers" xml:space="preserve">
+    <value>Alla kunder</value>
+  </data>
+  <data name="Orders_UpcomingOrders" xml:space="preserve">
+    <value>Kommande orders</value>
+  </data>
+  <data name="Orders_OrderValue" xml:space="preserve">
+    <value>Ordervärde</value>
+  </data>
+  <data name="Orders_NextDelivery" xml:space="preserve">
+    <value>Nästa leverans</value>
+  </data>
+  <data name="Orders_TopMonth" xml:space="preserve">
+    <value>Toppmånad</value>
+  </data>
+  <data name="Orders_OrderCountLabel" xml:space="preserve">
+    <value>{0} order</value>
+  </data>
+  <data name="Orders_NoUpcomingOrdersTitle" xml:space="preserve">
+    <value>Inga kommande orders i vald period</value>
+  </data>
+  <data name="Orders_NoUpcomingOrdersMessage" xml:space="preserve">
+    <value>Det finns inga öppna orders med leveransdatum framåt inom den valda planhorisonten.</value>
+  </data>
+  <data name="Orders_ForwardDeliveryPlan" xml:space="preserve">
+    <value>Leveransplan framåt</value>
+  </data>
+  <data name="Orders_ForwardDeliveryPlanSubtitle" xml:space="preserve">
+    <value>Växla mellan staplar och tabell för samma månadsdata i vald horisont.</value>
+  </data>
+  <data name="Orders_LastDelivery" xml:space="preserve">
+    <value>Sista leverans</value>
+  </data>
+  <data name="Orders_DeliveryPlanViewAria" xml:space="preserve">
+    <value>Vy för leveransplan</value>
+  </data>
+  <data name="Orders_Bars" xml:space="preserve">
+    <value>Staplar</value>
+  </data>
+  <data name="Orders_Table" xml:space="preserve">
+    <value>Tabell</value>
+  </data>
+  <data name="Orders_ForecastPointTitle" xml:space="preserve">
+    <value>{0}: {1} order · {2} kr</value>
+  </data>
+  <data name="Orders_Month" xml:space="preserve">
+    <value>Månad</value>
+  </data>
+  <data name="Orders_Value" xml:space="preserve">
+    <value>Värde</value>
+  </data>
+  <data name="Orders_UpcomingOrderTitle" xml:space="preserve">
+    <value>Kommande order</value>
+  </data>
+  <data name="Orders_UpcomingOrderSubtitle" xml:space="preserve">
+    <value>Öppna order sorterade på närmast leverans först.</value>
+  </data>
+  <data name="Orders_ShowingRange" xml:space="preserve">
+    <value>Visar {0}-{1} av {2} order</value>
+  </data>
+  <data name="Orders_PageOf" xml:space="preserve">
+    <value>Sida {0} av {1}</value>
+  </data>
+  <data name="NotifyMe_Templates" xml:space="preserve">
+    <value>Mallar</value>
+  </data>
+  <data name="NotifyMe_Statistics" xml:space="preserve">
+    <value>Statistik</value>
+  </data>
+  <data name="NotifyMe_NotificationsTitle" xml:space="preserve">
+    <value>Notifieringar</value>
+  </data>
+  <data name="NotifyMe_NotificationsSubtitle" xml:space="preserve">
+    <value>Alla notifieringar för aktivt bolag, med nästa körning och senaste resultat.</value>
+  </data>
+  <data name="NotifyMe_OpenEditor" xml:space="preserve">
+    <value>Öppna editor</value>
+  </data>
+  <data name="NotifyMe_ShownAfterFilter" xml:space="preserve">
+    <value>Visas efter filter</value>
+  </data>
+  <data name="NotifyMe_NotificationsCardSubtitle" xml:space="preserve">
+    <value>Konfiguration och körstatus för aktivt bolag.</value>
+  </data>
+  <data name="NotifyMe_SearchPlaceholder" xml:space="preserve">
+    <value>Sök på beskrivning, ämne eller ID</value>
+  </data>
+  <data name="NotifyMe_AllStatuses" xml:space="preserve">
+    <value>Alla status</value>
+  </data>
+  <data name="NotifyMe_Inactive" xml:space="preserve">
+    <value>Inaktiv</value>
+  </data>
+  <data name="NotifyMe_AllTypes" xml:space="preserve">
+    <value>Alla typer</value>
+  </data>
+  <data name="NotifyMe_AllPriorities" xml:space="preserve">
+    <value>Alla prioriteter</value>
+  </data>
+  <data name="NotifyMe_NoNotificationsForFilterTitle" xml:space="preserve">
+    <value>Inga notifieringar matchar valt filter</value>
+  </data>
+  <data name="NotifyMe_NoNotificationsForFilterMessage" xml:space="preserve">
+    <value>Justera sökning, status eller typ för att visa fler notifieringar.</value>
+  </data>
+  <data name="NotifyMe_Type" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="NotifyMe_PriorityShort" xml:space="preserve">
+    <value>Prio</value>
+  </data>
+  <data name="NotifyMe_Due" xml:space="preserve">
+    <value>Förfaller</value>
+  </data>
+  <data name="Admin_UsersTitle" xml:space="preserve">
+    <value>Användare</value>
+  </data>
+  <data name="Admin_UsersSubtitle" xml:space="preserve">
+    <value>Administrera användare, roller, bolagskopplingar och verifieringsstatus i ett gemensamt flöde.</value>
+  </data>
+  <data name="Admin_UsersMeta" xml:space="preserve">
+    <value>Klicka på en rad för att öppna användaren i detaljvyn.</value>
+  </data>
+  <data name="Admin_CreateUser" xml:space="preserve">
+    <value>Skapa användare</value>
+  </data>
+  <data name="Admin_Total" xml:space="preserve">
+    <value>Totalt</value>
+  </data>
+  <data name="Admin_Verified" xml:space="preserve">
+    <value>Verifierade</value>
+  </data>
+  <data name="Admin_CompanyLinked" xml:space="preserve">
+    <value>Bolagskopplade</value>
+  </data>
+  <data name="Admin_HasRoles" xml:space="preserve">
+    <value>Har roller</value>
+  </data>
+  <data name="Admin_UserList" xml:space="preserve">
+    <value>Användarlista</value>
+  </data>
+  <data name="Admin_UserListMeta" xml:space="preserve">
+    <value>Filtrera på namn eller bolag och öppna användaren för att ändra åtkomst, säkerhet och Jeeves-kopplingar.</value>
+  </data>
+  <data name="Admin_FilterList" xml:space="preserve">
+    <value>Filtrera lista</value>
+  </data>
+  <data name="Admin_FirstName" xml:space="preserve">
+    <value>Förnamn</value>
+  </data>
+  <data name="Admin_LastName" xml:space="preserve">
+    <value>Efternamn</value>
+  </data>
+  <data name="Admin_Roles" xml:space="preserve">
+    <value>Roller</value>
+  </data>
+  <data name="Admin_ResendValidationEmail" xml:space="preserve">
+    <value>Skicka valideringsmail igen</value>
+  </data>
+  <data name="Admin_DeleteUserConfirm" xml:space="preserve">
+    <value>Ta bort denna användare?</value>
+  </data>
+  <data name="Admin_ManageUserTitle" xml:space="preserve">
+    <value>Hantera användare</value>
+  </data>
+  <data name="Admin_ManageUserSubtitle" xml:space="preserve">
+    <value>Hantera grundinformation, bolagskoppling, Jeeves-behörighet och säkerhetsåtgärder i en samlad användarvy.</value>
+  </data>
+  <data name="Admin_ManageUserMeta" xml:space="preserve">
+    <value>Använd flikarna för att växla mellan basdata, roller och lösenordsåterställning.</value>
+  </data>
+  <data name="Admin_BasicInformation" xml:space="preserve">
+    <value>Grundinformation</value>
+  </data>
+  <data name="Admin_Access" xml:space="preserve">
+    <value>Åtkomst</value>
+  </data>
+  <data name="Admin_Security" xml:space="preserve">
+    <value>Säkerhet</value>
+  </data>
+  <data name="Admin_EnvironmentKey" xml:space="preserve">
+    <value>Miljönyckel</value>
+  </data>
+  <data name="Admin_WhitelistMessage" xml:space="preserve">
+    <value>Whitelistad (hoppar över PersSign/ForetagKod)</value>
+  </data>
+  <data name="Admin_RestrictToSelectedCompanyCodes" xml:space="preserve">
+    <value>Begränsa till valda företagskoder</value>
+  </data>
+  <data name="Admin_FetchJeevesCompanies" xml:space="preserve">
+    <value>Hämta Jeeves-bolag</value>
+  </data>
+  <data name="Admin_PersSignHelp" xml:space="preserve">
+    <value>PersSign måste finnas i SY2. Om begränsning är markerad används endast valda ForetagKod i bolagsväljaren.</value>
+  </data>
+  <data name="Admin_ConfirmPasswordReset" xml:space="preserve">
+    <value>Bekräfta lösenordsåterställning</value>
+  </data>
+  <data name="Admin_ConfirmPasswordResetMessage" xml:space="preserve">
+    <value>Skriv Godkänner i fältet nedan och klicka sedan på knappen för att återställa användarens lösenord.</value>
+  </data>
+  <data name="Admin_Confirm" xml:space="preserve">
+    <value>Bekräfta</value>
+  </data>
+  <data name="Admin_TypeApproveToContinue" xml:space="preserve">
+    <value>Skriv 'Godkänner' för att fortsätta</value>
+  </data>
+  <data name="Admin_ResetPassword" xml:space="preserve">
+    <value>Återställ lösenord</value>
+  </data>
+  <data name="Admin_NoCompaniesFound" xml:space="preserve">
+    <value>Inga bolag hittades.</value>
+  </data>
+  <data name="Admin_FillPersSignFirst" xml:space="preserve">
+    <value>Fyll i PersSign först.</value>
+  </data>
+  <data name="Admin_SelectActiveEnvironmentFirst" xml:space="preserve">
+    <value>Välj aktiv miljö först.</value>
+  </data>
+  <data name="Admin_Loading" xml:space="preserve">
+    <value>Hämtar...</value>
+  </data>
+  <data name="Admin_CouldNotFetchCompanies" xml:space="preserve">
+    <value>Kunde inte hämta bolag.</value>
+  </data>
+  <data name="Admin_Found" xml:space="preserve">
+    <value>Hittade</value>
+  </data>
+  <data name="Admin_MustTypeApproveToResetPassword" xml:space="preserve">
+    <value>Du måste skriva 'Godkänner' för att återställa lösenordet.</value>
+  </data>
+  <data name="Admin_ManageUserRolesTitle" xml:space="preserve">
+    <value>Hantera användarroller</value>
+  </data>
+  <data name="Admin_ManageUserRolesSubtitle" xml:space="preserve">
+    <value>Lägg till eller ta bort roller för vald användare i en separat rollvy.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Ta bort</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Sök</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtrera</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Föregående</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Nästa</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Uppdatera</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Nej</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Prioritet</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Tid</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Redigera</value>
+  </data>
+  <data name="NotifyMe_EditTitle" xml:space="preserve">
+    <value>Redigera NotifyMe</value>
+  </data>
+  <data name="NotifyMe_EditorTitle" xml:space="preserve">
+    <value>NotifyMe-editor</value>
+  </data>
+  <data name="NotifyMe_EditNotification" xml:space="preserve">
+    <value>Redigera notifiering</value>
+  </data>
+  <data name="NotifyMe_NotificationEditor" xml:space="preserve">
+    <value>Notifieringseditor</value>
+  </data>
+  <data name="NotifyMe_EditSelectedSubtitle" xml:space="preserve">
+    <value>Redigera vald notifiering ovanpå befintlig SQL-motor.</value>
+  </data>
+  <data name="NotifyMe_ConfigureRuleSubtitle" xml:space="preserve">
+    <value>Konfigurera en notifieringsregel ovanpå befintlig SQL-motor.</value>
+  </data>
+  <data name="NotifyMe_EditorMeta" xml:space="preserve">
+    <value>Bygg notifieringens mottagare, schema, prioritet och SQL-underlag i samma editor.</value>
+  </data>
+  <data name="NotifyMe_BackToOverview" xml:space="preserve">
+    <value>Till översikt</value>
+  </data>
+  <data name="NotifyMe_BackToDetail" xml:space="preserve">
+    <value>Till detalj</value>
+  </data>
+  <data name="NotifyMe_TemplatePrefilledTitle" xml:space="preserve">
+    <value>Mall förifylld</value>
+  </data>
+  <data name="NotifyMe_TemplatePrefilledMessage" xml:space="preserve">
+    <value>Mallen {0} används som utgångspunkt i editorn.</value>
+  </data>
+  <data name="NotifyMe_Configuration" xml:space="preserve">
+    <value>Konfiguration</value>
+  </data>
+  <data name="NotifyMe_DescriptionPlaceholder" xml:space="preserve">
+    <value>T.ex. Avvikande lager under min-nivå</value>
+  </data>
+  <data name="NotifyMe_Notification" xml:space="preserve">
+    <value>Notifiering</value>
+  </data>
+  <data name="NotifyMe_NewNotification" xml:space="preserve">
+    <value>Ny notifiering</value>
+  </data>
+  <data name="NotifyMe_WarningTextSubject" xml:space="preserve">
+    <value>Varningstext / ämne</value>
+  </data>
+  <data name="NotifyMe_WarningTextPlaceholder" xml:space="preserve">
+    <value>T.ex. NotifyMe: Lageravvikelse</value>
+  </data>
+  <data name="NotifyMe_CommentAction" xml:space="preserve">
+    <value>Kommentar / åtgärd</value>
+  </data>
+  <data name="NotifyMe_CommentActionPlaceholder" xml:space="preserve">
+    <value>Vad användaren ska göra när notifieringen kommer.</value>
+  </data>
+  <data name="NotifyMe_Frequency" xml:space="preserve">
+    <value>Frekvens</value>
+  </data>
+  <data name="NotifyMe_StartDate" xml:space="preserve">
+    <value>Startdatum</value>
+  </data>
+  <data name="NotifyMe_EscalateAfterCount" xml:space="preserve">
+    <value>Eskalera efter antal varningar</value>
+  </data>
+  <data name="NotifyMe_EscalateAfterCountPlaceholder" xml:space="preserve">
+    <value>T.ex. 3</value>
+  </data>
+  <data name="NotifyMe_PrimaryRecipient" xml:space="preserve">
+    <value>Primär mottagare</value>
+  </data>
+  <data name="NotifyMe_SecondaryRecipient" xml:space="preserve">
+    <value>Sekundär mottagare</value>
+  </data>
+  <data name="NotifyMe_Cc" xml:space="preserve">
+    <value>CC</value>
+  </data>
+  <data name="NotifyMe_BccEscalation" xml:space="preserve">
+    <value>BCC / eskalering</value>
+  </data>
+  <data name="NotifyMe_EscalationEmail" xml:space="preserve">
+    <value>Eskaleringse-post</value>
+  </data>
+  <data name="NotifyMe_SqlSource" xml:space="preserve">
+    <value>SQL-underlag</value>
+  </data>
+  <data name="NotifyMe_DynamicRecipients" xml:space="preserve">
+    <value>Dynamiska mottagare</value>
+  </data>
+  <data name="NotifyMe_DynamicRecipientsHelp" xml:space="preserve">
+    <value>SQL-underlaget måste returnera kolumnen Mottagare. Hub skickar ett separat mail per mottagare.</value>
+  </data>
+  <data name="NotifyMe_SaveChanges" xml:space="preserve">
+    <value>Spara ändringar</value>
+  </data>
+  <data name="NotifyMe_SaveNotification" xml:space="preserve">
+    <value>Spara notifiering</value>
+  </data>
+  <data name="NotifyMe_TestRun" xml:space="preserve">
+    <value>Testkör</value>
+  </data>
+  <data name="NotifyMe_ActiveNotification" xml:space="preserve">
+    <value>Aktiv notifiering</value>
+  </data>
+  <data name="NotifyMe_PrototypeSetupTitle" xml:space="preserve">
+    <value>Vad prototypen sätter upp</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem1" xml:space="preserve">
+    <value>Notifieringshuvud för vald bevakning</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem2" xml:space="preserve">
+    <value>Typ och prioritet från lookup-tabeller</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem3" xml:space="preserve">
+    <value>Schema/frekvens som portalen använder för att räkna nästa körning</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem4" xml:space="preserve">
+    <value>SQL-fråga som portalmotorn kör mot vald datakälla</value>
+  </data>
+  <data name="NotifyMe_PrototypeItem5" xml:space="preserve">
+    <value>Historik och status skrivs i portalens NotifyMe-logg</value>
+  </data>
+  <data name="NotifyMe_WhatIsSavedNow" xml:space="preserve">
+    <value>Vad sparas nu?</value>
+  </data>
+  <data name="NotifyMe_WhatIsSavedNowMessage" xml:space="preserve">
+    <value>Editorn sparar notifieringen direkt i portalens NotifyMe-tabeller. Portalen validerar mottagare, schema och SQL innan notifieringen sparas.</value>
+  </data>
+  <data name="NotifyMe_DetailTitle" xml:space="preserve">
+    <value>Notifieringsdetalj</value>
+  </data>
+  <data name="NotifyMe_DetailSubtitle" xml:space="preserve">
+    <value>Detaljer, historik och nästa steg för vald notifiering.</value>
+  </data>
+  <data name="NotifyMe_TestRunResultTitle" xml:space="preserve">
+    <value>Resultat från testkörning</value>
+  </data>
+  <data name="NotifyMe_TestRunOnlyToAddress" xml:space="preserve">
+    <value>Testkörningen går bara till angiven adress.</value>
+  </data>
+  <data name="NotifyMe_TestRunNotification" xml:space="preserve">
+    <value>Testkör notifiering</value>
+  </data>
+  <data name="NotifyMe_LastWarning" xml:space="preserve">
+    <value>Senaste varning</value>
+  </data>
+  <data name="NotifyMe_WarningCount" xml:space="preserve">
+    <value>Antal varningar</value>
+  </data>
+  <data name="NotifyMe_CcBcc" xml:space="preserve">
+    <value>CC/BCC</value>
+  </data>
+  <data name="NotifyMe_Escalation" xml:space="preserve">
+    <value>Eskalering</value>
+  </data>
+  <data name="NotifyMe_EscalationConfigured" xml:space="preserve">
+    <value>Efter {0} varningar till {1}</value>
+  </data>
+  <data name="NotifyMe_NotConfigured" xml:space="preserve">
+    <value>Ej konfigurerad</value>
+  </data>
+  <data name="NotifyMe_Source" xml:space="preserve">
+    <value>Källa</value>
+  </data>
+  <data name="NotifyMe_SqlPreview" xml:space="preserve">
+    <value>SQL-preview</value>
+  </data>
+  <data name="NotifyMe_RecentDeliveriesForNotification" xml:space="preserve">
+    <value>Senaste utskick för notifieringen</value>
+  </data>
+  <data name="NotifyMe_FullHistory" xml:space="preserve">
+    <value>Full historik</value>
+  </data>
+  <data name="NotifyMe_NoHistoryForNotificationTitle" xml:space="preserve">
+    <value>Ingen historik hittades för notifieringen ännu</value>
+  </data>
+  <data name="NotifyMe_NoHistoryForNotificationMessage" xml:space="preserve">
+    <value>När notifieringen körs visas senaste utskick och preview här.</value>
+  </data>
+  <data name="NotifyMe_HistorySubtitle" xml:space="preserve">
+    <value>Tidigare utskick och körningar för aktivt bolag.</value>
+  </data>
+  <data name="NotifyMe_HistoryTotalHits" xml:space="preserve">
+    <value>Totalt {0} träffar efter aktuellt urval.</value>
+  </data>
+  <data name="NotifyMe_AllNotifications" xml:space="preserve">
+    <value>Alla notifieringar</value>
+  </data>
+  <data name="NotifyMe_HistorySearchPlaceholder" xml:space="preserve">
+    <value>Sök i ämne, mottagare eller historiktext</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMatchesFilterTitle" xml:space="preserve">
+    <value>Ingen historik matchar aktuellt urval</value>
+  </data>
+  <data name="NotifyMe_NoHistoryMatchesFilterMessage" xml:space="preserve">
+    <value>Testa ett bredare urval eller välj en annan notifiering.</value>
+  </data>
+  <data name="NotifyMe_Subject" xml:space="preserve">
+    <value>Ämne</value>
+  </data>
+  <data name="NotifyMe_Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="NotifyMe_LibrarySubtitle" xml:space="preserve">
+    <value>Alla notifieringar för aktivt bolag, visade som lista eller kort beroende på vad som är smidigast.</value>
+  </data>
+  <data name="NotifyMe_NotificationCount" xml:space="preserve">
+    <value>{0} notifieringar</value>
+  </data>
+  <data name="NotifyMe_ListView" xml:space="preserve">
+    <value>Lista</value>
+  </data>
+  <data name="NotifyMe_CardView" xml:space="preserve">
+    <value>Kort</value>
+  </data>
+  <data name="NotifyMe_LatestResult" xml:space="preserve">
+    <value>Senaste resultat</value>
+  </data>
+  <data name="NotifyMe_NoRunYet" xml:space="preserve">
+    <value>Ingen körning ännu</value>
+  </data>
+  <data name="NotifyMe_StatisticsSubtitle" xml:space="preserve">
+    <value>Faktisk aktivitet, utskick och notifieringskvalitet för aktivt bolag.</value>
+  </data>
+  <data name="NotifyMe_RunsInPeriod" xml:space="preserve">
+    <value>Utskick i perioden</value>
+  </data>
+  <data name="NotifyMe_ActiveWithRuns" xml:space="preserve">
+    <value>Aktiva med utskick</value>
+  </data>
+  <data name="NotifyMe_ShareActiveWithRuns" xml:space="preserve">
+    <value>Andel aktiva med utskick</value>
+  </data>
+  <data name="NotifyMe_AverageRunsPerActive" xml:space="preserve">
+    <value>Snitt utskick / aktiv</value>
+  </data>
+  <data name="NotifyMe_RunsOverTime" xml:space="preserve">
+    <value>Utskick över tid</value>
+  </data>
+  <data name="NotifyMe_RunsOverTimeSubtitle" xml:space="preserve">
+    <value>Verkliga loggade utskick per månad för aktivt bolag.</value>
+  </data>
+  <data name="NotifyMe_TotalWarnings" xml:space="preserve">
+    <value>Totala varningar</value>
+  </data>
+  <data name="NotifyMe_RunCount" xml:space="preserve">
+    <value>{0} utskick</value>
+  </data>
+  <data name="NotifyMe_InsightsFromPeriod" xml:space="preserve">
+    <value>Insikter från periodens data</value>
+  </data>
+  <data name="NotifyMe_NotificationActivity" xml:space="preserve">
+    <value>Notifieringsaktivitet</value>
+  </data>
+  <data name="NotifyMe_NotificationActivitySubtitle" xml:space="preserve">
+    <value>Visar verklig aktivitet per notifiering under vald period och hur väl de används.</value>
+  </data>
+  <data name="NotifyMe_OpenTemplates" xml:space="preserve">
+    <value>Öppna mallar</value>
+  </data>
+  <data name="NotifyMe_Category" xml:space="preserve">
+    <value>Kategori</value>
+  </data>
+  <data name="NotifyMe_ShareOfPeriod" xml:space="preserve">
+    <value>Andel av period</value>
+  </data>
+  <data name="NotifyMe_Quality" xml:space="preserve">
+    <value>Kvalitet</value>
+  </data>
+  <data name="Admin_CompaniesTitle" xml:space="preserve">
+    <value>Bolag</value>
+  </data>
+  <data name="Admin_CompaniesSubtitle" xml:space="preserve">
+    <value>Hantera bolag, anslutningar och modulåtkomst i samma vy.</value>
+  </data>
+  <data name="Admin_CompaniesMeta" xml:space="preserve">
+    <value>Klicka på en rad för att administrera bolaget vidare.</value>
+  </data>
+  <data name="Admin_CreateCompany" xml:space="preserve">
+    <value>Skapa bolag</value>
+  </data>
+  <data name="Admin_HasConnection" xml:space="preserve">
+    <value>Har connection</value>
+  </data>
+  <data name="Admin_HasPermissions" xml:space="preserve">
+    <value>Har permissions</value>
+  </data>
+  <data name="Admin_HasBoth" xml:space="preserve">
+    <value>Har båda</value>
+  </data>
+  <data name="Admin_CompanyList" xml:space="preserve">
+    <value>Bolagslista</value>
+  </data>
+  <data name="Admin_CompanyListMeta" xml:space="preserve">
+    <value>Sök på bolagsnamn eller aktiverade moduler.</value>
+  </data>
+  <data name="Admin_SearchCompanyOrModule" xml:space="preserve">
+    <value>Sök bolag eller modul...</value>
+  </data>
+  <data name="Admin_Connections" xml:space="preserve">
+    <value>Connections</value>
+  </data>
+  <data name="Admin_Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Missing" xml:space="preserve">
+    <value>Saknas</value>
+  </data>
+  <data name="Admin_NoModules" xml:space="preserve">
+    <value>Inga moduler</value>
+  </data>
+  <data name="NotifyMe_TemplateLoadedAsBase" xml:space="preserve">
+    <value>Mallen "{0}" har laddats som utgångspunkt. Justera villkor, mottagare och SQL innan den sparas.</value>
+  </data>
+  <data name="NotifyMe_CheckHighlightedFields" xml:space="preserve">
+    <value>Kontrollera fälten markerade nedan innan notifieringen sparas.</value>
+  </data>
+  <data name="NotifyMe_NotificationUpdated" xml:space="preserve">
+    <value>Notifiering {0} uppdaterades.</value>
+  </data>
+  <data name="NotifyMe_NotificationCreated" xml:space="preserve">
+    <value>Notifiering {0} skapades.</value>
+  </data>
+  <data name="NotifyMe_CouldNotSaveNotification" xml:space="preserve">
+    <value>Kunde inte spara notifieringen: {0}</value>
+  </data>
+  <data name="NotifyMe_TestRunQueued" xml:space="preserve">
+    <value>Testkörning köades för notifiering {0} till {1}.</value>
+  </data>
+  <data name="NotifyMe_MailItemIdLabel" xml:space="preserve">
+    <value>MailItemId</value>
+  </data>
+  <data name="NotifyMe_TestRunNoMailVerified" xml:space="preserve">
+    <value>Testkörningen slutfördes utan SQL-fel för notifiering {0}, men inget nytt mail kunde verifieras till {1}. Det brukar betyda att notifieringen inte gav några träffar, att kundens variant inte loggar single-run, eller att Database Mail inte är aktivt.</value>
+  </data>
+  <data name="NotifyMe_TestRunFailed" xml:space="preserve">
+    <value>Testkörning misslyckades: {0}</value>
+  </data>
+  <data name="DescriptionRequired" xml:space="preserve">
+    <value>Beskrivning måste anges.</value>
+  </data>
+  <data name="WarningTextRequired" xml:space="preserve">
+    <value>Varningstext / ämne måste anges.</value>
+  </data>
+  <data name="TypeRequired" xml:space="preserve">
+    <value>Typ måste väljas.</value>
+  </data>
+  <data name="PriorityRequired" xml:space="preserve">
+    <value>Prioritet måste väljas.</value>
+  </data>
+  <data name="ScheduleSchemaRequired" xml:space="preserve">
+    <value>Schema måste väljas.</value>
+  </data>
+  <data name="FrequencyRequired" xml:space="preserve">
+    <value>Frekvens måste väljas.</value>
+  </data>
+  <data name="StartDateRequired" xml:space="preserve">
+    <value>Startdatum måste anges.</value>
+  </data>
+  <data name="SqlSourceRequired" xml:space="preserve">
+    <value>SQL-underlag måste anges.</value>
+  </data>
+  <data name="EscalationCannotBeNegative" xml:space="preserve">
+    <value>Eskalering kan inte vara ett negativt antal varningar.</value>
+  </data>
+  <data name="AtLeastOneRecipientRequiredForActiveNotification" xml:space="preserve">
+    <value>Minst en mottagare måste anges för en aktiv notifiering.</value>
+  </data>
+  <data name="EscalationEmailRequiredWhenEscalationEnabled" xml:space="preserve">
+    <value>Eskaleringse-post måste anges när eskalering efter antal varningar används.</value>
+  </data>
+  <data name="FieldMustBeValidEmail" xml:space="preserve">
+    <value>{0} måste vara en giltig e-postadress.</value>
+  </data>
+  <data name="FieldContainsInvalidEmails" xml:space="preserve">
+    <value>{0} innehåller ogiltiga e-postadresser: {1}.</value>
+  </data>
+  <data name="SuperUser_MissingCompanyId" xml:space="preserve">
+    <value>Din användare saknar CompanyId.</value>
+  </data>
+  <data name="SuperUser_OwnCompany" xml:space="preserve">
+    <value>Eget bolag</value>
+  </data>
+  <data name="SuperUser_UserNotFoundInCompany" xml:space="preserve">
+    <value>Användaren hittades inte i ditt bolag.</value>
+  </data>
+  <data name="SuperUser_UserUpdated" xml:space="preserve">
+    <value>Användaren uppdaterades.</value>
+  </data>
+  <data name="SuperUser_ResetPasswordFailed" xml:space="preserve">
+    <value>Det gick inte att återställa lösenordet.</value>
+  </data>
+  <data name="SuperUser_PermissionsSaved" xml:space="preserve">
+    <value>Behörigheterna sparades.</value>
+  </data>
+  <data name="SuperUser_PermissionsSaveFailed" xml:space="preserve">
+    <value>Behörigheterna kunde inte sparas.</value>
+  </data>
+  <data name="SuperUser_TemporaryPassword" xml:space="preserve">
+    <value>Tillfälligt lösenord för {0}: {1}</value>
+  </data>
+  <data name="SuperUser_MenuPermissionsAdminOnly" xml:space="preserve">
+    <value>Menybehörigheter kan endast hanteras av administratörer.</value>
+  </data>
+  <data name="SuperUser_CurrentCompany" xml:space="preserve">
+    <value>Nuvarande bolag</value>
+  </data>
+  <data name="SuperUser_AddedUser" xml:space="preserve">
+    <value>La till användare {0}</value>
+  </data>
+  <data name="SuperUser_UserCreatedMailFailed" xml:space="preserve">
+    <value>Användaren {0} skapades, men verifieringsmejlet kunde inte skickas. Kontakta support.</value>
+  </data>
+  <data name="ExcelImport_ResultMissingOrUnauthorized" xml:space="preserve">
+    <value>Resultatet finns inte längre eller så saknar du behörighet att se det.</value>
+  </data>
+  <data name="ExcelImport_TableInitCompleted" xml:space="preserve">
+    <value>Init av importtabeller klar. {0} tabeller verifierades.</value>
+  </data>
+  <data name="ExcelImport_TableInitCompletedWithErrors" xml:space="preserve">
+    <value>Init av importtabeller slutfördes med fel. Se detaljer nedan.</value>
+  </data>
+  <data name="ExcelImport_NoFileSelected" xml:space="preserve">
+    <value>Ingen fil vald. Välj en Excel-fil och försök igen.</value>
+  </data>
+  <data name="ExcelImport_OnlyExcelSupported" xml:space="preserve">
+    <value>Endast Excel-filer (.xls, .xlsx, .xlsm, .csv) stöds just nu.</value>
+  </data>
+  <data name="ExcelImport_TypeNotSupportedInUi" xml:space="preserve">
+    <value>Importtypen '{0}' stöds ännu inte i UI:t.</value>
+  </data>
+  <data name="ExcelImport_VoucherPostingDateRequired" xml:space="preserve">
+    <value>Ange bokföringsdatum för voucher-importen.</value>
+  </data>
+  <data name="ExcelImport_Failed" xml:space="preserve">
+    <value>Import misslyckades: {0}</value>
+  </data>
+  <data name="ExcelImport_ImportCancelled" xml:space="preserve">
+    <value>Import avbruten ({0}): '{1}' ({2} KB).</value>
+  </data>
+  <data name="ExcelImport_ImportCompleted" xml:space="preserve">
+    <value>Import klar ({0}): '{1}' ({2} KB). Alla {3} rader sparades i staging. Batch: {4}</value>
+  </data>
+  <data name="ExcelImport_FileCouldNotBeValidated" xml:space="preserve">
+    <value>Filen kunde inte valideras för {0}.</value>
+  </data>
+  <data name="ExcelImport_EmptyTemplateCreated" xml:space="preserve">
+    <value>Tom mall skapad ({0}). Fyll i rader och importera när du är klar.</value>
+  </data>
+  <data name="ExcelImport_EditSessionCreatedWithErrors" xml:space="preserve">
+    <value>Redigering startad ({0}): '{1}' ({2} KB). Valideringen hittade fel – korrigera raderna och importera igen.</value>
+  </data>
+  <data name="ExcelImport_EditSessionCreatedReady" xml:space="preserve">
+    <value>Redigering startad ({0}): '{1}' ({2} KB). Redo att importera.</value>
+  </data>
+  <data name="ExcelImport_TemporaryEditSession" xml:space="preserve">
+    <value>Tillfällig redigering. Om du lämnar sidan utan att importera sparas inget.</value>
+  </data>
+  <data name="ExcelImport_TypeVoucher" xml:space="preserve">
+    <value>voucher-import</value>
+  </data>
+  <data name="ExcelImport_TypeBudget" xml:space="preserve">
+    <value>budget-import</value>
+  </data>
+  <data name="ExcelImport_TypePurchasePrice" xml:space="preserve">
+    <value>inköpspris-import</value>
+  </data>
+  <data name="ExcelImport_TypePriceUpdate" xml:space="preserve">
+    <value>prisuppdatering</value>
+  </data>
+  <data name="ExcelImport_TypeTransAutoPrice" xml:space="preserve">
+    <value>prisinläsning Trans Auto</value>
+  </data>
+  <data name="ExcelImport_TypeSelected" xml:space="preserve">
+    <value>vald import</value>
+  </data>
+  <data name="ExcelImport_CheckFileStructure" xml:space="preserve">
+    <value>Kontrollera filens struktur och försök igen.</value>
+  </data>
+  <data name="ExcelImport_ColumnsDoNotMatch" xml:space="preserve">
+    <value>Kolumnerna i filen matchar inte {0}. Kontrollera att du valt rätt importtyp och laddat upp rätt mall.</value>
+  </data>
+  <data name="ExcelImport_ValidationStoppedImport" xml:space="preserve">
+    <value>Valideringen stoppade importen innan några rader kunde sparas. Kontrollera filen och försök igen.</value>
+  </data>
+  <data name="ExcelImport_Details" xml:space="preserve">
+    <value>Lästa rader: {0}, giltiga: {1}, ogiltiga: {2}</value>
+  </data>
+  <data name="ExcelImport_EditSessionTooLarge" xml:space="preserve">
+    <value>Utkastet innehåller fler än {0} rader och kan inte importeras via redigering.</value>
+  </data>
+  <data name="ExcelImport_EnterVoucherPostingDateBeforeImport" xml:space="preserve">
+    <value>Ange bokföringsdatum innan import av voucher.</value>
+  </data>
+  <data name="Integration_OrderIdRequiredForCentraFetchOrder" xml:space="preserve">
+    <value>Order-ID måste anges för Centra fetch order.</value>
+  </data>
+  <data name="Integration_ReturnIdRequiredForCentraFetchReturn" xml:space="preserve">
+    <value>Return-ID måste anges för Centra fetch return.</value>
+  </data>
+  <data name="Integration_OrderIdRequiredForCentraCreateShipment" xml:space="preserve">
+    <value>Order-ID måste anges för Centra create shipment.</value>
+  </data>
+  <data name="Integration_AtLeastOneSkuRequiredForAkeneoExport" xml:space="preserve">
+    <value>Minst ett SKU måste anges för Akeneo export.</value>
+  </data>
+  <data name="Integration_NoPdfSelectedForExtraction" xml:space="preserve">
+    <value>Ingen PDF vald för dokumentextraktion.</value>
+  </data>
+  <data name="Integration_OnlyPdfSupportedForExtraction" xml:space="preserve">
+    <value>Endast PDF-filer stöds för dokumentextraktion.</value>
+  </data>
+  <data name="Integration_DocumentExtractedReadyForReview" xml:space="preserve">
+    <value>Dokument extraherat: {0} rad(er) redo för granskning.</value>
+  </data>
+  <data name="Integration_NoExtractedDocumentRowsToAdd" xml:space="preserve">
+    <value>Det finns inga extraherade dokumentrader att lägga till.</value>
+  </data>
+  <data name="Integration_ExtractedRowsAddedToImportTable" xml:space="preserve">
+    <value>Extraherade rader tillagda i importtabellen från {0}.</value>
+  </data>
+  <data name="Integration_DocumentSigningDemoModeNoFilesSent" xml:space="preserve">
+    <value>Dokumentsignering körs i demoläge. Inga filer har skickats.</value>
+  </data>
+  <data name="Integration_CouldNotFindSelectedOrder" xml:space="preserve">
+    <value>Kunde inte hitta vald order.</value>
+  </data>
+  <data name="Integration_QuoteSentForSigning" xml:space="preserve">
+    <value>Offerten skickades för signering.</value>
+  </data>
+  <data name="Integration_StatusSyncDisabledInDemoMode" xml:space="preserve">
+    <value>Statussynk är avstängd i demoläge.</value>
+  </data>
+  <data name="Integration_SigningStatusUpdated" xml:space="preserve">
+    <value>Signeringsstatus uppdaterad.</value>
+  </data>
+  <data name="Integration_CouldNotReadCamtFile" xml:space="preserve">
+    <value>Kunde inte läsa camt.053-filen. {0}</value>
+  </data>
+  <data name="Integration_CamtFileContainsNoTransactions" xml:space="preserve">
+    <value>camt.053-filen gick att läsa, men inga transaktioner hittades. Kontrollera att filen innehåller kontoutdragsrader.</value>
+  </data>
+  <data name="Integration_NoFileSelected" xml:space="preserve">
+    <value>Ingen fil vald.</value>
+  </data>
+  <data name="Integration_InvalidFileFormatOnlyXml" xml:space="preserve">
+    <value>Ogiltigt filformat. Endast camt.053-filer (.xml eller .nda) stöds.</value>
+  </data>
+  <data name="Integration_FileUploaded" xml:space="preserve">
+    <value>Fil uppladdad: {0}</value>
+  </data>
+  <data name="Integration_CouldNotSaveCamtFile" xml:space="preserve">
+    <value>Kunde inte spara camt.053-filen. Försök igen eller välj en annan fil.</value>
+  </data>
+  <data name="BankRec_SafetyCheck" xml:space="preserve">
+    <value>Säkerhet</value>
+  </data>
+  <data name="BankRec_ConfidenceLevel" xml:space="preserve">
+    <value>Trygghetsnivå</value>
+  </data>
+  <data name="BankRec_SelectBothForAssessment" xml:space="preserve">
+    <value>Välj transaktion och faktura för att se bedömning.</value>
+  </data>
+  <data name="BankRec_UndoMatch" xml:space="preserve">
+    <value>Ångra matchning</value>
+  </data>
+  <data name="BankRec_ClearSelection" xml:space="preserve">
+    <value>Rensa val</value>
+  </data>
+  <data name="BankRec_Recommendations" xml:space="preserve">
+    <value>Rekommendationer</value>
+  </data>
+  <data name="BankRec_RecommendationTitle" xml:space="preserve">
+    <value>Föreslagna fakturor</value>
+  </data>
+  <data name="BankRec_RecommendationTitleSingular" xml:space="preserve">
+    <value>Rekommenderad faktura</value>
+  </data>
+  <data name="BankRec_Step2RecommendedInvoice" xml:space="preserve">
+    <value>Rekommenderad faktura</value>
+  </data>
+  <data name="BankRec_Step2RecommendedInvoices" xml:space="preserve">
+    <value>Rekommenderade fakturor</value>
+  </data>
+  <data name="BankRec_SelectTransactionForRecommendations" xml:space="preserve">
+    <value>Välj en kundinbetalning för att se rekommenderade fakturor.</value>
+  </data>
+  <data name="BankRec_LoadingRecommendations" xml:space="preserve">
+    <value>Laddar rekommendationer…</value>
+  </data>
+  <data name="BankRec_NoRecommendations" xml:space="preserve">
+    <value>Inga tillräckligt trygga rekommendationer hittades för den här transaktionen.</value>
+  </data>
+  <data name="BankRec_AiAssistLabel" xml:space="preserve">
+    <value>AI-assistans</value>
+  </data>
+  <data name="BankRec_AiAssistTitle" xml:space="preserve">
+    <value>Kontrollerat AI-förslag</value>
+  </data>
+  <data name="BankRec_AiAssistSelectTransaction" xml:space="preserve">
+    <value>Välj en kundinbetalning för att kontrollera AI-status.</value>
+  </data>
+  <data name="BankRec_AiAssistLoading" xml:space="preserve">
+    <value>Kontrollerar AI-status…</value>
+  </data>
+  <data name="BankRec_AiAssistDisabled" xml:space="preserve">
+    <value>AI-förslag är avstängt. Regelmotorns kandidater används tills AI aktiveras.</value>
+  </data>
+  <data name="BankRec_AiAssistProviderMissing" xml:space="preserve">
+    <value>AI är aktiverat i inställningarna men ingen godkänd provider är konfigurerad.</value>
+  </data>
+  <data name="BankRec_AiAssistNoSuggestions" xml:space="preserve">
+    <value>Inga verifierade AI-förslag finns för den här transaktionen.</value>
+  </data>
+  <data name="BankRec_AiAssistPromptVersion" xml:space="preserve">
+    <value>Promptversion</value>
+  </data>
+  <data name="BankRec_AiAssistInputHash" xml:space="preserve">
+    <value>Input-hash</value>
+  </data>
+  <data name="BankRec_AiAssistNoExternalData" xml:space="preserve">
+    <value>Ingen bankdata har skickats externt.</value>
+  </data>
+  <data name="BankRec_AiAssistLimitedExternalData" xml:space="preserve">
+    <value>Endast minimerat transaktionsunderlag och regelkandidater skickades till godkänd AI-provider.</value>
+  </data>
+  <data name="BankRec_AiAssistSkippedStrongMatch" xml:space="preserve">
+    <value>AI kördes inte eftersom regelmotorn redan har en stark träff.</value>
+  </data>
+  <data name="BankRec_RecentChanges" xml:space="preserve">
+    <value>Senaste ändringar</value>
+  </data>
+  <data name="BankRec_RecentChangesTitle" xml:space="preserve">
+    <value>Vad som nyligen har hänt</value>
+  </data>
+  <data name="BankRec_NoRecentChanges" xml:space="preserve">
+    <value>Inga ändringar ännu i den här bankfilen.</value>
+  </data>
+  <data name="BankRec_ConfidenceHigh" xml:space="preserve">
+    <value>Hög trygghet</value>
+  </data>
+  <data name="BankRec_ConfidenceMedium" xml:space="preserve">
+    <value>Medel trygghet</value>
+  </data>
+  <data name="BankRec_ConfidenceLow" xml:space="preserve">
+    <value>Låg trygghet</value>
+  </data>
+  <data name="BankRec_ActionManualMatch" xml:space="preserve">
+    <value>Manuell matchning</value>
+  </data>
+  <data name="BankRec_ActionAutoMatch" xml:space="preserve">
+    <value>Auto-matchning</value>
+  </data>
+  <data name="BankRec_ActionReset" xml:space="preserve">
+    <value>Synkronisering</value>
+  </data>
+  <data name="BankRec_ActionReverse" xml:space="preserve">
+    <value>Ångrad matchning</value>
+  </data>
+  <data name="BankRec_ManualConfirmationRequired" xml:space="preserve">
+    <value>Kräver manuell bekräftelse</value>
+  </data>
+  <data name="BankRec_ManualConfirmationDefaultReason" xml:space="preserve">
+    <value>Den här matchningen ska granskas manuellt innan den bekräftas.</value>
+  </data>
+  <data name="BankRec_AutoMatchedNow" xml:space="preserve">
+    <value>Auto-match just nu</value>
+  </data>
+  <data name="BankRec_AutoMatchedNowTitle" xml:space="preserve">
+    <value>Transaktioner som blev matchade automatiskt</value>
+  </data>
+  <data name="BankRec_AutoMatchedEmpty" xml:space="preserve">
+    <value>Inga auto-matchningar ännu.</value>
+  </data>
+  <data name="BankRec_ManualReviewQueue" xml:space="preserve">
+    <value>Manuell granskning</value>
+  </data>
+  <data name="BankRec_ManualReviewQueueTitle" xml:space="preserve">
+    <value>Transaktioner som behöver granskas manuellt</value>
+  </data>
+  <data name="BankRec_ManualReviewQueueEmpty" xml:space="preserve">
+    <value>Inget kräver manuell granskning just nu.</value>
+  </data>
+  <data name="BankRec_RemainingToMatch" xml:space="preserve">
+    <value>kräver manuell hantering</value>
+  </data>
+  <data name="BankRec_AutoMatchSuccess" xml:space="preserve">
+    <value>Säkra auto-matchningar: {0}. Kvar att hantera manuellt: {1}.</value>
+  </data>
+  <data name="BankRec_AutoMatchNoChange" xml:space="preserve">
+    <value>Inga nya säkra auto-matchningar hittades. Kvar att hantera manuellt: {0}.</value>
+  </data>
+  <data name="BankRec_CompleteSummaryHint" xml:space="preserve">
+    <value>Tryck på en statusruta för att visa posterna.</value>
+  </data>
+  <data name="BankRec_ShowMatched" xml:space="preserve">
+    <value>Visa matchade poster</value>
+  </data>
+  <data name="BankRec_ShowReview" xml:space="preserve">
+    <value>Visa poster som kräver granskning</value>
+  </data>
+  <data name="BankRec_ShowUnmatched" xml:space="preserve">
+    <value>Visa omatchade poster</value>
+  </data>
+  <data name="BankRec_CompleteItemsTitle" xml:space="preserve">
+    <value>Poster i vald status</value>
+  </data>
+  <data name="BankRec_CompleteItemsDescription" xml:space="preserve">
+    <value>Välj en post för att kontrollera den eller fortsätta arbetet i Matcha.</value>
+  </data>
+  <data name="BankRec_CompleteItemsLoading" xml:space="preserve">
+    <value>Laddar poster...</value>
+  </data>
+  <data name="BankRec_CompleteItemsEmpty" xml:space="preserve">
+    <value>Det finns inga poster i den här statusen.</value>
+  </data>
+  <data name="BankRec_CompleteReviewReason" xml:space="preserve">
+    <value>Det finns ett förslag eller en delmatchning som behöver kontrolleras.</value>
+  </data>
+  <data name="BankRec_CompleteUnmatchedReason" xml:space="preserve">
+    <value>Ingen trygg fakturakandidat hittades. Sök och välj faktura manuellt om en faktura finns.</value>
+  </data>
+  <data name="BankRec_CompleteMatchedReason" xml:space="preserve">
+    <value>Matchningen är klar och kan kontrolleras.</value>
+  </data>
+  <data name="BankRec_CompleteHandleAction" xml:space="preserve">
+    <value>Hantera i Matcha</value>
+  </data>
+  <data name="BankRec_CompleteViewAction" xml:space="preserve">
+    <value>Visa matchning</value>
+  </data>
+  <data name="BankRec_CompleteLoadError" xml:space="preserve">
+    <value>Posterna kunde inte laddas. Försök igen.</value>
+  </data>
+  <data name="BankRec_ManualInvoiceTitle" xml:space="preserve">
+    <value>Välj faktura manuellt</value>
+  </data>
+  <data name="BankRec_ManualInvoiceDescription" xml:space="preserve">
+    <value>Regelmotorn hittade ingen trygg kandidat. Välj en öppen faktura nedan om du vet vilken betalningen avser.</value>
+  </data>
+  <data name="BankRec_ManualInvoiceChoice" xml:space="preserve">
+    <value>Manuellt val</value>
+  </data>
+  <data name="BankRec_NoSafeRecommendation" xml:space="preserve">
+    <value>Ingen trygg rekommendation hittades för den här transaktionen.</value>
+  </data>
+  <data name="BankRec_ViewTransaction" xml:space="preserve">
+    <value>Visa transaktion</value>
+  </data>
+  <data name="BankRec_SelectedTransaction" xml:space="preserve">
+    <value>Vald transaktion</value>
+  </data>
+  <data name="BankRec_ConflictTitle" xml:space="preserve">
+    <value>Underlaget har ändrats</value>
+  </data>
+  <data name="BankRec_ConflictMessage" xml:space="preserve">
+    <value>Någon annan hann ändra bankavstämningen. Ladda om underlaget och försök igen.</value>
+  </data>
+  <data name="BankRec_ConflictMessageWithVersion" xml:space="preserve">
+    <value>Någon annan hann ändra bankavstämningen. Ladda om underlaget och fortsätt från version {0}.</value>
+  </data>
+  <data name="BankRec_ReloadState" xml:space="preserve">
+    <value>Ladda om underlaget</value>
+  </data>
+  <data name="SidebarRuntime_NotificationsTitle" xml:space="preserve">
+    <value>Notiser</value>
+  </data>
+  <data name="SidebarRuntime_MarkAllRead" xml:space="preserve">
+    <value>Markera lästa</value>
+  </data>
+  <data name="SidebarRuntime_MarkAllReadTooltip" xml:space="preserve">
+    <value>Markera alla som lästa</value>
+  </data>
+  <data name="SidebarRuntime_NoNotificationsYet" xml:space="preserve">
+    <value>Inga olästa notiser ännu.</value>
+  </data>
+  <data name="SidebarRuntime_OverallReady" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="SidebarRuntime_OverallAttention" xml:space="preserve">
+    <value>Åtgärd krävs</value>
+  </data>
+  <data name="SidebarRuntime_OverallRunning" xml:space="preserve">
+    <value>Pågår</value>
+  </data>
+  <data name="SidebarRuntime_Idle" xml:space="preserve">
+    <value>Inaktiv</value>
+  </data>
+  <data name="SidebarRuntime_NoActivityYet" xml:space="preserve">
+    <value>Ingen aktivitet ännu</value>
+  </data>
+  <data name="SidebarRuntime_RunningNow" xml:space="preserve">
+    <value>Kör nu</value>
+  </data>
+  <data name="SidebarRuntime_Latest" xml:space="preserve">
+    <value>Senaste</value>
+  </data>
+  <data name="SidebarRuntime_TimeRunning" xml:space="preserve">
+    <value>pågår</value>
+  </data>
+  <data name="SidebarRuntime_TimeNow" xml:space="preserve">
+    <value>nu</value>
+  </data>
+  <data name="RuntimeStatus_Queued" xml:space="preserve">
+    <value>Köad</value>
+  </data>
+  <data name="RuntimeStatus_Running" xml:space="preserve">
+    <value>Pågår</value>
+  </data>
+  <data name="RuntimeStatus_Completed" xml:space="preserve">
+    <value>Klart</value>
+  </data>
+  <data name="RuntimeStatus_Failed" xml:space="preserve">
+    <value>Fel</value>
+  </data>
+  <data name="RuntimeStatus_Canceled" xml:space="preserve">
+    <value>Avbruten</value>
+  </data>
+  <data name="RuntimeStatus_Unknown" xml:space="preserve">
+    <value>Okänd</value>
+  </data>
+  <data name="ExcelImport_Runtime_QueuedTitle" xml:space="preserve">
+    <value>Import köad</value>
+  </data>
+  <data name="ExcelImport_Runtime_RunningTitle" xml:space="preserve">
+    <value>Import pågår</value>
+  </data>
+  <data name="ExcelImport_Runtime_CompletedTitle" xml:space="preserve">
+    <value>Import klar</value>
+  </data>
+  <data name="ExcelImport_Runtime_FailedTitle" xml:space="preserve">
+    <value>Excelimport kräver åtgärd</value>
+  </data>
+  <data name="ExcelImport_Runtime_CanceledTitle" xml:space="preserve">
+    <value>Excelimport avbruten</value>
+  </data>
+  <data name="ExcelImport_Runtime_QueuedDescription" xml:space="preserve">
+    <value>Väntar på att importen ska starta.</value>
+  </data>
+  <data name="ExcelImport_Runtime_RunningDescription" xml:space="preserve">
+    <value>Filen läses, valideras och importeras.</value>
+  </data>
+  <data name="ExcelImport_Runtime_CompletedDescription" xml:space="preserve">
+    <value>Importen är klar.</value>
+  </data>
+  <data name="ExcelImport_Runtime_FailedDescription" xml:space="preserve">
+    <value>Importen stoppades och behöver åtgärdas.</value>
+  </data>
+  <data name="ExcelImport_Runtime_CanceledDescription" xml:space="preserve">
+    <value>Importen avbröts.</value>
+  </data>
+  <data name="ExcelImport_Runtime_UnknownDescription" xml:space="preserve">
+    <value>Status okänd.</value>
+  </data>
+  <data name="ExcelImport_RuntimeStatusTitle" xml:space="preserve">
+    <value>Importstatus</value>
+  </data>
+  <data name="ExcelImport_RuntimeStatusSubtitle" xml:space="preserve">
+    <value>Senaste Excel-importerna i den här portalen.</value>
+  </data>
+  <data name="ExcelImport_RuntimeLive" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="ExcelImport_RuntimeOpen" xml:space="preserve">
+    <value>Öppna</value>
+  </data>
+  <data name="ExcelImport_RuntimeEditRows" xml:space="preserve">
+    <value>Öppna och korrigera rader</value>
+  </data>
+  <data name="ExcelImport_RuntimeEditMode" xml:space="preserve">
+    <value>Redigeringsläge</value>
+  </data>
+  <data name="ExcelImport_RuntimeFailedBeforeRows" xml:space="preserve">
+    <value>Importen stoppades innan rader kunde redigeras. Kontrollera vald importtyp och mallens kolumnrubriker.</value>
+  </data>
+  <data name="ExcelImport_RuntimeImportedRows" xml:space="preserve">
+    <value>Importerade rader</value>
+  </data>
+  <data name="ExcelImport_RuntimeRowProgress" xml:space="preserve">
+    <value>Lästa rader: {0}/{1}</value>
+  </data>
+  <data name="ExcelImport_RuntimeImportedCount" xml:space="preserve">
+    <value>Körde in: {0} rader</value>
+  </data>
+  <data name="ExcelImport_RuntimeRow" xml:space="preserve">
+    <value>Rad</value>
+  </data>
+  <data name="BankRec_CloseAction" xml:space="preserve">
+    <value>Slutför och lås</value>
+  </data>
+  <data name="BankRec_ReopenAction" xml:space="preserve">
+    <value>Återöppna</value>
+  </data>
+  <data name="BankRec_ReopenReasonLabel" xml:space="preserve">
+    <value>Orsak till återöppning</value>
+  </data>
+  <data name="BankRec_ReopenReasonPlaceholder" xml:space="preserve">
+    <value>Beskriv kort varför avstämningen behöver ändras</value>
+  </data>
+  <data name="BankRec_ClosedTitle" xml:space="preserve">
+    <value>Avstämningen är slutförd</value>
+  </data>
+  <data name="BankRec_ClosedMessage" xml:space="preserve">
+    <value>Resultatet är sparat och låst. Ingen bokföring har skickats till Jeeves.</value>
+  </data>
+  <data name="BankRec_CloseReadyStatus" xml:space="preserve">
+    <value>Alla poster är klara. Avstämningen kan slutföras.</value>
+  </data>
+  <data name="BankRec_ClosePendingStatus" xml:space="preserve">
+    <value>Hantera posterna som återstår innan avstämningen slutförs.</value>
+  </data>
+  <data name="BankRec_ClosedStatus" xml:space="preserve">
+    <value>Slutförd {0} av {1}.</value>
+  </data>
+  <data name="BankRec_SaveCodingBeforeClose" xml:space="preserve">
+    <value>Spara konteringsändringarna innan avstämningen slutförs.</value>
+  </data>
+  <data name="BankRec_PaymentBundlesHelp" xml:space="preserve">
+    <value>Granska regelmotorns säkra förslag eller skapa en egen grupp.</value>
+  </data>
+  <data name="BankRec_ManualBundleCreate" xml:space="preserve">
+    <value>Skapa grupp manuellt</value>
+  </data>
+  <data name="BankRec_ManualBundleTitle" xml:space="preserve">
+    <value>Skapa betalningsgrupp</value>
+  </data>
+  <data name="BankRec_ManualBundleHelp" xml:space="preserve">
+    <value>Välj en faktura och minst två betalningar. Summan kontrolleras innan gruppen sparas.</value>
+  </data>
+  <data name="BankRec_ManualBundleInvoice" xml:space="preserve">
+    <value>Faktura</value>
+  </data>
+  <data name="BankRec_ManualBundleConfirm" xml:space="preserve">
+    <value>Bekräfta manuell grupp</value>
+  </data>
+  <data name="BankRec_ManualBundleApplySuggestion" xml:space="preserve">
+    <value>Välj föreslagen grupp</value>
+  </data>
+  <data name="BankRec_PaymentBundleAdjustManual" xml:space="preserve">
+    <value>Justera manuellt</value>
+  </data>
+</root>

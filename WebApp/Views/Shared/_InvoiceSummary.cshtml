@@ -1,0 +1,46 @@
+@* Shows the dashboard invoice snapshot as a point-in-time summary, not a periodised invoice report. *@
+@model WebApp.ViewModels.Invoices.InvoiceListViewModel
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var culture = CultureInfo.CurrentCulture;
+    var overdue = (Model?.UnpaidInvoices ?? Enumerable.Empty<WebApp.Models.Invoices.InvoiceItem>())
+                    .Where(x => x.IsOverdue)
+                    .OrderBy(x => x.DueDate)
+                    .ThenByDescending(x => x.AmountSek)
+                    .Take(3)
+                    .ToList();
+    var unpaidCount = Model?.UnpaidCount ?? 0;
+    var unpaidSum = Model?.TotalUnpaidSek ?? 0;
+    var paidSum = Model?.TotalPaidSek ?? 0;
+}
+
+<div class="card kpi-card h-100 invoice-summary-card panel-card">
+    <div class="card-body p-2">
+        <div class="dashboard-card-head">
+            <div class="dashboard-card-title mb-0">@Localizer["InvoicesTitle"]</div>
+            <a asp-controller="Invoices" asp-action="Index" asp-route-tab="unpaid" class="btn btn-portal btn-portal-outline btn-sm dashboard-card-action-btn">@Localizer["OpenInvoices"]</a>
+        </div>
+        @* The invoice card is a point-in-time status snapshot, so it should never pretend to be period-based revenue data. *@
+        <div class="dashboard-card-subtitle">@Localizer["SnapshotLabel"]</div>
+        <div class="h4 fw-bold mb-1 invoice-summary-heading">@Localizer["UnpaidSummary", unpaidCount, unpaidSum.ToString("N0", culture)]</div>
+        <div class="invoice-meta mb-2">
+            @Html.Raw(Localizer["PaidTotal", $"<span class='invoice-amount'>{paidSum.ToString("N0", culture)} kr</span>"].Value)
+        </div>
+        <div class="invoice-meta invoice-meta-strong mb-2">@Localizer["LatestOverdue"]</div>
+        @if (overdue.Any())
+        {
+            <ul class="invoice-meta mb-2 ps-3">
+                @foreach (var inv in overdue)
+                {
+                    var days = (DateTime.Today - inv.DueDate.Date).Days;
+                    <li><span class="fw-bold invoice-summary-heading">@inv.Customer</span> · #@inv.InvoiceNo · <span class="invoice-summary-heading">@inv.AmountSek.ToString("N0", culture) kr</span> · @days dgr</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="small text-muted mb-2">@Localizer["NoOverdue"]</div>
+        }
+    </div>
+</div>

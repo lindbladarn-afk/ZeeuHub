@@ -1,0 +1,169 @@
+@model WebApp.ViewModels.NotifyMe.NotifyMeTemplateLibraryVm
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+@{
+    // Template library for reusable NotifyMe notification drafts.
+    ViewData["Title"] = sharedLocalizer["NotifyMe_Templates"];
+    ViewData["NotifyMeSection"] = "library";
+    var viewMode = string.Equals(Context.Request.Query["view"], "cards", StringComparison.OrdinalIgnoreCase)
+        ? "cards"
+        : "list";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifyme.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page notifyme-library-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">NotifyMe</div>
+            <h1 class="module-page-title">@sharedLocalizer["NotifyMe_Templates"]</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["NotifyMe_LibrarySubtitle"]</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="module-page-meta">@sharedLocalizer["NotifyMe_NotificationCount", Model.TotalTemplates]</div>
+            <div class="module-tab-toggle notifyme-view-toggle">
+                <a class="@(viewMode == "list" ? "btn active" : "btn")"
+                   asp-action="Library"
+                   asp-route-search="@Model.Search"
+                   asp-route-category="@Model.Category"
+                   asp-route-view="list">@sharedLocalizer["NotifyMe_ListView"]</a>
+                <a class="@(viewMode == "cards" ? "btn active" : "btn")"
+                   asp-action="Library"
+                   asp-route-search="@Model.Search"
+                   asp-route-category="@Model.Category"
+                   asp-route-view="cards">@sharedLocalizer["NotifyMe_CardView"]</a>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_NotifyMeTabs" />
+
+    <div class="card kpi-card p-2 mb-3 library-card">
+        <form method="get" asp-action="Library">
+            <input type="hidden" name="view" value="@viewMode" />
+            <div class="library-filter-grid">
+                <input class="form-control"
+                       type="text"
+                       name="search"
+                       value="@Model.Search"
+                       placeholder="@sharedLocalizer["NotifyMe_SearchPlaceholder"]" />
+                <select class="form-select" name="category">
+                    <option value="">@sharedLocalizer["NotifyMe_AllTypes"]</option>
+                    @foreach (var option in Model.CategoryOptions)
+                    {
+                        <option value="@option.Value" selected="@(string.Equals(Model.Category, option.Value, StringComparison.OrdinalIgnoreCase))">@option.Label</option>
+                    }
+                </select>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-portal">@sharedLocalizer["Filter"]</button>
+                    <a class="btn btn-portal btn-portal-outline"
+                       asp-action="Library"
+                       asp-route-view="@viewMode">@sharedLocalizer["Filter_Clear"]</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (!Model.IsInstalled)
+    {
+        @await Html.PartialAsync("_ModuleState", new WebApp.ViewModels.Shared.ModuleStateViewModel
+        {
+            Title = sharedLocalizer["NotifyMe_NotAvailableTitle"],
+            Message = Model.StatusMessage ?? sharedLocalizer["NotifyMe_NotAvailableMessage"],
+            Tone = "warning",
+            IconClass = "fa fa-database",
+            Compact = true
+        })
+    }
+    else if (Model.Templates.Count == 0)
+    {
+        @await Html.PartialAsync("_ModuleState", new WebApp.ViewModels.Shared.ModuleStateViewModel
+        {
+            Title = sharedLocalizer["NotifyMe_NoNotificationsForFilterTitle"],
+            Message = sharedLocalizer["NotifyMe_NoNotificationsForFilterMessage"],
+            Tone = "neutral",
+            IconClass = "fa fa-filter-circle-xmark",
+            Compact = true
+        })
+    }
+    else if (viewMode == "cards")
+    {
+        <div class="library-grid">
+            @foreach (var item in Model.Templates)
+            {
+                <div class="card kpi-card p-2 library-card">
+                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                        <div>
+                            <div class="dashboard-card-title mb-2">@item.Category</div>
+                            <div class="notifyme-library-title">@item.Title</div>
+                        </div>
+                        <span class="library-pill">@item.ComplexityLabel</span>
+                    </div>
+
+                    <div class="notifyme-library-summary mb-2">@item.Summary</div>
+                    <div class="notifyme-library-value mb-1"><strong>Affärsvärde:</strong> @item.BusinessValue</div>
+                    <div class="notifyme-library-value mb-1"><strong>Exempelfrekvens:</strong> @item.ExampleFrequency</div>
+                    <div class="notifyme-library-value mb-2"><strong>Prioritet:</strong> @item.SuggestedPriority</div>
+
+                    @if (item.ParameterHints.Count > 0)
+                    {
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            @foreach (var hint in item.ParameterHints)
+                            {
+                                <span class="library-pill">@hint</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2 mt-auto">
+                        <a class="btn btn-portal library-cta"
+                           asp-action="Detail"
+                           asp-route-id="@item.SourceNotificationId">@sharedLocalizer["View"]</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card kpi-card p-0 library-card">
+            <div class="table-responsive notifyme-library-list">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@sharedLocalizer["Description"]</th>
+                            <th>@sharedLocalizer["NotifyMe_Type"]</th>
+                            <th>@sharedLocalizer["Priority"]</th>
+                            <th>Komplexitet</th>
+                            <th>Exempelfrekvens</th>
+                            <th class="text-end">@sharedLocalizer["Action"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model.Templates)
+                    {
+                        <tr>
+                            <td>
+                                <div class="notifyme-library-title">@item.Title</div>
+                                <div class="notifyme-library-summary">@item.Summary</div>
+                            </td>
+                            <td>@item.Category</td>
+                            <td>@item.SuggestedPriority</td>
+                            <td>@item.ComplexityLabel</td>
+                            <td>@item.ExampleFrequency</td>
+                            <td class="text-end">
+                                <a class="btn btn-portal btn-sm library-cta"
+                                   asp-action="Detail"
+                                   asp-route-id="@item.SourceNotificationId">@sharedLocalizer["View"]</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

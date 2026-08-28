@@ -1,0 +1,71 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+@inject IHtmlLocalizer<SharedResources> sharedLocalizer
+
+@{
+    ViewData["Title"] = sharedLocalizer["SubModule_ZeeUDashboard_Production"];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-readable module-page production-dashboard-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">ZeeU</div>
+            <h1 class="module-page-title">@sharedLocalizer["SubModule_ZeeUDashboard_Production"]</h1>
+            <div class="module-page-subtitle">Livevy från Jeeves i samma stil som övriga hubben.</div>
+            <div class="module-page-meta">Uppdateras automatiskt var femte minut.</div>
+        </div>
+    </div>
+
+    <div class="card kpi-card production-dashboard-shell">
+        <div class="card-body">
+            <div id="divPartial">
+                @await Html.PartialAsync("_CttProduction")
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const refreshUrl = '@Url.Action("_CttProduction", "ZeeuDashboard")';
+            const target = document.getElementById('divPartial');
+            if (!target) {
+                return;
+            }
+
+            let inFlight = false;
+
+            const refresh = async () => {
+                if (inFlight) {
+                    return;
+                }
+
+                inFlight = true;
+                try {
+                    const response = await fetch(`${refreshUrl}?_ts=${Date.now()}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        cache: 'no-store',
+                        credentials: 'same-origin'
+                    });
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    target.innerHTML = await response.text();
+                } catch {
+                    // Keep the current table visible if the refresh fails transiently.
+                } finally {
+                    inFlight = false;
+                }
+            };
+
+            window.setInterval(refresh, 300000);
+        })();
+    </script>
+}

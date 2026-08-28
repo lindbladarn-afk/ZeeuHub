@@ -1,0 +1,490 @@
+﻿@using Entities.ViewModels.Admin
+@using Microsoft.Extensions.Localization
+@model AdminUserViewModel
+@inject IStringLocalizer<SharedResources> sharedLocalizer
+
+@{
+    // User manage view keeps the existing admin functionality but moves it into the shared admin/module shell for consistency with company, invoice and order management.
+    ViewData["Title"] = $"{sharedLocalizer["Admin_ManageUserTitle"]} {Model?.FirstName} {Model?.LastName}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<div class="dashboard-readable module-page admin-page admin-user-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">@sharedLocalizer["Admin"]</div>
+            <h1 class="module-page-title">@sharedLocalizer["Admin_ManageUserTitle"] @Model?.FirstName @Model?.LastName</h1>
+            <div class="module-page-subtitle">@sharedLocalizer["Admin_ManageUserSubtitle"]</div>
+            <div class="module-page-meta">@sharedLocalizer["Admin_ManageUserMeta"]</div>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills admin-tab-toggle mb-2">
+        <li class="nav-item">
+            <a href="#BasicInformation" data-bs-toggle="tab" class="nav-link admin-tab-toggle__basic-information active">
+                <span class="d-sm-none">@sharedLocalizer["Admin_BasicInformation"]</span>
+                <span class="d-sm-block d-none">@sharedLocalizer["Admin_BasicInformation"]</span>
+            </a>
+        </li>
+        <li>
+            <a href="#Access" data-bs-toggle="tab" class="nav-link">
+                <span class="d-sm-none">@sharedLocalizer["Admin_Access"]</span>
+                <span class="d-sm-block d-none">@sharedLocalizer["Admin_Access"]</span>
+            </a>
+        </li>
+        <li>
+            <a href="#Security" data-bs-toggle="tab" class="nav-link">
+                <span class="d-sm-none">@sharedLocalizer["Admin_Security"]</span>
+                <span class="d-sm-block d-none">@sharedLocalizer["Admin_Security"]</span>
+            </a>
+        </li>
+    </ul>
+
+    <div id="ModalPopupPlaceholder"></div>
+
+    <form id="profile-form" method="post" class="admin-user-panel">
+        @Html.AntiForgeryToken()
+        <div class="tab-content admin-panel">
+            <div class="tab-pane fade active show" id="BasicInformation">
+                <div class="admin-section-heading">@sharedLocalizer["Admin_BasicInformation"]</div>
+                <div class="row">
+                    <partial name="_StatusMessage" for="StatusMessage" />
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <input asp-for="UserId" hidden />
+                                <input asp-for="CompanyName" hidden />
+                                <div class="col-md-7">
+                                    <div class="row mb-15px">
+                                        <label asp-for="FirstName" class="form-label col-form-label col-md-2"></label>
+                                        <div class="col-md-10">
+                                            <input asp-for="FirstName" class="form-control" />
+                                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-15px">
+                                        <label asp-for="LastName" class="form-label col-form-label col-md-2"></label>
+                                        <div class="col-md-10">
+                                            <input asp-for="LastName" class="form-control" />
+                                            <span asp-validation-for="LastName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-15px">
+                                        <label asp-for="ProfilePicture" class="form-label col-form-label col-md-2"></label>
+                                        <div class="col-md-10">
+                                            <input type="file"
+                                                   accept=".png,.jpg,.jpeg,.gif,.tif"
+                                                   asp-for="ProfilePicture"
+                                                   class="form-control"
+                                                   onchange="document.getElementById('profilePicture').src = window.URL.createObjectURL(this.files[0])" />
+                                            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="form-group">
+                                        @if (Model?.ProfilePicture != null)
+                                        {
+                                            <img id="profilePicture" class="profile-preview" src="data:image/*;base64,@(Convert.ToBase64String(Model.ProfilePicture))">
+                                        }
+                                        else
+                                        {
+                                            <img id="profilePicture" class="profile-preview" src="/img/user/default_user_image.jpg">
+                                        }
+                                        
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="col-md-7">
+
+                                <div class="row mb-15px">
+                                    <label asp-for="UserName" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="UserName" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="row mb-15px">
+                                    <label asp-for="Email" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="Email" class="form-control" readonly/>
+                                    </div>
+                                </div>
+                                <div class="row mb-15px">
+                                    <label asp-for="EmailValidated" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                        <div class="admin-inline-switch">
+                                            <div class="form-check form-switch admin-access-switch">
+                                                <input asp-for="EmailValidated" class="form-check-input is-valid" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="row mb-15px">
+                                    <label asp-for="PhoneNumber" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="PhoneNumber" class="form-control" />
+                                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row mb-15px">
+                                    <label asp-for="CompanyId" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                    <select id="companySelect" 
+                                        asp-for="CompanyId" 
+                                        class="form-select" 
+                                        onchange="ChangeConnectionStringSelectChildren()"
+                                            asp-items="@(new SelectList(Model?.Companies ?? new List<AdminAllCompaniesForSelectListVM>(), "Id", "Name"))">
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-15px">
+                                    <label asp-for="ActiveConnectionStringId" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                    <select id="connectionStringSelect" asp-for="ActiveConnectionStringId" class="form-select" asp-items="@(new SelectList(Model?.ConnectionStrings ?? new List<AdminCompanyConnectionStringViewModel>(), "Id", "ConnectionStringTypeName"))"></select>
+                                    <div class="admin-help-copy mt-1">
+                                        @sharedLocalizer["Admin_EnvironmentKey"]: <span class="font-monospace" id="activeEnvKey">-</span>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-15px">
+                                    <label asp-for="PersSign" class="form-label col-form-label col-md-2"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="PersSign" class="form-control" />
+                                        <span asp-validation-for="PersSign" class="text-danger"></span>
+                                        <div class="admin-inline-switch mt-2">
+                                            <div class="form-check form-switch admin-access-switch">
+                                                <input asp-for="IsWhitelisted" class="form-check-input" />
+                                            </div>
+                                            <label asp-for="IsWhitelisted" class="form-check-label mb-0">
+                                                    @sharedLocalizer["Admin_WhitelistMessage"]
+                                            </label>
+                                        </div>
+                                        <div class="mt-2">
+                                            <div class="admin-inline-switch">
+                                                <div class="form-check form-switch admin-access-switch">
+                                                    <input asp-for="RestrictToAllowedJeevesCompanies" class="form-check-input" id="restrictJeevesCompanies" />
+                                                </div>
+                                                <label asp-for="RestrictToAllowedJeevesCompanies" class="form-check-label mb-0">
+                                                    @sharedLocalizer["Admin_RestrictToSelectedCompanyCodes"]
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-info" id="btn-jeeves-companies">
+                                                @sharedLocalizer["Admin_FetchJeevesCompanies"]
+                                            </button>
+                                            <span class="module-inline-status module-inline-status--muted small ms-2" id="jeevesStatus"></span>
+                                        </div>
+                                        <div class="small mt-2" id="jeevesCompanyList"></div>
+                                        <span asp-validation-for="AllowedJeevesCompanyCodes" class="text-danger"></span>
+                                        <div class="admin-help-copy mt-2">
+                                            @sharedLocalizer["Admin_PersSignHelp"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="Access">
+                    <div class="admin-section-heading">@sharedLocalizer["Admin_Access"]</div>
+                    @if (Model?.Roles?.Count() > 0)
+                    {
+                        @for (int i=0; i < Model.Roles.Count(); i++)
+                        {
+                            <div class="form-check m-1">
+                                <input type="hidden" asp-for="@Model.Roles[i].RoleId" />
+                                <input type="hidden" asp-for="@Model.Roles[i].RoleName" />
+                                <input asp-for="@Model.Roles[i].Selected" class="form-check-input" />
+                                <label class="form-check-label" asp-for="@Model.Roles[i].Selected">
+                                    @Model.Roles[i].RoleName
+                                </label>
+                            </div>   
+                        }
+                    }
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
+            <div class="tab-pane fade" id="Security">
+                <div class="admin-section-heading">@sharedLocalizer["Admin_Security"]</div>
+                @await Html.PartialAsync("_ModuleBanner", new WebApp.ViewModels.Shared.ModuleBannerViewModel
+                {
+                    Title = sharedLocalizer["Admin_ConfirmPasswordReset"],
+                    Message = sharedLocalizer["Admin_ConfirmPasswordResetMessage"],
+                    Tone = "warning",
+                    IconClass = "fa fa-key",
+                    Compact = true
+                })
+                <div class="row mb-15px">
+                    <label class="form-label col-form-label col-md-2">@sharedLocalizer["Admin_Confirm"]</label>
+                    <div class="col-md-10">
+                        <input type="text" id="reset-confirm" class="form-control" placeholder="@sharedLocalizer["Admin_TypeApproveToContinue"]" />
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-info"
+                            data-toggle="ajax-modal"
+                            data-target="#verificationMailPreview"
+                            data-url="@Url.Action("PreviewVerificationTestMail", "Admin", new { userId = Model?.UserId })">
+                        Förhandsgranska testmail
+                    </button>
+                    <span class="module-inline-status module-inline-status--muted small">Visar samma verifieringsmail som användaren får, utan att skicka det.</span>
+                </div>
+                <div class="mt-3">
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            asp-action="ResetUserPassword"
+                            asp-controller="Admin"
+                            asp-route-userId="@Model?.UserId"
+                            onclick="return confirmReset();"
+                            id="reset-btn"
+                            disabled>
+                        @sharedLocalizer["Admin_ResetPassword"]
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button id="update-profile-button" type="submit" class="btn btn-sm btn-primary flex-fill">@sharedLocalizer["Save"]</button>
+        </div>
+
+
+    <script type="text/javascript">
+        function ChangeConnectionStringSelectChildren()
+        {
+            console.log("ChangeConnectionStringSelectChildren called");
+            const companySelect = document.getElementById('companySelect');
+            const connectionStringSelect = document.getElementById('connectionStringSelect');
+            var selectedCompanyId = companySelect.value;
+            console.log("Selected company ID:", selectedCompanyId);
+            var filteredConnectionStrings = GetConnectionStringsByCompanyId(selectedCompanyId);
+            console.log(filteredConnectionStrings);
+
+            connectionStringSelect.innerHTML = "";
+            for (var i = 0; i < filteredConnectionStrings.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = filteredConnectionStrings[i].id;
+                opt.innerHTML = filteredConnectionStrings[i].connectionStringTypeName;
+                connectionStringSelect.appendChild(opt);
+            };
+            updateActiveEnvKey();
+            clearJeevesCompanies();
+        }
+
+        function GetConnectionStringsByCompanyId(companyId){
+            const allConnectionStrings = @Html.Raw(Json.Serialize(Model?.AllConnectionStrings));
+            console.log("All connection strings:", allConnectionStrings);
+            const filteredList = allConnectionStrings.filter(cs => cs.companyId.toString().toLowerCase() === companyId.toLowerCase());
+            return filteredList;
+        }
+
+        function formatEnvKey(connectionStringId) {
+            if (!connectionStringId) return '-';
+            return `CONNECTION_STRING_${connectionStringId.replace(/-/g, '').toUpperCase()}`;
+        }
+
+        function updateActiveEnvKey() {
+            const connectionStringSelect = document.getElementById('connectionStringSelect');
+            const envKey = document.getElementById('activeEnvKey');
+            if (!connectionStringSelect || !envKey) return;
+            envKey.textContent = formatEnvKey(connectionStringSelect.value);
+        }
+
+        function clearJeevesCompanies() {
+            const list = document.getElementById('jeevesCompanyList');
+            const status = document.getElementById('jeevesStatus');
+            if (list) list.innerHTML = '';
+            if (status) {
+                status.textContent = '';
+                status.classList.remove('module-inline-status--info', 'module-inline-status--success', 'module-inline-status--warning', 'module-inline-status--danger');
+                status.classList.add('module-inline-status--muted');
+            }
+        }
+
+        function setJeevesStatus(tone, text) {
+            const status = document.getElementById('jeevesStatus');
+            if (!status) return;
+            status.textContent = text || '';
+            status.classList.remove('module-inline-status--muted', 'module-inline-status--info', 'module-inline-status--success', 'module-inline-status--warning', 'module-inline-status--danger');
+            status.classList.add(`module-inline-status--${tone}`);
+        }
+
+        function getSelectedCompanyCodes() {
+            const inputs = document.querySelectorAll('input[name="AllowedJeevesCompanyCodes"]:checked');
+            return Array.from(inputs).map(x => Number(x.value));
+        }
+
+        function renderJeevesCompanies(items) {
+            const list = document.getElementById('jeevesCompanyList');
+            const restrictCheckbox = document.getElementById('restrictJeevesCompanies');
+            if (!list) return;
+
+            const existingSelected = new Set(getSelectedCompanyCodes());
+            list.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                list.innerHTML = '<div class="text-muted">@sharedLocalizer["Admin_NoCompaniesFound"]</div>';
+                return;
+            }
+
+            items.forEach((item) => {
+                const row = document.createElement('div');
+                row.className = 'form-check';
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.className = 'form-check-input';
+                input.name = 'AllowedJeevesCompanyCodes';
+                input.id = `allowed-company-${item.companyCode}`;
+                input.value = item.companyCode;
+                input.checked = existingSelected.has(item.companyCode);
+                input.disabled = !(restrictCheckbox && restrictCheckbox.checked);
+
+                const label = document.createElement('label');
+                label.className = 'form-check-label';
+                label.htmlFor = input.id;
+                label.textContent = `${item.companyCode} · ${item.name}${item.isDefault ? ' (default)' : ''}`;
+
+                row.appendChild(input);
+                row.appendChild(label);
+                list.appendChild(row);
+            });
+        }
+
+        function setAllowedCodesInputsEnabled(enabled) {
+            const inputs = document.querySelectorAll('input[name="AllowedJeevesCompanyCodes"]');
+            inputs.forEach((input) => {
+                input.disabled = !enabled;
+            });
+        }
+
+        async function loadJeevesCompanies() {
+            const status = document.getElementById('jeevesStatus');
+            const list = document.getElementById('jeevesCompanyList');
+            const persSignInput = document.getElementById('PersSign');
+            const companySelect = document.getElementById('companySelect');
+            const connectionStringSelect = document.getElementById('connectionStringSelect');
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!status || !list || !persSignInput || !companySelect || !connectionStringSelect || !tokenInput) return;
+
+            const persSign = (persSignInput.value || '').trim();
+            const companyId = companySelect.value;
+            const connectionStringId = connectionStringSelect.value;
+            if (!persSign) {
+                setJeevesStatus('warning', '@sharedLocalizer["Admin_FillPersSignFirst"]');
+                return;
+            }
+            if (!connectionStringId) {
+                setJeevesStatus('warning', '@sharedLocalizer["Admin_SelectActiveEnvironmentFirst"]');
+                return;
+            }
+
+            setJeevesStatus('info', '@sharedLocalizer["Admin_Loading"]');
+            list.innerHTML = '';
+
+            try {
+                const body = new URLSearchParams({
+                    companyId,
+                    connectionStringId,
+                    persSign,
+                    __RequestVerificationToken: tokenInput.value
+                });
+
+                const res = await fetch('/Admin/GetJeevesCompanies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body,
+                    credentials: 'same-origin'
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data?.success) {
+                    setJeevesStatus('danger', data?.message || '@sharedLocalizer["Admin_CouldNotFetchCompanies"]');
+                    return;
+                }
+                setJeevesStatus('success', `@sharedLocalizer["Admin_Found"] ${data.items?.length || 0} @sharedLocalizer["Company"].Value.ToLowerInvariant()`);
+                renderJeevesCompanies(data.items || []);
+            } catch (err) {
+                setJeevesStatus('danger', '@sharedLocalizer["Admin_CouldNotFetchCompanies"]');
+            }
+        }
+
+        function confirmReset() {
+            const input = document.getElementById('reset-confirm');
+            if (!input) return false;
+            const val = input.value.trim().toLowerCase();
+            if (val !== 'godkänner') {
+                alert("@sharedLocalizer["Admin_MustTypeApproveToResetPassword"]");
+                return false;
+            }
+            return true;
+        }
+
+        // Enable reset button only when text matches
+        const resetInput = document.getElementById('reset-confirm');
+        const resetBtn = document.getElementById('reset-btn');
+        if (resetInput && resetBtn) {
+            resetInput.addEventListener('input', () => {
+                const val = resetInput.value.trim().toLowerCase();
+                const ok = val === 'godkänner';
+                resetBtn.disabled = !ok;
+                if (ok) {
+                    resetBtn.classList.remove('disabled');
+                } else {
+                    resetBtn.classList.add('disabled');
+                }
+            });
+        }
+
+        const connectionStringSelect = document.getElementById('connectionStringSelect');
+        if (connectionStringSelect) {
+            connectionStringSelect.addEventListener('change', () => {
+                updateActiveEnvKey();
+                clearJeevesCompanies();
+            });
+        }
+
+        const jeevesBtn = document.getElementById('btn-jeeves-companies');
+        if (jeevesBtn) {
+            jeevesBtn.addEventListener('click', () => loadJeevesCompanies());
+        }
+
+        const restrictJeevesCompanies = document.getElementById('restrictJeevesCompanies');
+        if (restrictJeevesCompanies) {
+            restrictJeevesCompanies.addEventListener('change', () => {
+                setAllowedCodesInputsEnabled(restrictJeevesCompanies.checked);
+            });
+        }
+
+        const initialCompanies = @Html.Raw(Json.Serialize(Model?.JeevesCompanies ?? new List<Entities.User.JeevesCompanyVM>()));
+        const initialAllowedCodes = @Html.Raw(Json.Serialize(Model?.AllowedJeevesCompanyCodes ?? new List<int>()));
+        renderJeevesCompanies(initialCompanies || []);
+        if (initialAllowedCodes && initialAllowedCodes.length > 0) {
+            const allowedSet = new Set(initialAllowedCodes);
+            document.querySelectorAll('input[name="AllowedJeevesCompanyCodes"]').forEach((input) => {
+                input.checked = allowedSet.has(Number(input.value));
+            });
+        }
+        setAllowedCodesInputsEnabled(restrictJeevesCompanies && restrictJeevesCompanies.checked);
+
+        updateActiveEnvKey();
+    </script>
+   
+</form>
+</div>

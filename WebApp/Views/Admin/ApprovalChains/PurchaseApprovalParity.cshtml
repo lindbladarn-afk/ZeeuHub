@@ -1,0 +1,178 @@
+@model WebApp.ViewModels.Admin.ApprovalChains.ApprovalChainPurchaseParityPageViewModel
+@using System.Globalization
+@{
+    // Internal control surface for comparing portal approval decisions against the legacy Jeeves rule path.
+    ViewData["Title"] = "Paritetskontroll för attestkedja";
+    var culture = CultureInfo.GetCultureInfo("sv-SE");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page dashboard-readable module-page">
+    <div class="module-page-header">
+        <div>
+            <div class="dashboard-card-title">Admin</div>
+            <h1 class="module-page-title">Paritetskontroll</h1>
+            <div class="module-page-subtitle">Jämför portalens attestregel mot Jeeves gamla beslut utan att skriva tillbaka något.</div>
+        </div>
+        <div class="module-page-meta text-end">
+            <div>@(string.IsNullOrWhiteSpace(Model.RuntimeCompanyName) ? "Ingen aktiv bolagskontext" : Model.RuntimeCompanyName)</div>
+            <div>Approval Chains</div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form asp-action="PurchaseApprovalParity" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <div class="col-md-3">
+                    <label asp-for="CompanyCode" class="form-label"></label>
+                    <input asp-for="CompanyCode" class="form-control" />
+                    <span asp-validation-for="CompanyCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="PurchaseOrderNumber" class="form-label"></label>
+                    <input asp-for="PurchaseOrderNumber" class="form-control" />
+                    <span asp-validation-for="PurchaseOrderNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="FlowId" class="form-label"></label>
+                    <input asp-for="FlowId" class="form-control" />
+                    <span asp-validation-for="FlowId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CurrentApproverPersSign" class="form-label"></label>
+                    <input asp-for="CurrentApproverPersSign" class="form-control" />
+                    <span asp-validation-for="CurrentApproverPersSign" class="text-danger small"></span>
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-search me-2"></i>Kör kontroll
+                    </button>
+                </div>
+                <div class="col-12">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Result is not null)
+    {
+        <div class="row g-3 mb-3">
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-uppercase text-muted small">Beställning</div>
+                        <div class="h5 mb-1">@Model.Result.Order?.PurchaseOrderNumber.ToString("N0", culture)</div>
+                        <div class="text-muted small">Företag @Model.Result.Order?.CompanyCode</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-uppercase text-muted small">Ordertyp</div>
+                        <div class="h5 mb-1">@Model.Result.Order?.PurchaseOrderType</div>
+                        <div class="text-muted small">Flow @Model.FlowId</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-uppercase text-muted small">Portalen</div>
+                        <div class="h5 mb-1">@Model.Result.PortalDecision.Kind</div>
+                        <div class="text-muted small">Regel @Model.Result.PortalDecision.RuleSqlIdentity</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-uppercase text-muted small">Jeeves</div>
+                        <div class="h5 mb-1">@Model.Result.JeevesDecision.Kind</div>
+                        <div class="text-muted small">Regel @Model.Result.JeevesDecision.RuleSqlIdentity</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <strong>Resultat</strong>
+                <span class="badge @(Model.Result.Matches ? "bg-success" : "bg-warning text-dark")">
+                    @(Model.Result.Matches ? "Matchar" : "Avvikelse")
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="fw-semibold mb-2">Portal</div>
+                            <dl class="row mb-0 small">
+                                <dt class="col-sm-5">Typ</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.Kind</dd>
+                                <dt class="col-sm-5">Nästa attestant</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.NextApproverPersSign</dd>
+                                <dt class="col-sm-5">Beloppsgräns</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.Limit?.ToString("N2", culture)</dd>
+                                <dt class="col-sm-5">Negativ gräns</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.NegativeLimit?.ToString("N2", culture)</dd>
+                                <dt class="col-sm-5">Defaultregel</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.UsedDefaultRule</dd>
+                                <dt class="col-sm-5">Skickar mail</dt>
+                                <dd class="col-sm-7">@Model.Result.PortalDecision.SendMail</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="fw-semibold mb-2">Jeeves</div>
+                            <dl class="row mb-0 small">
+                                <dt class="col-sm-5">Typ</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.Kind</dd>
+                                <dt class="col-sm-5">Nästa attestant</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.NextApproverPersSign</dd>
+                                <dt class="col-sm-5">Beloppsgräns</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.Limit?.ToString("N2", culture)</dd>
+                                <dt class="col-sm-5">Negativ gräns</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.NegativeLimit?.ToString("N2", culture)</dd>
+                                <dt class="col-sm-5">Defaultregel</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.UsedDefaultRule</dd>
+                                <dt class="col-sm-5">Skickar mail</dt>
+                                <dd class="col-sm-7">@Model.Result.JeevesDecision.SendMail</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <div class="fw-semibold mb-2">Skillnader</div>
+                    @if (Model.Result.Differences.Count == 0)
+                    {
+                        <div class="alert alert-success mb-0">Inga skillnader hittades mellan portal och Jeeves för den här beställningen.</div>
+                    }
+                    else
+                    {
+                        <ul class="list-group">
+                            @foreach (var difference in Model.Result.Differences)
+                            {
+                                <li class="list-group-item">@difference</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-secondary">
+            Kör en kontroll för att se om portalreglerna och Jeeves ger samma attestbeslut.
+        </div>
+    }
+</div>

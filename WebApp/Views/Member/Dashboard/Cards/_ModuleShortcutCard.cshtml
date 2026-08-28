@@ -1,0 +1,15 @@
+@* Provides a dashboard entry point to an operational module. *@
+@model WebApp.Models.Dashboard.DashboardCardViewModel
+@{
+    var card = Model.Data as WebApp.Models.Dashboard.ModuleShortcutCardViewModel ?? new();
+}
+<div class="card kpi-card h-100"><div class="card-body d-flex flex-column">
+    <div class="dashboard-card-title">@Model.Title</div>
+    @if (card.OpenCount > 0)
+    {
+        <div class="kpi-value mt-2">@card.OpenCount st</div>
+    }
+    <p class="dashboard-card-subtitle mt-2 mb-1">@card.StatusSummary</p>
+    <div class="small text-muted">@card.Detail</div>
+    <a asp-controller="@card.Controller" asp-action="@card.Action" class="btn btn-portal btn-portal-outline btn-sm mt-auto align-self-start">@card.ActionLabel</a>
+</div></div>
